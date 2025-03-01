@@ -1,0 +1,138 @@
+# == build ==
+# docker compose build
+
+# == run ==
+# run as production build
+# docker compose -f docker-compose.yaml up
+# run as development build
+# docker compose -f docker-compose.yaml -f webapp-dev.yaml up
+# run as test build
+# docker compose -f docker-compose.yaml -f webapp-test.yaml up
+
+# == reset ==
+# resets all data
+# docker compose down -v
+
+services:
+  inference:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: apps/inference/Dockerfile
+      args:
+        BUILD_TYPE: nocuda # ${BUILD_TYPE:-nocuda} # Use nocuda by default, override with BUILD_TYPE=cuda
+        CUDA_VERSION: "12.1.0"
+        UBUNTU_VERSION: "22.04"
+    ports:
+      - "5002:5002"
+    environment:
+      - MODEL_ID=gpt2-small
+      - OVERRIDE_MODEL_ID=gpt2-small
+      - MODEL_DTYPE=float32
+      - SAE_DTYPE=float32
+      - SAE_SETS=["res-jb"]
+      - MAX_LOADED_SAES=200
+      - HF_TOKEN=${HF_TOKEN}
+      - SECRET=${INFERENCE_SECRET}
+      - SENTRY_DSN=${SENTRY_DSN_INFERENCE}
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    #     limits:
+    #       memory: 8G
+
+  autointerp:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: apps/autointerp/Dockerfile
+      args:
+        BUILD_TYPE: nocuda # ${BUILD_TYPE:-nocuda}
+        CUDA_VERSION: "12.1.0"
+        UBUNTU_VERSION: "22.04"
+    ports:
+      - "5003:5003"
+    environment:
+      - SECRET=${AUTOINTERP_SECRET}
+      - SENTRY_DSN=${SENTRY_DSN_AUTOINTERP}
+    command: >
+      python -m uvicorn server:app
+      --host 0.0.0.0
+      --port 5003
+      --workers 1
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+    #     limits:
+    #       memory: 8G
+
+  webapp:
+    build:
+      context: .
+      dockerfile: apps/webapp/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - NEXT_PUBLIC_URL=http://localhost:3000
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=88888888888888888888888888888888
+      - POSTGRES_PRISMA_URL=postgres://postgres:postgres@postgres:5432/postgres?pgbouncer=true&connect_timeout=15
+      - POSTGRES_URL_NON_POOLING=postgres://postgres:postgres@postgres:5432/postgres
+      - NEXT_PUBLIC_ENABLE_SIGNIN=false
+      - USE_LOCALHOST_INFERENCE=true
+      - INFERENCE_SERVER_SECRET=${INFERENCE_SECRET}
+      - AUTOINTERP_SERVER_SECRET=${AUTOINTERP_SECRET}
+      - NEXT_PUBLIC_STEER_FORCE_ALLOW_INSTRUCT_MODELS=gemma-2-2b-it
+      - OPENAI_API_KEY=${OPENAI_API_KEY} # THIS IS REQUIRED FOR EXPLANATION SEARCH TO WORK!
+      - IS_DOCKER_COMPOSE=true
+    depends_on:
+      - inference
+      - autointerp
+      - db-init
+      - postgres
+  db-init:
+    build:
+      context: .
+      dockerfile: apps/webapp/Dockerfile
+    command: >
+      sh -c "npm run db:migrate:deploy && npm run db:seed"
+    environment:
+      - POSTGRES_PRISMA_URL=postgres://postgres:postgres@postgres:5432/postgres?pgbouncer=true&connect_timeout=15
+      - POSTGRES_URL_NON_POOLING=postgres://postgres:postgres@postgres:5432/postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: pgvector/pgvector:pg15
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/webapp/prisma/pgvector-init:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: memicos-network

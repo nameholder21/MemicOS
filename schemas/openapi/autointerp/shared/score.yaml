@@ -1,0 +1,13 @@
+openapi: 3.0.0
+info:
+  title: MemicOS - AutoInterp Shared Score
+  version: 1.0.0
+
+components:
+  schemas:
+    NPScoreFuzzDetectionType:
+      type: string
+      enum: [FUZZ, DETECTION]
+      description: Type of scoring method, either fuzz or detection
+
+paths: {}

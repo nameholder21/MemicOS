@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "memicos"
+version = "1.0.12"
+description = "MemicOS (Official)"
+authors = ["johnny <johnny@memicos.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-dotenv = "^1.0.1"
+requests = "^2.32.3"
+huggingface-hub = "^0.26.2"
+pandas = "^2.2.3"
+tiny-dashboard = "^0.2.1"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+pytest = "^8.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120

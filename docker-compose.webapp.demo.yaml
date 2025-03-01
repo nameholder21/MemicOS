@@ -1,0 +1,11 @@
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: apps/webapp/Dockerfile
+      args:
+        ENV_FILE: .env.demo
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.demo

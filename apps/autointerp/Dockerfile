@@ -1,0 +1,75 @@
+# Build the image
+# from root directory
+# CPU
+# docker build --platform=linux/amd64 -t memicos-autointerp:cpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=nocuda .
+# GPU
+# docker build --platform=linux/amd64 -t memicos-autointerp:gpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=cuda .
+
+# Push the image to the registry
+# docker tag memicos-autointerp:cpu gcr.io/tokyo-griffin-401620/memicos-autointerp:cpu
+# docker tag memicos-autointerp:gpu gcr.io/tokyo-griffin-401620/memicos-autointerp:gpu
+# docker push gcr.io/tokyo-griffin-401620/memicos-autointerp:cpu
+# docker push gcr.io/tokyo-griffin-401620/memicos-autointerp:gpu
+
+# Run the container
+# replace SECRET and SENTRY_DSN with your own values
+# CPU
+# docker run -p 5003:5003 -e SECRET=[SECRET] -e SENTRY_DSN=[SENTRY_DSN] memicos-autointerp:cpu poetry run autointerp --model_id "gpt2-small" --host "0.0.0.0" --port 5002 --max_loaded_saes 200 --sae_sets res-jb
+# GPU
+# docker run --gpus all -p 5003:5003 -e SECRET=[SECRET] -e SENTRY_DSN=[SENTRY_DSN] memicos-autointerp:gpu poetry run autointerp --model_id "gpt2-small" --host "0.0.0.0" --port 5002 --max_loaded_saes 200 --sae_sets res-jb
+
+ARG BUILD_TYPE
+ARG CUDA_VERSION=12.1.0
+ARG UBUNTU_VERSION=22.04
+
+# NON-CUDA base
+FROM python:3.10-slim AS base-nocuda
+
+# CUDA base
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION} AS base-cuda
+# Nvidia container toolkit
+RUN apt-get update && apt-get install -y \
+    curl gpg
+RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+    && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+RUN apt-get update && apt-get install -y \
+    nvidia-container-toolkit
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    python3.10-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3.10 /usr/bin/python
+
+# Pick the correct base based on the BUILD_TYPE
+FROM base-${BUILD_TYPE:-nocuda} AS final
+
+WORKDIR /app
+
+ENV HOST=0.0.0.0
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    g++ \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the autointerp service code
+COPY apps/autointerp apps/autointerp
+
+# Set working directory to match relative paths in pyproject.toml
+WORKDIR /app/apps/autointerp
+
+# Install dependencies
+RUN pip install --upgrade pip
+RUN pip install -e .
+
+# Expose the port the app runs on
+EXPOSE 5003
+
+# Command to run the application
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "5003", "--workers", "1"]

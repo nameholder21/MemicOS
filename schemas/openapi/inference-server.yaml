@@ -1,0 +1,43 @@
+openapi: 3.0.0
+
+info:
+  version: 1.1.0
+  title: MemicOS - Inference Server
+  contact:
+    email: johnny@memicos.org
+  license:
+    name: MIT
+
+servers:
+  - url: /v1
+
+paths:
+  # Activation
+  /activation/single:
+    $ref: "inference/paths/activation/single.yaml"
+  /activation/all:
+    $ref: "inference/paths/activation/all.yaml"
+  /activation/topk-by-token:
+    $ref: "inference/paths/activation/topk-by-token.yaml"
+
+  # Steer
+  /steer/completion:
+    $ref: "inference/paths/steer/completion.yaml"
+  /steer/completion-chat:
+    $ref: "inference/paths/steer/completion-chat.yaml"
+
+  # Util
+  /util/sae-vector:
+    $ref: "inference/paths/util/sae-vector.yaml"
+  /util/sae-topk-by-decoder-cossim:
+    $ref: "inference/paths/util/sae-topk-by-decoder-cossim.yaml"
+
+components:
+  securitySchemes:
+    SimpleSecretAuth:
+      type: apiKey
+      in: header
+      name: X-SECRET-KEY
+
+security:
+  - SimpleSecretAuth: []

@@ -1,0 +1,77 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-class
+        name="paragraph"
+        font-size="16px"
+        color="#0c4a6e"
+        font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif"
+        align="left"
+        line-height="1.5"
+        padding-bottom="3px"
+      />
+    </mj-attributes>
+    <mj-style inline="inline"> .link-nostyle { color: inherit;} </mj-style>
+    <mj-style inline="inline"> .link-nounderline { text-decoration: none;} </mj-style>
+    <mj-style inline="inline"> .pixelated { image-rendering: pixelated; } </mj-style>
+  </mj-head>
+  <mj-body background-color="#efefef">
+    <mj-section>
+      <mj-column>
+        <mj-image width="210px" src="https://memicos.org/logowithtext.png"></mj-image>
+        <!-- email title -->
+        <mj-text
+          font-size="20px"
+          align="left"
+          padding-top="30px"
+          font-weight="500"
+          color="#0c4a6e"
+          font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif"
+        >
+          Welcome&mdash;
+        </mj-text>
+        <!-- <mj-divider border-color="#075985"></mj-divider> -->
+
+        <mj-text mj-class="paragraph">
+          MemicOS is a free and open source platform for AI interpretability.
+        </mj-text>
+        <mj-text mj-class="paragraph"
+          >Search, test, and experiment with AI models, or upload your own data to explore and share. Got any feature
+          requests? Just reply to this email.</mj-text
+        >
+        <mj-button
+          align="center"
+          font-size="16px"
+          font-weight="500"
+          background-color="#0369a1"
+          color="#eef2ff"
+          width="200px"
+          line-height="1.6"
+          border-radius="30px"
+          href="https://memicos.org"
+          font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif"
+          padding-bottom="10px"
+          padding-top="10px"
+          >Explore</mj-button
+        >
+
+        <mj-text mj-class="paragraph">Best,</mj-text>
+        <mj-text mj-class="paragraph" padding-bottom="30px" padding-top="0px">Johnny</mj-text>
+
+        <mj-divider border-color="#075985"></mj-divider>
+
+        <mj-text
+          font-size="14px"
+          color="#94a3b8"
+          font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif"
+          align="center"
+          >You're receiving this because you signed up for MemicOS.<br /><br /><a
+            href="<%= unsubscribe_link%>"
+            class="link-nostyle"
+            >Unsubscribe</a
+          ></mj-text
+        >
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
