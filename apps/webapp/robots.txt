@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /api/og/*
+Disallow: /api

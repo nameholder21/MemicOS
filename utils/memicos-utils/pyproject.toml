@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "memicos-utils"
+version = "1.0.0"
+description = "MemicOS utils - for running batch jobs like auto-interp, exporting data, etc."
+authors = ["MemicOS <johnny@memicos.org>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+typer = {version = "^0.12.0"}
+sae-dashboard = "^0.6.8"
+cuid2 = "^2.0.0"
+python-dotenv = "^1.0.0"
+psycopg2 = "^2.9.9"
+automated-interpretability = "^0.0.7"
+openai = "^1.63.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 

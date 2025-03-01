@@ -1,0 +1,23 @@
+resources:
+  - ../../../base
+namePrefix: cpu-
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: memicos-inference
+      spec:
+        template:
+          spec:
+            containers:
+            - name: memicos-inference
+              image: gcr.io/tokyo-griffin-401620/memicos-inference:cpu
+              imagePullPolicy: Always
+              resources:
+                requests:
+                  cpu: "4"
+                  memory: "48Gi"
+                limits:
+                  cpu: "7"
+                  memory: "56Gi"

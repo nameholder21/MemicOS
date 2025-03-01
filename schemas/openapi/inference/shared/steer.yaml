@@ -1,0 +1,150 @@
+openapi: 3.0.0
+info:
+  title: MemicOS - Inference Shared Steer
+  version: 1.0.0
+
+components:
+  schemas:
+    NPSteerFeature:
+      allOf:
+        - $ref: "../../shared.yaml#/components/schemas/NPFeature"
+        - type: object
+          description: A feature with an additional strength parameter for steering.
+          required:
+            - strength
+          properties:
+            strength:
+              type: number
+              example: 5
+            steering_vector:
+              type: array
+              items:
+                type: number
+
+    NPSteerVector:
+      type: object
+      description: A raw vector for steering, including its hook and strength
+      required:
+        - steering_vector
+        - hook
+        - strength
+      properties:
+        steering_vector:
+          type: array
+          items:
+            type: number
+        strength:
+          type: number
+        hook:
+          type: string
+          example: blocks.0.hook_resid_pre
+
+    NPSteerType:
+      type: string
+      enum: ["STEERED", "DEFAULT"]
+
+    NPSteerMethod:
+      type: string
+      enum: ["SIMPLE_ADDITIVE", "ORTHOGONAL_DECOMP"]
+
+    NPSteerCompletionResponseInner:
+      type: object
+      description: A streamed steering/default response. Output is either the whole response or a chunk, depending on response type. 
+      required:
+        - type
+        - output
+      properties:
+        type:
+          $ref: "#/components/schemas/NPSteerType"
+        output:
+          type: string
+
+    NPSteerChatMessage:
+      type: object
+      required:
+        - content
+        - role
+      properties:
+        content:
+          type: string
+          description: The chat message
+        role:
+          type: string
+          description: The role of the message (eg "model", "user", etc)
+
+    NPSteerChatResult:
+      type: object
+      description: The formatted and unformatted ("raw") chat messages
+      required:
+        - chat_template
+        - raw
+      properties:
+        chat_template:
+          type: array
+          items:
+            $ref: "#/components/schemas/NPSteerChatMessage"
+        raw:
+          type: string
+        type:
+          $ref: "#/components/schemas/NPSteerType"
+
+    SteerCompletionRequest:
+      type: object
+      description: Base request for steering
+      required:
+        - prompt
+        - model
+        - types
+        - n_completion_tokens
+        - temperature
+        - strength_multiplier
+        - freq_penalty
+        - seed
+        - steer_method
+        - normalize_steering
+      properties:
+        prompt:
+          type: string
+          description: Text to pass the model for completion
+        model:
+          type: string
+          description: Name of the model
+        steer_method:
+          $ref: "#/components/schemas/NPSteerMethod"
+        normalize_steering:
+          type: boolean
+          default: false
+        types:
+          type: array
+          items:
+            $ref: "#/components/schemas/NPSteerType"
+          minItems: 1
+          description: Array that specifies whether or not to generate STEERED output, DEFAULT (non-steered) output, or both.
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/NPSteerFeature"
+          description: Features to steer towards or away from
+        vectors:
+          type: array
+          items:
+            $ref: "#/components/schemas/NPSteerVector"
+        n_completion_tokens:
+          type: integer
+          minimum: 1
+          description: Number of completion tokens to generate
+        temperature:
+          type: number
+          minimum: 0
+        strength_multiplier:
+          type: number
+          description: The steering strength will be multiplied by this number
+        freq_penalty:
+          type: number
+        seed:
+          type: number
+        stream:
+          type: boolean
+          description: Whether or not to stream responses using Server Side Events (SSE). Note that the OpenAPI spec does not support SSE - you will receive multiple responses with the same format as non-streaming, except with the "output" field chunked.
+          default: false
+paths: {}

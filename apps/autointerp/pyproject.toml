@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memicos_autointerp"
+version = "1.0.0"
+description = "MemicOS's AutoInterp Server - Based on EleutherAI's sae-auto-interp. Not using Poetry due to issue with xformers library."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["interpretability", "explainable-ai"]
+authors = [
+    {name = "Johnny Lin", email = "johnny@memicos.org"},
+]
+dependencies = [
+    "sae-auto-interp@git+https://github.com/hijohnnylin/sae-auto-interp",
+    "fastapi",
+    "pydantic",
+    "uvicorn",
+    "sentry-sdk[fastapi]",
+    "python-dotenv",
+    "memicos-autointerp-client"
+]
+
+[tool.setuptools.packages.find]
+include = ["memicos_autointerp*"]

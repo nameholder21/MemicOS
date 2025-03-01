@@ -1,0 +1,9 @@
+{
+  "eslint.enable": true,
+  "prettier.prettierPath": "./node_modules/prettier",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "html", "typescriptreact"]
+}

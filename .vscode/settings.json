@@ -1,0 +1,10 @@
+{
+  "eslint.workingDirectories": [
+    { "pattern": "apps/*/" },
+    { "pattern": "packages/*/" }
+  ],
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "files.exclude": {
+    "**/node_modules": true
+  }
+}

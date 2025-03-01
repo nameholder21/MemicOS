@@ -1,0 +1,37 @@
+*.pyc
+
+# Packages
+/dist/*
+
+# Unit test / coverage reports
+.coverage
+.pytest_cache
+
+.DS_Store
+.idea/*
+.python-version
+.vscode/*
+
+/docs/site/*
+.mypy_cache
+
+.venv
+/poetry.toml
+
+/exports
+memicos_utils/exports
+.env
+
+memicos_utils/exports_old
+
+
+temp_dashboards
+dashboards
+
+cached_activations
+
+exports-processing
+
+.ignore-data
+
+ignore-scripts

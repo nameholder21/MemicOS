@@ -1,0 +1,43 @@
+post:
+  summary: For a given prompt, complete it by steering with the given feature or vector
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          allOf:
+            - $ref: "../../shared/steer.yaml#/components/schemas/SteerCompletionRequest"
+            - type: object
+              description: Request for steering instruct models in a chat format
+              required:
+                - steer_special_tokens
+                - prompt
+              properties:
+                steer_special_tokens:
+                  type: boolean
+                  default: true
+                prompt:
+                  type: array
+                  items:
+                    $ref: "../../shared/steer.yaml#/components/schemas/NPSteerChatMessage"
+                  description: Array of chat messages to pass to the model
+  responses:
+    "200":
+      description: Successfully retrieved results
+      content:
+        application/json:
+          schema:
+            type: object
+            description: The steering/default chat responses.
+            required:
+              - outputs
+              - input
+            properties:
+              outputs:
+                type: array
+                items:
+                  $ref: "../../shared/steer.yaml#/components/schemas/NPSteerChatResult"
+              input:
+                $ref: "../../shared/steer.yaml#/components/schemas/NPSteerChatResult"
+    401:
+      $ref: "../../../shared.yaml#/components/responses/UnauthorizedError"

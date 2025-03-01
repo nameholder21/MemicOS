@@ -1,0 +1,27 @@
+resources:
+  - ../../../base
+namePrefix: gpu-lite-
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: memicos-inference
+      spec:
+        template:
+          spec:
+            nodeSelector:
+              cloud.google.com/gke-accelerator: nvidia-l4
+            containers:
+            - name: memicos-inference
+              image: gcr.io/tokyo-griffin-401620/memicos-inference:gpu
+              imagePullPolicy: Always
+              resources:
+                requests:
+                  nvidia.com/gpu: 1
+                  cpu: "7"
+                  memory: "26Gi"
+                limits:
+                  nvidia.com/gpu: 1
+                  cpu: "8"
+                  memory: "26Gi"
