@@ -1,19 +1,47 @@
-# == build ==
-# docker compose build
-
-# == run ==
-# run as production build
-# docker compose -f docker-compose.yaml up
-# run as development build
-# docker compose -f docker-compose.yaml -f webapp-dev.yaml up
-# run as test build
-# docker compose -f docker-compose.yaml -f webapp-test.yaml up
-
-# == reset ==
-# resets all data
-# docker compose down -v
-
 services:
+  webapp:
+    build:
+      context: .
+      dockerfile: apps/webapp/Dockerfile
+      args:
+        ENV_FILE: ${ENV_FILE:-.env.localhost}
+    ports:
+      - "3000:3000"
+    env_file:
+      - ${ENV_FILE:-.env.localhost}
+  db-init:
+    build:
+      context: .
+      dockerfile: apps/webapp/Dockerfile
+    command: >
+      sh -c "npm run db:migrate:deploy && npm run db:seed"
+    environment:
+      - POSTGRES_URL_NON_POOLING=${POSTGRES_URL_NON_POOLING}
+      - POSTGRES_PRISMA_URL=${POSTGRES_PRISMA_URL}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: pgvector/pgvector:pg15
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_URL_NON_POOLING=${POSTGRES_URL_NON_POOLING}
+      - POSTGRES_PRISMA_URL=${POSTGRES_PRISMA_URL}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./apps/webapp/prisma/pgvector-init:/docker-entrypoint-initdb.d
   inference:
     platform: linux/amd64
     build:
@@ -33,7 +61,7 @@ services:
       - SAE_SETS=["res-jb"]
       - MAX_LOADED_SAES=200
       - HF_TOKEN=${HF_TOKEN}
-      - SECRET=${INFERENCE_SECRET}
+      - SECRET=${INFERENCE_SERVER_SECRET}
       - SENTRY_DSN=${SENTRY_DSN_INFERENCE}
     # deploy:
     #   resources:
@@ -57,7 +85,6 @@ services:
     ports:
       - "5003:5003"
     environment:
-      - SECRET=${AUTOINTERP_SECRET}
       - SENTRY_DSN=${SENTRY_DSN_AUTOINTERP}
     command: >
       python -m uvicorn server:app
@@ -73,62 +100,6 @@ services:
     #           capabilities: [gpu]
     #     limits:
     #       memory: 8G
-
-  webapp:
-    build:
-      context: .
-      dockerfile: apps/webapp/Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - HOSTNAME=0.0.0.0
-      - PORT=3000
-      - NEXT_PUBLIC_URL=http://localhost:3000
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=88888888888888888888888888888888
-      - POSTGRES_PRISMA_URL=postgres://postgres:postgres@postgres:5432/postgres?pgbouncer=true&connect_timeout=15
-      - POSTGRES_URL_NON_POOLING=postgres://postgres:postgres@postgres:5432/postgres
-      - NEXT_PUBLIC_ENABLE_SIGNIN=false
-      - USE_LOCALHOST_INFERENCE=true
-      - INFERENCE_SERVER_SECRET=${INFERENCE_SECRET}
-      - AUTOINTERP_SERVER_SECRET=${AUTOINTERP_SECRET}
-      - NEXT_PUBLIC_STEER_FORCE_ALLOW_INSTRUCT_MODELS=gemma-2-2b-it
-      - OPENAI_API_KEY=${OPENAI_API_KEY} # THIS IS REQUIRED FOR EXPLANATION SEARCH TO WORK!
-      - IS_DOCKER_COMPOSE=true
-    depends_on:
-      - inference
-      - autointerp
-      - db-init
-      - postgres
-  db-init:
-    build:
-      context: .
-      dockerfile: apps/webapp/Dockerfile
-    command: >
-      sh -c "npm run db:migrate:deploy && npm run db:seed"
-    environment:
-      - POSTGRES_PRISMA_URL=postgres://postgres:postgres@postgres:5432/postgres?pgbouncer=true&connect_timeout=15
-      - POSTGRES_URL_NON_POOLING=postgres://postgres:postgres@postgres:5432/postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-  postgres:
-    image: pgvector/pgvector:pg15
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./apps/webapp/prisma/pgvector-init:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:
