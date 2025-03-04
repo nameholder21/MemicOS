@@ -18,8 +18,8 @@ this is the monorepo for [memicos.org](memicos.org), the open source interpretab
   - [openapi schema](#openapi-schema)
 - [contributing](#contributing)
 - [appendix](#appendix)
-    - [import data into your local database](#import-data-into-your-local-database)
     - ['make' commands reference](#make-commands-reference)
+    - [import data into your local database](#import-data-into-your-local-database)
     - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
 
 <!-- # ultra-quick start: one-click deploy on vercel
@@ -35,9 +35,7 @@ this sets up the webapp (frontend + api) locally, and connects to a public remot
 
 after following the quick start, you will be able to use memicos for some sources/SAEs we have preloaded in `gpt2-small` and `gemma-2-2b/-it`.
 
-#### warning
-
-since you are connecting to a public, read-only demo database, you will not be able to add new data immediately. you will need to follow [subsequent steps](#i-want-to-use-my-own-database--import-more-memicos-data) to configure your own database that you can write to.
+> ⚠️ **warning:** since you are connecting to a public, read-only demo database, you will not be able to add new data immediately. you will need to follow [subsequent steps](#i-want-to-use-my-own-database--import-more-memicos-data) to configure your own database that you can write to.
 
 #### steps
 
@@ -48,11 +46,11 @@ since you are connecting to a public, read-only demo database, you will not be a
    ```
 3. build the webapp (this will take ~10 min the first time)
    ```
-   make build-webapp-demo
+   make webapp-demo-build
    ```
 4. bring up the webapp
    ```
-   make run-webapp-demo
+   make webapp-demo-run
    ```
 5. once everything is up, open [localhost:3000](http://localhost:3000) to load the home page.
 6. your local instance is connected to the remote demo database and inference servers, with the following SAEs/sources data available:
@@ -62,14 +60,16 @@ since you are connecting to a public, read-only demo database, you will not be a
 | `gpt2-small`                   | `res-jb`, all layers             | a small starter SAE set               |
 | `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers | the SAEs used in the Gemma Scope demo |
 
-7. example things you can do (links work after `make run-webapp demo`)
+7. example things you can do (links work after `make webapp-demo-run`)
    i. steering - [steer gpt2-small on cats](http://localhost:3000/gpt2-small/steer?source=10-res-jb&index=16899&strength=40)
    ii. activation tests/search - [test activation for a gemma-2-2b feature](http://localhost:3000/gemma-2-2b/20-gemmascope-res-16k/502?defaulttesttext=what's%20the%20deal%20with%20airplane%20food%3F)
    iii. search by explanation, [if you configured](<(#why-an-openai-api-key-is-needed-for-search-explanations)>) an `OPENAI_API_KEY` - [search for parrots features](http://localhost:3000/search-explanations/?q=parrots)
    iv. browse dashboards - [a parrot feature](http://localhost:3000/gpt2-small/11-res-jb/23687)
    v. run the [gemma-scope demo](http://localhost:3000/gemma-scope#main)
 
-8. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment):
+8. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment).
+
+> 🔥 **pro-tip:** see all the available `make` commands by running `make help`
 
 # setting up your local environment
 
@@ -86,21 +86,19 @@ ideally, you will probably eventually want to do all of the sub-sections below, 
 
 relying on the demo environment means you are limited to read-only access to a specific set of SAEs. these steps show you how to configure and connect to your own local database. you can then download sources/SAEs of your choosing.
 
-#### warning
+> ⚠️ **warning:** your database will start out empty. you will need to use the admin panel to [import sources/data](#import-data-into-your-local-database) (activations, explanations, etc).
 
-your database will start out empty. you will need to use the admin panel to [import sources/data](#import-data-into-your-local-database) (activations, explanations, etc).
-
-the local database environment does not have any inference servers connected, so you won't be able to do activation testing, steering, etc initially. you will need to [configure a local inference instance]().
+> ⚠️ **warning:** the local database environment does not have any inference servers connected, so you won't be able to do activation testing, steering, etc initially. you will need to [configure a local inference instance]().
 
 #### steps
 
 1. build the webapp
    ```
-   make build-webapp-localhost
+   make webapp-localhost-build
    ```
 2. bring up the webapp
    ```
-   make run-webapp-localhost
+   make webapp-localhost-run
    ```
 3. go to [localhost:3000](http://localhost:3000) to see your local webapp instance, which is now connected to your local database
 4. see the `warnings` above for caveats, and `next steps` to finish setting up
@@ -130,18 +128,18 @@ once you do this section, you'll be able to do local development and quickly see
    ```
 2. install the webapp's dependencies
    ```
-   make install-webapp-localhost
+   make webapp-localhost-install
    ```
 3. run the development instance
    ```
-   make dev-webapp-localhost
+   make webapp-localhost-dev
    ```
 4. go to [localhost:3000](http://localhost:3000) to see your local webapp instance
 
 #### doing local webapp development
 
 - **auto-reload**: when you change any files in the `apps/webapp` subdirectory, the `localhost:3000` will automatically reload
-- **install commands**: you do not need to run `make install-nodejs` again, and you only need to run `make install-webapp-localhost` if dependencies change
+- **install commands**: you do not need to run `make install-nodejs` again, and you only need to run `make webapp-localhost-install` if dependencies change
 
 ## "i want to run/develop inference locally"
 
@@ -149,20 +147,18 @@ once you do this section, you'll be able to do local development and quickly see
 
 once you start using a local environment, you won't be connected to the demo environment's inference instances. this subsection shows you how to run an inference instance locally so you can do things like steering, activation testing, etc on the sources/SAEs you've downloaded.
 
-#### warning
-
-for the local environment we only support running one inference server at a time. this is because you are unlikely to be running multiple models simultaneously on one machine, as they are memory and compute intensive.
+> ⚠️ **warning:** for the local environment, we only support running one inference server at a time. this is because you are unlikely to be running multiple models simultaneously on one machine, as they are memory and compute intensive.
 
 #### steps
 
 1. ensure you have [installed poetry](https://python-poetry.org/docs/#installation)
 2. install the inference server's dependencies
    ```
-   make install-inference-localhost
+   make inference-localhost-install
    ```
 3. run the inference server, using the `MODEL_SOURCESET` argument to specify the `.env.inference.[model_sourceset]` file you're loading from. for this example, we will run `gpt2-small`, and load the `res-jb` sourceset/SAE set, which is configured in the `.env.inference.gpt2-small.res-jb` file. you can see the other [pre-loaded inference configs](#pre-loaded-inference-server-configurations) or [create your own config](#making-your-own-inference-server-configurations) as well.
    ```
-   make dev-inference-localhost MODEL_SOURCESET=gpt2-small.res-jb
+   make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb
    ```
 4. wait for it to load (first time will take longer). when you see `Initialized: True`, the local inference server is now ready on `localhost:5002`
 
@@ -177,22 +173,29 @@ to interact with the inference server, you have a few options - note that this w
 
 #### pre-loaded inference server configurations
 
-we've provided the following inference configs in this repo as examples of how to load a specific model and sourceset for inference.
+we've provided some pre-loaded inference configs as examples of how to load a specific model and sourceset for inference. view them by running `make inference-list-configs`:
 
-- `gpt2-small.res-jb`
-  ```
-  make dev-inference-localhost MODEL_SOURCESET=gpt2-small.res-jb
-  ```
-- `gemma-2-2b-it.gemmascope-res-16k`
-  ```
-  make dev-inference-localhost MODEL_SOURCESET=gemma-2-2b-it.gemmascope-res-16k
-  ```
-- `deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k`
-  ```
-  make dev-inference-localhost MODEL_SOURCESET=deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k
-  ```
+```
+$ make inference-list-configs
 
-these configs are simply loaded from `.env.inference.[config_name]`, and you can inspect the contents of the file to see the configuration options.
+Available Inference Configurations (.env.inference.*)
+================================================
+
+deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k
+    Model: meta-llama/Llama-3.1-8B
+    Source/SAE Sets: '["llamascope-slimpj-res-32k"]'
+    make inference-localhost-dev MODEL_SOURCESET=deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k
+
+gemma-2-2b-it.gemmascope-res-16k
+    Model: gemma-2-2b-it
+    Source/SAE Sets: '["gemmascope-res-16k"]'
+    make inference-localhost-dev MODEL_SOURCESET=gemma-2-2b-it.gemmascope-res-16k
+
+gpt2-small.res-jb
+    Model: gpt2-small
+    Source/SAE Sets: '["res-jb"]'
+    make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb
+```
 
 #### making your own inference server configurations
 
@@ -215,9 +218,9 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
 
 #### doing local inference development
 
-- **auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will automatically reload. this may not be desirable behavior for you, because every time the inference server reloads, it reloads the model and all specified sources. if you want to disable auto-reload, then append `NO_RELOAD=1` to the `make dev-inference-localhost` call, like so:
+- **auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will automatically reload. this may not be desirable behavior for you, because every time the inference server reloads, it reloads the model and all specified sources. if you want to disable auto-reload, then append `NO_RELOAD=1` to the `make inference-localhost-dev` call, like so:
   ```
-  make dev-inference-localhost \
+  make inference-localhost-dev \
   MODEL_SOURCESET=gpt2-small.res-jb \
   NO_RELOAD=1
   ```
@@ -273,17 +276,17 @@ openapi schemas are located under `/schemas`. we use openapi generators to gener
 
 # appendix
 
+### 'make' commands reference
+
+you can view all available `make` commands and brief descriptions of them by running `make help`
+
 ### import data into your local database
 
 if you set up your own database, it will start out empty - no features, explanations, activations, etc. to load this data, there's a built-in `admin panel` where you can download this data for SAEs (or "sources") of your choosing.
 
-#### warning
+> ⚠️ **warning:** the admin panel is finicky and does not currently support resuming imports. if an import is interrupted, you must manually click `re-sync`. the admin panel currently does not check if your download is complete or missing parts - it is up to you to check if the data is complete, and if not, to click `re-sync` to re-download the entire dataset.
 
-the admin panel does not currently support resuming imports. if an import is interrupted, you must manually click `re-sync`. the admin panel currently does not check if your download is complete or missing parts - it is up to you to check if the data is complete, and if not, to click `re-sync`
-
-#### recommendation
-
-download just one single source initially, instead of a `download all` which can be massive and take a long time.
+> ℹ️ **recommendation:** When importing data, start with just one source (like `gpt2-small`@`10-res-jb`) instead of downloading everything at once. This makes it easier to verify the data imported correctly and lets you start using memicos faster.
 
 the instructions below demonstrate how to download the `gpt2-small`@`10-res-jb` SAE data.
 
@@ -294,12 +297,8 @@ the instructions below demonstrate how to download the `gpt2-small`@`10-res-jb` 
 5. once it's done, click `Browse` or use the navbar to try it out: `Jump To`/`Search`/`Steer`.
 6. repeat for other SAE/source data you wish to download.
 
-### 'make' commands reference
-
-you can view all available `make` commands and brief descriptions of them by running `make help`
-
 ### why an openai api key is needed for search explanations
 
 in the webapp, the `search explanations` feature requires you to set an `OPENAI_API_KEY`. otherwise you will get no search results.
 
-this is because the `search explanations` functionality searches for features by semantic similarity. if you search `cat`, it will also return `feline`, `tabby`, `animal`, etc. to do this, it needs to calculate the embedding for your input `cat`. we use openai's embedding api to calculate the embeddings.
+this is because the `search explanations` functionality searches for features by semantic similarity. if you search `cat`, it will also return `feline`, `tabby`, `animal`, etc. to do this, it needs to calculate the embedding for your input `cat`. we use openai's embedding api (specifically, `text-embedding-3-large` with `dimension: 256`) to calculate the embeddings.
