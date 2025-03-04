@@ -13,7 +13,7 @@ COPY apps/webapp apps/webapp
 
 WORKDIR /app/apps/webapp
 
-# Ensure we load the environment variables so that next start picks them up
+# Ensure we load the environment variables so that `next start` picks them up
 ARG ENV_FILE=.env.example
 COPY ${ENV_FILE} /app/apps/webapp/.env.production
 SHELL ["/bin/bash", "-c"]

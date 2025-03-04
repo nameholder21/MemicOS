@@ -1,6 +1,6 @@
 help:  ## Show available commands
-	@echo "In general, the pattern for the commands is [action]-[app]-[environment]. For example, 'make build-webapp-demo' will build the webapp for the demo environment."
-	@awk 'BEGIN {FS = ":.*## "; printf "\nAvailable commands:\n\n"} /^[a-zA-Z_-]+:.*## / { printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo "\n\033[1;35mThe pattern for commands is generally 'make [app]-[environment]-[action]''.\nFor example, 'make webapp-demo-build' will _build_ the _webapp for the demo environment.\033[0m"
+	@awk 'BEGIN {FS = ":.*## "; printf "\n"} /^[a-zA-Z_-]+:.*## / { printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 init-env: ## Initialize the environment
 	@echo "Initializing environment..."
@@ -28,7 +28,7 @@ init-env: ## Initialize the environment
 	fi
 	@echo "Environment initialized successfully."
 
-build-webapp-demo: ## Build Webapp - Public Demo Environment
+webapp-demo-build: ## Webapp: Public Demo Environment - Build
 	@echo "Building the webapp for connecting to the public demo database and servers..."
 	@if ! command -v docker &> /dev/null; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
@@ -36,7 +36,7 @@ build-webapp-demo: ## Build Webapp - Public Demo Environment
 	fi
 	ENV_FILE=.env.demo docker compose build webapp
 
-run-webapp-demo: ## Run Webapp - Public Demo Environment
+webapp-demo-run: ## Webapp: Public Demo Environment - Run
 	@echo "Bringing up the webapp and connecting to the demo database..."
 	@if ! command -v docker &> /dev/null; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
@@ -45,12 +45,12 @@ run-webapp-demo: ## Run Webapp - Public Demo Environment
 	ENV_FILE=.env.demo docker compose --env-file .env.demo --env-file .env up webapp
 
 
-check-webapp-demo: ## Check Webapp - Public Demo Environment
+webapp-demo-check: ## Webapp: Public Demo Environment - Check Config
 	@echo "Printing the webapp configuration - this is useful to see if your environment variables are set correctly."
 	ENV_FILE=.env.demo docker compose config webapp
 
 
-build-webapp-localhost: ## Build Webapp - Localhost Environment
+webapp-localhost-build: ## Webapp: Localhost Environment - Build (Production Build)
 	@echo "Building the webapp for connecting to the localhost database..."
 	@if ! command -v docker &> /dev/null; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
@@ -58,7 +58,7 @@ build-webapp-localhost: ## Build Webapp - Localhost Environment
 	fi
 	ENV_FILE=.env.localhost docker compose build webapp db-init postgres
 
-run-webapp-localhost: ## Run Webapp (Production Build) - Localhost Environment
+webapp-localhost-run: ## Webapp: Localhost Environment - Run (Production Build)
 	@echo "Bringing up the webapp and connecting to the localhost database..."
 	@if ! command -v docker &> /dev/null; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
@@ -66,17 +66,22 @@ run-webapp-localhost: ## Run Webapp (Production Build) - Localhost Environment
 	fi
 	ENV_FILE=.env.localhost docker compose --env-file .env.localhost --env-file .env up webapp db-init postgres
 
-install-nodejs:
+install-nodejs: # Install Node.js for Webapp
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 	# Need to source NVM in the same shell
 	. ${HOME}/.nvm/nvm.sh && nvm install 22
 
-install-webapp-localhost: ## Install Webapp Dependencies for Development - Localhost Environment
+webapp-localhost-install: ## Webapp: Localhost Environment - Install Dependencies (Development Build)
 	@echo "Installing the webapp dependencies for development in the localhost environment..."
+	# check if npm exists
+	if ! command -v npm &> /dev/null; then \
+		echo "Error: npm is not installed. Please install nodejs first with 'make install-nodejs'."; \
+		exit 1; \
+	fi
 	cd apps/webapp && \
 	npm install
 	
-dev-webapp-localhost: ## Run Webapp for Development - Localhost Environment
+webapp-localhost-dev: ## Webapp: Localhost Environment - Run (Development Build)
 	@echo "Bringing up the webapp for development and connecting to the localhost database..."
 	@if ! command -v docker &> /dev/null; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
@@ -84,20 +89,33 @@ dev-webapp-localhost: ## Run Webapp for Development - Localhost Environment
 	fi
 	ENV_FILE=.env.localhost docker compose -f docker-compose.yaml -f webapp-dev.yaml --env-file .env.localhost --env-file .env up webapp db-init postgres
 
-install-inference-localhost: ## Install Inference Dependencies for Development - Localhost Environment
+inference-localhost-install: ## Inference: Localhost Environment - Install Dependencies (Development Build)
 	@echo "Installing the inference dependencies for development in the localhost environment..."
 	cd apps/inference && \
 	poetry install
 
-dev-inference-localhost: ## Run Inference Server for Development - Localhost Environment. Usage: make dev-inference-localhost [MODEL_SOURCESET=gpt2-small.res-jb] [NO_RELOAD=1]
+inference-localhost-dev: ## Inference: Localhost Environment - Run (Development Build). Usage: make inference-localhost-dev [MODEL_SOURCESET=gpt2-small.res-jb] [NO_RELOAD=1]
 	@echo "Bringing up the inference server for development in the localhost environment..."
 	@if [ "$(MODEL_SOURCESET)" != "" ]; then \
 		echo "Using model configuration: .env.inference.$(MODEL_SOURCESET)"; \
 		cd apps/inference && env $$(cat ../../.env.inference.$(MODEL_SOURCESET) | xargs) poetry run uvicorn memicos_inference.server:app --host 0.0.0.0 --port 5002 $${NO_RELOAD:+} $${NO_RELOAD:---reload}; \
 	else \
-		echo "Error: MODEL_SOURCESET not specified. Please specify a model+source configuration, e.g. to load .env.inference.gpt2-small.res-jb, run: make dev-inference-localhost MODEL_SOURCESET=gpt2-small.res-jb"; \
+		echo "Error: MODEL_SOURCESET not specified. Please specify a model+source configuration, e.g. to load .env.inference.gpt2-small.res-jb, run: make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb"; \
 		exit 1; \
 	fi
+
+inference-list-configs: ## Inference: List Configurations (possible values for MODEL_SOURCESET)
+	@echo "\nAvailable Inference Configurations (.env.inference.*)\n================================================\n"
+	@for config in $$(ls .env.inference.*); do \
+		name=$$(echo $$config | sed 's/^.env.inference.//'); \
+		echo "\033[1;36m$$name\033[0m"; \
+		model_id=$$(grep "^MODEL_ID=" $$config | cut -d'=' -f2); \
+		sae_sets=$$(grep "^SAE_SETS=" $$config | cut -d'=' -f2); \
+		echo "    Model: \033[33m$$model_id\033[0m"; \
+		echo "    Source/SAE Sets: \033[32m$$sae_sets\033[0m"; \
+		echo "    \033[1;35mmake inference-localhost-dev MODEL_SOURCESET=$$name\033[0m"; \
+		echo ""; \
+	done
 
 reset-docker-data: ## Reset Docker Data - this deletes your local database!
 	@echo "WARNING: This will delete all your local memicos Docker data and databases!"
