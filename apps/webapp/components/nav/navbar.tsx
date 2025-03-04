@@ -50,7 +50,7 @@ export default function NavBar({ session }: { session: Session | null }) {
               </div>
 
               <p className="font-normal text-sky-800 sm:mt-0 sm:font-normal">MemicOS</p>
-              {DEMO_MODE && (
+              {DEMO_MODE ? (
                 <CustomTooltip
                   trigger={
                     <div className="ml-1.5 flex h-5 items-center justify-center rounded bg-emerald-600 px-2 text-[9px] font-bold leading-none text-white">
@@ -60,8 +60,7 @@ export default function NavBar({ session }: { session: Session | null }) {
                 >
                   <div>This is a mode that demonstrates hosting MemicOS publicly. It has read-only access.</div>
                 </CustomTooltip>
-              )}
-              {IS_LOCALHOST && (
+              ) : IS_LOCALHOST ? (
                 <CustomTooltip
                   trigger={
                     <div className="ml-1.5 flex h-5 items-center justify-center rounded bg-emerald-600 px-2 text-[9px] font-bold leading-none text-white">
@@ -71,6 +70,8 @@ export default function NavBar({ session }: { session: Session | null }) {
                 >
                   <div>Running Locally</div>
                 </CustomTooltip>
+              ) : (
+                ''
               )}
             </Link>
           </div>

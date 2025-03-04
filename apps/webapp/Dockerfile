@@ -3,7 +3,6 @@ RUN mkdir /app
 WORKDIR /app
 
 # Copy package files first
-COPY package.json /app/
 COPY apps/webapp/package.json /app/apps/webapp/
 
 # Install dependencies in a separate layer

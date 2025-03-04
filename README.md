@@ -4,223 +4,244 @@
 
 this is the monorepo for [memicos.org](memicos.org), the open source interpretability platform.
 
-- [quick start (docker compose)](#quick-start-docker-compose)
-  - [level 1 - run your own inference server](#level-1---run-your-own-inference-server)
-  - [level 2 - run your own database](#level-2---run-your-own-database)
-- [===== TODOs Below =====](#-todos-below-)
-  - [choose your own adventure](#choose-your-own-adventure)
-  - [setup: one-click deploy on vercel](#setup-one-click-deploy-on-vercel)
-  - [setup: docker - all services](#setup-docker---all-services)
-    - [configuring inference servers](#configuring-inference-servers)
-  - [setup: local webapp](#setup-local-webapp)
-    - [level 1 - local frontend/api + remote db/support](#level-1---local-frontendapi--remote-dbsupport)
-    - [level 2 - configure your own database](#level-2---configure-your-own-database)
-  - [addendum: import data from memicos](#addendum-import-data-from-memicos)
-  - [addendum: enable search explanations functionality](#addendum-enable-search-explanations-functionality)
-- [architecture / services](#architecture--services)
+- [quick start - local webapp + demo environment](#quick-start---local-webapp--demo-environment)
+- [setting up your local environment](#setting-up-your-local-environment)
+  - ["i want to use a local database / import more memicos data"](#i-want-to-use-a-local-database--import-more-memicos-data)
+  - ["i want to do webapp (frontend + api) development"](#i-want-to-do-webapp-frontend--api-development)
+  - ["i want to run/develop inference locally"](#i-want-to-rundevelop-inference-locally)
+  - ['i want to run/develop autointerp locally\`](#i-want-to-rundevelop-autointerp-locally)
+  - ['i want to do high volume autointerp explanations'](#i-want-to-do-high-volume-autointerp-explanations)
+  - ['i want to generate my own data and upload it to memicos'](#i-want-to-generate-my-own-data-and-upload-it-to-memicos)
+- [architecture](#architecture)
   - [requirements](#requirements)
   - [services](#services)
-    - [openapi schema](#openapi-schema)
-- [contributing / development](#contributing--development)
-  - [using ai](#using-ai)
-  - [TODOs](#todos)
+  - [openapi schema](#openapi-schema)
+- [contributing](#contributing)
+- [appendix](#appendix)
+    - [import data into your local database](#import-data-into-your-local-database)
+    - ['make' commands reference](#make-commands-reference)
+    - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
 
-# quick start (docker compose)
+<!-- # ultra-quick start: one-click deploy on vercel
+TODO, after making repo public -->
 
-objective: set up the webapp (frontend + api) locally, connecting to a remote demo database and inference servers. then, customize [each service](#services).
+# quick start - local webapp + demo environment
 
-1. install [docker desktop](https://docs.docker.com/desktop/)
-2. launch docker desktop and ensure the daemon is running
-3. create an environment file by copying the example .env file
+#### what this does
+
+this sets up the webapp (frontend + api) locally, and connects to a public remote demo database and public inference servers
+
+#### what you'll get
+
+after following the quick start, you will be able to use memicos for some sources/SAEs we have preloaded in `gpt2-small` and `gemma-2-2b/-it`.
+
+#### warning
+
+since you are connecting to a public, read-only demo database, you will not be able to add new data immediately. you will need to follow [subsequent steps](#i-want-to-use-my-own-database--import-more-memicos-data) to configure your own database that you can write to.
+
+#### steps
+
+1. install [docker desktop](https://docs.docker.com/desktop/), and launch it.
+2. generate your local `.env`
    ```
-   cp .env.example .env
+   make init-env
    ```
-4. [optional] for the `search explanations` functionality to work correctly, open `.env` and uncomment `OPENAI_API_KEY` and set your key. save it.
-5. build the docker image from the root repository directory
+3. build the webapp (this will take ~10 min the first time)
    ```
-   docker compose -f docker-compose.webapp.demo.yaml build
+   make build-webapp-demo
    ```
-6. bring up the services
+4. bring up the webapp
    ```
-   docker compose -f docker-compose.webapp.demo.yaml up
+   make run-webapp-demo
    ```
-7. once everything is up, open [localhost:3000](http://localhost:3000) to load the home page.
-8. your local instance is connected to the remote demo database and inference servers, with the following SAEs/sources data available:
+5. once everything is up, open [localhost:3000](http://localhost:3000) to load the home page.
+6. your local instance is connected to the remote demo database and inference servers, with the following SAEs/sources data available:
 
 | model                          | source/sae                       | comment                               |
 | ------------------------------ | -------------------------------- | ------------------------------------- |
-| `gpt2-small`                   | `res-jb`, all layers             | a good starter SAE set                |
+| `gpt2-small`                   | `res-jb`, all layers             | a small starter SAE set               |
 | `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers | the SAEs used in the Gemma Scope demo |
 
-## level 1 - run your own inference server
+7. example things you can do (links work after `make run-webapp demo`)
+   i. steering - [steer gpt2-small on cats](http://localhost:3000/gpt2-small/steer?source=10-res-jb&index=16899&strength=40)
+   ii. activation tests/search - [test activation for a gemma-2-2b feature](http://localhost:3000/gemma-2-2b/20-gemmascope-res-16k/502?defaulttesttext=what's%20the%20deal%20with%20airplane%20food%3F)
+   iii. search by explanation, [if you configured](<(#why-an-openai-api-key-is-needed-for-search-explanations)>) an `OPENAI_API_KEY` - [search for parrots features](http://localhost:3000/search-explanations/?q=parrots)
+   iv. browse dashboards - [a parrot feature](http://localhost:3000/gpt2-small/11-res-jb/23687)
+   v. run the [gemma-scope demo](http://localhost:3000/gemma-scope#main)
 
-[ TODO ]
+8. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment):
 
-## level 2 - run your own database
+# setting up your local environment
 
-[ TODO ]
+once you've played around with the demo, you will start running into limitations, like having a limited number of models/SAEs to use, or not being able to generate new explanations. this is because the public demo database is read-only.
 
-[click here](#setup-import-data-from-memicos) for how to to import data from memicos, because your local database will be empty to start - with no features, activations, or explanations.
+ideally, you will probably eventually want to do all of the sub-sections below, so you can have everything running locally. however, you may only be interested in specific parts of memicos to start:
 
-# ===== TODOs Below =====
+1. if you want to jump into developing webapp frontend or api with the demo environment, follow [webapp dev](#i-want-to-do-webapp-frontend--api-development)
+2. if you want to start loading more sources/data and relying on your own local database, follow [local database](#i-want-to-use-a-local-database--import-more-memicos-data)
 
-## choose your own adventure
+## "i want to use a local database / import more memicos data"
 
-there are many ways to deploy memicos, depending on what you want to have control/customization over. click a method to get started!
+#### what this does + what you'll get
 
-| method                                                          | who it's for                                                     | complexity | webapp                   | database                      | inference                    | autointerp          |
-| --------------------------------------------------------------- | ---------------------------------------------------------------- | ---------- | ------------------------ | ----------------------------- | ---------------------------- | ------------------- |
-| [one-click deploy on vercel](#setup-one-click-deploy-on-vercel) | just curious and/or ultra-impatient                              | easy       | 🟡<br/>semi-customizable | 🟠<br/>shared public database | 🟠<br/>shared public servers | 🔴<br/>none         |
-| [docker - all services](#setup-docker---all-services)           | you want all of memicos's features and you're ok with docker | medium-ish | 🟢<br/>customizable      | 🟢<br/>customizable           | 🟢<br/>customizable          | 🟢<br/>customizable |
-| [local webapp](#setup-local-webapp)                             | frontend/api development, configurable to add all features       | medium     | 🟢<br/>customizable      | 🟡<br/>configurable           | 🟡<br/>configurable          | 🟡<br/>configurable |
-| [local inference](#setup-local-inference)                       | run inference (steering, activations, etc) with your local GPU   | easy       | 🔴<br/>none              | 🔴<br/>none                   | 🟢<br/>customizable          | 🔴<br/>none         |
-| [local autointerp](#setup-local-autointerp)                     | run and test autointerp (eleuther) locally                       | easy       | 🔴<br/>none              | 🔴<br/>none                   | 🔴<br/>none                  | 🟢<br/>customizable |
+relying on the demo environment means you are limited to read-only access to a specific set of SAEs. these steps show you how to configure and connect to your own local database. you can then download sources/SAEs of your choosing.
 
-## setup: one-click deploy on vercel
+#### warning
 
-[ TODO ]
+your database will start out empty. you will need to use the admin panel to [import sources/data](#import-data-into-your-local-database) (activations, explanations, etc).
 
-## setup: docker - all services
+the local database environment does not have any inference servers connected, so you won't be able to do activation testing, steering, etc initially. you will need to [configure a local inference instance]().
 
-summary: you can use docker compose to set up all services in one command locally. then, you can customize the services.
+#### steps
 
-1. install [docker desktop](https://docs.docker.com/desktop/)
-2. launch docker desktop and ensure the daemon is running
-3. create an environment file by copying the example .env file
+1. build the webapp
    ```
-   cp .env.example .env
+   make build-webapp-localhost
    ```
-4. for the `search explanations` functionality to work correctly, open `.env` and uncomment `OPENAI_API_KEY` and set your key. save it.
-5. build the docker image from the root repository directory (same level as `docker-compose.yaml`)
+2. bring up the webapp
    ```
-   docker compose build
+   make run-webapp-localhost
    ```
-6. bring up the services
+3. go to [localhost:3000](http://localhost:3000) to see your local webapp instance, which is now connected to your local database
+4. see the `warnings` above for caveats, and `next steps` to finish setting up
+
+#### next steps
+
+1. [click here](#import-data-into-your-local-database) for how to import data into your local database (activations, explanations, etc), because your local database will be empty to start
+2. [click here](#i-want-to-rundevelop-inference-locally) for how to bring up a local `inference` service for the model/source/SAE you're working with
+
+## "i want to do webapp (frontend + api) development"
+
+#### what this does
+
+the webapp builds you've been doing so far are _production builds_, which are slow to build, and fast to run. since they are slow to build and don't have debug information, they are not ideal for development.
+
+this subsection installs the development build on your local machine (not docker), then mounts the build inside your docker instance.
+
+#### what you'll get
+
+once you do this section, you'll be able to do local development and quickly see changes that are made, as well as see more informative debug/errors. if you are purely interested in doing frontend/api development for memicos, you don't need to set up anything else!
+
+#### steps
+
+1. install [nodejs](https://nodejs.org) via [node version manager](https://github.com/nvm-sh/nvm)
    ```
-   docker compose -f docker-compose.yaml up
+   make install-nodejs
    ```
-7. once everything is up, open [localhost:3000](http://localhost:3000) to load the home page.
-8. [click here](#setup-import-data-from-memicos) for how to to import data from memicos, because your local database will be empty to start - with no features, activations, or explanations.
-
-### configuring inference servers
-
-the default docker compose configuration brings up a `gpt2-small` inference server and loads the `res-jb` SAEs. you can change which model and SAEs are loaded by editing the `docker-compose.yaml` file - specifically, the environment variables under `services` -> `inference`.
-
-note that you will only be able to run inference on servers you've configured. for example, even if you have downloaded the data for a gemma scope SAE, you won't be able to run inference on any of the SAEs unless you configure the inference server to load a gemma model and the specific gemma scope SAE.
-
-## setup: local webapp
-
-summary: get the memicos frontend and api working locally, first by using the shared public database/inference servers, with the option to later run your own database/services either locally or remotely. after this, you will be able to do frontend and api development!
-
-### level 1 - local frontend/api + remote db/support
-
-1. install nvm (node version manager).
+2. install the webapp's dependencies
    ```
-   touch ~/.profile && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   make install-webapp-localhost
    ```
-2. open a NEW terminal to load the correct paths for `nvm`.
-3. install node v22.
+3. run the development instance
    ```
-   nvm install 22
+   make dev-webapp-localhost
    ```
-4. clone the memicos monorepo and enter the webapp directory.
+4. go to [localhost:3000](http://localhost:3000) to see your local webapp instance
+
+#### doing local webapp development
+
+- **auto-reload**: when you change any files in the `apps/webapp` subdirectory, the `localhost:3000` will automatically reload
+- **install commands**: you do not need to run `make install-nodejs` again, and you only need to run `make install-webapp-localhost` if dependencies change
+
+## "i want to run/develop inference locally"
+
+#### what this does + what you'll get
+
+once you start using a local environment, you won't be connected to the demo environment's inference instances. this subsection shows you how to run an inference instance locally so you can do things like steering, activation testing, etc on the sources/SAEs you've downloaded.
+
+#### warning
+
+for the local environment we only support running one inference server at a time. this is because you are unlikely to be running multiple models simultaneously on one machine, as they are memory and compute intensive.
+
+#### steps
+
+1. ensure you have [installed poetry](https://python-poetry.org/docs/#installation)
+2. install the inference server's dependencies
    ```
-   git clone https://github.com/hijohnnylin/memicos.git
+   make install-inference-localhost
    ```
-5. install the webapp's dependencies.
+3. run the inference server, using the `MODEL_SOURCESET` argument to specify the `.env.inference.[model_sourceset]` file you're loading from. for this example, we will run `gpt2-small`, and load the `res-jb` sourceset/SAE set, which is configured in the `.env.inference.gpt2-small.res-jb` file. you can see the other [pre-loaded inference configs](#pre-loaded-inference-server-configurations) or [create your own config](#making-your-own-inference-server-configurations) as well.
    ```
-   cd memicos/apps/webapp
-   npm install
+   make dev-inference-localhost MODEL_SOURCESET=gpt2-small.res-jb
    ```
-6. run the webapp in development mode with the demo database.
-   ```
-   npm run dev:demo
-   ```
-7. go to [localhost:3000](http://localhost:3000) and start developing in the `memicos/apps/webapp` directory. your browser will automatically refresh on changes.
-8. [click here](#setup-enable-search-explanations) for instructions on how to enable `search explanations`.
+4. wait for it to load (first time will take longer). when you see `Initialized: True`, the local inference server is now ready on `localhost:5002`
 
-### level 2 - configure your own database
+#### using the inference server
 
-summary: set up a postgres 17 database, initialize the schema, and seed it. after this, you will have your own local database, and you can start importing data (features, explanations, activations) from memicos.
+to interact with the inference server, you have a few options - note that this will only work for the model / selected source you have loaded:
 
-**database setup: localhost on macos**
+1.  load the webapp with the [local database setup](#i-want-to-use-a-local-database--import-more-memicos-data), then using the model / selected source as you would normally do on memicos.
+2.  use the pre-generated inference python client at `packages/python/memicos-inference-client` (set environment variable `INFERENCE_SERVER_SECRET` to `public`, or whatever it's set to in `.env.localhost` if you've changed it)
+3.  use the openapi spec, located at `schemas/openapi/inference-server.yaml` to make calls with any client of your choice.
+4.  [TODO #1](https://github.com/hijohnnylin/memicos/issues/1): Use a documentation generator to make a simple tester-server that can be activated with `make doc-inference-localhost`
 
-1. download Postgres.app (with postgres 17) from [postgresapp.com/downloads.html](https://postgresapp.com/downloads.html).
-2. install it by moving it to your applications folder, then open it.
-3. click `initialize`. it should now say `Running`.
-4. initialize the schema and seed the database.
-   ```
-   cd memicos/apps/webapp
-   npm run migrate:localhost && npx env-cmd -f .env.localhost prisma db seed
-   ```
+#### pre-loaded inference server configurations
 
-**running the webapp with a localhost database for development**
+we've provided the following inference configs in this repo as examples of how to load a specific model and sourceset for inference.
 
-1. terminate the webapp if it's running (go to the terminal where it's running, `control+c`).
-2. run the webapp in development mode with the local database (note that it's `dev:locahost` instead of `dev:demo`).
-   ```
-   npm run dev:localhost
-   ```
-3. go to [localhost:3000](http://localhost:3000) and start developing in the `memicos/apps/webapp` directory. your browser will automatically refresh on changes.
+- `gpt2-small.res-jb`
+  ```
+  make dev-inference-localhost MODEL_SOURCESET=gpt2-small.res-jb
+  ```
+- `gemma-2-2b-it.gemmascope-res-16k`
+  ```
+  make dev-inference-localhost MODEL_SOURCESET=gemma-2-2b-it.gemmascope-res-16k
+  ```
+- `deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k`
+  ```
+  make dev-inference-localhost MODEL_SOURCESET=deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k
+  ```
 
-**running the webapp in localhost in production mode**
-sometimes you'll want to make a production build and run it locally. this is much faster and doesn't have unnecessary reloads, but it has no debugging capability.
+these configs are simply loaded from `.env.inference.[config_name]`, and you can inspect the contents of the file to see the configuration options.
 
-1. build the webapp.
+#### making your own inference server configurations
 
-```
-npm run build:localhost
-```
+look at the `.env.inference.*` files for examples on how to make these inference server configurations.
 
-2. run the webapp.
+the `MODEL_ID` is the model id from the [transformerlens model table](https://transformerlensorg.github.io/TransformerLens/generated/model_properties_table.html) and each of `SAE_SETS` is the text after the layer number and hyphen in a memicos source ID - for example, if you have a memicos feature at url `http://memicos.org/gpt2-small/0-res-jb/123`, the `0-res-jb` is the source ID, and the item in the `SAE_SETS` is `res-jb`. This example matches the `.env.inference.gpt2-small.res-jb` file exactly.
 
-```
-npm run start:localhost
-```
+you can find memicos source IDs in the saelens [pretrained saes yaml file](https://github.com/jbloomAus/SAELens/blob/main/sae_lens/pretrained_saes.yaml) or by clicking into models in the [memicos datasets exports](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/) directory.
 
-**importing data into your localhost database**
+**using models not officially supported by transformerlens**
+look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-32k` to see an example of how to load a model not officially supported by transformerlens. this is mostly for swapping in weights of a distilled/fine-tuned model.
 
-[click here](#setup-import-data-from-memicos) for how to import data from memicos, because your local database will be empty to start - with no features, activations, or explanations.
+**loading non-saelens sources/SAEs**
 
-## addendum: import data from memicos
+- [TODO #2](https://github.com/hijohnnylin/memicos/issues/2) document how to load SAEs/sources that are not in saelens pretrained yaml
 
-if you set up your own database, it will start out empty - no features, explanations, activations, etc. to load this data, there's a built-in `admin panel` where you can download this data for SAEs (or "sources") of your choosing.
+**cuda on localhost**
 
-**WARNING: the admin panel does not currently support resuming imports. if an import is interrupted, you must manually click `re-sync`. the admin panel currently does not check if your download is complete or missing parts - once you click "download" and refresh the page, it will assume it was complete. it is up to you to check if the data is complete, and if not, to click `re-sync`.**
+- [TODO #6](https://github.com/hijohnnylin/memicos/issues/6) document example of localhost cuda support
 
-**RECOMMENDATION: downloading just one source initially, instead of a `download all` which can be massive and take a long time.**
+#### doing local inference development
 
-the instructions below demonstrate how to download the `gpt2-small`@`10-res-jb` SAE data. after it's complete, you'll be able to browse, steer, etc.
+- **auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will automatically reload. this may not be desirable behavior for you, because every time the inference server reloads, it reloads the model and all specified sources. if you want to disable auto-reload, then append `NO_RELOAD=1` to the `make dev-inference-localhost` call, like so:
+  ```
+  make dev-inference-localhost \
+  MODEL_SOURCESET=gpt2-small.res-jb \
+  NO_RELOAD=1
+  ```
+- **openapi spec**: new endpoints or modifications to existing endpoints require updating the openapi spec at `schemas/openapi/inference-server.yaml`. then, the inference client will need to be regenerated:
+  ```
+  cd schemas/openapi
+  rm -rf ../packages/python/memicos-inference-client
+  openapi-generator-cli generate -i openapi/inference-server.yaml -g python -o ../packages/python/memicos-inference-client --package-name memicos_inference_client --additional-properties=packageVersion=[BUMPED_SEMANTIC_VERSION_NUMBER]
+  ```
+  [TODO #3](https://github.com/hijohnnylin/memicos/issues/3) - need better instructions on how to update openapi spec/client (or simplify by making it a `make` command)
 
-1. importing data only works in localhost mode. you cannot import data to the public demo database, because that is read-only. ensure you have [configured your own localhost database](#level-2---configure-your-own-database), or you had docker do it for you.
-2. run the production build of the app. for docker, it's `docker compose -f docker-compose.yaml up` from the root directory - otherwise it's `npm run build:localhost && npm run start:localhost` from `memicos/apps/webapp`.
-3. navigate to [http://localhost:3000/admin](http://localhost:3000/admin).
-4. scroll down to `gpt2-small`, and expand `res-jb` with the `▶`.
-5. click `Download` next to `10-res-jb`.
-6. wait patiently! depending on your connection/cpu speed it can take up to 30 minutes or an hour.
-7. once it's done, click `Browse` or use the navbar to try it out: `Jump To`/`Search`/`Steer`.
-8. repeat for other SAE/source data you wish to download.
+## 'i want to run/develop autointerp locally`
 
-## addendum: enable search explanations functionality
+[TODO #5](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
 
-in the webapp, the `search explanations` feature requires you to set an `OPENAI_API_KEY`. otherwise you will get no search results.
+## 'i want to do high volume autointerp explanations'
 
-**why an openai api key is needed**
-the `search explanations` functionality searches for features by semantic similarity. if you search `cat`, it will also return `feline`, `tabby`, `animal`, etc. to do this, it needs to calculate the embedding for your input `cat`. we use openai's embedding api to calculate the embeddings.
+[TODO]
 
-**how to set your openai api key in the webapp**
+## 'i want to generate my own data and upload it to memicos'
 
-1. get your openai api key from [platform.openai.com](https://platform.openai.com).
-2. ensure that the project associated with the api key has access to the `text-embedding-3-large` embedding model: ("settings", "project->limits" on the left hand side).
-3. create or open the `memicos/apps/webapp/.env` file, and add this line to it and save it:
+[TODO]
 
-```
-OPENAI_API_KEY=[your openai api key here]
-```
-
-4. terminate the webapp if it's running (`command+c`), and start it again.
-
-# architecture / services
+# architecture
 
 here's a diagram of how the services/scripts connect in memicos.
 
@@ -234,22 +255,51 @@ you can run memicos on any cloud and on any modern OS. memicos is designed to av
 
 each service can be run independently, with the exception of webapp which relies on a database.
 
-| name       | description                                                                                                                                           | powered by                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| webapp     | serves the memicos.org frontend and [the api](memicos.org/api-doc)                                                                            | [next.js](https://nextjs.org) / react / tailwind |
-| database   | stores features, activations, explanations, users, lists, etc                                                                                         | postgres                                         |
-| inference  | [support] steering, activation testing, search via inference, topk, etc. a separate instance is required for each model you want to run inference on. | python / torch                                   |
-| autointerp | [support] auto-interped explanations and scoring                                                                                                      | python                                           |
+| name       | description                                                                                                                                                  | powered by                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| webapp     | serves the memicos.org frontend and [the api](memicos.org/api-doc)                                                                                   | [next.js](https://nextjs.org) / react / tailwind |
+| database   | stores features, activations, explanations, users, lists, etc                                                                                                | postgres                                         |
+| inference  | [support server] steering, activation testing, search via inference, topk, etc. a separate instance is required for each model you want to run inference on. | python / torch                                   |
+| autointerp | [support server] auto-interped explanations and scoring                                                                                                      | python                                           |
 
-### openapi schema
+## openapi schema
 
-for services to communicate with each other in a typed and consistent way, we use openapi schemas. there are some exceptions - for example, streaming is not officall supported by the openapi spec. however, even in that case, we still try our best to define a schema and use it.
+for services to communicate with each other in a typed and consistent way, we use openapi schemas. there are some exceptions - for example, streaming is not offically supported by the openapi spec. however, even in that case, we still try our best to define a schema and use it.
 openapi schemas are located under `/schemas`. we use openapi generators to generate clients in both typescript and python.
 
-# contributing / development
+# contributing
 
-## using ai
+[TODO]
 
-## TODOs
+# appendix
 
-[ TODO ]
+### import data into your local database
+
+if you set up your own database, it will start out empty - no features, explanations, activations, etc. to load this data, there's a built-in `admin panel` where you can download this data for SAEs (or "sources") of your choosing.
+
+#### warning
+
+the admin panel does not currently support resuming imports. if an import is interrupted, you must manually click `re-sync`. the admin panel currently does not check if your download is complete or missing parts - it is up to you to check if the data is complete, and if not, to click `re-sync`
+
+#### recommendation
+
+download just one single source initially, instead of a `download all` which can be massive and take a long time.
+
+the instructions below demonstrate how to download the `gpt2-small`@`10-res-jb` SAE data.
+
+1. navigate to [localhost:3000/admin](http://localhost:3000/admin).
+2. scroll down to `gpt2-small`, and expand `res-jb` with the `▶`.
+3. click `Download` next to `10-res-jb`.
+4. wait patiently - this can be a _LOT_ of data, and depending on your connection/cpu speed it can take up to 30 minutes or an hour.
+5. once it's done, click `Browse` or use the navbar to try it out: `Jump To`/`Search`/`Steer`.
+6. repeat for other SAE/source data you wish to download.
+
+### 'make' commands reference
+
+you can view all available `make` commands and brief descriptions of them by running `make help`
+
+### why an openai api key is needed for search explanations
+
+in the webapp, the `search explanations` feature requires you to set an `OPENAI_API_KEY`. otherwise you will get no search results.
+
+this is because the `search explanations` functionality searches for features by semantic similarity. if you search `cat`, it will also return `feline`, `tabby`, `animal`, etc. to do this, it needs to calculate the embedding for your input `cat`. we use openai's embedding api to calculate the embeddings.
