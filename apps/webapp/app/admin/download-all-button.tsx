@@ -75,7 +75,14 @@ export default function DownloadAllButton({ modelId, sourceSetName, onDownloadSt
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        handleDownloadAll();
+        if (
+          // eslint-disable-next-line no-alert, no-restricted-globals
+          confirm(
+            'Are you sure you want to download all sources? This may take a long time and if aborted, you will need to manually re-sync the interrupted download.',
+          )
+        ) {
+          handleDownloadAll();
+        }
       }}
       disabled={isDownloading || sourcesToDownload.length === 0 || isAnyDownloadRunning}
       className={`h-7 font-sans ${!isDownloading && sourcesToDownload.length === 0 ? 'hidden' : ''}`}
