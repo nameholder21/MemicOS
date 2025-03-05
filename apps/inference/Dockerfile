@@ -1,5 +1,4 @@
-# Build the image
-# from root directory
+# Build the image - from root directory
 # CPU
 # docker build --platform=linux/amd64 -t memicos-inference:cpu -f apps/inference/Dockerfile --build-arg BUILD_TYPE=nocuda .
 # GPU
@@ -10,25 +9,6 @@
 # docker tag memicos-inference:gpu gcr.io/tokyo-griffin-401620/memicos-inference:gpu
 # docker push gcr.io/tokyo-griffin-401620/memicos-inference:cpu
 # docker push gcr.io/tokyo-griffin-401620/memicos-inference:gpu
-
-# Run the container
-# replace HF_TOKEN and SECRET with your own values
-# CPU
-# docker run \
-#     -p 5002:5002 \
-#     -e SECRET=secret \
-#     -e MODEL_ID=gpt2-small \
-#     -e SAE_SETS='["res-jb"]' \
-#     memicos-inference:cpu
-# #
-# # GPU
-# docker run \
-#     --gpus all \
-#     -p 5002:5002 \
-#     -e SECRET=secret \
-#     -e MODEL_ID=gpt2-small \
-#     -e SAE_SETS='["res-jb"]' \
-#     memicos-inference:gpu
 
 ARG BUILD_TYPE
 ARG CUDA_VERSION=12.1.0

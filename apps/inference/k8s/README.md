@@ -59,8 +59,8 @@ gcloud container clusters get-credentials memicos-inference
 
 # deployments - for updating configs
 
-kubectl apply -k apps/inference/k8s/overlays/cpu/gpt2-small && \
-kubectl apply -k apps/inference/k8s/overlays/cpu/gpt2-small-public && \
+kubectl apply -k k8s/overlays/cpu/gpt2-small && \
+kubectl apply -k k8s/overlays/cpu/gpt2-small-public && \
 kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-a && \
 kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-b && \
 kubectl apply -k k8s/overlays/gpu/gemma-2-2b-public && \
@@ -71,6 +71,8 @@ kubectl apply -k k8s/overlays/gpu/gemma-2-2b && \
 kubectl apply -k k8s/overlays/gpu/gemma-2-9b && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b-b && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-a && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-b && \
 kubectl apply -k k8s/overlays/gpu/llama-31-8b
 
 # restarts to pick up new docker image
@@ -87,6 +89,8 @@ kubectl rollout restart deployment gemma-2-2b-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-9b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-b-gpu-memicos-inference && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-public-a && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-public-b && \
 kubectl rollout restart deployment llama-31-8b-gpu-memicos-inference
 
 # delete example

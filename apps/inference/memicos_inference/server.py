@@ -160,6 +160,7 @@ async def initialize(
             logger.info("Loading custom HF model: %s", custom_hf_model_id)
             hf_model = AutoModelForCausalLM.from_pretrained(
                 custom_hf_model_id,
+                torch_dtype=STR_TO_DTYPE[config.MODEL_DTYPE],
             )
             hf_tokenizer = AutoTokenizer.from_pretrained(custom_hf_model_id)
 
@@ -169,6 +170,7 @@ async def initialize(
             dtype=STR_TO_DTYPE[config.MODEL_DTYPE],
             n_devices=device_count,
             hf_model=hf_model,
+            hf_config=hf_model.config if hf_model else None,
             tokenizer=hf_tokenizer,
             **config.MODEL_KWARGS,
         )
