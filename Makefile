@@ -13,8 +13,9 @@ init-env: ## Initialize the environment
 			echo "Aborted."; \
 			exit 1; \
 		fi; \
+		echo "" > .env; \
+		echo "Cleared existing .env file."; \
 	fi
-	cp .env.example .env
 	@read -p "Enter your OpenAI API key - this is optional, but it is required for Search Explanations to work (press Enter to skip): " api_key; \
 	if [ ! -z "$$api_key" ]; then \
 		echo "OPENAI_API_KEY=$$api_key" >> .env; \

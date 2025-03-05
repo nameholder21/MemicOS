@@ -39,7 +39,7 @@ after following the quick start, you will be able to use memicos for some source
 
 #### steps
 
-1. install [docker desktop](https://docs.docker.com/desktop/), and launch it.
+1. install [docker desktop (UI)](https://docs.docker.com/desktop/) or [docker engine (no UI)](https://docs.docker.com/engine/), and launch it.
 2. generate your local `.env`
    ```
    make init-env
