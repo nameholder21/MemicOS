@@ -8,3 +8,5 @@ README.md
 .env
 .env.*
 !.env.demo
+!.env.example
+!.env.localhost

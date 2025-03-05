@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import torch
 from memicos_inference.config import get_saelens_memicos_directory_df
 
 
@@ -16,7 +17,14 @@ def parse_env_and_args():
     args.model_dtype = os.getenv("MODEL_DTYPE", "float32")
     args.sae_dtype = os.getenv("SAE_DTYPE", "float32")
     args.token_limit = int(os.getenv("TOKEN_LIMIT", "200"))
-    args.device = os.getenv("DEVICE", "cpu")
+    args.device = os.getenv("DEVICE")
+    # set device to mps or cuda if available, otherwise cpu
+    if torch.backends.mps.is_available():
+        args.device = "mps"
+    elif torch.cuda.is_available():
+        args.device = "cuda"
+    else:
+        args.device = "cpu"
     args.include_sae = json.loads(os.getenv("INCLUDE_SAE", "[]"))
     args.exclude_sae = json.loads(os.getenv("EXCLUDE_SAE", "[]"))
     args.model_from_pretrained_kwargs = os.getenv("MODEL_FROM_PRETRAINED_KWARGS", "{}")

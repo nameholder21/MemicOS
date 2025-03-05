@@ -218,11 +218,11 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
 
 #### doing local inference development
 
-- **auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will automatically reload. this may not be desirable behavior for you, because every time the inference server reloads, it reloads the model and all specified sources. if you want to disable auto-reload, then append `NO_RELOAD=1` to the `make inference-localhost-dev` call, like so:
+- **no auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will _NOT_ automatically reload, because server reloads are slow: they reload the model and all sources/SAEs. if you want to enable autoreload, then append `AUTORELOAD=1` to the `make inference-localhost-dev` call, like so:
   ```
   make inference-localhost-dev \
   MODEL_SOURCESET=gpt2-small.res-jb \
-  NO_RELOAD=1
+  AUTORELOAD=1
   ```
 - **openapi spec**: new endpoints or modifications to existing endpoints require updating the openapi spec at `schemas/openapi/inference-server.yaml`. then, the inference client will need to be regenerated:
   ```

@@ -78,7 +78,7 @@ export default function ExplanationsPane({
         }
         return !expType.isAttention;
       })
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      .sort((a, b) => (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0));
     setExplanationTypesFiltered(filtered);
   }, [explanationTypes, currentNeuron, getSourceSet]);
 
