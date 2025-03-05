@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     env_file:
       - ${ENV_FILE:-.env.localhost}
+    depends_on:
+      - db-init # always loads db locally, but only uses it for .localhost env
   db-init:
     build:
       context: .
@@ -48,30 +50,17 @@ services:
       context: .
       dockerfile: apps/inference/Dockerfile
       args:
-        BUILD_TYPE: nocuda # ${BUILD_TYPE:-nocuda} # Use nocuda by default, override with BUILD_TYPE=cuda
+        BUILD_TYPE: ${BUILD_TYPE:-nocuda} # Use nocuda by default, override with BUILD_TYPE=cuda
         CUDA_VERSION: "12.1.0"
         UBUNTU_VERSION: "22.04"
     ports:
       - "5002:5002"
+    env_file:
+      - ${ENV_FILE:-.env.inference.$(MODEL_SOURCESET)}
     environment:
-      - MODEL_ID=gpt2-small
-      - OVERRIDE_MODEL_ID=gpt2-small
-      - MODEL_DTYPE=float32
-      - SAE_DTYPE=float32
-      - SAE_SETS=["res-jb"]
-      - MAX_LOADED_SAES=200
       - HF_TOKEN=${HF_TOKEN}
       - SECRET=${INFERENCE_SERVER_SECRET}
       - SENTRY_DSN=${SENTRY_DSN_INFERENCE}
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
-    #     limits:
-    #       memory: 8G
 
   autointerp:
     platform: linux/amd64
@@ -79,7 +68,7 @@ services:
       context: .
       dockerfile: apps/autointerp/Dockerfile
       args:
-        BUILD_TYPE: nocuda # ${BUILD_TYPE:-nocuda}
+        BUILD_TYPE: ${BUILD_TYPE:-nocuda}
         CUDA_VERSION: "12.1.0"
         UBUNTU_VERSION: "22.04"
     ports:
@@ -91,15 +80,6 @@ services:
       --host 0.0.0.0
       --port 5003
       --workers 1
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
-    #     limits:
-    #       memory: 8G
 
 volumes:
   postgres_data:

@@ -1,3 +1,6 @@
+# Default to nocuda
+BUILD_TYPE ?= nocuda
+
 help:  ## Show available commands
 	@echo "\n\033[1;35mThe pattern for commands is generally 'make [app]-[environment]-[action]''.\nFor example, 'make webapp-demo-build' will _build_ the _webapp for the demo environment.\033[0m"
 	@awk 'BEGIN {FS = ":.*## "; printf "\n"} /^[a-zA-Z_-]+:.*## / { printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -87,22 +90,54 @@ webapp-localhost-dev: ## Webapp: Localhost Environment - Run (Development Build)
 		echo "Error: Docker is not installed. Please install Docker first."; \
 		exit 1; \
 	fi
-	ENV_FILE=.env.localhost docker compose -f docker-compose.yaml -f webapp-dev.yaml --env-file .env.localhost --env-file .env up webapp db-init postgres
+	ENV_FILE=.env.localhost docker compose \
+		-f docker-compose.yaml \
+		-f docker-compose.webapp.dev.yaml \
+		--env-file .env.localhost \
+		--env-file .env \
+		up webapp db-init postgres
 
 inference-localhost-install: ## Inference: Localhost Environment - Install Dependencies (Development Build)
 	@echo "Installing the inference dependencies for development in the localhost environment..."
 	cd apps/inference && \
 	poetry install
 
-inference-localhost-dev: ## Inference: Localhost Environment - Run (Development Build). Usage: make inference-localhost-dev [MODEL_SOURCESET=gpt2-small.res-jb] [NO_RELOAD=1]
+inference-localhost-build: ## Inference: Localhost Environment - Build
+	@echo "Building the inference server for the localhost environment..."
+	ENV_FILE=.env.localhost \
+		BUILD_TYPE=$(BUILD_TYPE) \
+		docker compose \
+		build inference
+
+inference-localhost-build-gpu: ## Inference: Localhost Environment - Build (CUDA)
+	$(MAKE) inference-localhost-build BUILD_TYPE=cuda
+
+inference-localhost-dev: ## Inference: Localhost Environment - Run (Development Build). Usage: make inference-localhost-dev [MODEL_SOURCESET=gpt2-small.res-jb] [AUTORELOAD=1]
 	@echo "Bringing up the inference server for development in the localhost environment..."
 	@if [ "$(MODEL_SOURCESET)" != "" ]; then \
+		if [ ! -f ".env.inference.$(MODEL_SOURCESET)" ]; then \
+			echo "Error: Configuration file .env.inference.$(MODEL_SOURCESET) not found."; \
+			echo "Please run 'make inference-list-configs' to see available configurations."; \
+			exit 1; \
+		fi; \
 		echo "Using model configuration: .env.inference.$(MODEL_SOURCESET)"; \
-		cd apps/inference && env $$(cat ../../.env.inference.$(MODEL_SOURCESET) | xargs) poetry run uvicorn memicos_inference.server:app --host 0.0.0.0 --port 5002 $${NO_RELOAD:+} $${NO_RELOAD:---reload}; \
+		RELOAD=$$([ "$(AUTORELOAD)" = "1" ] && echo "1" || echo "0") \
+		ENV_FILE=.env.inference.$(MODEL_SOURCESET) \
+			docker compose \
+			-f docker-compose.yaml \
+			-f docker-compose.inference.dev.yaml \
+			$(if $(ENABLE_GPU),-f docker-compose.inference.gpu.yaml,) \
+			--env-file .env.inference.$(MODEL_SOURCESET) \
+			--env-file .env.localhost \
+			--env-file .env \
+			up inference; \
 	else \
 		echo "Error: MODEL_SOURCESET not specified. Please specify a model+source configuration, e.g. to load .env.inference.gpt2-small.res-jb, run: make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb"; \
 		exit 1; \
 	fi
+
+inference-localhost-dev-gpu: ## Inference: Localhost Environment - Run (Development Build with CUDA). Usage: make inference-localhost-dev-gpu [MODEL_SOURCESET=gpt2-small.res-jb] [AUTORELOAD=1]
+	$(MAKE) inference-localhost-dev ENABLE_GPU=1 MODEL_SOURCESET=$(MODEL_SOURCESET) AUTORELOAD=$(AUTORELOAD)
 
 inference-list-configs: ## Inference: List Configurations (possible values for MODEL_SOURCESET)
 	@echo "\nAvailable Inference Configurations (.env.inference.*)\n================================================\n"

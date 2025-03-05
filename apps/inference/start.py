@@ -69,7 +69,6 @@ def parse_args():
     )
     parser.add_argument(
         "--device",
-        default="cpu",
         help="Device to run the model on",
     )
     parser.add_argument(
@@ -136,7 +135,8 @@ def main():
     if "TOKEN_LIMIT" not in os.environ:
         os.environ["TOKEN_LIMIT"] = str(args.token_limit)
     if "DEVICE" not in os.environ:
-        os.environ["DEVICE"] = args.device
+        if args.device is not None:
+            os.environ["DEVICE"] = args.device
     if "INCLUDE_SAE" not in os.environ:
         os.environ["INCLUDE_SAE"] = json.dumps(args.include_sae)
     if "EXCLUDE_SAE" not in os.environ:
