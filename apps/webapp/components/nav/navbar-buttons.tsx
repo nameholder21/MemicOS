@@ -36,6 +36,16 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
 
   return (
     <>
+      {IS_LOCALHOST && !DEMO_MODE && (
+        <Link
+          className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white "
+          href="/admin"
+          prefetch={false}
+        >
+          Admin
+        </Link>
+      )}
+
       <DropdownMenu.Root>
         <DropdownMenu.Trigger className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white ">
           Get Started
@@ -119,7 +129,7 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
             onPointerDownOutside={() => {
               setJumpToOpen(false);
             }}
-            className="z-30 flex min-w-[8rem] max-w-[36rem] flex-col divide-slate-100 overflow-hidden rounded-md bg-white p-1 py-1 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
+            className="z-30 flex min-w-[8rem] flex-col divide-slate-100 overflow-hidden rounded-md bg-white p-1 py-1 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
           >
             <div className="flex w-full flex-row justify-between border-b border-b-slate-100 px-7 py-4">
               <div

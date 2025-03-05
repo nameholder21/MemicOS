@@ -42,7 +42,7 @@ webapp-demo-build: ## Webapp: Public Demo Environment - Build
 
 webapp-demo-run: ## Webapp: Public Demo Environment - Run
 	@echo "Bringing up the webapp and connecting to the demo database..."
-	@if ! command -v docker &> /dev/null; then \
+	@if ! which docker > /dev/null 2>&1; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
 		exit 1; \
 	fi
@@ -56,7 +56,7 @@ webapp-demo-check: ## Webapp: Public Demo Environment - Check Config
 
 webapp-localhost-build: ## Webapp: Localhost Environment - Build (Production Build)
 	@echo "Building the webapp for connecting to the localhost database..."
-	@if ! command -v docker &> /dev/null; then \
+	@if ! which docker > /dev/null 2>&1; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
 		exit 1; \
 	fi
@@ -64,7 +64,7 @@ webapp-localhost-build: ## Webapp: Localhost Environment - Build (Production Bui
 
 webapp-localhost-run: ## Webapp: Localhost Environment - Run (Production Build)
 	@echo "Bringing up the webapp and connecting to the localhost database..."
-	@if ! command -v docker &> /dev/null; then \
+	@if ! which docker > /dev/null 2>&1; then \
 		echo "Error: Docker is not installed. Please install Docker first."; \
 		exit 1; \
 	fi
@@ -134,6 +134,7 @@ inference-localhost-dev: ## Inference: Localhost Environment - Run (Development 
 			up inference; \
 	else \
 		echo "Error: MODEL_SOURCESET not specified. Please specify a model+source configuration, e.g. to load .env.inference.gpt2-small.res-jb, run: make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb"; \
+		echo "Please run 'make inference-list-configs' to see available configurations."; \
 		exit 1; \
 	fi
 
@@ -150,6 +151,7 @@ inference-list-configs: ## Inference: List Configurations (possible values for M
 		echo "    Model: \033[33m$$model_id\033[0m"; \
 		echo "    Source/SAE Sets: \033[32m$$sae_sets\033[0m"; \
 		echo "    \033[1;35mmake inference-localhost-dev MODEL_SOURCESET=$$name\033[0m"; \
+		echo "    \033[1;35mmake inference-localhost-dev-gpu MODEL_SOURCESET=$$name\033[0m"; \
 		echo ""; \
 	done
 

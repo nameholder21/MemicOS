@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-TOKENS_PER_YIELD = 5
+TOKENS_PER_YIELD = 2
 
 
 @router.post("/steer/completion-chat")
