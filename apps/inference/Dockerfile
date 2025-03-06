@@ -1,15 +1,3 @@
-# Build the image - from root directory
-# CPU
-# docker build --platform=linux/amd64 -t memicos-inference:cpu -f apps/inference/Dockerfile --build-arg BUILD_TYPE=nocuda .
-# GPU
-# docker build --platform=linux/amd64 -t memicos-inference:gpu -f apps/inference/Dockerfile --build-arg BUILD_TYPE=cuda .
-
-# Push the image to the registry
-# docker tag memicos-inference:cpu gcr.io/tokyo-griffin-401620/memicos-inference:cpu
-# docker tag memicos-inference:gpu gcr.io/tokyo-griffin-401620/memicos-inference:gpu
-# docker push gcr.io/tokyo-griffin-401620/memicos-inference:cpu
-# docker push gcr.io/tokyo-griffin-401620/memicos-inference:gpu
-
 ARG BUILD_TYPE
 ARG CUDA_VERSION=12.1.0
 ARG UBUNTU_VERSION=22.04
