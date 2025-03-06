@@ -27,7 +27,7 @@ class Config:
         sae_sets: List[str] = ["res-jb"],
         model_dtype="float32",
         sae_dtype="float32",
-        secret="secret",
+        secret: Optional[str] = None,
         port=5000,
         token_limit=100,
         saes_path=None,

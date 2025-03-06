@@ -130,7 +130,7 @@ async def initialize(
         # todo: use multiple devices if available
         device_count = 1
 
-        SECRET = os.getenv("SECRET") or ""
+        SECRET = os.getenv("SECRET")
 
         print(f"device in args: {args.device}")
         logger.info(f"device set in args: {args.device}")
@@ -170,7 +170,7 @@ async def initialize(
             dtype=STR_TO_DTYPE[config.MODEL_DTYPE],
             n_devices=device_count,
             hf_model=hf_model,
-            hf_config=hf_model.config if hf_model else None,
+            **({"hf_config": hf_model.config} if hf_model else {}),
             tokenizer=hf_tokenizer,
             **config.MODEL_KWARGS,
         )
@@ -213,6 +213,8 @@ async def check_secret_key(request, call_next):
         return await call_next(request)
 
     config = Config.get_instance()
+    if config.SECRET is None:
+        return await call_next(request)
     secret_key = request.headers.get("X-SECRET-KEY")
     if not secret_key or secret_key != config.SECRET:
         return JSONResponse(
