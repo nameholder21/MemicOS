@@ -16,9 +16,10 @@ this is the monorepo for [memicos.org](memicos.org), the open source interpretab
 - [architecture](#architecture)
   - [requirements](#requirements)
   - [services](#services)
-  - [services are standalone apps](#services-are-standalone-apps)
+    - [services are standalone apps](#services-are-standalone-apps)
+    - [service-specific documentation](#service-specific-documentation)
   - [openapi schema](#openapi-schema)
-  - [service-specific documentation](#service-specific-documentation)
+  - [monorepo directory structure](#monorepo-directory-structure)
 - [security](#security)
 - [contributing](#contributing)
 - [appendix](#appendix)
@@ -173,10 +174,12 @@ once you start using a local environment, you won't be connected to the demo env
 
    ```
    # CUDA
-   make inference-localhost-dev-gpu MODEL_SOURCESET=gpt2-small.res-jb
+   make inference-localhost-dev-gpu \
+        MODEL_SOURCESET=gpt2-small.res-jb
 
    # no CUDA
-   make inference-localhost-dev MODEL_SOURCESET=gpt2-small.res-jb
+   make inference-localhost-dev \
+        MODEL_SOURCESET=gpt2-small.res-jb
    ```
 
 5. wait for it to load (first time will take longer). when you see `Initialized: True`, the local inference server is now ready on `localhost:5002`
@@ -233,18 +236,19 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
 
 #### doing local inference development
 
+- **schema-driven development**: to add new endpoints or change existing endpoints, you will need to start by updating the openapi schemas, then generating clients from that, then finally updating the actual inference and webapp code. for details on how to do this, see the [openapi readme: making changes to the inference server](schemas/README.md#making-changes-to-the-inference-server)
 - **no auto-reload**: when you change any files in the `apps/inference` subdirectory, the inference server will _NOT_ automatically reload, because server reloads are slow: they reload the model and all sources/SAEs. if you want to enable autoreload, then append `AUTORELOAD=1` to the `make inference-localhost-dev` call, like so:
   ```
   make inference-localhost-dev \
-  MODEL_SOURCESET=gpt2-small.res-jb \
-  AUTORELOAD=1
+       MODEL_SOURCESET=gpt2-small.res-jb \
+       AUTORELOAD=1
   ```
-- **openapi spec**: new endpoints or modifications to existing endpoints require updating the openapi spec at `schemas/openapi/inference-server.yaml`. then, the inference client will need to be regenerated. see the [openapi readme](schemas/README.md) for details.
 
 ## 'i want to run/develop autointerp locally`
 
-[TODO #5](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
-TODO - look at the `autointerp` service in [docker-compose.yaml](docker-compose.yaml) and the [autointerp readme](apps/autointerp/README.md)
+- [TODO #5](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
+- TODO - look at the `autointerp` service in [docker-compose.yaml](docker-compose.yaml) and the [autointerp readme](apps/autointerp/README.md)
+- schema-driven development: [openapi readme: making changes to the autointerp server](schemas/README.md#making-changes-to-the-autointerp-server)
 
 ## 'i want to do high volume autointerp explanations'
 
@@ -270,27 +274,37 @@ you can run memicos on any cloud and on any modern OS. memicos is designed to av
 
 ## services
 
-| name       | description                                                                                                                                                  | powered by                                       |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| webapp     | serves the memicos.org frontend and [the api](memicos.org/api-doc)                                                                                   | [next.js](https://nextjs.org) / react / tailwind |
-| database   | stores features, activations, explanations, users, lists, etc                                                                                                | postgres                                         |
-| inference  | [support server] steering, activation testing, search via inference, topk, etc. a separate instance is required for each model you want to run inference on. | python / torch                                   |
-| autointerp | [support server] auto-interp explanations and scoring, using eleutherAI's [delphi](https://github.com/EleutherAI/delphi) (formerly `sae-auto-interp`)        | python                                           |
+| name       | description                                                                                                                                                  | powered by                            |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| webapp     | serves the memicos.org frontend and [the api](memicos.org/api-doc)                                                                                   | [next.js](https://nextjs.org) / react |
+| database   | stores features, activations, explanations, users, lists, etc                                                                                                | postgres                              |
+| inference  | [support server] steering, activation testing, search via inference, topk, etc. a separate instance is required for each model you want to run inference on. | python / torch                        |
+| autointerp | [support server] auto-interp explanations and scoring, using eleutherAI's [delphi](https://github.com/EleutherAI/delphi) (formerly `sae-auto-interp`)        | python                                |
 
-## services are standalone apps
+### services are standalone apps
 
 by design, each service can be run independently as a standalone app. this is to enable extensibility and forkability.
 
 for example, if you like the memicos webapp frontend but want to use a different API for inference, you can do that! just ensure your alternative inference server supports the `schema/openapi/inference-server.yaml` spec, and/or that you modify the memicos calls to inference under `apps/webapp/lib/utils`.
 
+### service-specific documentation
+
+there are draft `README`s for each specific app/service under `apps/[service]`, but they are heavily WIP. you can also check out the `Dockerfile` under the same directory to build your own images.
+
 ## openapi schema
 
 for services to communicate with each other in a typed and consistent way, we use openapi schemas. there are some exceptions - for example, streaming is not offically supported by the openapi spec. however, even in that case, we still try our best to define a schema and use it.
+
+especially for inference and autointerp server development, it is critical to understand and use the instructions under the [openapi readme](schemas/README.md).
+
 openapi schemas are located under `/schemas`. we use openapi generators to generate clients in both typescript and python.
 
-## service-specific documentation
+## monorepo directory structure
 
-there are draft `README`s for each specific app/service under `apps/[service]`, but they are heavily WIP. you can also check out the `Dockerfile` under the same directory to build your own images.
+`apps` - the three memicos services: webapp, inference, and autointerp. most of the code is here.
+`schemas` - the openapi schemas. to make changes to inference and autointerp endpoints, first make changes to their schemas - see details in the [openapi readme](schemas/README.md).
+`packages` - clients generated from the `schemas` using generator tools. you will mostly not need to manually modify these files.
+`utils` - various utilities that help do offline processing, like high volume autointerp, or generating dashboards, or exporting data.
 
 # security
 
@@ -300,8 +314,9 @@ we don't currently have an official bounty program, but we'll try our best to gi
 
 # contributing
 
-TODO - open for contributions / requests in github issues
+TODO
 
+- open for contributions and requests in github
 - feature requests can also be added under [github discussions](https://github.com/hijohnnylin/memicos/discussions) which supports upvoting/etc
 - any skill set/level are welcome to contribute - you can also use ai agents to assist, we've also added some cursorrules files, though not extensive
 
