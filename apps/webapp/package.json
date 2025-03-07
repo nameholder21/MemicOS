@@ -196,7 +196,7 @@
     "tailwindcss-animated": "^1.0.1",
     "tailwindcss-highlights": "^1.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.0",
     "vitest-canvas-mock": "^0.3.3",
