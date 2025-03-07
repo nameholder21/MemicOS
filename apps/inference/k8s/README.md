@@ -96,6 +96,9 @@ you'll probably want to follow the instructions in order, up until and including
 if we're making a config/customization change, or if we want to deploy a new inference instance, we use `kubectl apply -k [path_to_kustomization_dir]`, like so:
 
 ```
+# sets the project_id to fetch the correct image during the kubectl commands later
+export PROJECT_ID=$(gcloud config get-value project)
+
 kubectl apply -k k8s/overlays/cpu/gpt2-small
 kubectl apply -k k8s/overlays/cpu/gpt2-small-public
 kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-a

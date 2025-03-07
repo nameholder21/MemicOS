@@ -12,7 +12,7 @@ patches:
           spec:
             containers:
             - name: memicos-inference
-              image: gcr.io/tokyo-griffin-401620/memicos-inference:cpu
+              image: gcr.io/$(PROJECT_ID)/memicos-inference:cpu
               imagePullPolicy: Always
               resources:
                 requests:
