@@ -11,13 +11,15 @@ this is the monorepo for [memicos.org](memicos.org), the open source interpretab
   - ["i want to run/develop inference locally"](#i-want-to-rundevelop-inference-locally)
   - ['i want to run/develop autointerp locally\`](#i-want-to-rundevelop-autointerp-locally)
   - ['i want to do high volume autointerp explanations'](#i-want-to-do-high-volume-autointerp-explanations)
-  - ['i want to generate my own data and upload it to memicos'](#i-want-to-generate-my-own-data-and-upload-it-to-memicos)
+  - ['i want to generate my own dashboards'](#i-want-to-generate-my-own-dashboards)
+  - ['i want to add my dashboards/data to memicos\`](#i-want-to-add-my-dashboardsdata-to-memicos)
 - [architecture](#architecture)
   - [requirements](#requirements)
   - [services](#services)
   - [services are standalone apps](#services-are-standalone-apps)
   - [openapi schema](#openapi-schema)
   - [service-specific documentation](#service-specific-documentation)
+- [security](#security)
 - [contributing](#contributing)
 - [appendix](#appendix)
     - ['make' commands reference](#make-commands-reference)
@@ -237,30 +239,28 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
   MODEL_SOURCESET=gpt2-small.res-jb \
   AUTORELOAD=1
   ```
-- **openapi spec**: new endpoints or modifications to existing endpoints require updating the openapi spec at `schemas/openapi/inference-server.yaml`. then, the inference client will need to be regenerated.
-  [TODO #3](https://github.com/hijohnnylin/memicos/issues/3) - need better instructions on how to update openapi spec/client (or simplify by making it a `make` command)
-  ```
-  cd schemas/openapi
-  rm -rf ../packages/python/memicos-inference-client
-  openapi-generator-cli generate -i openapi/inference-server.yaml -g python -o ../packages/python/memicos-inference-client --package-name memicos_inference_client --additional-properties=packageVersion=[BUMPED_SEMANTIC_VERSION_NUMBER]
-  ```
+- **openapi spec**: new endpoints or modifications to existing endpoints require updating the openapi spec at `schemas/openapi/inference-server.yaml`. then, the inference client will need to be regenerated. see the [openapi readme](schemas/README.md) for details.
 
 ## 'i want to run/develop autointerp locally`
 
 [TODO #5](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
-TODO - look at `docker-compose.yaml` and/or `apps/autointerp`
+TODO - look at the `autointerp` service in [docker-compose.yaml](docker-compose.yaml) and the [autointerp readme](apps/autointerp/README.md)
 
 ## 'i want to do high volume autointerp explanations'
 
-TODO - look at `utils/memicos_utils/batch-autointerp.py`
+TODO - use [utils/memicos_utils/batch-autointerp.py](utils/memicos_utils/batch-autointerp.py)
 
-## 'i want to generate my own data and upload it to memicos'
+## 'i want to generate my own dashboards'
 
-TODO - look at `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or use [saedashboard - example](https://github.com/jbloomAus/SAEDashboard/blob/main/sae_dashboard/memicos/generating_memicos_outputs.ipynb)
+TODO - use `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or use the [saedashboard example](https://github.com/jbloomAus/SAEDashboard/blob/main/sae_dashboard/memicos/generating_memicos_outputs.ipynb) and then convert it using [this script](`utils/memicos_utils/convert-saedashboard-to-memicos-export.py).
+
+## 'i want to add my dashboards/data to memicos`
+
+TODO - use [utils/memicos_utils/export-data.py](utils/memicos_utils/export-data.py) once you've added your data to your local database.
 
 # architecture
 
-here's a diagram of how the services/scripts connect in memicos.
+here's how the services/scripts connect in memicos. it's easiest to read this diagram by starting at the image of the laptop ("User").
 
 ![architecture diagram](architecture.png)
 
@@ -292,6 +292,12 @@ openapi schemas are located under `/schemas`. we use openapi generators to gener
 
 there are draft `README`s for each specific app/service under `apps/[service]`, but they are heavily WIP. you can also check out the `Dockerfile` under the same directory to build your own images.
 
+# security
+
+please report vulnerabilities to [johnny@memicos.org](mailto:johnny@memicos.org).
+
+we don't currently have an official bounty program, but we'll try our best to give compensation based on the severity of the vulnerability - though it's likely we will not able able to offer awards for any low-severity vulnerabilities.
+
 # contributing
 
 TODO - open for contributions / requests in github issues
@@ -311,7 +317,7 @@ if you set up your own database, it will start out empty - no features, explanat
 
 > ⚠️ **warning:** the admin panel is finicky and does not currently support resuming imports. if an import is interrupted, you must manually click `re-sync`. the admin panel currently does not check if your download is complete or missing parts - it is up to you to check if the data is complete, and if not, to click `re-sync` to re-download the entire dataset.
 
-> ℹ️ **recommendation:** When importing data, start with just one source (like `gpt2-small`@`10-res-jb`) instead of downloading everything at once. This makes it easier to verify the data imported correctly and lets you start using memicos faster.
+> ℹ️ **recommendation:** when importing data, start with just one source (like `gpt2-small`@`10-res-jb`) instead of downloading everything at once. This makes it easier to verify the data imported correctly and lets you start using memicos faster.
 
 the instructions below demonstrate how to download the `gpt2-small`@`10-res-jb` SAE data.
 
