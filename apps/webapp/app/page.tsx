@@ -1,3 +1,4 @@
+import CustomTooltip from '@/components/custom-tooltip';
 import InferenceActivationAllProvider from '@/components/provider/inference-activation-all-provider';
 import { Button } from '@/components/shadcn/button';
 import { DEMO_MODE, IS_LOCALHOST, MEMICOS_EMAIL_ADDRESS, NEXT_PUBLIC_URL } from '@/lib/env';
@@ -57,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function Page() {
   return (
-    <div className="flex w-full cursor-default select-none flex-col items-center justify-center px-0 pt-8 sm:mt-0 sm:px-0">
+    <div className="flex w-full cursor-default select-none flex-col items-center justify-center bg-slate-100 px-0 pt-8 sm:mt-0 sm:px-0">
       {IS_LOCALHOST && !DEMO_MODE && (
         <div className="mb-4 flex w-full max-w-screen-sm flex-col items-center justify-center gap-2 rounded-lg border bg-white px-8 py-4 shadow-sm">
           <div className="text-xs font-bold text-slate-400">You are running a local instance of MemicOS.</div>
@@ -69,7 +70,34 @@ export default function Page() {
           </Link>
         </div>
       )}
-      <div className="x-3 my-2 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 rounded-lg border bg-white px-2 py-7 shadow-sm sm:mb-8 sm:mt-1 sm:flex-row sm:gap-y-0 sm:px-10 sm:py-4">
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-10 sm:mb-1.5 sm:mt-2 sm:flex-col sm:gap-y-1.5 sm:px-3 sm:py-6 sm:pt-3">
+        <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
+          <div className="text-lg font-medium text-slate-800 sm:text-xl">
+            MemicOS is an open{' '}
+            <CustomTooltip
+              trigger={
+                <span className="border-b border-dashed border-slate-800 transition-all hover:scale-105 hover:text-sky-800">
+                  interpretability
+                </span>
+              }
+            >
+              The inner workings of modern AIs are a mystery. This is because AIs are language models that are grown,
+              not designed. The science of understanding what happens inside AI is called interpretability.
+            </CustomTooltip>{' '}
+            platform.
+          </div>
+          <div className="mt-1 text-sm font-normal text-slate-600 sm:text-base">
+            Explore, steer, and experiment on AI models.
+          </div>
+        </div>
+        <Link href="https://docs.memicos.org" target="_blank" rel="noreferrer">
+          <Button variant="default" size="lg" className="gap-x-2">
+            <BookOpenText className="h-5 w-5" />
+            <span>Getting Started</span>
+          </Button>
+        </Link>
+      </div>
+      <div className="my-3 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 rounded-lg border bg-white px-2 py-7 shadow-sm sm:mb-9 sm:mt-1 sm:flex-row sm:gap-y-0 sm:px-10 sm:py-4">
         <div className="mb-2 mt-2 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="text-lg font-bold text-gGreen sm:text-lg">Google DeepMind x MemicOS</div>
           <div className="mt-0.5 text-sm font-normal text-slate-700 sm:text-[14px]">
@@ -84,27 +112,6 @@ export default function Page() {
             <Rocket className="h-5 w-5" />
             <span>Launch</span>
           </Link>
-        </div>
-      </div>
-      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-50 px-0 py-10 sm:mb-3 sm:mt-0 sm:flex-row sm:gap-y-0 sm:px-3 sm:py-6 sm:pt-3">
-        <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
-          <div className="text-lg font-medium text-slate-800 sm:text-xl">
-            MemicOS is an open platform for interpretability research.
-          </div>
-          <div className="mt-0.5 text-sm font-normal text-slate-600 sm:text-base">
-            Explore, steer, and experiment on AI models.
-          </div>
-        </div>
-        <div>
-          <a
-            href="https://docs.memicos.org"
-            target="_blank"
-            rel="noreferrer"
-            className="flex w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-amber-400 px-0 py-2.5 text-sm font-medium text-amber-800 shadow transition-all hover:bg-amber-600 hover:text-white "
-          >
-            <BookOpenText className="h-5 w-5" />
-            <span>Getting Started</span>
-          </a>
         </div>
       </div>
       <div className="grid w-full grid-cols-2 items-center justify-center gap-x-12 gap-y-5 bg-white px-5 py-5 md:flex md:h-[120px] md:min-h-[120px] md:grid-cols-3 md:flex-row md:py-0">
