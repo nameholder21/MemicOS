@@ -1,4 +1,3 @@
-import CustomTooltip from '@/components/custom-tooltip';
 import InferenceActivationAllProvider from '@/components/provider/inference-activation-all-provider';
 import { Button } from '@/components/shadcn/button';
 import { DEMO_MODE, IS_LOCALHOST, MEMICOS_EMAIL_ADDRESS, NEXT_PUBLIC_URL } from '@/lib/env';
@@ -18,8 +17,8 @@ import {
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import InferenceSearcher from '../components/inference-searcher/inference-searcher';
-import HomeModelLayers from './home-modellayers';
+import InferenceSearcher from '../../components/inference-searcher/inference-searcher';
+import HomeModelLayers from '../home-modellayers';
 
 export const viewport = {
   width: 'device-width',
@@ -70,34 +69,26 @@ export default function Page() {
           </Link>
         </div>
       )}
-      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-10 sm:mb-1.5 sm:mt-2 sm:flex-col sm:gap-y-1.5 sm:px-3 sm:py-6 sm:pt-3">
+
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-10 sm:mb-3 sm:mt-0 sm:flex-row sm:gap-y-0 sm:px-3 sm:py-6 sm:pt-3">
         <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="text-lg font-medium text-slate-800 sm:text-xl">
-            MemicOS is an open{' '}
-            <CustomTooltip
-              trigger={
-                <span className=" font-bold text-sky-800 transition-all hover:cursor-pointer hover:text-sky-700">
-                  interpretability
-                </span>
-              }
-            >
-              The inner workings of modern AIs are a mystery. This is because AIs are language models that are grown,
-              not designed. The science of understanding what happens inside AI is called interpretability.
-            </CustomTooltip>{' '}
-            platform.
+            MemicOS is an open platform for interpretability research.
           </div>
-          <div className="mt-1 text-sm font-normal text-slate-600 sm:text-base">
+          <div className="mt-0.5 text-sm font-normal text-slate-600 sm:text-base">
             Explore, steer, and experiment on AI models.
           </div>
         </div>
-        <Link href="https://docs.memicos.org" target="_blank" rel="noreferrer">
-          <Button variant="default" size="lg" className="gap-x-2">
-            <BookOpenText className="h-5 w-5" />
-            <span>Getting Started</span>
-          </Button>
-        </Link>
+        <div>
+          <Link href="https://docs.memicos.org" target="_blank" rel="noreferrer">
+            <Button variant="default" size="lg" className="gap-x-2">
+              <BookOpenText className="h-5 w-5" />
+              <span>Getting Started</span>
+            </Button>
+          </Link>
+        </div>
       </div>
-      <div className="my-3 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 rounded-lg border bg-white px-2 py-7 shadow-sm sm:mb-9 sm:mt-1 sm:flex-row sm:gap-y-0 sm:px-10 sm:py-4">
+      <div className="x-3 my-2 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 rounded-lg border bg-white px-2 py-7 shadow-sm sm:mb-8 sm:mt-1 sm:flex-row sm:gap-y-0 sm:px-10 sm:py-4">
         <div className="mb-2 mt-2 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="text-lg font-bold text-gGreen sm:text-lg">Google DeepMind x MemicOS</div>
           <div className="mt-0.5 text-sm font-normal text-slate-700 sm:text-[14px]">
@@ -114,7 +105,7 @@ export default function Page() {
           </Link>
         </div>
       </div>
-      <div className="grid w-full grid-cols-2 items-center justify-center gap-x-12 gap-y-5 bg-white px-5 py-5 md:flex md:h-[120px] md:min-h-[120px] md:grid-cols-3 md:flex-row md:py-0">
+      <div className="grid w-full grid-cols-2 items-center justify-center gap-x-12 gap-y-5 bg-white px-5 py-5 md:flex md:h-[85px] md:min-h-[85px] md:grid-cols-3 md:flex-row md:py-0">
         <a
           href="https://www.technologyreview.com/2024/11/14/1106871/google-deepmind-has-a-new-way-to-look-inside-an-ais-mind/"
           target="_blank"
@@ -123,7 +114,7 @@ export default function Page() {
         >
           <img
             src="/usedby/mit.png"
-            className="h-[50px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[40px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
             alt="MIT Technology Review"
           />
         </a>
@@ -135,7 +126,7 @@ export default function Page() {
         >
           <img
             src="/usedby/deepmind.png"
-            className="h-[35px] opacity-80 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[28px] opacity-80 grayscale hover:opacity-100 hover:grayscale-0"
             alt="Google DeepMind"
           />
         </a>
@@ -147,7 +138,7 @@ export default function Page() {
         >
           <img
             src="/usedby/fudan.jpg"
-            className="h-[80px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[60px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
             alt="OpenMOSS, Fudan University"
           />
         </a>
@@ -159,14 +150,14 @@ export default function Page() {
         >
           <img
             src="/usedby/apolloresearch.png"
-            className="h-[45px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[35px] opacity-70 grayscale hover:opacity-100 hover:grayscale-0"
             alt="Apollo Research"
           />
         </a>
         <a href="#mats" className="flex flex-row items-center justify-center" rel="noreferrer" aria-label="MATS">
           <img
             src="/usedby/mats.png"
-            className="h-[40px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[30px] opacity-60 grayscale hover:opacity-100 hover:grayscale-0"
             alt="MATS"
           />
         </a>
@@ -178,18 +169,15 @@ export default function Page() {
         >
           <img
             src="/usedby/eleutherai2.png"
-            className="h-[42px] opacity-40 grayscale hover:opacity-100 hover:grayscale-0"
+            className="h-[32px] opacity-40 grayscale hover:opacity-100 hover:grayscale-0"
             alt="EleutherAI"
           />
         </a>
       </div>
-      <div className="flex w-full flex-1 flex-col gap-x-2 gap-y-12 bg-sky-900 px-2 py-10 sm:px-8 sm:py-24">
+      <div className="flex w-full flex-1 flex-col gap-x-2 gap-y-12 bg-slate-50 px-2 py-10 sm:px-8 sm:py-24">
         <div className="flex flex-1 flex-row items-center gap-x-5 rounded-xl px-2 sm:px-0 sm:pb-0">
           <div className="flex flex-col sm:basis-1/3">
-            <div className="text-3xl font-black text-sky-300">Explore Visually</div>
-            <div className="flex text-base font-medium text-sky-200 sm:hidden">
-              Best viewed on a tablet or larger screen.
-            </div>
+            <div className="text-2xl font-bold text-sky-700">Explore Model Internals</div>
             <div className="mt-3 text-base font-medium leading-snug text-sky-100">
               Each dot in the visualization represents an idea or concept that the model has learned. The dots, or{' '}
               <Link className="text-sky-300 underline" href="https://docs.memicos.org/features" target="_blank">
