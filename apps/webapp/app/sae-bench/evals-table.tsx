@@ -1138,7 +1138,10 @@ export default function EvalsTable({
               </div>
             ) : (
               <div className="flex w-full flex-col items-center justify-center px-5 py-5">
-                <div className="mb-2 text-sm text-slate-500">No SAEs match the current filters.</div>
+                <div className="mb-2 text-sm font-medium text-red-500">No matching evals found.</div>
+                <div className="mb-2 text-xs text-slate-500">
+                  Change the &quot;Plot Y&quot; metric or clear the filters.
+                </div>
                 <ClearFiltersButton />
               </div>
             )
