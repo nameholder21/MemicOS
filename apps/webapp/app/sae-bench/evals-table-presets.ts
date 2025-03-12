@@ -114,4 +114,20 @@ export const EVALS_TABLE_PRESETS: { name: string; params: EvalsTableParams }[] =
       trainingTokensFilter: [499998720],
     },
   },
+  {
+    name: 'RAVEL',
+    params: {
+      metricX: 'core||sparsity||l0',
+      metricY: 'ravel||ravel||disentanglement_score',
+      logX: true,
+      logY: false,
+      groupBy: 'saeClass',
+      modelFilter: ['gemma-2-2b'],
+      releaseFilter: ['sae_bench_0125'],
+      saeClassFilter: [],
+      widthFilter: [65536],
+      layerFilter: [12],
+      trainingTokensFilter: [499998720],
+    },
+  },
 ];

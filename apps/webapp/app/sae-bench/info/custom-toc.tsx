@@ -22,7 +22,7 @@ export function CustomTOC({ markdownString }: { markdownString: string }) {
           <button
             type="button"
             data-active={active}
-            className=" hover:text-sky-700 hover:underline"
+            className="text-left hover:text-sky-700 hover:underline"
             onClick={() => {
               router.push(href, { scroll: false });
 

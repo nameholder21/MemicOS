@@ -27,6 +27,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Absorption } from '@/types/eval_output_schema_absorption_first_letter';
 import { AutoInterp } from '@/types/eval_output_schema_autointerp';
 import { Core } from '@/types/eval_output_schema_core';
+import { RAVEL } from '@/types/eval_output_schema_ravel';
 import { SCR } from '@/types/eval_output_schema_scr';
 import { SparseProbing } from '@/types/eval_output_schema_sparse_probing';
 import { TPP } from '@/types/eval_output_schema_tpp';
@@ -132,6 +133,8 @@ export function getEvalCategory(
     output = evaluation.output as SCR;
   } else if (evalTypeName === 'tpp') {
     output = evaluation.output as TPP;
+  } else if (evalTypeName === 'ravel') {
+    output = evaluation.output as RAVEL;
   } else if (evalTypeName === 'autointerp') {
     output = evaluation.output as AutoInterp;
   } else if (evalTypeName === 'unlearning') {
