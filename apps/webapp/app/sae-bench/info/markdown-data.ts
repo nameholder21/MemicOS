@@ -363,7 +363,7 @@ Despite feature absorption, the new SAE architectures TopK and JumpReLU signific
 <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-2 gap-y-2 w-full">
 
 <iframe
-  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=65536&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=scr%7C%7Cscr_metrics%7C%7Cscr_metric_threshold_50&groupBy=saeClass&embed=true"
+  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=65536&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=scr%7C%7Cscr_metrics%7C%7Cscr_metric_threshold_20&groupBy=saeClass&embed=true"
   className="w-full h-[400px] max-h-[400px] border-0"
   loading="lazy"
   title=""
