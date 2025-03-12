@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/db';
 import { EvalTypeWithPartialRelations } from '@/prisma/generated/zod';
-import fs from 'fs';
 import { Metadata } from 'next';
 import EvalsTable from './evals-table';
 
@@ -18,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page({ searchParams }: { searchParams: { embed: string } }) {
-  const start = performance.now();
+  // only get the fields that we need - this can get huge
   let evalTypes: {
     id: number;
     name: string;
@@ -58,11 +57,6 @@ export default async function Page({ searchParams }: { searchParams: { embed: st
     WHERE et.featured = true
     GROUP BY et.name
   `;
-  // save output as json file to /tmp/evalTypes.json
-  fs.writeFileSync('/tmp/evalTypes.json', JSON.stringify(evalTypes, null, 2));
-  console.log('Size in megabytes:', Buffer.byteLength(JSON.stringify(evalTypes)) / 1024 / 1024);
-  const end = performance.now();
-  console.log(`Query took ${end - start}ms`);
 
   //  reorder evalTypes so that type="core" is first
   evalTypes = evalTypes.sort((a, b) => {
