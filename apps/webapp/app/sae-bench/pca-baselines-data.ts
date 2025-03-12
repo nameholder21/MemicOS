@@ -193,10 +193,16 @@ export const PCA_BASELINES: Record<string, Record<string, Record<string, Record<
       },
     },
     '12': {
+      ravel: {
+        'ravel.cause_score': 0.6651161904596561,
+        'ravel.disentanglement_score': 0.6994105103566455,
+        'ravel.isolation_score': 0.7337048302536351,
+      },
       autointerp: {
         'autointerp.autointerp_score': 0.6706,
       },
       absorption_first_letter: {
+        'mean.mean_absorption_fraction_score': 0.0058060631457668216,
         'mean.mean_full_absorption_score': 0.0058,
         'mean.mean_num_split_features': 1.0769,
       },

@@ -62,7 +62,7 @@ export default async function Page({ searchParams }: { searchParams: { embed: st
             <div className="mt-0 flex-col gap-y-1 text-center font-sans text-[12px] font-bold leading-snug text-slate-700 sm:flex sm:text-left sm:text-[18px] sm:leading-none">
               SAEBench: A Comprehensive Benchmark for Sparse Autoencoders
               <div className="mt-0.5 text-xs font-medium text-slate-600 sm:text-sm">
-                Adam Karvonen · Can Rager · December 2024
+                Adam Karvonen · Can Rager · March 2025
               </div>
             </div>
             <div className="flex flex-row items-center justify-center gap-x-2 text-center font-sans text-[10px] font-medium leading-none text-slate-500 sm:justify-end sm:text-left sm:text-[14px]">
