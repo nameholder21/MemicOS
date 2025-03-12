@@ -62,6 +62,7 @@ Find the evaluation results in the SAEBench interface by selecting the \`SAEBenc
 In the typically used L0 range of 20-200, Matryoshka SAEs perform best on the TPP, SCR, RAVEL, and Feature Absorption metrics, and near best on the Sparse Probing metric. However, Matryoshkas do slightly underperform on the traditional sparsity - fidelity tradeoff. These differences are most apparent at the largest scale of 65k width, and improvements may be diminished or non-existent at smaller scales.
 
 ![Scores for the Loss Recovered, Automated Interpretability, Absorption, SCR, and Sparse Probing metrics on the 65k width Gemma-2-2B suite of SAEs.](/saebench/plot_2x4_sae_bench_gemma-2-2b_65k_architecture_series_layer_12.png)
+_Scores for the Loss Recovered, Automated Interpretability, Absorption, SCR, and Sparse Probing metrics on the 65k width Gemma-2-2B suite of SAEs._
 
 We also evaluated several proposed SAE approaches (TopK, BatchTopK, P-Anneal, Gated, JumpReLU) that had primarily focused on improving reconstruction accuracy. We observed it is often difficult to differentiate these approaches on our SAE Bench metrics. These findings emphasize the need for diverse metrics beyond proxies such as reconstruction accuracy.
 
@@ -71,7 +72,8 @@ Previously we had observed that there is no size / sparsity combination that app
 
 ![Scaling SAE width from 4k to 65k for across SAE architectures. For each architecture / width pair, we mean over all results in the L0 range between 40 and 200. Most notably the hierarchical Matryoshka SAE shows positive scaling behavior. Due to varying L0 distributions across architectures, this visualization is intended primarily for analyzing scaling
 trends rather than architecture comparisons.](/saebench/plot_2x3_sae_bench_gemma-2-2b_scaling_width_series_layer_12.png)
-
+_Scaling SAE width from 4k to 65k for across SAE architectures. For each architecture / width pair, we mean over all results in the L0 range between 40 and 200. Most notably the hierarchical Matryoshka SAE shows positive scaling behavior. Due to varying L0 distributions across architectures, this visualization is intended primarily for analyzing scaling
+trends rather than architecture comparisons._
 
 ### Feature absorption in ReLU SAEs
 In our original blog post, we had found that ReLU SAEs had decreased levels of feature absorption. When training our baseline suite of SAEs, we improved our ReLU training approach from the original Towards Monosemanticity approach to the [Anthropic April Update](https://transformer-circuits.pub/2024/april-update/index.html) approach. After this improvement, we found that ReLU SAEs actually had the highest levels of feature absorption. After some inspection, we believe that the decreased feature absorption in our original results was due to a high percentage of dead features.
@@ -87,7 +89,7 @@ RAVEL evaluates whether targeted interventions on SAE latents can selectively ch
 Inspired by [Heap et al](https://arxiv.org/abs/2501.17727v1), we evaluated SAEs trained on randomly initialized models as a baseline. We find that SAEs on trained models generally obtain significantly higher scores on our metrics, except for TPP. However, we caution that most of our metrics are meant for comparisons of different SAEs on the same model, and results should be interpreted with caution. For example, the TPP metric measures relative changes in probe accuracy within a given model. Given that the linear probes on the randomly initialized model start from a substantially lower baseline accuracy, direct comparisons of TPP across models may be misleading.
 
 ![Evaluation results for SAEs trained on the randomly initialized and final versions of Pythia-1B.](/saebench/pythia-1b-random.png)
-
+_Evaluation results for SAEs trained on the randomly initialized and final versions of Pythia-1B._
 
 
 # December 2024 Post
