@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { EvalTypeWithPartialRelations } from '@/prisma/generated/zod';
+import fs from 'fs';
 import { Metadata } from 'next';
 import EvalsTable from './evals-table';
 
@@ -17,23 +18,51 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page({ searchParams }: { searchParams: { embed: string } }) {
-  let evalTypes = await prisma.evalType.findMany({
-    where: {
-      featured: true,
-    },
-    include: {
-      evals: {
-        select: {
-          id: true,
-          typeName: true,
-          modelId: true,
-          sourceId: true,
-          source: true,
-          output: true,
-        },
-      },
-    },
-  });
+  const start = performance.now();
+  let evalTypes: {
+    id: number;
+    name: string;
+    featured: boolean;
+    description: string | null;
+    evals: {
+      id: number;
+      typeName: string;
+      modelId: string;
+      sourceId: string;
+      output: Record<string, any>;
+    }[];
+  }[] = await prisma.$queryRaw`
+    SELECT 
+      et.*,
+      json_agg(
+        json_build_object(
+          'typeName', e."typeName",
+          'modelId', e."modelId",
+          'sourceId', e."sourceId",
+          'output', (
+            e."output" - 'eval_config' - 'sae_bench_commit_hash' - 'eval_result_unstructured' - 'eval_id' - 'datetime_epoch_millis' - 'sae_lens_version' 
+            || jsonb_build_object(
+              'sae_cfg_dict', 
+              jsonb_build_object(
+                'training_tokens', (e."output"->'sae_cfg_dict'->>'training_tokens')::integer,
+                'architecture', (e."output"->'sae_cfg_dict'->>'architecture'),
+                'activation_fn_str', (e."output"->'sae_cfg_dict'->>'activation_fn_str'),
+                'd_sae', (e."output"->'sae_cfg_dict'->>'d_sae')::integer
+              )
+            )
+          )
+        )
+      ) as evals
+    FROM "EvalType" et
+    LEFT JOIN "Eval" e ON et."name" = e."typeName"
+    WHERE et.featured = true
+    GROUP BY et.name
+  `;
+  // save output as json file to /tmp/evalTypes.json
+  fs.writeFileSync('/tmp/evalTypes.json', JSON.stringify(evalTypes, null, 2));
+  console.log('Size in megabytes:', Buffer.byteLength(JSON.stringify(evalTypes)) / 1024 / 1024);
+  const end = performance.now();
+  console.log(`Query took ${end - start}ms`);
 
   //  reorder evalTypes so that type="core" is first
   evalTypes = evalTypes.sort((a, b) => {
@@ -102,7 +131,7 @@ export default async function Page({ searchParams }: { searchParams: { embed: st
       )}
 
       <div className="h-full w-full flex-row items-center justify-center gap-x-3 px-0 pt-0 text-slate-600">
-        <EvalsTable evalTypes={evalTypes as EvalTypeWithPartialRelations[]} anonymized={false} />
+        <EvalsTable evalTypes={evalTypes as unknown as EvalTypeWithPartialRelations[]} anonymized={false} />
       </div>
     </div>
   );
