@@ -513,17 +513,17 @@ Even for similar downstream tasks we find different sparsities: Confusingly, unl
 <div className="grid sm:grid-cols-2 grid-cols-1 gap-x-2 gap-y-2 w-full">
 
 <iframe
-  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=16384&trainingTokens=299999232%2C-1&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=tpp%7C%7Ctpp_metrics%7C%7Ctpp_threshold_50_total_metric&groupBy=saeClass&embed=true"
+  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=16384&trainingTokens=299999232%2C-1&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=tpp%7C%7Ctpp_metrics%7C%7Ctpp_threshold_20_total_metric&groupBy=saeClass&embed=true"
   className="w-full h-[400px] max-h-[400px] border-0"
   loading="lazy"
-  title="Gemma-Scope Gemma-2-2B Width Series Layer 12 L0 vs TPP Top 50 Metric"
+  title="Gemma-Scope Gemma-2-2B Width Series Layer 12 L0 vs TPP Top 20 Metric"
 ></iframe>
 
 <iframe
-  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=16384&trainingTokens=299999232%2C-1&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=scr%7C%7Cscr_metrics%7C%7Cscr_metric_threshold_50&groupBy=saeClass&embed=true"
+  src="/sae-bench?modelId=gemma-2-2b&layer=12&dSae=16384&trainingTokens=299999232%2C-1&metricX=core%7C%7Csparsity%7C%7Cl0&metricY=scr%7C%7Cscr_metrics%7C%7Cscr_metric_threshold_20&groupBy=saeClass&embed=true"
   className="w-full h-[400px] max-h-[400px] border-0"
   loading="lazy"
-  title="Gemma-Scope Gemma-2-2B Width Series Layer 12 L0 vs SCR Top 50 Metric"
+  title="Gemma-Scope Gemma-2-2B Width Series Layer 12 L0 vs SCR Top 20 Metric"
 ></iframe>
 
 </div>
