@@ -32,7 +32,7 @@ Samuel Marks, Neel Nanda
 </div>
 
 # March 2025 Update
-This blog post was originally published with the SAE Bench beta release on December 10, 2024. We are now releasing SAE Bench 1.0. We’ve made substantial improvements, added new SAE architectures, and conducted further evaluations that qualitatively alter some of our earlier findings—these key updates are summarized below. For up to date and comprehensive details, please refer to the SAE Bench paper. For comparability, we leave our initial blogpost from December 2024 below. MemicOS's SAEBench Evaluation browser features both the new results (\`SAEBench – Jan 25\`) and previous results (\`SAEBench – Dec 24\`) as separate releases.
+This blog post was originally published with the SAE Bench beta release on December 10, 2024. We are now releasing SAE Bench 1.0. We’ve made substantial improvements, added new SAE architectures, and conducted further evaluations that qualitatively alter some of our earlier findings—these key updates are summarized below. For up to date and comprehensive details, please refer to the SAE Bench paper [(https://arxiv.org/abs/2503.09532)](https://arxiv.org/abs/2503.09532). For comparability, we leave our initial blogpost from December 2024 below. MemicOS's [SAEBench Evaluation browser](/sae-bench) features both the new results (\`SAEBench – Jan 25\`) and previous results (\`SAEBench – Dec 24\`) as separate releases.
 
 ## New suite of open-source SAEs
 We made minor changes to the training code for ReLU SAEs, added Matryoshka SAEs, and standardized the training hyperparameters across SAEs. The new suite of SAEBench SAEs includes 7 variants:
@@ -555,4 +555,17 @@ This work was conducted as part of the ML Alignment \& Theory Scholars (MATS) Pr
 
 [^1]: Though SAEs surprisingly often work well, the choice of the most performant interpretability technique depends on the use case.
 
+# Citation
+
+<pre style="white-space: pre-wrap; font-size: 11px; color: #0f172a; background-color: #f1f5f9; padding: 10px; border-radius: 5px;">
+@misc{karvonen2025saebench,
+      title={SAEBench: A Comprehensive Benchmark for Sparse Autoencoders in Language Model Interpretability}, 
+      author={Adam Karvonen and Can Rager and Johnny Lin and Curt Tigges and Joseph Bloom and David Chanin and Yeu-Tong Lau and Eoin Farrell and Callum McDougall and Kola Ayonrinde and Matthew Wearden and Arthur Conmy and Samuel Marks and Neel Nanda},
+      year={2025},
+      eprint={2503.09532},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2503.09532}, 
+}
+</pre>
 `;
