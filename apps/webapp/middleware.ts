@@ -8,7 +8,7 @@ const RATE_LIMIT_WINDOW = '60 m';
 // This should always be ordered from broad path to narrow path
 const endpointToRateLimitPerWindow = [
   { endpoint: '/', limit: 25000 },
-  { endpoint: '/api', limit: 15000 },
+  { endpoint: '/api', limit: 25000 },
   { endpoint: '/api/activation/new', limit: 1000 },
   { endpoint: '/api/explanation/search', limit: 200 },
   { endpoint: '/api/steer', limit: 300 },
