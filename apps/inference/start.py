@@ -134,9 +134,8 @@ def main():
         os.environ["SAE_DTYPE"] = args.sae_dtype
     if "TOKEN_LIMIT" not in os.environ:
         os.environ["TOKEN_LIMIT"] = str(args.token_limit)
-    if "DEVICE" not in os.environ:
-        if args.device is not None:
-            os.environ["DEVICE"] = args.device
+    if "DEVICE" not in os.environ and args.device is not None:
+        os.environ["DEVICE"] = args.device
     if "INCLUDE_SAE" not in os.environ:
         os.environ["INCLUDE_SAE"] = json.dumps(args.include_sae)
     if "EXCLUDE_SAE" not in os.environ:
@@ -145,9 +144,8 @@ def main():
         os.environ["MODEL_FROM_PRETRAINED_KWARGS"] = args.model_from_pretrained_kwargs
     if "MAX_LOADED_SAES" not in os.environ:
         os.environ["MAX_LOADED_SAES"] = str(args.max_loaded_saes)
-    if "CUSTOM_HF_MODEL_ID" not in os.environ:
-        if args.custom_hf_model_id is not None:
-            os.environ["CUSTOM_HF_MODEL_ID"] = str(args.custom_hf_model_id)
+    if "CUSTOM_HF_MODEL_ID" not in os.environ and args.custom_hf_model_id is not None:
+        os.environ["CUSTOM_HF_MODEL_ID"] = str(args.custom_hf_model_id)
 
     if args.list_models:
         from memicos_inference.args import list_available_options

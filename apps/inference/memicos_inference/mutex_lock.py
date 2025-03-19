@@ -1,5 +1,5 @@
-from threading import Lock
 from contextlib import contextmanager
+from threading import Lock
 
 MUTEX = Lock()
 

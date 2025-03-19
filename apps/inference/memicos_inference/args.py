@@ -1,7 +1,9 @@
 import argparse
 import json
 import os
+
 import torch
+
 from memicos_inference.config import get_saelens_memicos_directory_df
 
 

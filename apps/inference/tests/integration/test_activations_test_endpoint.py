@@ -1,12 +1,14 @@
-import requests
-import pytest
 import json
+
+import pytest
+import requests
+
 from tests.conftest import (
-    TEST_SAE_MODEL_ID,
+    BOS_TOKEN_STR,
+    TEST_PROMPT,
     # TEST_SET_ID,
     TEST_SAE_ID,
-    TEST_PROMPT,
-    BOS_TOKEN_STR,
+    TEST_SAE_MODEL_ID,
 )
 
 
@@ -49,18 +51,12 @@ def test_activations_test_endpoint(running_server, logger):
     activations = data["activations"]
     assert "values" in activations, "Activations missing 'values'"
     assert "maxValue" in activations, "Activations missing 'maxValue'"
-    assert (
-        "maxValueIndex" in activations
-    ), "Activations missing 'maxValueIndex'"
+    assert "maxValueIndex" in activations, "Activations missing 'maxValueIndex'"
 
     # Additional checks for DFA if enabled
     if "dfaValues" in activations:
-        assert (
-            "dfaTargetIndex" in activations
-        ), "Activations missing 'dfaTargetIndex'"
-        assert (
-            "dfaMaxValue" in activations
-        ), "Activations missing 'dfaMaxValue'"
+        assert "dfaTargetIndex" in activations, "Activations missing 'dfaTargetIndex'"
+        assert "dfaMaxValue" in activations, "Activations missing 'dfaMaxValue'"
 
     # Check tokens
     tokens = data["tokens"]
@@ -117,23 +113,8 @@ def test_activations_test_with_dfa(
 
     activations = data["activations"]
     assert "dfaValues" in activations, "DFA values not found in activations"
-    assert (
-        "dfaTargetIndex" in activations
-    ), "DFA target index not found in activations"
-    assert (
-        "dfaMaxValue" in activations
-    ), "DFA max value not found in activations"
-
-    print("DFA Test Results:")
-    print(f"Model: {parameterized_config.OVERRIDE_MODEL_ID}")
-    print(f"SAE: {parameterized_config.include_sae_patterns[0].strip('^')}")
-    print(f"Prompt: {TEST_PROMPT}")
-    print(f"Max Activation: {activations['maxValue']}")
-    print(f"DFA Target Index: {activations['dfaTargetIndex']}")
-    print(f"DFA Max Value: {activations['dfaMaxValue']}")
-    print("DFA Values:")
-    for i, value in enumerate(activations["dfaValues"]):
-        print(f"  Token {i}: {value:.4f}")
+    assert "dfaTargetIndex" in activations, "DFA target index not found in activations"
+    assert "dfaMaxValue" in activations, "DFA max value not found in activations"
 
     logger.info("Test passed successfully")
 
@@ -184,22 +165,7 @@ def test_activations_test_with_gqa(
 
     activations = data["activations"]
     assert "dfaValues" in activations, "DFA values not found in activations"
-    assert (
-        "dfaTargetIndex" in activations
-    ), "DFA target index not found in activations"
-    assert (
-        "dfaMaxValue" in activations
-    ), "DFA max value not found in activations"
-
-    print("GQA DFA Test Results:")
-    print(f"Model: {parameterized_config.OVERRIDE_MODEL_ID}")
-    print(f"SAE: {parameterized_config.include_sae_patterns[0].strip('^')}")
-    print(f"Prompt: {TEST_PROMPT}")
-    print(f"Max Activation: {activations['maxValue']}")
-    print(f"DFA Target Index: {activations['dfaTargetIndex']}")
-    print(f"DFA Max Value: {activations['dfaMaxValue']}")
-    print("DFA Values:")
-    for i, value in enumerate(activations["dfaValues"]):
-        print(f"  Token {i}: {value:.4f}")
+    assert "dfaTargetIndex" in activations, "DFA target index not found in activations"
+    assert "dfaMaxValue" in activations, "DFA max value not found in activations"
 
     logger.info("Test passed successfully")

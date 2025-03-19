@@ -2,8 +2,9 @@ import os
 import sys
 
 import pytest
-from memicos_inference.config import Config
+
 from memicos_inference.config import (
+    Config,
     config_to_json,
     get_saelens_memicos_directory_df,
 )
@@ -11,7 +12,7 @@ from memicos_inference.config import (
 
 @pytest.fixture
 def mock_config():
-    config = Config(
+    return Config(
         model_id="gpt2-small",
         sae_sets=["res-jb"],
         model_dtype="float16",
@@ -20,7 +21,6 @@ def mock_config():
         token_limit=100,
         device="cpu",
     )
-    return config
 
 
 def test_config_initialization(mock_config):
@@ -53,7 +53,6 @@ os.path.exists(OUTPUT_FOLDER) or os.makedirs(OUTPUT_FOLDER)
 
 
 def test_get_saelens_memicos_directory_df():
-
     directory_df = get_saelens_memicos_directory_df()
 
     assert directory_df is not None
@@ -69,7 +68,6 @@ def test_get_saelens_memicos_directory_df():
 
 
 def test_config_to_json():
-
     directory_df = get_saelens_memicos_directory_df()
 
     # GPT2 Small SERVER 1
@@ -87,7 +85,7 @@ def test_config_to_json():
         selected_model=selected_model,
     )
 
-    assert type(json_output) == list
+    assert isinstance(json_output, list)
     assert len(json_output) == len(selected_sets)
 
     expected_json = [

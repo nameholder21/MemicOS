@@ -1,7 +1,8 @@
-import requests
 import time
 
-from tests.conftest import TEST_PROMPT, TEST_SAE_MODEL_ID, TEST_SAE_ID
+import requests
+
+from tests.conftest import TEST_PROMPT, TEST_SAE_ID, TEST_SAE_MODEL_ID
 
 
 def test_completion_endpoint_steered(running_server, logger):
@@ -55,9 +56,7 @@ def test_completion_endpoint_steered(running_server, logger):
         # Calculate and log response time
         response_time = end_time - start_time
         total_time += response_time
-        logger.info(
-            f"Request {i+1} completion time: {response_time:.4f} seconds"
-        )
+        logger.info(f"Request {i+1} completion time: {response_time:.4f} seconds")
 
         # Log completions
         logger.info(f"DEFAULT completion: {data['DEFAULT']}")
@@ -66,9 +65,6 @@ def test_completion_endpoint_steered(running_server, logger):
     # Calculate and log average speed
     average_time = total_time / num_requests
     logger.info(f"Average completion speed: {average_time:.4f} seconds")
-    print(
-        f"Average completion speed: {average_time:.4f} seconds"
-    )  # This will appear in pytest output
 
     # You can set a performance threshold if needed
     assert (
@@ -92,7 +88,6 @@ def test_completion_endpoint_errors_invalid_request_data(running_server):
 
 
 def test_completion_endpoint_errors_invalid_secret(running_server):
-
     base_url, _ = running_server
     url = f"{base_url}/completion"
     # Test invalid secret
@@ -115,7 +110,6 @@ def test_completion_endpoint_errors_invalid_secret(running_server):
 
 
 def test_completion_endpoint_errors_unsupported_model(running_server):
-
     base_url, _ = running_server
     url = f"{base_url}/completion"
 
@@ -141,7 +135,6 @@ def test_completion_endpoint_errors_unsupported_model(running_server):
 def test_completion_endpoint_errors_unsupported_completion_type(
     running_server,
 ):
-
     base_url, log_capture_string = running_server
     url = f"{base_url}/completion"
 
@@ -165,7 +158,6 @@ def test_completion_endpoint_errors_unsupported_completion_type(
 
 
 def test_completion_endpoint_feature_processing(running_server):
-
     base_url, _ = running_server
     url = f"{base_url}/completion"
 
@@ -215,9 +207,7 @@ def test_completion_endpoint_steered_default(running_server):
     assert response.status_code == 200
     data = response.json()
     assert "DEFAULT" in data and "STEERED" in data
-    assert isinstance(data["DEFAULT"], str) and isinstance(
-        data["STEERED"], str
-    )
+    assert isinstance(data["DEFAULT"], str) and isinstance(data["STEERED"], str)
     assert data["DEFAULT"] != data["STEERED"]
 
 
@@ -368,7 +358,7 @@ def test_completion_endpoint_steering_methods(running_server):
     simple_payload = base_payload.copy()
     simple_payload["steering_method"] = "simple_additive"
     response_simple = requests.post(url, json=simple_payload)
-    
+
     # Test orthogonal decomposition steering
     orthogonal_payload = base_payload.copy()
     orthogonal_payload["steering_method"] = "orthogonal_decomp"
@@ -382,7 +372,7 @@ def test_completion_endpoint_steering_methods(running_server):
     assert response_simple.status_code == 200
     assert response_orthogonal.status_code == 200
     assert response_invalid.status_code == 200
-    
+
     # Check results
     simple_data = response_simple.json()
     orthogonal_data = response_orthogonal.json()
@@ -393,6 +383,7 @@ def test_completion_endpoint_steering_methods(running_server):
     assert "error" in invalid_data
     assert invalid_data["error"] == "Invalid steering method"
     assert simple_data["STEERED"] != orthogonal_data["STEERED"]
+
 
 def test_completion_endpoint_normalization(running_server):
     base_url, _ = running_server
@@ -429,7 +420,7 @@ def test_completion_endpoint_normalization(running_server):
 
     assert "STEERED" in normalized_data
     assert "STEERED" in unnormalized_data
-    
+
 
 def test_completion_endpoint_vectors_input(running_server):
     base_url, _ = running_server
@@ -439,11 +430,13 @@ def test_completion_endpoint_vectors_input(running_server):
     vector_payload = {
         "prompt": TEST_PROMPT,
         "secret": "secret",
-        "vectors": [{
-            "strength": 30.0,
-            "hook": "blocks.0.hook_resid_pre",
-            "steering_vector": [0.1] * 2304  # Example vector
-        }],
+        "vectors": [
+            {
+                "strength": 30.0,
+                "hook": "blocks.0.hook_resid_pre",
+                "steering_vector": [0.1] * 2304,  # Example vector
+            }
+        ],
         "model": TEST_SAE_MODEL_ID,
         "types": ["STEERED"],
         "n_completion_tokens": 5,
@@ -455,17 +448,19 @@ def test_completion_endpoint_vectors_input(running_server):
 
     # Test invalid vectors format
     invalid_vector_payload = vector_payload.copy()
-    invalid_vector_payload["vectors"] = [{
-        "strength": 30.0,
-        # Missing required fields
-    }]
+    invalid_vector_payload["vectors"] = [
+        {
+            "strength": 30.0,
+            # Missing required fields
+        }
+    ]
 
     response_valid = requests.post(url, json=vector_payload)
     response_invalid = requests.post(url, json=invalid_vector_payload)
 
     assert response_valid.status_code == 200
     assert response_invalid.status_code == 200
-    
+
     valid_data = response_valid.json()
     invalid_data = response_invalid.json()
 

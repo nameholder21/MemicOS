@@ -1,12 +1,13 @@
 # conftest.py
-import pytest
+import logging
+import socket
 import threading
 import time
-import logging
-from memicos_inference.server import load_model_and_saes, Config
-import torch
-import socket
 
+import pytest
+import torch
+
+from memicos_inference.server import Config, load_model_and_saes
 
 # HF token is in dot env.
 # TEST_SAE_JSON_PATH = "saes.json"
@@ -49,8 +50,7 @@ else:
 @pytest.fixture(scope="session")
 def logger():
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    return logger
+    return logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -118,7 +118,6 @@ def sae_manager(run_main):
 
 @pytest.fixture(scope="session")
 def running_server(app):
-
     def run_server():
         app.run(host=TEST_HOST, port=TEST_PORT, debug=False, use_reloader=False)
 

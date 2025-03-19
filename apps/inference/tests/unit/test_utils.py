@@ -1,13 +1,13 @@
 import pytest
-from memicos_inference.utils import reverse_chat_template
 from transformers import AutoTokenizer
+
+from memicos_inference.utils import reverse_chat_template
 
 
 @pytest.fixture(scope="module")
 def mock_tokenizer():
     # Start with a real GPT-2 tokenizer
-    real_tokenizer = AutoTokenizer.from_pretrained("google/gemma-2-2b-it")
-    return real_tokenizer
+    return AutoTokenizer.from_pretrained("google/gemma-2-2b-it")
 
 
 def test_reverse_chat_template_single_turn(mock_tokenizer):
