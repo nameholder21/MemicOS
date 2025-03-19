@@ -7,8 +7,12 @@ defaults:
 on:
   push:
     branches: [main, master]
+    paths:
+      - "apps/webapp/**"
   pull_request:
     branches: [main, master]
+    paths:
+      - "apps/webapp/**"
 
 jobs:
   test:
