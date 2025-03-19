@@ -28,7 +28,7 @@ as much as possible we try to use classes/types from the `packages/python/memico
 
 2. `source .venv/bin/activate`
 
-3. `pip install -e .`
+3. `pip install -e ".[dev]"`
 
 4. launch local server
 
