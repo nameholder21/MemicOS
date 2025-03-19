@@ -7,11 +7,6 @@
   "files.exclude": {
     "**/node_modules": true
   },
-  "python.testing.pytestArgs": [
-    "tests"
-  ],
-  "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true,
   "[python]": {
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
