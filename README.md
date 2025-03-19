@@ -13,6 +13,7 @@ this is the monorepo for [memicos.org](memicos.org), the open source interpretab
   - ['i want to do high volume autointerp explanations'](#i-want-to-do-high-volume-autointerp-explanations)
   - ['i want to generate my own dashboards'](#i-want-to-generate-my-own-dashboards)
   - ['i want to add my dashboards/data to memicos\`](#i-want-to-add-my-dashboardsdata-to-memicos)
+- [feature overview](#feature-overview)
 - [architecture](#architecture)
   - [requirements](#requirements)
   - [services](#services)
@@ -261,6 +262,10 @@ TODO - use `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or
 ## 'i want to add my dashboards/data to memicos`
 
 TODO - use [utils/memicos_utils/export-data.py](utils/memicos_utils/export-data.py) once you've added your data to your local database.
+
+# feature overview
+here's a diagram showing the main features of memicos as of march 2025.
+![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
 
 # architecture
 
