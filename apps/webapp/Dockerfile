@@ -20,7 +20,6 @@ SHELL ["/bin/bash", "-c"]
 RUN set -a && source /app/apps/webapp/.env.production && set +a && \
     npm run build:simple
 
-# expose port 3000
 EXPOSE 3000
 
 ENV HOSTNAME=0.0.0.0
