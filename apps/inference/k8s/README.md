@@ -126,7 +126,7 @@ kubectl rollout restart deployment gpt2-small-public-cpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-2b-it-a-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-2b-it-b-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-2b-public-gpu-lite-memicos-inference && \
-kubectl rollout restart deployment gemma-2-2b-it-public-gpu-memicos-inference && \
+kubectl rollout restart deployment gemma-2-2b-it-public-gpu-lite-memicos-inference && \
 kubectl rollout restart deployment gemma-2-9b-it-a-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-9b-it-b-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-2b-gpu-memicos-inference && \
