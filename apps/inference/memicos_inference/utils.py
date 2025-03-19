@@ -1,8 +1,9 @@
-import torch
-from psutil import Process
-import os
 import gc
 import logging
+import os
+
+import torch
+from psutil import Process
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ def checkCudaError(device: str | None = None):
             logger.info(f"Memory Used: {mem_used_MB:.2f} MB")
         except RuntimeError as e:
             if "CUDA error" in str(e) or "CUDA assertion" in str(e):
-                print(f"EXITING - CUDA error: {e}")
+                logger.error(f"EXITING - CUDA error: {e}")
                 torch.cuda.reset_peak_memory_stats()
                 gc.collect()
                 os._exit(1)
@@ -53,5 +54,4 @@ def get_device():
 def get_layer_num_from_sae_id(sae_id: str) -> int:
     if sae_id.isdigit():
         return int(sae_id)
-    else:
-        return int(sae_id.split("-")[0])
+    return int(sae_id.split("-")[0])

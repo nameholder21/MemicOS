@@ -1,12 +1,13 @@
 import requests
+
 from tests.conftest import (
-    TEST_SAE_MODEL_ID,
-    TEST_SET_ID,
-    TEST_SAE_ID,
-    TEST_PROMPT,
     BOS_TOKEN_STR,
     MODEL_DTYPE,
     SAE_DTYPE,
+    TEST_PROMPT,
+    TEST_SAE_ID,
+    TEST_SAE_MODEL_ID,
+    TEST_SET_ID,
 )
 
 
@@ -76,7 +77,6 @@ def test_activations_topk_by_token(running_server, logger):
     #     {"activation_value": 0.42961758375167847, "feature_index": 20998},
     # ]
 
-    print(data)
     assert isinstance(data["results"], list)
     assert len(data["results"]) == 5, data["results"]
 
@@ -101,10 +101,10 @@ def test_activations_topk_by_token(running_server, logger):
 
 
 # Test model and SAE dtypes
-def test_model_and_sae_dtypes(model, sae_manager, config):
+def test_model_and_sae_dtypes(model, sae_manager):
     # Check model dtype
     assert str(model.cfg.dtype).strip("torch.") == MODEL_DTYPE
 
     # Check SAE dtype
-    sae = SAE_MANAGER.get_sae(TEST_SAE_ID)
+    sae = sae_manager.get_sae(TEST_SAE_ID)
     assert str(sae.W_enc.dtype).strip("torch.") == SAE_DTYPE

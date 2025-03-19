@@ -1,7 +1,8 @@
 import asyncio
-from transformer_lens import HookedTransformer
 from functools import wraps
+
 import torch
+from transformer_lens import HookedTransformer
 
 request_lock = asyncio.Lock()
 

@@ -1,28 +1,29 @@
-from typing import List, Dict, Any, Tuple
-from fastapi.responses import JSONResponse
-import torch
-import einops
-import re
-from jaxtyping import Float, Int
-from typing import Optional
-from transformer_lens import ActivationCache
 import logging
-from memicos_inference_client.models.activation_all_post_request import (
-    ActivationAllPostRequest,
-)
+import re
+from typing import Any, Dict, List, Optional, Tuple
+
+import einops
+import torch
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from jaxtyping import Float, Int
 from memicos_inference_client.models.activation_all_post200_response import (
     ActivationAllPost200Response,
 )
 from memicos_inference_client.models.activation_all_post200_response_activations_inner import (
     ActivationAllPost200ResponseActivationsInner,
 )
+from memicos_inference_client.models.activation_all_post_request import (
+    ActivationAllPostRequest,
+)
+from transformer_lens import ActivationCache
+
+from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import (
     Model,
     with_request_lock,
 )
-from memicos_inference.config import Config
-from fastapi import APIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -114,7 +115,6 @@ def _safe_cast(tensor, target_dtype):
 
 
 class ActivationProcessor:
-
     @torch.no_grad()
     def process_activations(
         self, request: ActivationAllPostRequest
@@ -220,7 +220,6 @@ class ActivationProcessor:
         hook_name: str,
     ) -> Float[torch.Tensor, "feature token"]:
         """Get activations by index for a specific layer and SAE type."""
-        model = Model.get_instance()
         if sae_type == "neurons":
             mlp_activation_data = cache[hook_name].to(Config.get_instance().DEVICE)
             return torch.transpose(mlp_activation_data[0], 0, 1)
@@ -238,7 +237,6 @@ class ActivationProcessor:
         sort_by_token_indexes: List[int],
     ) -> Dict[str, Any]:
         """Process activations for a single layer."""
-        model = Model.get_instance()
         max_values, max_indices = torch.max(activations_by_index, dim=1)
         layer_num_tensor = torch.full(max_values.shape, layer_num).to(
             Config.get_instance().DEVICE
@@ -447,11 +445,10 @@ class ActivationProcessor:
                 if match:
                     return int(match.group(1))
                 raise ValueError(f"Can't retrieve layer number from SAE ID: {sae_id}")
-            elif "layer" in sae_id:
+            if "layer" in sae_id:
                 pattern = r"layer_(\d+)"
                 match = re.search(pattern, sae_id)
                 if match:
                     return int(match.group(1))
                 raise ValueError(f"Can't retrieve layer number from SAE ID: {sae_id}")
-            else:
-                raise ValueError(f"Can't retrieve layer number from SAE ID: {sae_id}")
+            raise ValueError(f"Can't retrieve layer number from SAE ID: {sae_id}")

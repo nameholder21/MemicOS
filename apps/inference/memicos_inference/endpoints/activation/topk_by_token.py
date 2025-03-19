@@ -1,9 +1,8 @@
-from fastapi.responses import JSONResponse
-import torch
 import logging
-from memicos_inference_client.models.activation_topk_by_token_post_request import (
-    ActivationTopkByTokenPostRequest,
-)
+
+import torch
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from memicos_inference_client.models.activation_topk_by_token_post200_response import (
     ActivationTopkByTokenPost200Response,
 )
@@ -13,13 +12,16 @@ from memicos_inference_client.models.activation_topk_by_token_post200_response_r
 from memicos_inference_client.models.activation_topk_by_token_post200_response_results_inner_top_features_inner import (
     ActivationTopkByTokenPost200ResponseResultsInnerTopFeaturesInner,
 )
+from memicos_inference_client.models.activation_topk_by_token_post_request import (
+    ActivationTopkByTokenPostRequest,
+)
+
+from memicos_inference.config import Config
+from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import (
     Model,
     with_request_lock,
 )
-from memicos_inference.sae_manager import SAEManager
-from memicos_inference.config import Config
-from fastapi import APIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +40,7 @@ async def activation_topk_by_token(
     sae_manager = SAEManager.get_instance()
     prompt = request.prompt
     source = request.source
-    if request.top_k is not None:
-        top_k = request.top_k
-    else:
-        top_k = DEFAULT_TOP_K
+    top_k = request.top_k if request.top_k is not None else DEFAULT_TOP_K
 
     ignore_bos = request.ignore_bos
 

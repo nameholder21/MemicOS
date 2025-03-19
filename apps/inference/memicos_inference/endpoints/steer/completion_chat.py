@@ -1,38 +1,37 @@
-from typing import List, Optional
-import torch
-from memicos_inference.inference_utils.steering import (
-    process_features_vectorized,
-    convert_to_chat_array,
-)
-from memicos_inference.inference_utils.steering import OrthogonalProjector
 import logging
-from fastapi.responses import StreamingResponse
-from fastapi.responses import JSONResponse
-from memicos_inference.sae_manager import SAEManager
-from memicos_inference.inference_utils.steering import (
-    format_sse_message,
-    remove_sse_formatting,
-)
-from transformer_lens import HookedTransformer
-from memicos_inference_client.models.steer_completion_chat_post_request import (
-    SteerCompletionChatPostRequest,
-)
+from typing import List, Optional
+
+import torch
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse, StreamingResponse
+from memicos_inference_client.models.np_steer_chat_message import NPSteerChatMessage
+from memicos_inference_client.models.np_steer_chat_result import NPSteerChatResult
+from memicos_inference_client.models.np_steer_feature import NPSteerFeature
+from memicos_inference_client.models.np_steer_method import NPSteerMethod
+from memicos_inference_client.models.np_steer_type import NPSteerType
+from memicos_inference_client.models.np_steer_vector import NPSteerVector
 from memicos_inference_client.models.steer_completion_chat_post200_response import (
     SteerCompletionChatPost200Response,
 )
-from memicos_inference_client.models.np_steer_type import NPSteerType
-from memicos_inference_client.models.np_steer_method import NPSteerMethod
-from memicos_inference_client.models.np_steer_feature import NPSteerFeature
-from memicos_inference_client.models.np_steer_vector import NPSteerVector
-from memicos_inference_client.models.np_steer_chat_result import NPSteerChatResult
-from memicos_inference_client.models.np_steer_chat_message import NPSteerChatMessage
+from memicos_inference_client.models.steer_completion_chat_post_request import (
+    SteerCompletionChatPostRequest,
+)
+from transformer_lens import HookedTransformer
+
+from memicos_inference.config import Config
+from memicos_inference.inference_utils.steering import (
+    OrthogonalProjector,
+    convert_to_chat_array,
+    format_sse_message,
+    process_features_vectorized,
+    remove_sse_formatting,
+    stream_lock,
+)
+from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import (
     Model,
     with_request_lock,
 )
-from memicos_inference.config import Config
-from fastapi import APIRouter
-from memicos_inference.inference_utils.steering import stream_lock
 
 logger = logging.getLogger(__name__)
 
@@ -135,12 +134,10 @@ async def completion_chat(request: SteerCompletionChatPostRequest):
 
     if request.stream:
         return StreamingResponse(generator, media_type="text/event-stream")
-    else:
-        async for item in generator:
-            pass
-        results = remove_sse_formatting(item)
-        to_return = SteerCompletionChatPost200Response.from_json(results)
-        return to_return
+    async for item in generator:
+        pass
+    results = remove_sse_formatting(item)
+    return SteerCompletionChatPost200Response.from_json(results)
 
 
 async def run_batched_generate(
@@ -168,7 +165,7 @@ async def run_batched_generate(
         if seed is not None:
             torch.manual_seed(seed)
 
-        def steering_hook(activations, hook):
+        def steering_hook(activations, hook):  # noqa: ARG001
             # Log activation device
             # logger.info(f"Activations device: {activations.device}")
 
@@ -263,7 +260,7 @@ async def run_batched_generate(
 
                 model.reset_hooks()
                 if flag == NPSteerType.STEERED:
-                    print("Running Steered")
+                    logger.info("Running Steered")
                     editing_hooks = [
                         (
                             (
@@ -276,13 +273,13 @@ async def run_batched_generate(
                         for feature in features
                     ]
                 else:
-                    print("Running Default")
+                    logger.info("Running Default")
                     editing_hooks = []
 
                 with model.hooks(fwd_hooks=editing_hooks):
                     for result in model.generate_stream(
                         max_tokens_per_yield=TOKENS_PER_YIELD,
-                        stop_at_eos=(True if model.cfg.device != "mps" else False),
+                        stop_at_eos=(model.cfg.device != "mps"),
                         input=promptTokenized.unsqueeze(0),
                         do_sample=True,
                         **kwargs,
@@ -318,13 +315,13 @@ async def run_batched_generate(
                 )
                 for feature in features
             ]
-            print("steer_type: %s", steer_type)
+            logger.info("steer_type: %s", steer_type)
 
             with model.hooks(fwd_hooks=editing_hooks):
                 partial_result = ""
                 for result in model.generate_stream(
                     max_tokens_per_yield=TOKENS_PER_YIELD,
-                    stop_at_eos=(True if model.cfg.device != "mps" else False),
+                    stop_at_eos=(model.cfg.device != "mps"),
                     input=promptTokenized.unsqueeze(0),
                     do_sample=True,
                     **kwargs,
@@ -339,7 +336,7 @@ async def run_batched_generate(
                         inputPrompt,
                         custom_hf_model_id,
                     )  # type: ignore
-                    print("to_return: %s", to_return)
+                    logger.info("to_return: %s", to_return)
                     yield format_sse_message(to_return.to_json())
 
 
@@ -360,7 +357,9 @@ def make_steer_completion_chat_response(
                 NPSteerChatResult(
                     raw=steered_result,  # type: ignore
                     chat_template=convert_to_chat_array(
-                        steered_result, model.tokenizer, model.cfg.model_name, custom_hf_model_id  # type: ignore
+                        steered_result,
+                        model.tokenizer,
+                        custom_hf_model_id,  # type: ignore
                     ),
                     type=steer_type,
                 )
@@ -370,7 +369,9 @@ def make_steer_completion_chat_response(
                 NPSteerChatResult(
                     raw=default_result,  # type: ignore
                     chat_template=convert_to_chat_array(
-                        default_result, model.tokenizer, model.cfg.model_name, custom_hf_model_id  # type: ignore
+                        default_result,
+                        model.tokenizer,
+                        custom_hf_model_id,  # type: ignore
                     ),
                     type=steer_type,
                 )

@@ -1,28 +1,29 @@
 from collections import defaultdict
 from typing import List, Optional
+
 import torch
 from memicos_inference_client.models.np_steer_chat_message import (
     NPSteerChatMessage,
 )
 from memicos_inference_client.models.np_steer_feature import NPSteerFeature
+
+from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import request_lock
-from memicos_inference.config import Config
 
 
 async def stream_lock(is_stream: bool):
     if is_stream:
         return request_lock
-    else:
 
-        class DummyLock:
-            async def __aenter__(self):
-                pass
+    class DummyLock:
+        async def __aenter__(self):
+            pass
 
-            async def __aexit__(self, *args):
-                pass
+        async def __aexit__(self, *args):
+            pass
 
-        return DummyLock()
+    return DummyLock()
 
 
 def format_sse_message(data: str) -> str:
@@ -59,10 +60,8 @@ def process_features_vectorized(features: List[NPSteerFeature]):
 def convert_to_chat_array(
     text: str,
     tokenizer,
-    model_name: str,
     custom_hf_model_id: Optional[str] = None,
 ) -> list[NPSteerChatMessage]:
-
     config = Config.get_instance()
     # Tokenize the input text
     tokens = tokenizer.encode(text)
@@ -87,7 +86,7 @@ def convert_to_chat_array(
                     current_content = []
                     current_role = "user"
                     continue
-                elif token == 128012:
+                if token == 128012:
                     if current_role:
                         conversation.append(
                             NPSteerChatMessage(
@@ -98,10 +97,9 @@ def convert_to_chat_array(
                     current_content = []
                     current_role = "assistant"
                     continue
-                elif token == tokenizer.bos_token_id or token == tokenizer.eos_token_id:
+                if token == tokenizer.bos_token_id or token == tokenizer.eos_token_id:
                     continue
-                else:
-                    current_content.append(token)
+                current_content.append(token)
             # no current content, just append this token
             else:
                 if token == 128011:
