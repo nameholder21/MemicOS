@@ -1,17 +1,19 @@
-import torch
 import traceback
+
+import torch
 from fastapi import HTTPException
-from sae_auto_interp.features import FeatureRecord, Feature, Example
-from sae_auto_interp.scorers import EmbeddingScorer
-from memicos_autointerp.utils import (
-    convert_embedding_output_to_score_embedding_output,
-    per_feature_scores_embedding,
+from memicos_autointerp_client.models.score_embedding_post200_response import (
+    ScoreEmbeddingPost200Response,
 )
 from memicos_autointerp_client.models.score_embedding_post_request import (
     ScoreEmbeddingPostRequest,
 )
-from memicos_autointerp_client.models.score_embedding_post200_response import (
-    ScoreEmbeddingPost200Response,
+from sae_auto_interp.features import Example, Feature, FeatureRecord
+from sae_auto_interp.scorers import EmbeddingScorer
+
+from memicos_autointerp.utils import (
+    convert_embedding_output_to_score_embedding_output,
+    per_feature_scores_embedding,
 )
 
 
