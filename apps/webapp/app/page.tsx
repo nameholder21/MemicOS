@@ -315,10 +315,8 @@ export default function Page() {
           <div className="flex flex-col sm:basis-1/3">
             <div className="text-3xl font-black text-slate-800">Steer</div>
             <div className="mt-3 text-[15px] font-medium text-slate-700">
-              Modify model behavior by steering its activations using latents or custom vectors.{' '}
-              {
-                'Steering supports instruct (chat) and reasoning models, and has fully customizable temperature, strength, seed, etc.'
-              }
+              Modify model behavior by steering its activations using latents or custom vectors. Steering supports
+              instruct (chat) and reasoning models, and has fully customizable temperature, strength, seed, etc.
             </div>
             <div className="mt-3 flex flex-row justify-center gap-x-2 sm:justify-start">
               <Link
