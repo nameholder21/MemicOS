@@ -11,6 +11,7 @@ export default function JumpToSAE({
   filterToRelease,
   filterToFeaturedReleases = true,
   callback = () => {},
+  modelOnSeparateRow = false,
   showModel = true,
 }: {
   modelId?: string;
@@ -19,6 +20,7 @@ export default function JumpToSAE({
   filterToFeaturedReleases?: boolean;
   callback?: (modelId: string, layer: string) => void;
   showModel?: boolean;
+  modelOnSeparateRow?: boolean;
 }) {
   const router = useRouter();
   const [jumpToSAEModelId, setJumpToSAEModelId] = React.useState(modelId || '');
@@ -30,9 +32,20 @@ export default function JumpToSAE({
       }}
       className="flex cursor-pointer flex-col items-start text-sm font-medium text-sky-700 outline-none"
     >
-      <div className="text-[10px] uppercase text-slate-500">Jump to SAE/Source</div>
+      <div className="text-[10px] uppercase text-slate-500">Jump to Source/SAE</div>
+      {modelOnSeparateRow && showModel && (
+        <div className="mb-1.5 flex flex-col">
+          <ModelSelector
+            modelIdChangedCallback={(newModelId) => {
+              setJumpToSAEModelId(newModelId);
+            }}
+            modelId={jumpToSAEModelId}
+            filterToRelease={filterToRelease}
+          />
+        </div>
+      )}
       <div className="flex flex-row gap-x-2">
-        {showModel && (
+        {showModel && !modelOnSeparateRow && (
           <ModelSelector
             modelIdChangedCallback={(newModelId) => {
               setJumpToSAEModelId(newModelId);

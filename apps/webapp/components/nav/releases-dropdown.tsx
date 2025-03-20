@@ -26,7 +26,7 @@ export default function ReleasesDropdown({ breadcrumb = false }: { breadcrumb?: 
         <DropdownMenu.Content
           align="center"
           sideOffset={-3}
-          className="z-50 w-full cursor-pointer overflow-hidden rounded-md bg-white text-xs font-medium text-sky-700 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
+          className="forceShowScrollBar z-50 max-h-[550px] w-full cursor-pointer overflow-hidden overflow-y-scroll rounded-md bg-white text-xs font-medium text-sky-700 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
         >
           {releases
             .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
@@ -75,7 +75,7 @@ export default function ReleasesDropdown({ breadcrumb = false }: { breadcrumb?: 
               className="col-span-2 flex h-9 flex-row items-center justify-center gap-x-0.5 rounded bg-white px-3 py-1 text-[11px] text-slate-600 hover:bg-slate-100"
             >
               <Plus className="h-3.5 w-3.5" />
-              Add New SAEs
+              Submit New Release
             </Link>
           )}
           <DropdownMenu.Arrow className="fill-white" />

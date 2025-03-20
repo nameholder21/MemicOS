@@ -28,7 +28,7 @@ import {
 } from '@/lib/utils/steer';
 import * as Select from '@radix-ui/react-select';
 import * as Slider from '@radix-ui/react-slider';
-import { ArrowUp, ChevronDown, ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, RotateCcw } from 'lucide-react';
+import { ArrowUp, ChevronDown, ChevronDownIcon, ChevronUpIcon, RotateCcw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 const MAX_MESSAGE_LENGTH_CHARS = 128;
@@ -735,7 +735,7 @@ export default function SteererSimple({
             >
               {showMoreOptions ? 'Hide Options' : 'More Options'}
             </Button>
-            <div className="mb-1 mt-3 hidden h-full w-full flex-row items-end justify-end gap-x-0.5 text-[8px] text-slate-600 sm:flex">
+            {/* <div className="mb-1 mt-3 hidden h-full w-full flex-row items-end justify-end gap-x-0.5 text-[8px] text-slate-600 sm:flex">
               <div className="flex flex-row items-center gap-x-1 rounded bg-slate-100 px-[7px] py-[3px] text-slate-400 hover:bg-sky-200 hover:text-sky-700">
                 <a
                   target="_blank"
@@ -747,7 +747,7 @@ export default function SteererSimple({
                 </a>
                 <ExternalLinkIcon className="h-2 w-2" />
               </div>
-            </div>
+            </div> */}
           </>
         ) : (
           <div className="h-full flex-1" />
