@@ -23,5 +23,17 @@ dependencies = [
     "memicos-autointerp-client"
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.1",
+    "coverage>=7.6.0",
+    "ruff>=0.7.4",
+]
+
 [tool.setuptools.packages.find]
 include = ["memicos_autointerp*"]
+
+[tool.ruff.lint]
+exclude = ["*.ipynb"]
+ignore = ["E203", "E501", "E731", "F722", "E741", "F821", "F403", "ARG002"]
+select = ["UP", "TID", "I", "F", "E", "ARG", "SIM", "RET", "LOG", "T20"]

@@ -1,14 +1,13 @@
+# ruff: noqa: T201
+
 import os
-from fastapi.responses import JSONResponse
-import torch
+
 import sentry_sdk
-from fastapi import FastAPI, HTTPException, Request
-from sentence_transformers import SentenceTransformer
-from memicos_autointerp.routes.explain.default import explain_default
-from memicos_autointerp.routes.score.embedding import generate_score_embedding
-from memicos_autointerp.routes.score.fuzz_detection import (
-    generate_score_fuzz_detection,
-)
+import torch
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import APIRouter, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from memicos_autointerp_client.models.explain_default_post_request import (
     ExplainDefaultPostRequest,
 )
@@ -18,9 +17,13 @@ from memicos_autointerp_client.models.score_embedding_post_request import (
 from memicos_autointerp_client.models.score_fuzz_detection_post_request import (
     ScoreFuzzDetectionPostRequest,
 )
-from dotenv import load_dotenv
-import uvicorn
-from fastapi import APIRouter
+from sentence_transformers import SentenceTransformer
+
+from memicos_autointerp.routes.explain.default import explain_default
+from memicos_autointerp.routes.score.embedding import generate_score_embedding
+from memicos_autointerp.routes.score.fuzz_detection import (
+    generate_score_fuzz_detection,
+)
 
 VERSION_PREFIX_PATH = "/v1"
 
@@ -101,7 +104,7 @@ async def check_secret_key(request: Request, call_next):
             },
         )
     response = await call_next(request)
-    return response
+    return response  # noqa: RET504
 
 
 if __name__ == "__main__":

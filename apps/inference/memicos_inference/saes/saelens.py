@@ -1,6 +1,7 @@
-from memicos_inference.saes.base import BaseSAE
-from sae_lens.sae import SAE
 import torch
+from sae_lens.sae import SAE
+
+from memicos_inference.saes.base import BaseSAE
 
 DTYPE_MAP = {
     "float16": torch.float16,
