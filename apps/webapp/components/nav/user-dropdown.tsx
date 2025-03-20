@@ -95,7 +95,7 @@ export default function UserDropdown({ session }: { session: Session | null }) {
         {session ? (
           <button
             type="button"
-            className={`flex cursor-pointer select-none flex-row items-center justify-center gap-x-1 rounded-md border border-slate-200 px-2 py-2 text-slate-500 transition-all focus:outline-none sm:ml-3 sm:rounded-full sm:px-2 sm:py-2 ${
+            className={`flex cursor-pointer select-none flex-row items-center justify-center gap-x-1 rounded-md border border-slate-200 px-2 py-2 text-slate-500 transition-all focus:outline-none sm:ml-2.5 sm:rounded-full sm:px-2 sm:py-2 ${
               showUserPopover ? 'shadow-0 bg-white hover:bg-white' : 'bg-white hover:bg-slate-50 hover:shadow'
             }`}
             onClick={() => setShowUserPopover(!showUserPopover)}

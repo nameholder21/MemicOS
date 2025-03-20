@@ -80,13 +80,14 @@ export default function NavBar({ session }: { session: Session | null }) {
             <div className="hidden select-none items-center justify-end gap-0 font-light text-slate-500 sm:flex">
               <NavBarButtons session={session} />
             </div>
+
             {session ? (
               <UserDropdown session={session} />
             ) : NEXT_PUBLIC_ENABLE_SIGNIN ? (
               <>
                 <button
                   type="button"
-                  className="flex h-9 w-full items-center justify-center rounded-md border border-slate-200 bg-white  px-3 text-sm transition-all duration-75 hover:bg-slate-50 focus:outline-none sm:ml-3 sm:h-8"
+                  className="flex h-9 w-full items-center justify-center rounded-md border border-slate-200 bg-white  px-3 text-sm transition-all duration-75 hover:bg-slate-50 focus:outline-none sm:ml-2.5 sm:h-8"
                   onClick={() => {
                     setSignInModalOpen(true);
                   }}
@@ -98,6 +99,20 @@ export default function NavBar({ session }: { session: Session | null }) {
             ) : (
               ''
             )}
+
+            {/* <a
+              href="https://github.com/hijohnnylin/memicos"
+              className="font-bold text-slate-900 transition-all hover:text-slate-900/70 hover:underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <button
+                type="button"
+                className="ml-2 flex cursor-pointer select-none flex-row items-center justify-center rounded-md bg-slate-800 px-2 py-2 text-white transition-all hover:bg-slate-600 hover:shadow focus:outline-none sm:ml-2.5 sm:rounded-full sm:px-2 sm:py-2"
+              >
+                <Github className="h-4 w-4" />
+              </button>
+            </a> */}
           </div>
         </div>
       </div>
