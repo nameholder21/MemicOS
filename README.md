@@ -3,7 +3,7 @@
     <img src="https://github.com/user-attachments/assets/9bcea0bf-4fa9-401d-bb7a-d031a4d12636" alt="Splash GIF"/>
   </a>
 
-  <a href="https://memicos.org"><h3 align="center">memicos 🧠🔍</h3></a>
+<a href="https://memicos.org"><h3 align="center">memicos 🧠🔍</h3></a>
 
   <p align="center">
     open source interpretability platform
@@ -17,6 +17,9 @@
 <p align="center" style="color: #cccccc;">
   <a href="https://github.com/hijohnnylin/memicos/blob/main/LICENSE"><img height="20px" src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT"></a>
   <a href="https://status.memicos.org"><img height="20px" src="https://uptime.betterstack.com/status-badges/v2/monitor/1roih.svg" alt="Uptime"></a>
+  <a href="https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA"><img height="20px" src="https://img.shields.io/badge/Slack-purple?logo=slack&logoColor=white" alt="Slack"></a>
+  <a href="mailto:johnny@memicos.org"><img height="20px" src="https://img.shields.io/badge/contact-blue.svg?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz48ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz48ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+IDxwYXRoIGQ9Ik00IDcuMDAwMDVMMTAuMiAxMS42NUMxMS4yNjY3IDEyLjQ1IDEyLjczMzMgMTIuNDUgMTMuOCAxMS42NUwyMCA3IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+IDxyZWN0IHg9IjMiIHk9IjUiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNCIgcng9IjIiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcmVjdD4gPC9nPjwvc3ZnPg==" alt="Email"></a>
+
 </p>
 
 - [about memicos](#about-memicos)
@@ -38,6 +41,7 @@
   - [openapi schema](#openapi-schema)
   - [monorepo directory structure](#monorepo-directory-structure)
 - [security](#security)
+- [contact / support](#contact--support)
 - [contributing](#contributing)
 - [appendix](#appendix)
     - ['make' commands reference](#make-commands-reference)
@@ -48,6 +52,7 @@
 TODO, after making repo public -->
 
 # about memicos
+
 <p align="center">
     <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%"/>
     &nbsp;
@@ -92,18 +97,18 @@ after following the quick start, you will be able to use memicos for some source
 | `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers | the SAEs used in the Gemma Scope demo |
 
 7. example things you can do (links work after `make webapp-demo-run`)
-   
+
    i. steering - [steer gpt2-small on cats](http://localhost:3000/gpt2-small/steer?source=10-res-jb&index=16899&strength=40)
-   
+
    ii. activation tests/search - [test activation for a gemma-2-2b feature](http://localhost:3000/gemma-2-2b/20-gemmascope-res-16k/502?defaulttesttext=what's%20the%20deal%20with%20airplane%20food%3F)
-   
+
    iii. search by explanation, [if you configured](<(#why-an-openai-api-key-is-needed-for-search-explanations)>) an `OPENAI_API_KEY` - [search for parrots features](http://localhost:3000/search-explanations/?q=parrots)
-   
+
    iv. browse dashboards - [a parrot feature](http://localhost:3000/gpt2-small/11-res-jb/23687)
-   
+
    v. run the [gemma-scope demo](http://localhost:3000/gemma-scope#main)
 
-9. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment).
+8. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment).
 
 > 🔥 **pro-tip:** see all the available `make` commands by running `make help`
 
@@ -294,6 +299,7 @@ TODO - use `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or
 TODO - use [utils/memicos_utils/export-data.py](utils/memicos_utils/export-data.py) once you've added your data to your local database.
 
 # feature overview
+
 here's a diagram showing the main features of memicos as of march 2025.
 ![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
 
@@ -346,6 +352,12 @@ openapi schemas are located under `/schemas`. we use openapi generators to gener
 please report vulnerabilities to [johnny@memicos.org](mailto:johnny@memicos.org).
 
 we don't currently have an official bounty program, but we'll try our best to give compensation based on the severity of the vulnerability - though it's likely we will not able able to offer awards for any low-severity vulnerabilities.
+
+# contact / support
+
+- slack: [join #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA)
+- email: [johnny@memicos.org](mailto:johnny@memicos.org)
+- issues: [github issues](https://github.com/hijohnnylin/memicos/issues)
 
 # contributing
 
