@@ -100,17 +100,6 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
         API
       </Link>
 
-      {!DEMO_MODE && (
-        <Link
-          href="/sae-bench"
-          prefetch={false}
-          rel="noreferrer"
-          className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white "
-        >
-          SAE Evals
-        </Link>
-      )}
-
       <ReleasesDropdown />
 
       <DropdownMenu.Root open={jumpToOpen}>
@@ -389,6 +378,17 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
       >
         Search
       </Link> */}
+
+      {!DEMO_MODE && (
+        <Link
+          href="/sae-bench"
+          prefetch={false}
+          rel="noreferrer"
+          className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white "
+        >
+          SAE Evals
+        </Link>
+      )}
 
       {session && (
         <>
