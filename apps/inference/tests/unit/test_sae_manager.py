@@ -1,8 +1,10 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
+from sae_lens.sae import SAE
+
 from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
-from unittest.mock import patch, MagicMock
-from sae_lens.sae import SAE
 
 
 class MockSAE:
@@ -21,13 +23,13 @@ class MockSAE:
         pass
 
 
-def mock_from_pretrained(*args, **kwargs):
+def mock_from_pretrained(*args, **kwargs):  # noqa: ARG001
     return MockSAE(), {}, {}
 
 
 @pytest.fixture
 def mock_config():
-    config = Config(
+    return Config(
         model_id="gpt2-small",
         sae_sets=["res-jb"],
         model_dtype="float16",
@@ -38,12 +40,11 @@ def mock_config():
         include_sae=[r"^5-res-jb"],
         max_loaded_saes=3,
     )
-    return config
 
 
 @pytest.fixture
 def mock_config_2():
-    config = Config(
+    return Config(
         model_id="gemma-2-2b",
         sae_sets=["gemmascope-mlp-16k"],
         model_dtype="float16",
@@ -54,12 +55,11 @@ def mock_config_2():
         override_model_id="gemma-2-2b-it",
         include_sae=[r"^1-gemmascope-mlp-16k"],
     )
-    return config
 
 
 @pytest.fixture
 def mock_config_multiple_sae_sets():
-    config = Config(
+    return Config(
         model_id="gpt2-small",
         sae_sets=["res-jb", "att-kk"],
         model_dtype="float16",
@@ -69,11 +69,9 @@ def mock_config_multiple_sae_sets():
         device="cpu",
         exclude_sae=[r"^(?!5-res-jb|7-att-kk).*"],
     )
-    return config
 
 
 def test_sae_manager_initialize(mock_config):
-
     with patch.object(SAE, "from_pretrained", side_effect=mock_from_pretrained):
         sae_manager = SAEManager(
             config=mock_config,
@@ -90,9 +88,7 @@ def test_sae_manager_initialize(mock_config):
 
 
 def test_sae_manager_initialize_different_model(mock_config_2):
-
     with patch.object(SAE, "from_pretrained", side_effect=mock_from_pretrained):
-
         sae_manager = SAEManager(
             config=mock_config_2,
             num_layers=12,
@@ -114,7 +110,6 @@ def test_sae_manager_initialize_different_model(mock_config_2):
 def test_sae_manager_initialize_multiple_sae_sets(
     mock_config_multiple_sae_sets,
 ):
-
     with patch.object(SAE, "from_pretrained", side_effect=mock_from_pretrained):
         sae_manager = SAEManager(
             config=mock_config_multiple_sae_sets,
@@ -154,10 +149,10 @@ def mock_sae_manager(mock_config):
 
 def test_lru_loading_up_to_limit(mock_sae_manager):
     for i in range(3):
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    assert len(mock_SAE_MANAGER.loaded_saes) == 3
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    assert len(mock_sae_manager.loaded_saes) == 3
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "0-res-jb",
         "1-res-jb",
         "2-res-jb",
@@ -166,10 +161,10 @@ def test_lru_loading_up_to_limit(mock_sae_manager):
 
 def test_lru_unloading_least_recently_used(mock_sae_manager):
     for i in range(4):
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    assert len(mock_SAE_MANAGER.loaded_saes) == 3
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    assert len(mock_sae_manager.loaded_saes) == 3
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "1-res-jb",
         "2-res-jb",
         "3-res-jb",
@@ -178,11 +173,11 @@ def test_lru_unloading_least_recently_used(mock_sae_manager):
 
 def test_lru_accessing_loaded_sae(mock_sae_manager):
     for i in range(3):
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    mock_SAE_MANAGER.get_sae("1-res-jb")
+    mock_sae_manager.get_sae("1-res-jb")
 
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "0-res-jb",
         "2-res-jb",
         "1-res-jb",
@@ -191,12 +186,12 @@ def test_lru_accessing_loaded_sae(mock_sae_manager):
 
 def test_lru_order_reflects_usage(mock_sae_manager):
     for i in range(3):
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    mock_SAE_MANAGER.get_sae("0-res-jb")
-    mock_SAE_MANAGER.get_sae("2-res-jb")
+    mock_sae_manager.get_sae("0-res-jb")
+    mock_sae_manager.get_sae("2-res-jb")
 
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "1-res-jb",
         "0-res-jb",
         "2-res-jb",
@@ -205,13 +200,13 @@ def test_lru_order_reflects_usage(mock_sae_manager):
 
 def test_lru_unload_and_reload(mock_sae_manager):
     for i in range(3):
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    mock_SAE_MANAGER.unload_sae("1-res-jb")
-    assert "1-res-jb" not in mock_SAE_MANAGER.loaded_saes
+    mock_sae_manager.unload_sae("1-res-jb")
+    assert "1-res-jb" not in mock_sae_manager.loaded_saes
 
-    mock_SAE_MANAGER.get_sae("1-res-jb")
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    mock_sae_manager.get_sae("1-res-jb")
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "0-res-jb",
         "2-res-jb",
         "1-res-jb",
@@ -222,10 +217,10 @@ def test_lru_stress_test(mock_sae_manager):
     # Simulate a more complex usage pattern
     access_pattern = [0, 1, 2, 3, 1, 4, 0, 2, 1, 3]
     for i in access_pattern:
-        mock_SAE_MANAGER.get_sae(f"{i}-res-jb")
+        mock_sae_manager.get_sae(f"{i}-res-jb")
 
-    assert len(mock_SAE_MANAGER.loaded_saes) == 3
-    assert list(mock_SAE_MANAGER.loaded_saes.keys()) == [
+    assert len(mock_sae_manager.loaded_saes) == 3
+    assert list(mock_sae_manager.loaded_saes.keys()) == [
         "2-res-jb",
         "1-res-jb",
         "3-res-jb",

@@ -1,43 +1,43 @@
-from typing import List, Optional
-import torch
-from memicos_inference.inference_utils.steering import (
-    OrthogonalProjector,
-    process_features_vectorized,
-)
-from fastapi.responses import StreamingResponse
 import logging
-from fastapi.responses import JSONResponse
-from memicos_inference.inference_utils.steering import (
-    format_sse_message,
-    remove_sse_formatting,
+from typing import List, Optional
+
+import torch
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse, StreamingResponse
+from memicos_inference_client.models.np_steer_completion_response_inner import (
+    NPSteerCompletionResponseInner,
+)
+from memicos_inference_client.models.np_steer_feature import NPSteerFeature
+from memicos_inference_client.models.np_steer_method import NPSteerMethod
+from memicos_inference_client.models.np_steer_type import NPSteerType
+from memicos_inference_client.models.np_steer_vector import NPSteerVector
+from memicos_inference_client.models.steer_completion_post200_response import (
+    SteerCompletionPost200Response,
 )
 from memicos_inference_client.models.steer_completion_request import (
     SteerCompletionRequest,
 )
-from memicos_inference_client.models.steer_completion_post200_response import (
-    SteerCompletionPost200Response,
+
+from memicos_inference.config import Config
+from memicos_inference.inference_utils.steering import (
+    OrthogonalProjector,
+    format_sse_message,
+    process_features_vectorized,
+    remove_sse_formatting,
+    stream_lock,
 )
-from memicos_inference_client.models.np_steer_completion_response_inner import (
-    NPSteerCompletionResponseInner,
-)
-from memicos_inference_client.models.np_steer_type import NPSteerType
-from memicos_inference_client.models.np_steer_method import NPSteerMethod
-from memicos_inference_client.models.np_steer_feature import NPSteerFeature
-from memicos_inference_client.models.np_steer_vector import NPSteerVector
 from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import (
     Model,
     with_request_lock,
 )
-from memicos_inference.config import Config
-from fastapi import APIRouter
-from memicos_inference.inference_utils.steering import stream_lock
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 TOKENS_PER_YIELD = 5
+
 
 @router.post("/steer/completion")
 @with_request_lock()
@@ -119,16 +119,14 @@ async def completion(request: SteerCompletionRequest):
     )
 
     if request.stream:
-        print("Streaming response")
+        logger.info("Streaming response")
         return StreamingResponse(generator, media_type="text/event-stream")
-    else:
-        print("Non-streaming response")
-        # Get the last item from the generator
-        async for item in generator:
-            pass
-        results = remove_sse_formatting(item)
-        to_return = SteerCompletionPost200Response.from_json(results)
-        return to_return
+    logger.info("Non-streaming response")
+    # Get the last item from the generator
+    async for item in generator:
+        pass
+    results = remove_sse_formatting(item)
+    return SteerCompletionPost200Response.from_json(results)
 
 
 async def run_batched_generate(
@@ -152,7 +150,7 @@ async def run_batched_generate(
         if seed is not None:
             torch.manual_seed(seed)
 
-        def steering_hook(activations, hook):
+        def steering_hook(activations, hook):  # noqa: ARG001
             # Log activation device
             logger.info(f"Activations device: {activations.device}")
 
@@ -193,8 +191,6 @@ async def run_batched_generate(
         tokenized = model.to_tokens(prompt)[0]
         logger.info(f"Tokenized input device: {tokenized.device}")
 
-        print(tokenized)
-
         if generate_both:
             steered_partial_result = ""
             default_partial_result = ""
@@ -222,7 +218,7 @@ async def run_batched_generate(
                 with model.hooks(fwd_hooks=editing_hooks):
                     for i, result in enumerate(
                         model.generate_stream(
-                            stop_at_eos=(True if model.cfg.device != "mps" else False),
+                            stop_at_eos=(model.cfg.device != "mps"),
                             input=tokenized.unsqueeze(0),
                             do_sample=True,
                             max_tokens_per_yield=TOKENS_PER_YIELD,
@@ -265,7 +261,7 @@ async def run_batched_generate(
                 partial_result = ""
                 for i, result in enumerate(
                     model.generate_stream(
-                        stop_at_eos=(True if model.cfg.device != "mps" else False),
+                        stop_at_eos=(model.cfg.device != "mps"),
                         input=tokenized.unsqueeze(0),
                         do_sample=True,
                         max_tokens_per_yield=TOKENS_PER_YIELD,
@@ -277,7 +273,9 @@ async def run_batched_generate(
                     else:
                         partial_result += model.to_string(result[0])  # type: ignore
                     to_return = make_steer_completion_response(
-                        [steer_type], partial_result, partial_result  # type: ignore
+                        [steer_type],
+                        partial_result,
+                        partial_result,  # type: ignore
                     )
                     yield format_sse_message(to_return.to_json())
 

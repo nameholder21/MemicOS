@@ -1,32 +1,25 @@
-from fastapi.responses import JSONResponse
-import torch
-import sys
-import logging
-from fastapi import FastAPI, Request
-import traceback
-from memicos_inference.args import list_available_options
+import asyncio
 import gc
+import logging
+import os
+import sys
+import traceback
+
+import sentry_sdk
+import torch
+from dotenv import load_dotenv
+from fastapi import APIRouter, FastAPI, Request
+from fastapi.responses import JSONResponse
+from transformer_lens import HookedTransformer
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from memicos_inference.args import list_available_options, parse_env_and_args
 from memicos_inference.config import (
     Config,
     get_saelens_memicos_directory_df,
 )
-from memicos_inference.args import parse_env_and_args
-from memicos_inference.logging import initialize_logging
-from memicos_inference.utils import checkCudaError
-from transformer_lens import HookedTransformer
-from transformers import AutoTokenizer
-import sentry_sdk
-from fastapi import APIRouter
-from memicos_inference.shared import STR_TO_DTYPE, Model  # noqa: F401
-from memicos_inference.sae_manager import SAEManager  # noqa: F401
 from memicos_inference.endpoints.activation.all import (
     router as activation_all_router,
-)
-from memicos_inference.endpoints.steer.completion_chat import (
-    router as steer_completion_chat_router,
-)
-from memicos_inference.endpoints.steer.completion import (
-    router as steer_completion_router,
 )
 from memicos_inference.endpoints.activation.single import (
     router as activation_single_router,
@@ -34,16 +27,22 @@ from memicos_inference.endpoints.activation.single import (
 from memicos_inference.endpoints.activation.topk_by_token import (
     router as activation_topk_by_token_router,
 )
+from memicos_inference.endpoints.steer.completion import (
+    router as steer_completion_router,
+)
+from memicos_inference.endpoints.steer.completion_chat import (
+    router as steer_completion_chat_router,
+)
 from memicos_inference.endpoints.util.sae_topk_by_decoder_cossim import (
     router as sae_topk_by_decoder_cossim_router,
 )
 from memicos_inference.endpoints.util.sae_vector import (
     router as sae_vector_router,
 )
-import asyncio
-import os
-from dotenv import load_dotenv
-from transformers import AutoModelForCausalLM
+from memicos_inference.logging import initialize_logging
+from memicos_inference.sae_manager import SAEManager  # noqa: F401
+from memicos_inference.shared import STR_TO_DTYPE, Model  # noqa: F401
+from memicos_inference.utils import checkCudaError
 
 # Initialize logging at module level
 initialize_logging()
@@ -104,7 +103,7 @@ async def initialize(
         models = df["model"].unique()
         sae_sets = df["memicos_set"].unique()
         if args.model_id not in models:
-            print(
+            logger.error(
                 f"Error: Invalid model_id '{args.model_id}'. Use --list_models to see available options."
             )
             exit(1)
@@ -116,7 +115,7 @@ async def initialize(
         logger.info("Checking for invalid SAE sets...")
         invalid_sae_sets = set(args_sae_sets) - set(sae_sets)
         if invalid_sae_sets:
-            print(
+            logger.error(
                 f"Error: Invalid SAE set(s): {', '.join(invalid_sae_sets)}. Use --list_models to see available options."
             )
             exit(1)
@@ -132,7 +131,7 @@ async def initialize(
 
         SECRET = os.getenv("SECRET")
 
-        print(f"device in args: {args.device}")
+        logger.info(f"device in args: {args.device}")
         logger.info(f"device set in args: {args.device}")
         config = Config(
             secret=SECRET,
@@ -186,7 +185,9 @@ async def initialize(
                 + model.tokenizer.additional_special_tokens_ids
             )
             special_token_ids = {
-                tid for tid in special_token_ids if tid is not None  # type: ignore
+                tid
+                for tid in special_token_ids
+                if tid is not None  # type: ignore
             }
             # cache this one time for steering later use
             config.set_steer_special_token_ids(special_token_ids)
@@ -256,7 +257,7 @@ async def log_and_check_cuda_error(request, call_next):
 
 
 @app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
+async def generic_exception_handler(request: Request, exc: Exception):  # noqa: ARG001
     return JSONResponse(
         status_code=500,
         content={

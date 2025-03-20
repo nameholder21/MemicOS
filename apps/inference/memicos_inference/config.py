@@ -1,11 +1,12 @@
-import re
 import json
-from typing import Optional, List
+import logging
+import re
+from typing import Optional
+
 import pandas as pd
 from sae_lens.toolkit.pretrained_saes_directory import (
     get_pretrained_saes_directory,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class Config:
         self,
         model_id="gpt2-small",
         custom_hf_model_id=None,
-        sae_sets: List[str] = ["res-jb"],
+        sae_sets: list[str] = ["res-jb"],
         model_dtype="float32",
         sae_dtype="float32",
         secret: Optional[str] = None,
@@ -106,7 +107,7 @@ class Config:
                 self.CUSTOM_HF_MODEL_ID if self.CUSTOM_HF_MODEL_ID else self.MODEL_ID
             ),
         )
-        return config_json
+        return config_json  # noqa: RET504
 
     def _filter_sae_config(self, sae_config):
         filtered_config = []
@@ -132,10 +133,8 @@ class Config:
             re.search(pattern, sae_id) for pattern in include_patterns
         ):
             return False
-        if exclude_patterns and any(
-            re.search(pattern, sae_id) for pattern in exclude_patterns
-        ):
-            return False
+        if exclude_patterns:
+            return not any(re.search(pattern, sae_id) for pattern in exclude_patterns)
         return True
 
 
@@ -170,8 +169,8 @@ def get_saelens_memicos_directory_df():
 
 def config_to_json(
     directory_df: pd.DataFrame,
-    selected_sets_sae_lens: Optional[List[str]] = None,
-    selected_sets_memicos: Optional[List[str]] = None,
+    selected_sets_sae_lens: Optional[list[str]] = None,
+    selected_sets_memicos: Optional[list[str]] = None,
     selected_model: Optional[str] = None,
 ) -> str:
     if selected_model:

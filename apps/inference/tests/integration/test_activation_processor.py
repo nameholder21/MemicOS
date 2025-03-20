@@ -1,18 +1,18 @@
 import torch
+
 from memicos_inference.endpoints.activations_all import (
     ActivationProcessor,
     ActivationRequest,
 )
 from tests.conftest import (
+    DEVICE,
     TEST_PROMPT,
     TEST_SAE_ID,
-    DEVICE,
     TEST_SET_ID,
 )
 
 
 def test_activation_processor(model, sae_manager, config):
-
     processor = ActivationProcessor(model, sae_manager, config)
 
     # Test input
@@ -79,11 +79,8 @@ def test_activation_processor(model, sae_manager, config):
         direct_act_data, processor_act_data, atol=1e-5
     ), "Mismatch in encoded activations between direct calculation and ActivationProcessor"
 
-    print("ActivationProcessor comparison test passed successfully")
-
 
 def test_sae_activations(model, sae_manager, config):
-
     processor = ActivationProcessor(model, sae_manager, config)
 
     # Test input
@@ -142,8 +139,6 @@ def test_sae_activations(model, sae_manager, config):
         assert torch.allclose(
             direct_act_data[row, col], processor_act_data[row, col], atol=1e-5
         ), f"Mismatch at position ({row}, {col}): direct {direct_act_data[row, col]}, processor {processor_act_data[row, col]}"
-
-    print("SAE activation comparison test passed successfully")
 
     # Optional: Return values for further inspection if needed
     return direct_act_data, processor_act_data

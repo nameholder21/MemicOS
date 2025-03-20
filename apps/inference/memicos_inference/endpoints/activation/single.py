@@ -1,8 +1,10 @@
-from typing import List
-from fastapi.responses import JSONResponse
-import torch
-import einops
 import logging
+from typing import List
+
+import einops
+import torch
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from memicos_inference_client.models.activation_single_post200_response import (
     ActivationSinglePost200Response,
 )
@@ -12,13 +14,13 @@ from memicos_inference_client.models.activation_single_post200_response_activati
 from memicos_inference_client.models.activation_single_post_request import (
     ActivationSinglePostRequest,
 )
+
+from memicos_inference.config import Config
+from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import (
     Model,
     with_request_lock,
 )
-from memicos_inference.config import Config
-from memicos_inference.sae_manager import SAEManager
-from fastapi import APIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +77,7 @@ async def activation_single(
                 status_code=400,
             )
 
-        str_tokens: List[str] = model.to_str_tokens(
-            prompt, prepend_bos=prepend_bos
-        )  # type: ignore
+        str_tokens: List[str] = model.to_str_tokens(prompt, prepend_bos=prepend_bos)  # type: ignore
         result = process_activations(model, source, index, tokens)
 
         # Calculate DFA if enabled
@@ -157,7 +157,7 @@ def process_activations(
 
     if sae_type == "neurons":
         return process_neuron_activations(cache, hook_name, index, sae_manager.device)
-    elif sae_manager.get_sae(layer) is not None:
+    if sae_manager.get_sae(layer) is not None:
         return process_feature_activations(
             sae_manager.get_sae(layer),
             sae_type,
@@ -165,8 +165,7 @@ def process_activations(
             hook_name,
             index,
         )
-    else:
-        raise ValueError(f"Invalid layer: {layer}")
+    raise ValueError(f"Invalid layer: {layer}")
 
 
 def process_neuron_activations(
@@ -183,11 +182,9 @@ def process_neuron_activations(
 
 
 def process_feature_activations(sae, sae_type, cache, hook_name, index):
-
     if sae_type == "saelens-1":
         return process_saelens_activations(sae, cache, hook_name, index)
-    else:
-        raise ValueError(f"Unsupported SAE type: {sae_type}")
+    raise ValueError(f"Unsupported SAE type: {sae_type}")
 
 
 def process_saelens_activations(

@@ -1,15 +1,16 @@
-import torch
 import traceback
+
+import torch
 from fastapi import HTTPException
-from sae_auto_interp.clients import OpenRouter
-from sae_auto_interp.explainers import DefaultExplainer
-from sae_auto_interp.features import FeatureRecord, Feature, Example
-from memicos_autointerp_client.models.explain_default_post_request import (
-    ExplainDefaultPostRequest,
-)
 from memicos_autointerp_client.models.explain_default_post200_response import (
     ExplainDefaultPost200Response,
 )
+from memicos_autointerp_client.models.explain_default_post_request import (
+    ExplainDefaultPostRequest,
+)
+from sae_auto_interp.clients import OpenRouter
+from sae_auto_interp.explainers import DefaultExplainer
+from sae_auto_interp.features import Example, Feature, FeatureRecord
 
 
 async def explain_default(request: ExplainDefaultPostRequest):

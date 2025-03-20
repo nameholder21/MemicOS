@@ -3,7 +3,7 @@ from logging.config import dictConfig
 
 
 def initialize_logging():
-    home_dir = os.environ["HOME_DIR"] if "HOME_DIR" in os.environ else "."
+    home_dir = os.environ.get("HOME_DIR", ".")
     log_directory = os.path.join(home_dir, "logs")
     os.makedirs(log_directory, exist_ok=True)
 

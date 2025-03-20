@@ -1,14 +1,15 @@
-import requests
-import pytest
 import json
 from collections import Counter
 
+import pytest
+import requests
+
 from tests.conftest import (
+    BOS_TOKEN_STR,
+    TEST_PROMPT,
+    TEST_SAE_ID,
     TEST_SAE_MODEL_ID,
     TEST_SET_ID,
-    TEST_SAE_ID,
-    TEST_PROMPT,
-    BOS_TOKEN_STR,
 )
 
 DFA_TEST_PROMPT = "The quick brown fox jumps over the lazy dog."
@@ -55,31 +56,23 @@ def test_activations_all_endpoint(running_server, logger):
     # Check for duplicate indices
     indices = [activation["index"] for activation in data["activations"]]
     index_counts = Counter(indices)
-    duplicate_indices = [
-        index for index, count in index_counts.items() if count > 1
-    ]
+    duplicate_indices = [index for index, count in index_counts.items() if count > 1]
 
-    assert (
-        len(duplicate_indices) == 0
-    ), f"Found duplicate indices: {duplicate_indices}"
+    assert len(duplicate_indices) == 0, f"Found duplicate indices: {duplicate_indices}"
 
     # Additional checks for the structure of each activation
     for activation in data["activations"]:
         assert "index" in activation, "Activation missing 'index'"
         assert "layer" in activation, "Activation missing 'layer'"
         assert "maxValue" in activation, "Activation missing 'maxValue'"
-        assert (
-            "maxValueIndex" in activation
-        ), "Activation missing 'maxValueIndex'"
+        assert "maxValueIndex" in activation, "Activation missing 'maxValueIndex'"
         assert "sumValues" in activation, "Activation missing 'sumValues'"
         assert "values" in activation, "Activation missing 'values'"
         assert isinstance(activation["values"], list), "'values' is not a list"
 
     # Check tokens
     assert len(data["tokens"]) > 0, "No tokens returned"
-    assert (
-        data["tokens"][0] == BOS_TOKEN_STR
-    ), f"First token is not '{BOS_TOKEN_STR}'"
+    assert data["tokens"][0] == BOS_TOKEN_STR, f"First token is not '{BOS_TOKEN_STR}'"
     assert data["tokens"][1] == "Hello", "Second token is not 'Hello'"
 
     # Check counts
@@ -143,19 +136,13 @@ def test_top_k_by_decoder_cosine_similarity(running_server, logger):
 
     data = response.json()
     assert "feature_id" in data, "Response does not contain 'feature_id' key"
-    assert (
-        "top_k_features" in data
-    ), "Response does not contain 'top_k_features' key"
-    assert isinstance(
-        data["top_k_features"], list
-    ), "'top_k_features' is not a list"
+    assert "top_k_features" in data, "Response does not contain 'top_k_features' key"
+    assert isinstance(data["top_k_features"], list), "'top_k_features' is not a list"
     assert len(data["top_k_features"]) == 5, "Expected 5 top features"
 
     for feature in data["top_k_features"]:
         assert "index" in feature, "Feature missing 'index'"
-        assert (
-            "cosine_similarity" in feature
-        ), "Feature missing 'cosine_similarity'"
+        assert "cosine_similarity" in feature, "Feature missing 'cosine_similarity'"
         assert isinstance(feature["index"], int), "'index' is not an integer"
         assert isinstance(
             feature["cosine_similarity"], float
@@ -181,9 +168,7 @@ def test_top_k_by_decoder_cosine_similarity(running_server, logger):
         0.0798678770661354,
     ]
     found_indices = [feature["index"] for feature in data["top_k_features"]]
-    found_values = [
-        feature["cosine_similarity"] for feature in data["top_k_features"]
-    ]
+    found_values = [feature["cosine_similarity"] for feature in data["top_k_features"]]
     assert (
         found_indices == expected_indices
     ), f"Indices do not match expected values, found {found_indices}"
@@ -206,9 +191,7 @@ def test_top_k_by_decoder_cosine_similarity(running_server, logger):
     ],
     indirect=True,
 )
-def test_ordinary_dfa(
-    parameterized_running_server, parameterized_config, logger
-):
+def test_ordinary_dfa(parameterized_running_server, parameterized_config, logger):
     base_url, log_capture_string = parameterized_running_server
 
     url = f"{base_url}/activations-all"
@@ -216,9 +199,7 @@ def test_ordinary_dfa(
         "text": DFA_TEST_PROMPT,
         "model": parameterized_config.MODEL_ID,
         "source_set": parameterized_config.SAE_SETS[0],
-        "selected_layers": [
-            parameterized_config.include_sae_patterns[0].strip("^")
-        ],
+        "selected_layers": [parameterized_config.include_sae_patterns[0].strip("^")],
         "secret": "secret",
         "sort_indexes": [],
         "num_results": 5,  # Limit to top 5 activations for brevity
@@ -238,22 +219,8 @@ def test_ordinary_dfa(
         "activations" in data
     ), f"Response does not contain 'activations' key. Keys found: {', '.join(data.keys())}"
 
-    print("Ordinary DFA Test Results:")
-    print(f"Model: {parameterized_config.OVERRIDE_MODEL_ID}")
-    print(f"SAE: {parameterized_config.include_sae_patterns[0].strip('^')}")
-    print(f"Prompt: {DFA_TEST_PROMPT}")
-
     for activation in data["activations"]:
-        if "dfaValues" in activation:
-            print(f"Feature Index: {activation['index']}")
-            print(f"Max Activation: {activation['maxValue']}")
-            print(f"DFA Target Index: {activation['dfaTargetIndex']}")
-            print(f"DFA Max Value: {activation['dfaMaxValue']}")
-            print("DFA Values:")
-            for i, value in enumerate(activation["dfaValues"]):
-                print(f"  Token {i}: {value:.4f}")
-            print("---")
-        else:
+        if "dfaValues" not in activation:
             logger.warning(
                 f"No DFA values found for feature index {activation['index']}"
             )
@@ -283,9 +250,7 @@ def test_gqa_dfa(parameterized_running_server, parameterized_config, logger):
         "text": DFA_TEST_PROMPT,
         "model": parameterized_config.MODEL_ID,
         "source_set": parameterized_config.SAE_SETS[0],
-        "selected_layers": [
-            parameterized_config.include_sae_patterns[0].strip("^")
-        ],
+        "selected_layers": [parameterized_config.include_sae_patterns[0].strip("^")],
         "secret": "secret",
         "sort_indexes": [],
         "num_results": 5,  # Limit to top 5 activations for brevity
@@ -309,22 +274,8 @@ def test_gqa_dfa(parameterized_running_server, parameterized_config, logger):
         "activations" in data
     ), f"Response does not contain 'activations' key. Keys found: {', '.join(data.keys())}"
 
-    print("GQA DFA Test Results:")
-    print(f"Model: {parameterized_config.OVERRIDE_MODEL_ID}")
-    print(f"SAE: {parameterized_config.include_sae_patterns[0].strip('^')}")
-    print(f"Prompt: {DFA_TEST_PROMPT}")
-
     for activation in data["activations"]:
-        if "dfaValues" in activation:
-            print(f"Feature Index: {activation['index']}")
-            print(f"Max Activation: {activation['maxValue']}")
-            print(f"DFA Target Index: {activation['dfaTargetIndex']}")
-            print(f"DFA Max Value: {activation['dfaMaxValue']}")
-            print("DFA Values:")
-            for i, value in enumerate(activation["dfaValues"]):
-                print(f"  Token {i}: {value:.4f}")
-            print("---")
-        else:
+        if "dfaValues" not in activation:
             logger.warning(
                 f"No DFA values found for feature index {activation['index']}"
             )
