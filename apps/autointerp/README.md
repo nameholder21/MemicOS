@@ -50,10 +50,10 @@ build the image from root directory
 
 ```
 # cpu
-# docker build --platform=linux/amd64 -t memicos-autointerp:cpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=nocuda .
+docker build --platform=linux/amd64 -t memicos-autointerp:cpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=nocuda .
 
 # gpu
-# docker build --platform=linux/amd64 -t memicos-autointerp:gpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=cuda .
+docker build --platform=linux/amd64 -t memicos-autointerp:gpu -f apps/autointerp/Dockerfile --build-arg BUILD_TYPE=cuda .
 ```
 
 Push the image to the registry (using google cloud here)
