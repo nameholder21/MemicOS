@@ -340,7 +340,7 @@ export default function ExplanationsSearcher({
                 <p className="mt-3 text-center text-sm font-medium text-slate-400">
                   {!IS_ACTUALLY_MEMICOS_ORG
                     ? 'Search all features across all loaded models'
-                    : 'Search 50,000,000+ features across 7 AI models'}
+                    : 'Search 50,000,000+ features across 7 models'}
                 </p>
               </div>
             </TabsContent>

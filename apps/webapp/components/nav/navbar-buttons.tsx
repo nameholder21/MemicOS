@@ -179,6 +179,7 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
                 callback={() => {
                   setJumpToOpen(false);
                 }}
+                modelOnSeparateRow
               />
             </div>
             <div
@@ -195,6 +196,7 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
                 defaultSourceSet={getSourceSetNameFromSource(defaultSource)}
                 defaultIndex="0"
                 filterToPublic
+                modelOnSeparateRow
                 callback={() => {
                   setJumpToOpen(false);
                 }}
@@ -218,7 +220,7 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
             }}
             className="z-30 min-w-[600px] max-w-[600px] overflow-hidden rounded-md bg-white shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
           >
-            <div className="flex cursor-pointer items-center border-b border-slate-200 px-8 pb-6 pt-6 text-sm font-medium text-sky-700 outline-none ">
+            <div className="flex items-center border-b border-slate-200 px-8 pb-6 pt-6 text-sm font-medium text-sky-700 outline-none ">
               <div className="flex w-full flex-col items-start justify-center text-[15px] text-slate-600">
                 <div className="text-xl font-semibold leading-none tracking-tight text-slate-800">
                   Search Explanations
@@ -229,7 +231,7 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
                 <ExplanationsSearcher initialSelectedLayers={[]} showTabs fromNav />
               </div>
             </div>
-            <div className="flex cursor-pointer items-center px-8 pb-2 pt-7 text-sm font-medium text-sky-700 outline-none ">
+            <div className="flex items-center px-8 pb-2 pt-7 text-sm font-medium text-sky-700 outline-none ">
               <div className="flex w-full flex-col items-start justify-center text-[15px] text-slate-600">
                 <div className="text-xl font-semibold leading-none tracking-tight text-slate-800">
                   Search via Inference
