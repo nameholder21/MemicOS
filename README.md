@@ -1,9 +1,25 @@
-![memicos-splash](https://github.com/user-attachments/assets/9bcea0bf-4fa9-401d-bb7a-d031a4d12636)
+<p align="center">
+  <a href="https://github.com/hijohnnylin/memicos">
+    <img src="https://github.com/user-attachments/assets/9bcea0bf-4fa9-401d-bb7a-d031a4d12636" alt="Splash GIF"/>
+  </a>
 
-#### memicos 🧠🔍
+  <a href="https://memicos.org"><h3 align="center">memicos 🧠🔍</h3></a>
 
-this is the monorepo for [memicos.org](memicos.org), the open source interpretability platform.
+  <p align="center">
+    open source interpretability platform
+    <br />
+    <sub>
+    <strong>api · steering · activations · autointerp · scoring · inference · search/filter · dashboards · benchmarks · cossim · umap · embeds · probes · saes · lists · exports</strong>
+    </sub>
+  </p>
+</p>
 
+<p align="center" style="color: #cccccc;">
+  <a href="https://github.com/hijohnnylin/memicos/blob/main/LICENSE"><img height="20px" src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT"></a>
+  <a href="https://status.memicos.org"><img height="20px" src="https://uptime.betterstack.com/status-badges/v2/monitor/1roih.svg" alt="Uptime"></a>
+</p>
+
+- [about memicos](#about-memicos)
 - [quick start - local webapp + demo environment](#quick-start---local-webapp--demo-environment)
 - [setting up your local environment](#setting-up-your-local-environment)
   - ["i want to use a local database / import more memicos data"](#i-want-to-use-a-local-database--import-more-memicos-data)
@@ -30,6 +46,15 @@ this is the monorepo for [memicos.org](memicos.org), the open source interpretab
 
 <!-- # ultra-quick start: one-click deploy on vercel
 TODO, after making repo public -->
+
+# about memicos
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%"/>
+    &nbsp;
+    <img src="https://github.com/user-attachments/assets/f8fe432f-fc6c-484f-a262-c79c4ac524af" alt="demo of inference search" width="32%"/>
+    &nbsp;
+    <img src="https://github.com/user-attachments/assets/4a6c9cbc-fd40-4fd7-b05a-67f2eff128fd" alt="demo of umap" width="32%"/>
+</p>
 
 # quick start - local webapp + demo environment
 
@@ -67,13 +92,18 @@ after following the quick start, you will be able to use memicos for some source
 | `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers | the SAEs used in the Gemma Scope demo |
 
 7. example things you can do (links work after `make webapp-demo-run`)
+   
    i. steering - [steer gpt2-small on cats](http://localhost:3000/gpt2-small/steer?source=10-res-jb&index=16899&strength=40)
+   
    ii. activation tests/search - [test activation for a gemma-2-2b feature](http://localhost:3000/gemma-2-2b/20-gemmascope-res-16k/502?defaulttesttext=what's%20the%20deal%20with%20airplane%20food%3F)
+   
    iii. search by explanation, [if you configured](<(#why-an-openai-api-key-is-needed-for-search-explanations)>) an `OPENAI_API_KEY` - [search for parrots features](http://localhost:3000/search-explanations/?q=parrots)
+   
    iv. browse dashboards - [a parrot feature](http://localhost:3000/gpt2-small/11-res-jb/23687)
+   
    v. run the [gemma-scope demo](http://localhost:3000/gemma-scope#main)
 
-8. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment).
+9. now that we've set up a local webapp that's usable, this is a good time to quickly review memicos's [simple architecture](#architecture) and its [individual services](#services), so that you can get a better understanding of what you'll set up later. then, keep going to [setting up your local environment](#setting-up-your-local-environment).
 
 > 🔥 **pro-tip:** see all the available `make` commands by running `make help`
 
