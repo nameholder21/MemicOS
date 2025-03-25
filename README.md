@@ -9,7 +9,7 @@
     open source interpretability platform
     <br />
     <sub>
-    <strong>api · steering · activations · autointerp · scoring · inference · search/filter · dashboards · benchmarks · cossim · umap · embeds · probes · saes · lists · exports</strong>
+    <strong>api · steering · activations · autointerp · scoring · inference · search · filter · dashboards · benchmarks · cossim · umap · embeds · probes · saes · lists · exports · uploads</strong>
     </sub>
   </p>
 </p>
