@@ -1,5 +1,4 @@
 import { useGlobalContext } from '@/components/provider/global-provider';
-import { MEMICOS_EMAIL_ADDRESS } from '@/lib/env';
 import { Gamepad2, HelpCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef } from 'react';
@@ -25,7 +24,7 @@ export default function TabLearn({ tabUpdater }: { tabUpdater: (tab: string) => 
           ⭐️ Up Next
         </span>
 
-        <div className=" flex w-full flex-col items-start justify-start text-left text-sm font-medium text-slate-500">
+        <div className="flex w-full flex-col items-start justify-start text-left text-sm font-medium text-slate-500">
           <div>
             {!session.data?.user && (
               <div className="mb-2.5 flex flex-col items-start gap-y-1.5 sm:flex-row sm:items-center">
@@ -66,7 +65,7 @@ export default function TabLearn({ tabUpdater }: { tabUpdater: (tab: string) => 
             </div>
             <div className="flex flex-col items-start gap-y-1.5 sm:flex-row sm:items-center">
               <a
-                href={`mailto:${MEMICOS_EMAIL_ADDRESS}?subject=Gemma%20Scope%20Demo%20Feedback%20or%20Question`}
+                href="/contact"
                 target="_blank"
                 rel="noreferrer"
                 className="mr-2.5 w-[140px] whitespace-nowrap rounded-full bg-gBlue px-4 py-2 text-center text-white hover:bg-gBlue/80"
@@ -136,7 +135,7 @@ export default function TabLearn({ tabUpdater }: { tabUpdater: (tab: string) => 
       </div>
 
       <div className="mb-7 flex w-full flex-row items-center justify-start px-2 sm:px-5">
-        <div className="flex w-full flex-col items-start justify-start gap-x-4 gap-y-1.5 rounded  px-2 py-1 sm:flex-row">
+        <div className="flex w-full flex-col items-start justify-start gap-x-4 gap-y-1.5 rounded px-2 py-1 sm:flex-row">
           <span className="w-[105px] min-w-[105px] max-w-[105px] whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-center text-[10px] font-bold uppercase text-slate-600">
             🔗 Resources
           </span>
@@ -264,7 +263,7 @@ export default function TabLearn({ tabUpdater }: { tabUpdater: (tab: string) => 
             </div>
             <div className="flex flex-col items-start justify-start sm:flex-row sm:items-center sm:justify-center">
               <a
-                href={`mailto:${MEMICOS_EMAIL_ADDRESS}?subject=Gemma+Scope+Feedback`}
+                href="/contact"
                 target="_blank"
                 rel="noreferrer"
                 className="mr-2 whitespace-nowrap rounded-full bg-slate-200 px-4 py-1 hover:bg-slate-100"
@@ -277,7 +276,7 @@ export default function TabLearn({ tabUpdater }: { tabUpdater: (tab: string) => 
         </div>
       </div>
       <div className="mb-5 flex w-full flex-row items-center justify-start px-2 pb-24 sm:px-5">
-        <div className="flex w-full flex-col items-start justify-start gap-x-4 gap-y-1.5 rounded  px-2 py-1 sm:flex-row">
+        <div className="flex w-full flex-col items-start justify-start gap-x-4 gap-y-1.5 rounded px-2 py-1 sm:flex-row">
           <span className="w-[105px] min-w-[105px] max-w-[105px] whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-center text-[10px] font-bold uppercase text-slate-600">
             🎁 Next
           </span>

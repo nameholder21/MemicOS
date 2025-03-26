@@ -1,6 +1,6 @@
 'use client';
 
-import { CONTACT_EMAIL_ADDRESS, IS_ACTUALLY_MEMICOS_ORG, NEXT_PUBLIC_URL } from '@/lib/env';
+import { IS_ACTUALLY_MEMICOS_ORG, NEXT_PUBLIC_URL } from '@/lib/env';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -35,16 +35,16 @@ export default function Footer() {
         >
           Privacy & Terms
         </Link>
-        <Link
+        {/* <Link
           href="https://twitter.com/memicos"
           target="_blank"
           rel="noreferrer"
           className="flex cursor-pointer items-center whitespace-nowrap px-0 py-0.5 transition-all hover:text-sky-700 hover:underline sm:px-0 sm:py-0"
         >
           Twitter
-        </Link>
+        </Link> */}
         <Link
-          href={`mailto:${CONTACT_EMAIL_ADDRESS}?subject=MemicOS`}
+          href="/contact"
           className="flex cursor-pointer items-center whitespace-nowrap px-0 py-0.5 transition-all hover:text-sky-700 hover:underline sm:px-0 sm:py-0"
         >
           Contact

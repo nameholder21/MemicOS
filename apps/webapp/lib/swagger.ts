@@ -5,7 +5,7 @@ This is MemicOS's API. You can test calls right in the browser.
 
 Get your API key by logging in at [memicos.org](https://www.memicos.org) then going to [/account](https://memicos.org/account).
 
-Requests for new APIs, questions, or feedback? Contact [johnny@memicos.org](mailto:johnny@memicos.org).
+Requests for new APIs, questions, or feedback? [Contact us](https://memicos.org/contact).
 `;
 
 export const getApiDocs = async () => {

@@ -4,14 +4,7 @@ import InferenceActivationAllProvider from '@/components/provider/inference-acti
 import RandomFeatureLink from '@/components/random-feature-link';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card';
-import {
-  DEFAULT_MODELID,
-  DEFAULT_SOURCE,
-  DEMO_MODE,
-  IS_LOCALHOST,
-  MEMICOS_EMAIL_ADDRESS,
-  NEXT_PUBLIC_URL,
-} from '@/lib/env';
+import { DEFAULT_MODELID, DEFAULT_SOURCE, DEMO_MODE, IS_LOCALHOST, NEXT_PUBLIC_URL } from '@/lib/env';
 import { getSourceSetNameFromSource } from '@/lib/utils/source';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import {
@@ -98,7 +91,7 @@ export default function Page() {
             </a>{' '} */}
             <CustomTooltip
               trigger={
-                <span className=" font-bold text-sky-800 transition-all hover:cursor-pointer hover:text-sky-700">
+                <span className="font-bold text-sky-800 transition-all hover:cursor-pointer hover:text-sky-700">
                   interpretability
                 </span>
               }
@@ -138,7 +131,7 @@ export default function Page() {
         <div>
           <Link
             href="/gemma-scope"
-            className="flex w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-gGreen px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 "
+            className="flex w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-gGreen px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
           >
             <Rocket className="h-5 w-5" />
             <span>Launch</span>
@@ -446,7 +439,7 @@ export default function Page() {
               </Link>
             </div>
           </div>
-          <div className="flex w-full flex-1 sm:basis-2/3 sm:px-0 ">
+          <div className="flex w-full flex-1 sm:basis-2/3 sm:px-0">
             <iframe
               title="Jedi Feature"
               src="https://memicos.org/gpt2-small/0-res-jb/14057?embed=true&embedexplanation=true&embedplots=true"
@@ -486,7 +479,7 @@ export default function Page() {
                   <span className="flex-1">Slack</span>
                 </Button>
               </a>
-              <a href={`mailto:${MEMICOS_EMAIL_ADDRESS}?subject=Feedback`} target="_blank" rel="noreferrer">
+              <a href="/contact" target="_blank" rel="noreferrer">
                 <Button className="h-14 w-[170px] gap-x-2 sm:w-[200px]" size="lg">
                   <Speech className="h-5 w-5" />
                   <span className="flex-1">Contact</span>
@@ -512,7 +505,7 @@ export default function Page() {
       <div className="flex w-full flex-1 flex-col items-center justify-center bg-white py-16">
         <div className="mt-0 text-2xl font-black text-slate-700">Citation</div>
         <div className="mt-4 flex max-w-[320px] flex-row items-start justify-start overflow-x-scroll text-[10px] font-medium leading-normal text-slate-700 sm:max-w-[100%] sm:text-sm">
-          <pre className="flex cursor-text select-text  flex-row justify-start whitespace-pre-wrap text-left font-mono">
+          <pre className="flex cursor-text select-text flex-row justify-start whitespace-pre-wrap text-left font-mono">
             {`@misc{memicos,
     title = {MemicOS: Interactive Reference and Tooling for Analyzing Neural Networks},
     year = {2023},
