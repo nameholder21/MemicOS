@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 
+const withMDX = require('@next/mdx')();
+
 const nextConfig = {
+  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
   output: 'standalone', // for docker
   reactStrictMode: false,
   swcMinify: true,
@@ -78,7 +81,7 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withMDX(nextConfig);
 
 // const withBundleAnalyzer = require("@next/bundle-analyzer")({
 //   enabled: process.env.ANALYZE === "true",

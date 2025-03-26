@@ -49,11 +49,11 @@ export const RESEND_EMAIL_API_KEY = process.env.RESEND_EMAIL_API_KEY || '';
 // External Services
 // AI API Keys (Mostly for auto-interp for whitelisted accounts)
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-if (!process.env.OPENAI_API_KEY) {
-  console.warn(
-    'OPENAI_API_KEY is not set. Search Explanations will not work. Set the key in the file memicos/apps/webapp/.env',
-  );
-}
+// if (!process.env.OPENAI_API_KEY) {
+//   console.warn(
+//     'OPENAI_API_KEY is not set. Search Explanations will not work. Set the key in the file memicos/apps/webapp/.env',
+//   );
+// }
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 export const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 export const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';

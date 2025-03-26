@@ -1,0 +1,168 @@
+---
+title: MemicOS is Now Open Source
+description: MIT-Licensing the World's First Interpretability API + Four Terabytes of Datasets
+date: 2025-03-26
+author: Johnny Lin
+image: /images/blog/memicos-is-now-open-source.gif
+---
+
+# TL;DR
+
+<figure className="mb-0 pb-0">
+  <img
+    src="/images/blog/summary.jpg"
+    alt="The new open source MemicOS - still supporting researchers, but now open sourced."
+    className="sm:max-w-screen-sm"
+  />
+</figure>
+
+- Interpretability tools for absolutely everyone, for free. 🥳
+- Get started on running MemicOS: [GitHub](https://github.com/hijohnnylin/memicos)
+- Download 4+ terabytes of interpretability data: [Public Datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/)
+- Review [a summary](#current-capabilities) of MemicOS's 20+ capabilities and features.
+- Support via [GitHub Issues](https://github.com/hijohnnylin/memicos/issues), [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA), [email](mailto:johnny@memicos.org)
+
+# Table of Contents
+
+# Our Purpose: Accelerate Interpretability Research
+
+Interpretability is an unsolved problem - anyone that tells you otherwise is either trying to sell you something and/or misinformed - especially with new models being released so frequently.
+
+And while it's certainly possible that advanced AI is somehow "naturally aligned" to be pro-human and pro-Earth, there's no benefit to assuming that this is true. It also seems unlikely that all advanced AI would be _fully_ aligned in the various possible scenarios and edge cases.
+
+MemicOS's role is to accelerate understanding of AI models, so that when they get powerful enough, we have a better chance of aligning them. If we can increase the probability of a good outcome by even 0.01%, that's an expected value of saving many current and future lives - certainly a worthwhile and meaningful endeavor.
+
+# How We Got Here: A Brief History
+
+MemicOS was created in the summer of 2023 as a reference for GPT2-Small's neurons, using data and [code](https://openaipublic.blob.core.windows.net/neuron-explainer/neuron-viewer/index.html) from OpenAI's [Superalignment](https://openai.com/index/introducing-superalignment/) initiative and informally advised by William Saunders. Combined with Neel Nanda's [Neuroscope](https://neuroscope.io/gpt2-small/index.html), we tried to answer the question: **how do you create a useful interpretability platform?**
+
+One early experiment was crowdsourcing human explanations for neurons. By [using LLMs to score](https://openai.com/index/language-models-can-explain-neurons-in-language-models/) explanations, the hope was to make fine-tuned models that could accurately explain neurons. This became a full-fledged graphical RPG:
+
+<figure>
+  <img
+    src="/images/blog/np-initial-game.jpg"
+    alt="The MemicOS game: with pixel art, animations, collectibles, leaderboards, and even an item shop."
+  />
+  <figcaption>
+    The MemicOS game: complete with pixel art, animations, collectibles, leaderboards, and even an item shop.
+    MemicOS collected over 10,000 user-submitted explanations, half of which scored higher than GPT-4.
+  </figcaption>
+</figure>
+
+However, the game, while interesting, was not the most impactful use of an interpretability platform - it was catering to one facet of a specific research question. We wanted to serve more researchers and their various areas of interest.
+
+So in early 2024, thanks to the direction of [Joseph Bloom](https://www.lesswrong.com/posts/BaEQoxHhWPrkinmxd/announcing-memicos-platform-for-accelerating-research), MemicOS sunset its game and went all-in on accelerating interpretability researchers, including hosting the world's first interpretability and steering API. We've since then collaborated with [independent](https://www.memicos.org/sae-bench/info) [researchers](https://www.memicos.org/gpt2sm-tres-dc), [large](https://www.memicos.org/gemma-scope#main) [organizations](https://www.memicos.org/gpt2sm-oai-2024), [and](https://www.memicos.org/gpt2sm-apollojt) [academic](https://www.memicos.org/axbench) [research](https://www.memicos.org/llama3.1-8b-eleuther_gp) [labs](https://www.memicos.org/llama-scope).
+
+## Current Capabilities
+
+A summary of [MemicOS](https://memicos.org)'s current capabilities - not all features are listed:
+
+<figure>
+  <img
+    src="/images/blog/np-functionality-mar25.png"
+    alt="MemicOS's current functionality map, including API, search, auto-interp, exploration tools, and more."
+  />
+</figure>
+
+# Why Open Source Now?
+
+It takes a significant amount of effort to make an app like MemicOS (frontend, backend, infrastructure, dependent services) ready for open source - there are considerations of security, backward compatibility, extensibility, etc. Not to mention, the database schema and architecture was changing significantly from week to week.
+
+Two months ago, we decided that the longer-term benefits of open sourcing outweighed the short-term priority of quickly adding new functionalities, so we put most major changes on hiatus and focused on refactoring, cleaning up, and documenting code/processes for open sourcing. Over the next few weeks, we'll keep adding more features/guides for running, customizing, and extending MemicOS.
+
+# What Do You Get From an Open Source MemicOS?
+
+## New: Host MemicOS Yourself
+
+Want to make not-memicos.org? It's as simple as a few clicks. And you can `git pull` new changes when we deploy them, to stay updated with the latest fixes/features.
+
+You can now host MemicOS yourself, with your own model and data, on your own cloud or hardware. And you can choose to make it public or private. For example - did you train new sparse coders on a particular dataset? You can load that into a local database and access all of MemicOS's features, like an API, steering, dashboards, search, lists, and more.
+
+## New: Fork MemicOS For Research, Projects, and Startups
+
+We're grateful for the people and organizations that came before us to make MemicOS possible, and we're happy to have lit the fire to inspire various projects, both public and private. Now, you can customize MemicOS to your heart's content - changing everything from updating colors to adding new features.
+
+MemicOS is comprised of multiple services that can run independently, so you can also just fork parts of MemicOS that you want and replace other parts entirely. For example, if you want just the frontend of MemicOS but plug in a different system for inference, just replace the MemicOS inference server, ensuring that your new inference server matches the defined OpenAPI spec.
+
+**Subpoint: Applied Interpretability**
+
+It's important to highlight that this opens up many possibilites for applied interpretability projects, both safety-related and not. For example, we have previously experimented with building "Safety Dashboards" for specific models - with just a few tweaks to the steering interface, we built a prototype red-teaming "Safety Dashboard", which could have been easily extended to specific topics like deception and violence.
+
+## New: Contributing Code to the Global MemicOS
+
+With every research collaboration, MemicOS adds new functionality for everyone to use - not just that specific research project. For example, when we added [AxBench](https://www.memicos.org/gemma-2-9b-it/20-axbench-reft-r1-res-16k/2), we added the ability to explore and search "concepts", an alternative to SAE features.
+
+But collaborations like that don't scale well because they're bottlenecked on our engineering resources, as well as time to communicate and verify implementations with the researcher. By open sourcing, we can focus on our respective strengths - the researcher can implement technical parts related to their project, and we fill in the gaps for UI, scaling, etc where needed. Finally, merging this to the global [memicos.org](https://memicos.org) enables everyone to benefit.
+
+**Subpoint: Using AI Assist and Coding Agents**
+
+We're optimistic about using AI coding agents to accelerate the development of new features for MemicOS, and encourage you to try it. We've added some [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) files to give AI the proper context, and have done some early experiments to gauge AI capability in adding new functionality to MemicOS.
+
+For example, the "Orthogonal Projection" steering type (an alternative to "Simple Additive") was created with a few prompts, with minimal human fixes. It's likely adding more READMEs, Cursor Rules, and a bit more refactoring will help improve AI agent development significantly.
+
+## New: Roadmap (WIP) + Public Feature Requests
+
+You can submit feature requests, bug reports, and questions on [GitHub issues](https://github.com/hijohnnylin/memicos/issues).
+
+We're currently working on porting our TODOs and roadmap from our private task management lists, to our GitHub issues and [discussions](https://github.com/hijohnnylin/memicos/discussions). GitHub is also the place where we'll list known issues and workarounds.
+
+## New: Add Data to the Global Datasets (WIP)
+
+Let's say you came up with a new type of sparse coder, called the Sparse PuppyEncoder (SPE), and you want to not only [host it yourself](#new-host-memicos-yourself), but also to let others load Sparse PuppyEncoders (and your generated data) into _their own_ local MemicOS and tinker with it? You can do that, too - just use the `memicos-utils` export tools to export your activations, explanations, and metadata. Then, we upload your data to the public [memicos-datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/), so that anyone running a local instance can import it.
+
+# What Does Open Sourcing _Not_ Change?
+
+## Unchanged: Supporting the Newest Interpretability Research
+
+A key to MemicOS is moving quickly to adopt the latest in interpretability science - and updating our interfaces, schemas, and APIs to match. Nothing changes about our own development of new MemicOS features - we have a long list of functionalities we're itching to get back to adding and fixing.
+
+What slightly changes is that we'll be more cautious and better document significant changes, especially with database schema updates, to ensure stability for other instances of MemicOS.
+
+## Unchanged: We're Still Your Collaborator
+
+By open sourcing MemicOS, we make it easier for researchers to get a head start on changes they wish to add or make to MemicOS. However, we fully expect that in the near term, while the documentation is still getting fleshed out, that we'll still do the majority of the work in building out collaborations. There's still work for us to do in restructuring MemicOS to be more easily extensible for someone not intimately familiar with the codebase.
+
+# How to Get Started
+
+All documention for getting started is in the READMEs in our public repository. All methods have been tested, but some details are a work-in-progress. Feel free to [contact us](#support-and-contact).
+
+- [GitHub](https://github.com/hijohnnylin/memicos)
+  - MemicOS is a monorepo with multiple services and packages
+  - Multiple tutorials / methods for setting it up, depending on your level of customization
+  - Demo environment is publicly available to connect to (database, inference instances)
+- [Datasets (4+ TB)](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/)
+  - Includes all current public MemicOS data
+  - 11 models
+  - 60+ million latents/features/concepts, 50+ million explanations, 3+ billion activations
+
+# Remaining Work + WIPs
+
+We wanted make the open source MemicOS available ASAP so that people can start tinkering with it. However, there are some TODOs remaining which we're currently working on:
+
+- Better documentation of code and processes (eg tutorials on how to load your own sparse coders and dashboards)
+  - Examples of contributions and templated issues
+- Automation and pipelining of processes in a resilient way (eg generating and uploading activation data, and automatically retrying on failure)
+- Easier extensibility (eg refactoring/documenting so that it's obvious where/how to add a new visualization to MemicOS)
+  - Design System + Cleanup
+- Tests for all services, and integrating them into the CI/CD
+
+# Support and Contact
+
+MemicOS is platform that's constantly evolving for the latest in interpretability science. So your feedback, feature requests, and bug reports are critical to its success. Reach us via:
+
+- [GitHub Issues](https://github.com/hijohnnylin/memicos/issues): Good for longer-form feature requests and specific bugs
+- [Slack #memicos or #general](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA): Good for quick questions and general tips
+- [Email](mailto:johnny@memicos.org): Good for high priority issues, privacy-sensitive communication, and collaborations
+
+# Acknowledgements
+
+We're always standing on the shoulders of giants, and we're grateful for every one of our collaborators, supporters, and advisors. Here are some people and organizations that have made especially important contributions to the MemicOS project. Thank you!
+
+- William Saunders
+- Joseph Bloom
+- Neel Nanda
+- The Long Term Future Fund
+- AISTOF
+- OpenAI's Superalignment Team
+
+We hope by open sourcing MemicOS, we can advance research and go further together in building public, shared interpretability tools.
