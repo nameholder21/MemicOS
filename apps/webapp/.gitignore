@@ -68,6 +68,7 @@ firebase-debug.log
 # Playwright
 node_modules/
 /test-results/
+/test-results/*
 /playwright-report/
 /blob-report/
 /playwright/.cache/
