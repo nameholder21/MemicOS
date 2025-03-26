@@ -98,6 +98,20 @@ webapp-localhost-dev: ## Webapp: Localhost Environment - Run (Development Build)
 		--env-file .env \
 		up webapp db-init postgres
 
+webapp-localhost-test: ## Webapp: Localhost Environment - Run (Playwright)
+	@echo "Bringing up the webapp for development and connecting to the localhost database..."
+	@if ! command -v docker &> /dev/null; then \
+		echo "Error: Docker is not installed. Please install Docker first."; \
+		exit 1; \
+	fi
+	ENV_FILE=.env.localhost docker compose \
+		-f docker-compose.yaml \
+		-f docker-compose.webapp.test.yaml \
+		--env-file .env.localhost \
+		--env-file .env \
+		up webapp db-init postgres
+	
+
 inference-localhost-install: ## Inference: Localhost Environment - Install Dependencies (Development Build)
 	@echo "Installing the inference dependencies for development in the localhost environment..."
 	cd apps/inference && \
