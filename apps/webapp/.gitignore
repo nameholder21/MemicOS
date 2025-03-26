@@ -32,6 +32,7 @@ yarn-error.log*
 !.env.demo
 !.env.localhost
 !.env.example
+!.env.playwright
 .env.apple.*
 
 # vercel
