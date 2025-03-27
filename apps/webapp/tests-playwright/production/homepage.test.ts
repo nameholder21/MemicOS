@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-
+import { expect, test } from '@playwright/test';
 
 test('homepage has expected title', async ({ page }) => {
   await page.goto('https://memicos.org');
@@ -8,18 +7,18 @@ test('homepage has expected title', async ({ page }) => {
 
 test('API navigation link', async ({ page }) => {
   await page.goto('https://memicos.org');
-  
+
   // Find and click the API link
   const apiLink = page.getByRole('link', { name: 'API', exact: true });
   await apiLink.waitFor({ state: 'visible' });
   await apiLink.click();
-  
+
   // Wait for navigation and check exact URL
   await page.waitForLoadState('networkidle');
   await expect(page).toHaveURL('https://www.memicos.org/api-doc');
 });
 
-test('SAE Evals link', async({ page }) => {
+test('SAE Evals link', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   // Find and click the SAE Evals link
@@ -32,7 +31,7 @@ test('SAE Evals link', async({ page }) => {
   await expect(page).toHaveURL('https://www.memicos.org/sae-bench');
 });
 
-test('Steer', async({ page }) => {
+test('Steer', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   // Find and click the Steer link
@@ -61,12 +60,12 @@ test('Steer', async({ page }) => {
 //   await expect(page).toHaveURL(/.*memicos\.org\/user\/.*\/vectors/);
 // }) */
 
-test('Getting Started', async({ page }) => {
+test('Getting Started', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Getting Started', exact: true }).click()
+    page.getByRole('link', { name: 'Getting Started', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://docs.memicos.org/');
@@ -74,10 +73,10 @@ test('Getting Started', async({ page }) => {
 
 test('MIT Technology Review link', async ({ page }) => {
   await page.goto('https://memicos.org');
-  
+
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('a[target="_blank"][href*="technologyreview\.com"]').click()
+    page.locator('a[target="_blank"][href*="technologyreview.com"]').click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*technologyreview\.com/);
@@ -85,32 +84,32 @@ test('MIT Technology Review link', async ({ page }) => {
 
 test('Google Deepmind', async ({ page }) => {
   await page.goto('https://memicos.org');
-  
+
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('a[target="_blank"][href*="gemma-scope"]').click()
+    page.locator('a[target="_blank"][href*="gemma-scope"]').click(),
   ]);
-  
+
   await expect(newPage).toHaveURL(/.*gemma-scope/);
 });
 
-test('Fudan University', async({ page }) => {
+test('Fudan University', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('a[target="_blank"][href*="llama-scope"]').click()
+    page.locator('a[target="_blank"][href*="llama-scope"]').click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*llama-scope/);
 });
 
-test('Apollo Research', async({ page }) => {
+test('Apollo Research', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('a[target="_blank"][href*="gpt2sm-apollojt"]').click()
+    page.locator('a[target="_blank"][href*="gpt2sm-apollojt"]').click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*gpt2sm-apollojt/);
@@ -119,7 +118,7 @@ test('Apollo Research', async({ page }) => {
 // no link
 // test('ML Alignment & Theory Scholars', async({ page }) => {
 //   await page.goto('https://memicos.org');
-  
+
 //   const [newPage] = await Promise.all([
 //     page.waitForEvent('popup'),
 //     page.getByRole('link', { name: 'MATS' }).click()
@@ -128,34 +127,34 @@ test('Apollo Research', async({ page }) => {
 //   await expect(newPage).toHaveURL('#mats');
 // });
 
-test('EleutherAI', async({ page }) => {
+test('EleutherAI', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('a[target="_blank"][href*="llama3\.1-8b-eleuther_gp"]').click()
+    page.locator('a[target="_blank"][href*="llama3.1-8b-eleuther_gp"]').click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*llama3\.1-8b-eleuther_gp/);
 });
 
-test('latents/features', async({ page }) => {
+test('latents/features', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'latents/features', exact: true }).click()
+    page.getByRole('link', { name: 'latents/features', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://docs.memicos.org/features');
 });
 
-test('concepts', async({ page }) => {
+test('concepts', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'concepts', exact: true }).click()
+    page.getByRole('link', { name: 'concepts', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://www.memicos.org/axbench');
@@ -176,45 +175,45 @@ test('jump to display', async ({ page }) => {
   await expect(page.getByText('jump to source/sae')).toBeVisible();
 });
 
-test('cat steering', async({ page }) => {
+test('cat steering', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Try It: Gemma 2 - Cat Steering', exact: true }).click()
+    page.getByRole('link', { name: 'Try It: Gemma 2 - Cat Steering', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://www.memicos.org/gemma-2-9b-it/steer?saved=cm7cp63af00jx1q952neqg6e5');
 });
 
-test('search by explanation', async({ page }) => {
+test('search by explanation', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Try It: Search by Explanation', exact: true }).click()
+    page.getByRole('link', { name: 'Try It: Search by Explanation', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://www.memicos.org/search-explanations');
 });
 
-test('search via interference', async({ page }) => {
+test('search via interference', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Docs: Search via Inference', exact: true }).click()
+    page.getByRole('link', { name: 'Docs: Search via Inference', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://docs.memicos.org/search');
 });
 
-test('api + libraries', async({ page }) => {
+test('api + libraries', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'API Playground', exact: true }).click()
+    page.getByRole('link', { name: 'API Playground', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://www.memicos.org/api-doc');
@@ -225,51 +224,50 @@ test('searcher is embedded in the page', async ({ page }) => {
   await page.locator('textarea[name="searchQuery"]').isVisible();
 });
 
-  
 test('searcher example', async ({ page }) => {
   await page.goto('https://memicos.org');
-  await page.locator('textarea[name="Test activation with custom text\./"]').isVisible();
+  await page.locator('textarea[name="Test activation with custom text./"]').isVisible();
 });
-  
-test('Docs: Lists', async({ page }) => {
+
+test('Docs: Lists', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Docs: Lists', exact: true }).click()
+    page.getByRole('link', { name: 'Docs: Lists', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://docs.memicos.org/lists');
 });
 
-test('Docs: Embed', async({ page }) => {
+test('Docs: Embed', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('link', { name: 'Docs: Embed', exact: true }).click()
+    page.getByRole('link', { name: 'Docs: Embed', exact: true }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://docs.memicos.org/embed-iframe');
 });
 
-test('Slack', async({ page }) => {
+test('Slack', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('button', { name: 'Slack' }).click()
+    page.getByRole('button', { name: 'Slack' }).click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*slack\.com*/);
 });
 
-test('Donate', async({ page }) => {
+test('Donate', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('button', { name: 'Donate' }).click()
+    page.getByRole('button', { name: 'Donate' }).click(),
   ]);
 
   await expect(newPage).toHaveURL(/.*every\.org*/);
@@ -286,12 +284,12 @@ test('Donate', async({ page }) => {
 //   await expect(newPage).toHaveURL(/mailto:johnny@memicos\.org*/);
 // });
 
-test('Upskill', async({ page }) => {
+test('Upskill', async ({ page }) => {
   await page.goto('https://memicos.org');
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.getByRole('button', { name: 'Upskill' }).click()
+    page.getByRole('button', { name: 'Upskill' }).click(),
   ]);
 
   await expect(newPage).toHaveURL('https://www.arena.education/');
@@ -302,7 +300,11 @@ test('all services are online', async ({ page }) => {
 
   const [newPage] = await Promise.all([
     page.waitForEvent('popup'),
-    page.locator('iframe[title="MemicOS Status"]').contentFrame().getByRole('link', { name: 'All services are online' }).click()
+    page
+      .locator('iframe[title="MemicOS Status"]')
+      .contentFrame()
+      .getByRole('link', { name: 'All services are online' })
+      .click(),
   ]);
 
   await expect(newPage).toHaveURL('https://status.memicos.org/');
