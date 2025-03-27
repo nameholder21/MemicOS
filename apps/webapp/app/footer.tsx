@@ -36,6 +36,12 @@ export default function Footer() {
           Privacy & Terms
         </Link>
         {/* <Link
+          href="/blog"
+          className="flex cursor-pointer items-center whitespace-nowrap px-0 py-0.5 transition-all hover:text-sky-700 hover:underline sm:px-0 sm:py-0"
+        >
+          Blog/RSS
+        </Link> */}
+        {/* <Link
           href="https://twitter.com/memicos"
           target="_blank"
           rel="noreferrer"

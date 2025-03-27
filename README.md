@@ -19,6 +19,7 @@
   <a href="https://status.memicos.org"><img height="20px" src="https://uptime.betterstack.com/status-badges/v2/monitor/1roih.svg" alt="Uptime"></a>
   <a href="https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA"><img height="20px" src="https://img.shields.io/badge/Slack-purple?logo=slack&logoColor=white" alt="Slack"></a>
   <a href="mailto:johnny@memicos.org"><img height="20px" src="https://img.shields.io/badge/contact-blue.svg?logo=data:image/svg%2bxml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgaWQ9IlNWR1JlcG9fYmdDYXJyaWVyIiBzdHJva2Utd2lkdGg9IjAiPjwvZz48ZyBpZD0iU1ZHUmVwb190cmFjZXJDYXJyaWVyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjwvZz48ZyBpZD0iU1ZHUmVwb19pY29uQ2FycmllciI+IDxwYXRoIGQ9Ik00IDcuMDAwMDVMMTAuMiAxMS42NUMxMS4yNjY3IDEyLjQ1IDEyLjczMzMgMTIuNDUgMTMuOCAxMS42NUwyMCA3IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48L3BhdGg+IDxyZWN0IHg9IjMiIHk9IjUiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNCIgcng9IjIiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjwvcmVjdD4gPC9nPjwvc3ZnPg==" alt="Email"></a>
+  <a href="https://memicos.org/blog"><img height="20px" src="https://img.shields.io/badge/blog-10b981.svg" alt="blog"></a>
   <a href="https://memicos.org"><img height="20px" src="https://img.shields.io/badge/website-gray.svg" alt="website"></a>
 
 </p>
@@ -33,7 +34,6 @@
   - ['i want to do high volume autointerp explanations'](#i-want-to-do-high-volume-autointerp-explanations)
   - ['i want to generate my own dashboards'](#i-want-to-generate-my-own-dashboards)
   - ['i want to add my dashboards/data to memicos\`](#i-want-to-add-my-dashboardsdata-to-memicos)
-- [feature overview](#feature-overview)
 - [architecture](#architecture)
   - [requirements](#requirements)
   - [services](#services)
@@ -45,14 +45,23 @@
 - [contact / support](#contact--support)
 - [contributing](#contributing)
 - [appendix](#appendix)
-    - ['make' commands reference](#make-commands-reference)
-    - [import data into your local database](#import-data-into-your-local-database)
-    - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
+  - ['make' commands reference](#make-commands-reference)
+  - [import data into your local database](#import-data-into-your-local-database)
+  - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
 
 <!-- # ultra-quick start: one-click deploy on vercel
 TODO, after making repo public -->
 
 # about memicos
+
+check out our [blog post](https://www.memicos.org/blog/memicos-is-now-open-source) about MemicOS, why we're open sourcing it, and other details.
+
+**feature overview**
+
+a diagram showing the main features of memicos as of march 2025.
+![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
+
+**gifs of memicos in action**
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%"/>
@@ -92,10 +101,11 @@ after following the quick start, you will be able to use memicos for some source
 5. once everything is up, open [localhost:3000](http://localhost:3000) to load the home page.
 6. your local instance is connected to the remote demo database and inference servers, with the following SAEs/sources data available:
 
-| model                          | source/sae                       | comment                               |
-| ------------------------------ | -------------------------------- | ------------------------------------- |
-| `gpt2-small`                   | `res-jb`, all layers             | a small starter SAE set               |
-| `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers | the SAEs used in the Gemma Scope demo |
+| model                          | source/sae                            | comment                                        |
+| ------------------------------ | ------------------------------------- | ---------------------------------------------- |
+| `gpt2-small`                   | `res-jb`, all layers                  | a small starter SAE set                        |
+| `gemma-2-2b` / `gemma-2-2b-it` | `gemmascope-res-16k`, all layers      | the SAEs used in the Gemma Scope demo          |
+| `deepseek-r1-distill-llama-8b` | `llamascope-slimpj-res-32k`, layer 15 | SAE for a reasoning model, trained by OpenMOSS |
 
 7. example things you can do (links work after `make webapp-demo-run`)
 
@@ -299,11 +309,6 @@ TODO - use `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or
 
 TODO - use [utils/memicos_utils/export-data.py](utils/memicos_utils/export-data.py) once you've added your data to your local database.
 
-# feature overview
-
-here's a diagram showing the main features of memicos as of march 2025.
-![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
-
 # architecture
 
 here's how the services/scripts connect in memicos. it's easiest to read this diagram by starting at the image of the laptop ("User").
@@ -362,11 +367,7 @@ we don't currently have an official bounty program, but we'll try our best to gi
 
 # contributing
 
-TODO
-
-- open for contributions and requests in github
-- feature requests can also be added under [github discussions](https://github.com/hijohnnylin/memicos/discussions) which supports upvoting/etc
-- any skill set/level are welcome to contribute - you can also use ai agents to assist, we've also added some cursorrules files, though not extensive
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 # appendix
 

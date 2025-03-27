@@ -474,7 +474,7 @@ div[data-virtuoso-scroller='true'] table {
   max-width: none;
 
   & #table-of-contents {
-    margin-top: 2.5rem;
+    margin-top: 3rem;
     margin-bottom: 0.75rem;
   }
 
