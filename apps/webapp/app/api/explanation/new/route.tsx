@@ -2,12 +2,12 @@
 
 // TODO: Bring back this endpoint but simplify (just explanation, no scoring)
 
-import { IS_VERCEL_ONE_CLICK_DEPLOY } from '@/lib/env';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 import { array, number, object, string } from 'yup';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 const uploadExplanationSchema = object({
   feature: object({

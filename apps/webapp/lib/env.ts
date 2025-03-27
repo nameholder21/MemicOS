@@ -1,8 +1,6 @@
 import { config } from 'dotenv';
 
-// If it's not undefined, then it's a one click deploy. It doesn't matter what the value is.
-// This value affects maxDuration on some routes, because if you do one-click deploy, you might be on a hobby plan
-// and hobby plans have a maxDuration of 60 seconds.
+// If it's not undefined, then it's a one click deploy. It doesn't matter what the value itself is.
 // Also, if it's one-click-deploy on Vercel, we always use the demo environment variables.
 export const IS_VERCEL_ONE_CLICK_DEPLOY = process.env.NEXT_PUBLIC_IS_VERCEL_ONE_CLICK_DEPLOY !== undefined;
 if (IS_VERCEL_ONE_CLICK_DEPLOY) {

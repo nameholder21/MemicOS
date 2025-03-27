@@ -6,7 +6,7 @@
 import { prisma } from '@/lib/db';
 import { getModelById } from '@/lib/db/model';
 import { neuronExistsAndUserHasAccess } from '@/lib/db/neuron';
-import { DEMO_MODE, IS_VERCEL_ONE_CLICK_DEPLOY, NEXT_PUBLIC_URL } from '@/lib/env';
+import { DEMO_MODE, NEXT_PUBLIC_URL } from '@/lib/env';
 import { steerCompletionChat } from '@/lib/utils/inference';
 import {
   ChatMessage,
@@ -29,7 +29,8 @@ import { NPSteerChatMessage, NPSteerMethod, SteerCompletionChatPost200Response }
 import { NextResponse } from 'next/server';
 import { array, bool, InferType, number, object, string, ValidationError } from 'yup';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 180;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 180;
 
 const STEERING_VERSION = 1;
 
