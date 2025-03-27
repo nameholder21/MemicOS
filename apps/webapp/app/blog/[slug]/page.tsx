@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `/blog/${params.slug}`,
       images: [
         {
-          url: meta.image,
+          url: meta.imagePreview,
         },
       ],
       locale: 'en_US',
