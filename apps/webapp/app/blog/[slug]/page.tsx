@@ -21,6 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: { absolute: `${meta.title} | The Residual Stream` },
     description: meta.description,
+    twitter: {
+      card: 'summary_large_image',
+      title: `${meta.title} | The Residual Stream`,
+      description: meta.description,
+      images: [
+        {
+          url: meta.imagePreview,
+        },
+      ],
+    },
     openGraph: {
       title: `${meta.title} | The Residual Stream`,
       description: meta.description,
