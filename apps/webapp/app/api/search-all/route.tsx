@@ -18,7 +18,8 @@ import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { ActivationAllPost200Response } from 'memicos-inference-client';
 import { NextResponse } from 'next/server';
 
-export const maxDuration = 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 const NUMBER_TOP_RESULTS = 50;
 const DEFAULT_DENSITY_THRESHOLD = -1;

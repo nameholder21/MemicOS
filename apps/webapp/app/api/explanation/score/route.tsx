@@ -9,7 +9,8 @@ import { NextResponse } from 'next/server';
 import { object, string, ValidationError } from 'yup';
 import { getUserByName } from '../../../../lib/db/user';
 
-export const maxDuration = 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 /**
  * @swagger

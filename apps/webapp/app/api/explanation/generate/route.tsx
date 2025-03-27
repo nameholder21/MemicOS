@@ -17,7 +17,8 @@ import { UserSecretType } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { boolean, number, object, string, ValidationError } from 'yup';
 
-export const maxDuration = 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 const explainRequestSchema = object({
   modelId: string().required(),

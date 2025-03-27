@@ -87,7 +87,7 @@ export default function NavBar({ session }: { session: Session | null }) {
               <>
                 <button
                   type="button"
-                  className="flex h-9 w-full items-center justify-center rounded-md border border-slate-200 bg-white  px-3 text-sm transition-all duration-75 hover:bg-slate-50 focus:outline-none sm:ml-2.5 sm:h-8"
+                  className="flex h-9 w-full items-center justify-center rounded-md border border-slate-200 bg-white px-3 text-sm transition-all duration-75 hover:bg-slate-50 focus:outline-none sm:ml-2.5 sm:h-8"
                   onClick={() => {
                     setSignInModalOpen(true);
                   }}
