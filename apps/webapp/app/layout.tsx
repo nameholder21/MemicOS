@@ -51,6 +51,15 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
     },
     manifest: '/site.webmanifest',
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
     icons: {
       icon: [{ url: '/favicon-32x32.png' }, new URL('/favicon-32x32.png', 'https://memicos.org')],
       apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
