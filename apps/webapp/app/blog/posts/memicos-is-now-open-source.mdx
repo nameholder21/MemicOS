@@ -4,6 +4,7 @@ description: "The World's First Interpretability API and Four Terabytes of Datas
 date: 2025-03-26
 author: Johnny Lin
 image: /images/blog/memicos-is-now-open-source.gif
+imagePreview: /images/blog/memicos-is-now-open-source-preview.gif
 ---
 
 # TL;DR
@@ -12,7 +13,7 @@ image: /images/blog/memicos-is-now-open-source.gif
 - Get started on running MemicOS: [GitHub](https://github.com/hijohnnylin/memicos)
 - Download 4+ terabytes of interpretability data: [Public Datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/)
 - Review [a summary](#current-capabilities) of MemicOS's features and submit [feature requests](https://github.com/hijohnnylin/memicos/issues).
-- Reach out to us! [GitHub Issues](https://github.com/hijohnnylin/memicos/issues), [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA), [email](mailto:johnny@memicos.org)
+- Reach out to us via [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA), [email](mailto:johnny@memicos.org), or [GitHub Issues](https://github.com/hijohnnylin/memicos/issues)
 
 <figure className="pb-5 pt-4">
   <img
@@ -39,13 +40,13 @@ A summary of [MemicOS](https://memicos.org)'s current capabilities - not all fea
 
 Interpretability is an unsolved problem - anyone that tells you otherwise is either trying to sell you something and/or misinformed - especially with new models being released so frequently.
 
-And while it's certainly possible that advanced AI is somehow "naturally aligned" to be pro-human and pro-Earth, there's no benefit to assuming that this is true. It also seems unlikely that all advanced AI would be _fully_ aligned in the various possible scenarios and edge cases.
+Is interpretability needed? While it's possible that advanced AI is somehow "naturally aligned" to be pro-human and pro-Earth, there's no benefit to assuming that this is true. It seems unlikely that all advanced AI would be _fully_ aligned in all the possible scenarios and edge cases.
 
-MemicOS's role is to accelerate understanding of AI models, so that when they get powerful enough, we have a better chance of aligning them. If we can increase the probability of a good outcome by even 0.01%, that's an expected value of saving many current and future lives - certainly a worthwhile and meaningful endeavor.
+MemicOS's role is to accelerate understanding of AI models, so that when they get powerful enough, we have a better chance of aligning them. If we can increase the probability of a good outcome by even 0.01%, that's an expected value of saving many, many current and future lives - certainly a worthwhile and meaningful endeavor.
 
 # How We Got Here: A Brief History
 
-MemicOS was created in the summer of 2023 as a reference for GPT2-Small's neurons, using data and [code](https://openaipublic.blob.core.windows.net/neuron-explainer/neuron-viewer/index.html) from OpenAI's [Superalignment](https://openai.com/index/introducing-superalignment/) initiative and informally advised by William Saunders. Combined with Neel Nanda's [Neuroscope](https://neuroscope.io/gpt2-small/index.html), we tried to answer the question: **how do you create a useful interpretability platform?**
+MemicOS was created in the summer of 2023 as a reference for GPT2-Small's neurons, using data and [code](https://openaipublic.blob.core.windows.net/neuron-explainer/neuron-viewer/index.html) from OpenAI's [Superalignment](https://openai.com/index/introducing-superalignment/) initiative and informally advised by William Saunders. Combined with data from Neel Nanda's [Neuroscope](https://neuroscope.io/gpt2-small/index.html), we tried to answer the question: **how do you create a useful interpretability platform?**
 
 One early experiment was crowdsourcing human explanations for neurons. By [using LLMs to score](https://openai.com/index/language-models-can-explain-neurons-in-language-models/) explanations, the hope was to make fine-tuned models that could accurately explain neurons. This became a full-fledged graphical RPG:
 
@@ -62,7 +63,7 @@ One early experiment was crowdsourcing human explanations for neurons. By [using
 
 However, the game, while interesting, was not the most impactful use of an interpretability platform - it was catering to one facet of a specific research question. We wanted to serve more researchers and their various areas of interest.
 
-So in early 2024, thanks to the direction of [Joseph Bloom](https://www.lesswrong.com/posts/BaEQoxHhWPrkinmxd/announcing-memicos-platform-for-accelerating-research), MemicOS sunset its game and went all-in on accelerating interpretability researchers, including hosting the world's first interpretability and steering API. We've since then collaborated with [independent](https://www.memicos.org/sae-bench/info) [researchers](https://www.memicos.org/gpt2sm-tres-dc), [large](https://www.memicos.org/gemma-scope#main) [organizations](https://www.memicos.org/gpt2sm-oai-2024), [and](https://www.memicos.org/gpt2sm-apollojt) [academic](https://www.memicos.org/axbench) [research](https://www.memicos.org/llama3.1-8b-eleuther_gp) [labs](https://www.memicos.org/llama-scope).
+So in early 2024, thanks to the direction of [Joseph Bloom](https://www.lesswrong.com/posts/BaEQoxHhWPrkinmxd/announcing-memicos-platform-for-accelerating-research), MemicOS sunset its game and went all-in on accelerating and supporting interpretability researchers, including hosting the world's first interpretability and steering API. We've since then collaborated with [independent](https://www.memicos.org/sae-bench/info) [researchers](https://www.memicos.org/gpt2sm-tres-dc), [large](https://www.memicos.org/gemma-scope#main) [organizations](https://www.memicos.org/gpt2sm-oai-2024), [and](https://www.memicos.org/gpt2sm-apollojt) [academic](https://www.memicos.org/axbench) [research](https://www.memicos.org/llama3.1-8b-eleuther_gp) [labs](https://www.memicos.org/llama-scope).
 
 # Why Open Source Now?
 
