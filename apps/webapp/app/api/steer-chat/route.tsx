@@ -29,7 +29,8 @@ import { NPSteerChatMessage, NPSteerMethod, SteerCompletionChatPost200Response }
 import { NextResponse } from 'next/server';
 import { array, bool, InferType, number, object, string, ValidationError } from 'yup';
 
-export const maxDuration = 180;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 180;
 
 const STEERING_VERSION = 1;
 
