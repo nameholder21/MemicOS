@@ -32,7 +32,7 @@ export const viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const description = 'Open Interpretability Platform';
+  const description = 'Open Source Interpretability Platform';
   return {
     title: {
       template: '%s ｜ MemicOS',
