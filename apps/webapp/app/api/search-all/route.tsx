@@ -11,7 +11,6 @@ import { assertUserCanAccessModelAndSourceSet } from '@/lib/db/userCanAccess';
 import {
   DEMO_MODE,
   INFERENCE_ACTIVATION_USER_ID_DO_NOT_INCLUDE_IN_PUBLIC_ACTIVATIONS,
-  IS_VERCEL_ONE_CLICK_DEPLOY,
   PUBLIC_ACTIVATIONS_USER_IDS,
 } from '@/lib/env';
 import { runInferenceActivationAll } from '@/lib/utils/inference';
@@ -19,7 +18,8 @@ import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { ActivationAllPost200Response } from 'memicos-inference-client';
 import { NextResponse } from 'next/server';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 const NUMBER_TOP_RESULTS = 50;
 const DEFAULT_DENSITY_THRESHOLD = -1;

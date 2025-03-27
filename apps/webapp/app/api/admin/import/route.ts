@@ -3,7 +3,7 @@
 
 import { prisma } from '@/lib/db';
 import { importConfigFromS3, importJsonlString } from '@/lib/db/import';
-import { IS_LOCALHOST, IS_VERCEL_ONE_CLICK_DEPLOY } from '@/lib/env';
+import { IS_LOCALHOST } from '@/lib/env';
 import {
   DATASET_BASE_PATH,
   downloadAndDecompressFile,
@@ -13,7 +13,8 @@ import {
 import { getAuthedAdminUser, RequestAuthedAdminUser, RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 300;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 300;
 
 function enqueueProgress(controller: ReadableStreamDefaultController, progress: number, progressText: string) {
   const encoder = new TextEncoder();

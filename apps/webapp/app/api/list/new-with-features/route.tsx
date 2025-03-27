@@ -1,12 +1,13 @@
 import { addNeuronsToList, newList, updateListMetadata } from '@/lib/db/list';
 import { neuronExistsAndUserHasAccess } from '@/lib/db/neuron';
-import { IS_VERCEL_ONE_CLICK_DEPLOY, NEXT_PUBLIC_URL } from '@/lib/env';
+import { NEXT_PUBLIC_URL } from '@/lib/env';
 import { ListWithPartialRelationsAndUrl } from '@/lib/utils/list';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 import { array, number, object, string, ValidationError } from 'yup';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 const newWithFeaturesSchema = object({
   name: string().required(),

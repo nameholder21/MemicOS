@@ -1,14 +1,11 @@
 import { getSource, getSourceSet } from '@/lib/db/source';
 import { makeAuthedUserFromSessionOrReturnNull } from '@/lib/db/user';
-import { IS_VERCEL_ONE_CLICK_DEPLOY } from '@/lib/env';
 import { getLayerNumAsStringFromSource, getSourceSetNameFromSource } from '@/lib/utils/source';
 import { SourceWithRelations } from '@/prisma/generated/zod';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PageSource from './page-source';
 import PageSourceSet from './page-sourceset';
-
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 300;
 
 export async function generateMetadata({ params }: { params: { modelId: string; layer: string } }): Promise<Metadata> {
   let title = `${params.modelId.toUpperCase()} · ${params.layer.toUpperCase()}`;

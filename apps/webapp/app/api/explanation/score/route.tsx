@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/db';
 import { getAutoInterpKeyToUse } from '@/lib/db/userSecret';
-import { IS_VERCEL_ONE_CLICK_DEPLOY } from '@/lib/env';
 import { generateScoreEleuther } from '@/lib/external/autointerp-scorer-eleuther';
 import { generateScoreRecallAlt } from '@/lib/external/autointerp-scorer-recall-json';
 import { ERROR_REQUIRES_OPENROUTER, requiresOpenRouterForExplanationScoreType } from '@/lib/utils/autointerp';
@@ -10,7 +9,8 @@ import { NextResponse } from 'next/server';
 import { object, string, ValidationError } from 'yup';
 import { getUserByName } from '../../../../lib/db/user';
 
-export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 120;
+// Hobby plans don't support > 60 seconds
+// export const maxDuration = 120;
 
 /**
  * @swagger
