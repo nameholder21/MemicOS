@@ -29,6 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         {
           url: meta.imagePreview,
         },
+        {
+          url: '/images/blog/the-residual-stream-logo.jpg',
+        },
       ],
     },
     openGraph: {
@@ -38,6 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [
         {
           url: meta.imagePreview,
+        },
+        {
+          url: '/images/blog/the-residual-stream-logo.jpg',
         },
       ],
       locale: 'en_US',
