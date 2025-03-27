@@ -36,7 +36,7 @@ export const viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const description = 'Open Interpretability Platform';
+  const description = 'Open Source Interpretability Platform';
   return {
     title: {
       template: '%s ｜ MemicOS',
@@ -77,21 +77,67 @@ export default function Page() {
           </Link>
         </div>
       )}
-      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-10 sm:mb-1.5 sm:mt-2 sm:flex-col sm:gap-y-1.5 sm:px-3 sm:py-6 sm:pt-3">
+
+      {/* <div className="relative my-3 mb-0 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 overflow-hidden rounded-lg border bg-white px-2 py-10 shadow-sm sm:mb-8 sm:mt-4 sm:gap-y-0 sm:px-16 sm:py-5">
+        <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
+          <div className="px-20 py-1 text-xs font-bold text-sky-600 sm:absolute sm:-left-20 sm:top-4 sm:rotate-[-36deg] sm:bg-yellow-400 sm:text-[9px] sm:text-slate-700">
+            New: March 2025
+          </div>
+          <div className="mt-1 text-base font-bold text-slate-800 sm:text-base">MemicOS is Now Open Source</div>
+          <div className="mt-1 text-sm font-normal text-slate-700 sm:text-[13px]">
+            Read the post, check out the code, and download 4TB of interpretability data.
+          </div>
+        </div>
+        <div className="mb-2 mt-2 flex flex-col items-center justify-center gap-x-2.5 gap-y-2 sm:flex-row">
+          <Link
+            href="/blog/memicos-is-now-open-source"
+            className="flex w-[165px] max-w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-sky-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 hover:bg-sky-700"
+          >
+            <Rss className="h-5 w-5" />
+            <span>Blog Post</span>
+          </Link>
+          <Link href="https://github.com/hijohnnylin/memicos" target="_blank" rel="noreferrer">
+            <Button
+              variant="default"
+              size="lg"
+              className="w-[165px] max-w-[165px] gap-x-2 bg-slate-800 text-white transition-all hover:scale-105 hover:bg-slate-900"
+            >
+              <Github className="h-5 w-5" />
+              <span>GitHub</span>
+            </Button>
+          </Link>
+          <Link
+            href="https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button
+              variant="default"
+              size="lg"
+              className="w-[165px] max-w-[165px] gap-x-2 bg-emerald-600 text-white transition-all hover:scale-105 hover:bg-emerald-800"
+            >
+              <CloudDownload className="h-5 w-5" />
+              <span>Datasets</span>
+            </Button>
+          </Link>
+        </div>
+      </div> */}
+
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-8 sm:mb-10 sm:mt-0 sm:flex-col sm:gap-y-1.5 sm:px-3 sm:py-6 sm:pt-5">
         <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="text-lg font-medium text-slate-800 sm:text-xl">
-            MemicOS is an open{' '}
+            MemicOS is an{' '}
             {/* <a
               href="https://github.com/hijohnnylin/memicos"
-              className="font-bold text-slate-900 transition-all hover:text-slate-900/70 hover:underline"
+              className="transition-all hover:text-slate-900/70 hover:underline"
               target="_blank"
               rel="noreferrer"
-            >
-              open source
-            </a>{' '} */}
+            > */}
+            open {/* open source */}
+            {/* </a>{' '} */}
             <CustomTooltip
               trigger={
-                <span className="font-bold text-sky-800 transition-all hover:cursor-pointer hover:text-sky-700">
+                <span className="font-bold text-sky-700 transition-all hover:cursor-pointer hover:text-sky-600">
                   interpretability
                 </span>
               }
@@ -105,7 +151,7 @@ export default function Page() {
             Explore, steer, and experiment on AI models.
           </div>
         </div>
-        <div className="flex flex-row gap-x-2.5">
+        <div className="flex flex-col gap-x-2.5 gap-y-2 sm:flex-row">
           {/* <Link href="https://github.com/hijohnnylin/memicos" target="_blank" rel="noreferrer">
             <Button variant="default" size="lg" className="gap-x-2 bg-slate-900 text-white hover:bg-slate-800">
               <Github className="h-5 w-5" />
@@ -113,28 +159,17 @@ export default function Page() {
             </Button>
           </Link> */}
           <Link href="https://docs.memicos.org" target="_blank" rel="noreferrer">
-            <Button variant="default" size="lg" className="gap-x-2">
+            <Button variant="default" size="lg" className="w-[220px] gap-x-2 bg-sky-600 text-white hover:bg-sky-700">
               <BookOpenText className="h-5 w-5" />
               <span>Getting Started</span>
             </Button>
           </Link>
-        </div>
-      </div>
-
-      <div className="my-3 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 rounded-lg border bg-white px-2 py-7 shadow-sm sm:mb-12 sm:mt-1 sm:flex-row sm:gap-y-0 sm:px-10 sm:py-4">
-        <div className="mb-2 mt-2 flex flex-col items-center justify-center text-center text-sm sm:text-base">
-          <div className="text-lg font-bold text-gGreen sm:text-lg">Google DeepMind x MemicOS</div>
-          <div className="mt-0.5 text-sm font-normal text-slate-700 sm:text-[14px]">
-            Introducing <strong>Gemma Scope</strong>, a new tool for understanding the internals of AI models.
-          </div>
-        </div>
-        <div>
           <Link
             href="/gemma-scope"
-            className="flex w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-gGreen px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
+            className="flex w-[220px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
           >
             <Rocket className="h-5 w-5" />
-            <span>Launch</span>
+            <span>Tutorial: Gemma Scope</span>
           </Link>
         </div>
       </div>
@@ -452,7 +487,7 @@ export default function Page() {
       </div>
 
       <div className="flex w-full flex-1 flex-col items-center justify-center bg-slate-100 sm:flex-row sm:px-10">
-        <div className="flex w-full max-w-screen-xl flex-col items-center justify-center px-2 py-12 sm:flex-row sm:px-8 sm:py-16">
+        <div className="flex w-full max-w-screen-xl flex-col items-center justify-center gap-y-5 px-2 py-12 sm:flex-row sm:px-8 sm:py-16">
           <div className="flex flex-1 flex-col items-center justify-center gap-x-5 bg-slate-100">
             <div className="text-2xl font-black text-slate-700">Who We Are</div>
             <div className="mt-3 text-base font-medium leading-normal text-slate-700">
