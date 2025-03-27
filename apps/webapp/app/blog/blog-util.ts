@@ -11,6 +11,7 @@ export type PostMetaData = {
   date: string;
   slug: string;
   image: string;
+  imagePreview: string;
 };
 
 const rootDir = path.join(process.cwd(), 'app', 'blog', 'posts');

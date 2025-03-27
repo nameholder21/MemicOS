@@ -19,17 +19,30 @@ const getPageData = async (slug: string): Promise<{ meta: PostMetaData; content:
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { meta } = await getPageData(params.slug);
   return {
-    title: `${meta.title} | The Residual Stream`,
+    title: { absolute: `${meta.title} | The Residual Stream` },
     description: meta.description,
+    twitter: {
+      card: 'summary_large_image',
+      title: `${meta.title} | The Residual Stream`,
+      description: meta.description,
+      images: [
+        {
+          url: meta.imagePreview,
+        },
+      ],
+    },
     openGraph: {
       title: `${meta.title} | The Residual Stream`,
       description: meta.description,
       url: `/blog/${params.slug}`,
       images: [
         {
-          url: meta.image,
+          url: meta.imagePreview,
         },
       ],
+      locale: 'en_US',
+      type: 'website',
+      siteName: 'MemicOS',
     },
   };
 }
@@ -64,7 +77,16 @@ export default async function Page({ params }: Props) {
             <a href="/blog">
               <h1 className="whitespace-pre text-[22px] font-bold hover:underline">The Residual Stream</h1>
             </a>
-            <h2 className="mt-1 text-[14px] font-medium text-slate-600">MemicOS&apos;s Official Blog</h2>
+            <h2 className="mt-1 text-[14px] font-medium text-slate-600">MemicOS&apos;s Official Blog</h2>{' '}
+            <a href="/feed.xml">
+              <img
+                src="https://img.shields.io/badge/rss-F88900?style=for-the-badge&logo=rss&logoColor=white"
+                alt="RSS"
+                className="mt-2 rounded"
+                width={60}
+                height={30}
+              />
+            </a>
           </div>
         </div>
         <Card className="mb-12 mt-4 w-full bg-white">

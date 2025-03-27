@@ -51,6 +51,15 @@ export default async function Page() {
               <h1 className="whitespace-pre text-2xl font-bold">The Residual Stream</h1>
             </a>
             <h2 className="mt-1 text-[14px] font-medium text-slate-600">MemicOS&apos;s Official Blog</h2>
+            <a href="/feed.xml">
+              <img
+                src="https://img.shields.io/badge/rss-F88900?style=for-the-badge&logo=rss&logoColor=white"
+                alt="RSS"
+                className="mt-2 rounded"
+                width={60}
+                height={30}
+              />
+            </a>
           </div>
         </div>
         <Card className="mt-4 h-full w-full bg-white">

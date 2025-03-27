@@ -1,26 +1,38 @@
 ---
 title: MemicOS is Now Open Source
-description: MIT-Licensing the World's First Interpretability API + Four Terabytes of Datasets
+description: "The World's First Interpretability API and Four Terabytes of Datasets are Now MIT Licensed"
 date: 2025-03-26
 author: Johnny Lin
 image: /images/blog/memicos-is-now-open-source.gif
+imagePreview: /images/blog/memicos-is-now-open-source-preview.gif
 ---
 
 # TL;DR
 
-<figure className="mb-0 pb-0">
-  <img
-    src="/images/blog/summary.jpg"
-    alt="The new open source MemicOS - still supporting researchers, but now open sourced."
-    className="sm:max-w-screen-sm"
-  />
-</figure>
-
 - Interpretability tools for absolutely everyone, for free. 🥳
 - Get started on running MemicOS: [GitHub](https://github.com/hijohnnylin/memicos)
 - Download 4+ terabytes of interpretability data: [Public Datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/)
-- Review [a summary](#current-capabilities) of MemicOS's 20+ capabilities and features.
-- Support via [GitHub Issues](https://github.com/hijohnnylin/memicos/issues), [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA), [email](mailto:johnny@memicos.org)
+- Review [a summary](#current-capabilities) of MemicOS's features and submit [feature requests](https://github.com/hijohnnylin/memicos/issues).
+- Reach out to us via [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA), [email](mailto:johnny@memicos.org), or [GitHub Issues](https://github.com/hijohnnylin/memicos/issues)
+
+<figure className="pb-5 pt-4">
+  <img
+    src="/images/blog/summary.jpg"
+    alt="The new open source MemicOS - still supporting researchers, but now open sourced."
+    className="rounded-xl border-4 border-slate-200 sm:max-w-screen-sm"
+  />
+</figure>
+
+# Current Capabilities
+
+A summary of [MemicOS](https://memicos.org)'s current capabilities - not all features are listed:
+
+<figure>
+  <img
+    src="/images/blog/np-functionality-mar25.png"
+    alt="MemicOS's current functionality map, including API, search, auto-interp, exploration tools, and more."
+  />
+</figure>
 
 # Table of Contents
 
@@ -28,13 +40,13 @@ image: /images/blog/memicos-is-now-open-source.gif
 
 Interpretability is an unsolved problem - anyone that tells you otherwise is either trying to sell you something and/or misinformed - especially with new models being released so frequently.
 
-And while it's certainly possible that advanced AI is somehow "naturally aligned" to be pro-human and pro-Earth, there's no benefit to assuming that this is true. It also seems unlikely that all advanced AI would be _fully_ aligned in the various possible scenarios and edge cases.
+Is interpretability needed? While it's possible that advanced AI is somehow "naturally aligned" to be pro-human and pro-Earth, there's no benefit to assuming that this is true. It seems unlikely that all advanced AI would be _fully_ aligned in all the possible scenarios and edge cases.
 
-MemicOS's role is to accelerate understanding of AI models, so that when they get powerful enough, we have a better chance of aligning them. If we can increase the probability of a good outcome by even 0.01%, that's an expected value of saving many current and future lives - certainly a worthwhile and meaningful endeavor.
+MemicOS's role is to accelerate understanding of AI models, so that when they get powerful enough, we have a better chance of aligning them. If we can increase the probability of a good outcome by even 0.01%, that's an expected value of saving many, many current and future lives - certainly a worthwhile and meaningful endeavor.
 
 # How We Got Here: A Brief History
 
-MemicOS was created in the summer of 2023 as a reference for GPT2-Small's neurons, using data and [code](https://openaipublic.blob.core.windows.net/neuron-explainer/neuron-viewer/index.html) from OpenAI's [Superalignment](https://openai.com/index/introducing-superalignment/) initiative and informally advised by William Saunders. Combined with Neel Nanda's [Neuroscope](https://neuroscope.io/gpt2-small/index.html), we tried to answer the question: **how do you create a useful interpretability platform?**
+MemicOS was created in the summer of 2023 as a reference for GPT2-Small's neurons, using data and [code](https://openaipublic.blob.core.windows.net/neuron-explainer/neuron-viewer/index.html) from OpenAI's [Superalignment](https://openai.com/index/introducing-superalignment/) initiative and informally advised by William Saunders. Combined with data from Neel Nanda's [Neuroscope](https://neuroscope.io/gpt2-small/index.html), we tried to answer the question: **how do you create a useful interpretability platform?**
 
 One early experiment was crowdsourcing human explanations for neurons. By [using LLMs to score](https://openai.com/index/language-models-can-explain-neurons-in-language-models/) explanations, the hope was to make fine-tuned models that could accurately explain neurons. This became a full-fledged graphical RPG:
 
@@ -51,18 +63,7 @@ One early experiment was crowdsourcing human explanations for neurons. By [using
 
 However, the game, while interesting, was not the most impactful use of an interpretability platform - it was catering to one facet of a specific research question. We wanted to serve more researchers and their various areas of interest.
 
-So in early 2024, thanks to the direction of [Joseph Bloom](https://www.lesswrong.com/posts/BaEQoxHhWPrkinmxd/announcing-memicos-platform-for-accelerating-research), MemicOS sunset its game and went all-in on accelerating interpretability researchers, including hosting the world's first interpretability and steering API. We've since then collaborated with [independent](https://www.memicos.org/sae-bench/info) [researchers](https://www.memicos.org/gpt2sm-tres-dc), [large](https://www.memicos.org/gemma-scope#main) [organizations](https://www.memicos.org/gpt2sm-oai-2024), [and](https://www.memicos.org/gpt2sm-apollojt) [academic](https://www.memicos.org/axbench) [research](https://www.memicos.org/llama3.1-8b-eleuther_gp) [labs](https://www.memicos.org/llama-scope).
-
-## Current Capabilities
-
-A summary of [MemicOS](https://memicos.org)'s current capabilities - not all features are listed:
-
-<figure>
-  <img
-    src="/images/blog/np-functionality-mar25.png"
-    alt="MemicOS's current functionality map, including API, search, auto-interp, exploration tools, and more."
-  />
-</figure>
+So in early 2024, thanks to the direction of [Joseph Bloom](https://www.lesswrong.com/posts/BaEQoxHhWPrkinmxd/announcing-memicos-platform-for-accelerating-research), MemicOS sunset its game and went all-in on accelerating and supporting interpretability researchers, including hosting the world's first interpretability and steering API. We've since then collaborated with [independent](https://www.memicos.org/sae-bench/info) [researchers](https://www.memicos.org/gpt2sm-tres-dc), [large](https://www.memicos.org/gemma-scope#main) [organizations](https://www.memicos.org/gpt2sm-oai-2024), [and](https://www.memicos.org/gpt2sm-apollojt) [academic](https://www.memicos.org/axbench) [research](https://www.memicos.org/llama3.1-8b-eleuther_gp) [labs](https://www.memicos.org/llama-scope).
 
 # Why Open Source Now?
 
@@ -137,7 +138,7 @@ All documention for getting started is in the READMEs in our public repository. 
 
 # Remaining Work + WIPs
 
-We wanted make the open source MemicOS available ASAP so that people can start tinkering with it. However, there are some TODOs remaining which we're currently working on:
+We wanted make the open source MemicOS available ASAP so that people can start tinkering with it. The biggest risk is that the code is not well-documented or well-structured enough for people to make use of it. To that end, our immediate near-term goals are:
 
 - Better documentation of code and processes (eg tutorials on how to load your own sparse coders and dashboards)
   - Examples of contributions and templated issues
@@ -156,7 +157,7 @@ MemicOS is platform that's constantly evolving for the latest in interpretabilit
 
 # Acknowledgements
 
-We're always standing on the shoulders of giants, and we're grateful for every one of our collaborators, supporters, and advisors. Here are some people and organizations that have made especially important contributions to the MemicOS project. Thank you!
+We're always standing on the shoulders of giants, and we're grateful for every one of our collaborators, supporters, and advisors. Here are some people and organizations that have made especially important contributions to the MemicOS project. **Thank you!**
 
 - William Saunders
 - Joseph Bloom
@@ -165,4 +166,4 @@ We're always standing on the shoulders of giants, and we're grateful for every o
 - AISTOF
 - OpenAI's Superalignment Team
 
-We hope by open sourcing MemicOS, we can advance research and go further together in building public, shared interpretability tools.
+We hope by open sourcing MemicOS, we can advance research and go further together in building public, shared interpretability tools - and maybe have some fun along the way.

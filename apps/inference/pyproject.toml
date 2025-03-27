@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "memicos-inference"
 version = "1.0.0"
-description = "Inference server for MemicOS. Note that a significant amount of this code/tests was re-written by Claude during a push for refactoring, and I don't agree with many of the changes. A more human+AI assisted refactor is probably a good idea."
+description = "Inference server for MemicOS. A more human+AI assisted refactor is probably a good idea."
 authors = ["johnny@memicos.org>"]
 license = "MIT"
 readme = "README.md"
