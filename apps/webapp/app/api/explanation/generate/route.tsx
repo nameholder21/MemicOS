@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
 import { getAutoInterpKeyToUse } from '@/lib/db/userSecret';
+import { IS_VERCEL_ONE_CLICK_DEPLOY } from '@/lib/env';
 import { generateExplanationOaiTokenActivationPair } from '@/lib/external/autointerp-explainer';
 import { generateExplanationOaiAttentionHead } from '@/lib/external/autointerp-explainer-att';
 import { generateExplanationEleutherActsTop20 } from '@/lib/external/autointerp-explainer-eleuther';
@@ -17,7 +18,7 @@ import { UserSecretType } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { boolean, number, object, string, ValidationError } from 'yup';
 
-export const maxDuration = 120;
+export const maxDuration = IS_VERCEL_ONE_CLICK_DEPLOY ? 60 : 120;
 
 const explainRequestSchema = object({
   modelId: string().required(),
