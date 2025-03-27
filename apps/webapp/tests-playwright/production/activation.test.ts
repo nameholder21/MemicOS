@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test';
 
 // test('gemma-2-2b', async ({ page }) => {
 //     await page.goto('https://memicos.org/search');
@@ -7,10 +7,10 @@ import { test, expect } from '@playwright/test'
 //     await page.locator('[data-state="closed"][data-sentry-source-file="model-selector.tsx"]').click();
 //     await page.getByText('DEEPSEEK-R1-LLAMA-8B').click();
 //     await page.getByText('Random').click();
-    
+
 //     //first occurence is the model selector, second is first result
 //     await page.getByText('LLAMASCOPE').nth(1).click();
-    
+
 //     //count of 'testing' in case its already on page
 //     const targetWord = 'testing';
 //     const regWord = await page.getByText(new RegExp(`\\b${targetWord}\\b`, 'i'));
@@ -30,33 +30,33 @@ import { test, expect } from '@playwright/test'
 //     expect(finalCount).toBe(initialCount + 3);
 // });
 
-//unable to interact with activation text box 3/25
+// unable to interact with activation text box 3/25
 test.fixme('deepseek', async ({ page }) => {
-    await page.goto('https://memicos.org/search');
+  await page.goto('https://memicos.org/search');
 
-    await page.locator('[data-state="closed"][data-sentry-source-file="model-selector.tsx"]').click();
-    await page.getByText('DEEPSEEK-R1-LLAMA-8B').click();
-    await page.getByText('Random').click();
-    
-    //first occurence is the model selector, second is first result
-    await page.getByText('LLAMASCOPE').nth(1).click();
-    
-    //count of 'testing' in case its already on page
-    const targetWord = 'testing';
-    const regWord = await page.getByText(new RegExp(`\\b${targetWord}\\b`, 'i'));
+  await page.locator('[data-state="closed"][data-sentry-source-file="model-selector.tsx"]').click();
+  await page.getByText('DEEPSEEK-R1-LLAMA-8B').click();
+  await page.getByText('Random').click();
 
-    //count occurrences
-    const countTest = await regWord.count();
+  // first occurence is the model selector, second is first result
+  await page.getByText('LLAMASCOPE').nth(1).click();
 
-    //search activation
-    await page.waitForLoadState('networkidle');
-    await page.getByRole('textbox', { name: 'Test activation with custom' }).click();
-    await page.getByRole('textbox', { name: 'Test activation with custom' }).fill('testing');
-    await page.getByRole('button', { name: 'Test' }).click();
+  // count of 'testing' in case its already on page
+  const targetWord = 'testing';
+  const regWord = await page.getByText(new RegExp(`\\b${targetWord}\\b`, 'i'));
 
-    //check for change
-    const finalTest = page.getByText(new RegExp(`\\b${targetWord}\\b`, 'i'));
-    const finalCount = await finalTest.count();
+  // count occurrences
+  const countTest = await regWord.count();
 
-    expect(finalCount).toBe(countTest + 3);
+  // search activation
+  await page.waitForLoadState('networkidle');
+  await page.getByRole('textbox', { name: 'Test activation with custom' }).click();
+  await page.getByRole('textbox', { name: 'Test activation with custom' }).fill('testing');
+  await page.getByRole('button', { name: 'Test' }).click();
+
+  // check for change
+  const finalTest = page.getByText(new RegExp(`\\b${targetWord}\\b`, 'i'));
+  const finalCount = await finalTest.count();
+
+  expect(finalCount).toBe(countTest + 3);
 });
