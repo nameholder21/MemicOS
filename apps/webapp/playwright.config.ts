@@ -15,7 +15,7 @@ if (fs.existsSync(envPath)) {
 export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 40_000 },
-  testDir: './tests-playwright',
+  testDir: './tests-playwright/local',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
