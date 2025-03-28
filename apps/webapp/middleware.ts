@@ -39,11 +39,17 @@ export default async function middleware(request: NextRequest) {
   requestHeaders.set('x-is-embed', isEmbed ? 'true' : 'false');
 
   if (!ENABLE_RATE_LIMITER) {
-    return NextResponse.next({
+    const res = NextResponse.next({
       request: {
         headers: requestHeaders,
       },
     });
+    if (pathname.startsWith('/api')) {
+      res.headers.append('Access-Control-Allow-Origin', '*');
+      res.headers.append('Access-Control-Allow-Methods', 'GET, POST');
+      res.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+    }
+    return res;
   }
   let wasRateLimited = false;
   let foundEndpoint = '';
@@ -76,9 +82,16 @@ export default async function middleware(request: NextRequest) {
       { status: 429 },
     );
   }
-  return NextResponse.next({
+
+  const res = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   });
+  if (pathname.startsWith('/api')) {
+    res.headers.append('Access-Control-Allow-Origin', '*');
+    res.headers.append('Access-Control-Allow-Methods', 'GET, POST');
+    res.headers.append('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  return res;
 }
