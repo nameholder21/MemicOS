@@ -65,11 +65,11 @@ a diagram showing the main features of memicos as of march 2025.
 
 **gifs of memicos in action**
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%" autoplay muted />
+    <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3U4ZHBqZDA4OWptdm1pNjdmc28wZ3NpdnZiaHhrbjVyZHd4bXB1eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/F4OaR0vmbJlBov7Pe3/giphy.gif" alt="demo of activation testing" width="32%" />
     &nbsp;
-    <img src="https://github.com/user-attachments/assets/f8fe432f-fc6c-484f-a262-c79c4ac524af" alt="demo of inference search" width="32%" autoplay muted />
+    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWlpNnJ6bTIwamk2MW42b3BxbGd4dW9vMnh4OHpseGxoYmZkOTdxZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7L6IbTl3nU91JsWo8G/giphy.gif" alt="demo of inference search" width="32%" />
     &nbsp;
-    <img src="https://github.com/user-attachments/assets/4a6c9cbc-fd40-4fd7-b05a-67f2eff128fd" alt="demo of umap" width="32%" autoplay muted />
+    <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExczd6MnpsNXB3cTFjbXc2Y3U5d3NrbjV0OWtvaGg2d2oxOHlzamNvZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mFRFPCfqddpGTBzYHq/giphy.gif" alt="demo of umap" width="32%" />
 </p>
 
 # instant start - vercel deploy
