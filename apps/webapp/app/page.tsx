@@ -161,9 +161,24 @@ export default function Page() {
             )}
           </div>
           <div className="mt-1 text-sm font-normal text-slate-600 sm:text-base">
-            {SITE_NAME_VERCEL_DEPLOY
-              ? 'Welcome to your custom MemicOS instance.'
-              : 'Explore, steer, and experiment on AI models.'}
+            {SITE_NAME_VERCEL_DEPLOY ? (
+              <div className="leading-relaxed">
+                Welcome to your very own MemicOS instance.
+                <br />
+                Check out the{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://github.com/hijohnnylin/memicos"
+                  className="font-semibold text-sky-700 underline"
+                >
+                  README
+                </a>{' '}
+                to start building and customizing MemicOS.
+              </div>
+            ) : (
+              'Explore, steer, and experiment on AI models.'
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-x-2.5 gap-y-2 sm:flex-row">
