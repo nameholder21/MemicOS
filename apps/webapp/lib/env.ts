@@ -2,8 +2,9 @@ import { config } from 'dotenv';
 
 // If it's not undefined, then it's a one click deploy. It doesn't matter what the value itself is.
 // Also, if it's one-click-deploy on Vercel, we always use the demo environment variables.
-export const IS_VERCEL_ONE_CLICK_DEPLOY = process.env.NEXT_PUBLIC_IS_VERCEL_ONE_CLICK_DEPLOY !== undefined;
-if (IS_VERCEL_ONE_CLICK_DEPLOY) {
+export const SITE_NAME_VERCEL_DEPLOY = process.env.NEXT_PUBLIC_SITE_NAME_VERCEL_DEPLOY;
+export const IS_ONE_CLICK_VERCEL_DEPLOY = SITE_NAME_VERCEL_DEPLOY !== undefined;
+if (SITE_NAME_VERCEL_DEPLOY) {
   // @ts-ignore
   if (typeof EdgeRuntime !== 'string') {
     config({ path: '.env.demo', override: true });
@@ -27,7 +28,7 @@ export const NEXTAUTH_URL = process.env.NEXTAUTH_URL || '';
 export const ENABLE_RATE_LIMITER = process.env.ENABLE_RATE_LIMITER === 'true';
 export const ENABLE_VERCEL_ANALYTICS = process.env.ENABLE_VERCEL_ANALYTICS === 'true';
 export const NEXT_PUBLIC_ENABLE_SIGNIN =
-  process.env.NEXT_PUBLIC_ENABLE_SIGNIN === 'true' && !IS_VERCEL_ONE_CLICK_DEPLOY;
+  process.env.NEXT_PUBLIC_ENABLE_SIGNIN === 'true' && !IS_ONE_CLICK_VERCEL_DEPLOY;
 
 // Default Values
 export const MEMICOS_EMAIL_ADDRESS = 'johnny@memicos.org';
@@ -117,4 +118,4 @@ export const IS_ACTUALLY_MEMICOS_ORG =
 // Misc
 export const NODE_ENV = process.env.NODE_ENV || '';
 export const IS_DOCKER_COMPOSE = process.env.IS_DOCKER_COMPOSE === 'true';
-export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || IS_VERCEL_ONE_CLICK_DEPLOY;
+export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || IS_ONE_CLICK_VERCEL_DEPLOY;

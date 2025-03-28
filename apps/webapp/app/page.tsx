@@ -4,7 +4,14 @@ import InferenceActivationAllProvider from '@/components/provider/inference-acti
 import RandomFeatureLink from '@/components/random-feature-link';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card';
-import { DEFAULT_MODELID, DEFAULT_SOURCE, DEMO_MODE, IS_LOCALHOST, NEXT_PUBLIC_URL } from '@/lib/env';
+import {
+  DEFAULT_MODELID,
+  DEFAULT_SOURCE,
+  DEMO_MODE,
+  IS_LOCALHOST,
+  NEXT_PUBLIC_URL,
+  SITE_NAME_VERCEL_DEPLOY,
+} from '@/lib/env';
 import { getSourceSetNameFromSource } from '@/lib/utils/source';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import {
@@ -126,29 +133,37 @@ export default function Page() {
       <div className="flex w-full flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 bg-slate-100 px-0 py-8 sm:mb-10 sm:mt-0 sm:flex-col sm:gap-y-1.5 sm:px-3 sm:py-6 sm:pt-5">
         <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="text-lg font-medium text-slate-800 sm:text-xl">
-            MemicOS is an{' '}
-            {/* <a
+            {SITE_NAME_VERCEL_DEPLOY ? (
+              <div className="pb-1 text-4xl font-semibold text-[#7B3F00]">{SITE_NAME_VERCEL_DEPLOY}</div>
+            ) : (
+              <>
+                MemicOS is an{' '}
+                {/* <a
               href="https://github.com/hijohnnylin/memicos"
               className="transition-all hover:text-slate-900/70 hover:underline"
               target="_blank"
               rel="noreferrer"
             > */}
-            open {/* open source */}
-            {/* </a>{' '} */}
-            <CustomTooltip
-              trigger={
-                <span className="font-bold text-sky-700 transition-all hover:cursor-pointer hover:text-sky-600">
-                  interpretability
-                </span>
-              }
-            >
-              The inner workings of modern AIs are a mystery. This is because AIs are language models that are grown,
-              not designed. The science of understanding what happens inside AI is called interpretability.
-            </CustomTooltip>{' '}
-            platform.
+                open {/* open source */}
+                {/* </a>{' '} */}
+                <CustomTooltip
+                  trigger={
+                    <span className="font-bold text-sky-700 transition-all hover:cursor-pointer hover:text-sky-600">
+                      interpretability
+                    </span>
+                  }
+                >
+                  The inner workings of modern AIs are a mystery. This is because AIs are language models that are
+                  grown, not designed. The science of understanding what happens inside AI is called interpretability.
+                </CustomTooltip>{' '}
+                platform.
+              </>
+            )}
           </div>
           <div className="mt-1 text-sm font-normal text-slate-600 sm:text-base">
-            Explore, steer, and experiment on AI models.
+            {SITE_NAME_VERCEL_DEPLOY
+              ? 'Welcome to your custom MemicOS instance.'
+              : 'Explore, steer, and experiment on AI models.'}
           </div>
         </div>
         <div className="flex flex-col gap-x-2.5 gap-y-2 sm:flex-row">
