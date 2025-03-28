@@ -1,7 +1,7 @@
 'use client';
 
 import { useGlobalContext } from '@/components/provider/global-provider';
-import { DEMO_MODE, IS_LOCALHOST, NEXT_PUBLIC_ENABLE_SIGNIN } from '@/lib/env';
+import { DEMO_MODE, IS_LOCALHOST, NEXT_PUBLIC_ENABLE_SIGNIN, SITE_NAME_VERCEL_DEPLOY } from '@/lib/env';
 import { Session } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,17 +39,24 @@ export default function NavBar({ session }: { session: Session | null }) {
         <div className="relative flex h-12 items-center justify-between sm:mx-auto sm:h-12">
           <div className="flex flex-row gap-8 sm:mt-0">
             <Link href="/#" className="flex items-center justify-center text-base sm:text-[16px]">
-              <div className="mr-1.5 h-6 w-6 sm:h-5 sm:w-5">
-                <Image
-                  src="/logo.png"
-                  alt="MemicOS logo - a computer chip with a rounded viewfinder border around it"
-                  width="28"
-                  height="28"
-                  className=""
-                />
-              </div>
-
-              <p className="font-normal text-sky-800 sm:mt-0 sm:font-normal">MemicOS</p>
+              {SITE_NAME_VERCEL_DEPLOY ? (
+                <></>
+              ) : (
+                <div className="mr-1.5 h-6 w-6 sm:h-5 sm:w-5">
+                  <Image
+                    src="/logo.png"
+                    alt="MemicOS logo - a computer chip with a rounded viewfinder border around it"
+                    width="28"
+                    height="28"
+                    className=""
+                  />
+                </div>
+              )}
+              {SITE_NAME_VERCEL_DEPLOY ? (
+                <p className="ml-1.5 font-medium text-[#7B3F00] sm:mt-0">{SITE_NAME_VERCEL_DEPLOY}</p>
+              ) : (
+                <p className="font-normal text-sky-800 sm:mt-0">MemicOS</p>
+              )}
               {DEMO_MODE ? (
                 <CustomTooltip
                   trigger={
