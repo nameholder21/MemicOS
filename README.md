@@ -64,13 +64,12 @@ a diagram showing the main features of memicos as of march 2025.
 ![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
 
 **gifs of memicos in action**
-
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%"/>
+    <img src="https://github.com/user-attachments/assets/af25509c-3531-4fbf-8346-fdad31843b15" alt="demo of activation testing" width="32%" autoplay muted />
     &nbsp;
-    <img src="https://github.com/user-attachments/assets/f8fe432f-fc6c-484f-a262-c79c4ac524af" alt="demo of inference search" width="32%"/>
+    <img src="https://github.com/user-attachments/assets/f8fe432f-fc6c-484f-a262-c79c4ac524af" alt="demo of inference search" width="32%" autoplay muted />
     &nbsp;
-    <img src="https://github.com/user-attachments/assets/4a6c9cbc-fd40-4fd7-b05a-67f2eff128fd" alt="demo of umap" width="32%"/>
+    <img src="https://github.com/user-attachments/assets/4a6c9cbc-fd40-4fd7-b05a-67f2eff128fd" alt="demo of umap" width="32%" autoplay muted />
 </p>
 
 # instant start - vercel deploy
