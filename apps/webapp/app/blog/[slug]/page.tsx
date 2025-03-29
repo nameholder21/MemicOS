@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: meta.imagePreview,
         },
         {
-          url: '/images/blog/the-residual-stream-logo.jpg',
+          url: '/images/blog/the-residual-stream.jpg',
         },
       ],
     },
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: meta.imagePreview,
         },
         {
-          url: '/images/blog/the-residual-stream-logo.jpg',
+          url: '/images/blog/the-residual-stream.jpg',
         },
       ],
       locale: 'en_US',

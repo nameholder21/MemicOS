@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `/blog`,
       images: [
         {
-          url: '/images/blog/the-residual-stream-logo.jpg',
+          url: '/images/blog/the-residual-stream.jpg',
         },
       ],
     },
