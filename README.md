@@ -3,7 +3,7 @@
     <img src="https://github.com/user-attachments/assets/9bcea0bf-4fa9-401d-bb7a-d031a4d12636" alt="Splash GIF"/>
   </a>
 
-<h3 align="center"><a href="https://memicos.org">memicos 🧠🔍</a></h3>
+<h3 align="center"><a href="https://memicos.org">memicos.org 🧠🔍</a></h3>
 
   <p align="center">
     open source interpretability platform
@@ -63,14 +63,6 @@ check out our [blog post](https://www.memicos.org/blog/memicos-is-now-open-sourc
 a diagram showing the main features of memicos as of march 2025.
 ![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
 
-**gifs of memicos in action**
-<p align="center">
-    <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3U4ZHBqZDA4OWptdm1pNjdmc28wZ3NpdnZiaHhrbjVyZHd4bXB1eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/F4OaR0vmbJlBov7Pe3/giphy.gif" alt="demo of activation testing" width="32%" />
-    &nbsp;
-    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWlpNnJ6bTIwamk2MW42b3BxbGd4dW9vMnh4OHpseGxoYmZkOTdxZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7L6IbTl3nU91JsWo8G/giphy.gif" alt="demo of inference search" width="32%" />
-    &nbsp;
-    <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExczd6MnpsNXB3cTFjbXc2Y3U5d3NrbjV0OWtvaGg2d2oxOHlzamNvZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/mFRFPCfqddpGTBzYHq/giphy.gif" alt="demo of umap" width="32%" />
-</p>
 
 # instant start - vercel deploy
 
@@ -81,6 +73,10 @@ click the `Deploy` button to instantly deploy a custom memicos. a [free vercel a
     <img src="https://vercel.com/button" width="160" alt="Deploy with Vercel"/>
   </a>
 </p>
+
+here's how easy it is to deploy a "PuppyNeurons" fork of MemicOS:
+
+https://github.com/user-attachments/assets/707deaed-02b4-442b-8c1f-bf44d193b9fa
 
 # quick start - local webapp + demo environment
 
@@ -143,11 +139,18 @@ ideally, you will probably eventually want to do all of the sub-sections below, 
 1. if you want to jump into developing webapp frontend or api with the demo environment, follow [webapp dev](#i-want-to-do-webapp-frontend--api-development)
 2. if you want to start loading more sources/data and relying on your own local database, follow [local database](#i-want-to-use-a-local-database--import-more-memicos-data)
 
+> 🔥 **pro-tip:** memicos is configured for AI agent development. here's an example using a [single prompt](https://github.com/hijohnnylin/memicos/blob/main/apps/experiments/steerify/README.md#claude-code-prompt) to build a custom app (Steerify) using MemicOS's inference server as a backend:
+
+https://github.com/user-attachments/assets/bc82f88b-8155-4c1d-948a-ea5d987ae0f8
+
+
 ## "i want to use a local database / import more memicos data"
 
 #### what this does + what you'll get
 
-relying on the demo environment means you are limited to read-only access to a specific set of SAEs. these steps show you how to configure and connect to your own local database. you can then download sources/SAEs of your choosing.
+relying on the demo environment means you are limited to read-only access to a specific set of SAEs. these steps show you how to configure and connect to your own local database. you can then download sources/SAEs of your choosing:
+
+https://github.com/user-attachments/assets/d7fbb46e-8522-4f98-aa08-21c6529424af
 
 > ⚠️ **warning:** your database will start out empty. you will need to use the admin panel to [import sources/data](#import-data-into-your-local-database) (activations, explanations, etc).
 
