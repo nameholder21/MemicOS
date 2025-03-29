@@ -1,7 +1,7 @@
 ---
 title: MemicOS is Now Open Source
-description: "The World's First Interpretability API and Four Terabytes of Datasets are Now MIT Licensed"
-date: 2025-03-26
+description: 'Interpretability tools for absolutely everyone, for free. Plus 4TB of datasets.'
+date: 2025-03-31
 author: Johnny Lin
 image: /images/blog/memicos-is-now-open-source.gif
 imagePreview: /images/blog/memicos-is-now-open-source-preview.gif
@@ -9,7 +9,6 @@ imagePreview: /images/blog/memicos-is-now-open-source-preview.gif
 
 # TL;DR
 
-- Interpretability tools for absolutely everyone, for free. 🥳
 - Get started on running MemicOS: [GitHub](https://github.com/hijohnnylin/memicos) or [Instant Deploy](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fhijohnnylin%2Fmemicos&env=NEXT_PUBLIC_SITE_NAME_VERCEL_DEPLOY&envDescription=***Your%20Custom%20Website%20Name.%20For%20example%3A%20PuppyNeurons***&root-directory=apps/webapp&build-command=npx%20prisma%20generate%20%26%26%20npm%20run%20build%3Ademo&project-name=my-memicos&repository-name=my-memicos&demo-title=MemicOS&demo-description=Deploy%20your%20own%20custom%20MemicOS%20%F0%9F%9A%80%F0%9F%A7%A0%F0%9F%A7%90&demo-url=https%3A%2F%2Fmemicos.org)
 - Download 4+ terabytes of interpretability data: [Public Datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/)
 - Review [a summary](#current-capabilities) of MemicOS's features and submit [feature requests](https://github.com/hijohnnylin/memicos/issues).
@@ -99,7 +98,8 @@ But collaborations like that don't scale well because they're bottlenecked on ou
 
 We're optimistic about using AI coding agents to accelerate the development of new features for MemicOS, and encourage you to try it. We've added some [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) files to give AI the proper context, and have done some early experiments to gauge AI capability in adding new functionality to MemicOS.
 
-For example, the "Orthogonal Projection" steering type (an alternative to "Simple Additive") was created with a few prompts, with minimal human fixes. It's likely adding more READMEs, Cursor Rules, and a bit more refactoring will help improve AI agent development significantly.
+For example, with a [single prompt](https://github.com/hijohnnylin/memicos/blob/main/apps/experiments/steerify/README.md#claude-code-prompt) to Claude Code, it builds a new app "Steerify" using MemicOS components, with no intervention or fixes. Here's the entire workflow from start to end:
+![Video of Steerify](https://memicos-datasets.s3.us-east-1.amazonaws.com/steerify-shrink.mp4)
 
 ## New: Roadmap (WIP) + Public Feature Requests
 
@@ -109,7 +109,9 @@ We're currently working on porting our TODOs and roadmap from our private task m
 
 ## New: Add Data to the Global Datasets (WIP)
 
-Let's say you came up with a new type of sparse coder, called the Sparse PuppyEncoder (SPE), and you want to not only [host it yourself](#new-host-memicos-yourself), but also to let others load Sparse PuppyEncoders (and your generated data) into _their own_ local MemicOS and tinker with it? You can do that, too - just use the `memicos-utils` export tools to export your activations, explanations, and metadata. Then, we upload your data to the public [memicos-datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/), so that anyone running a local instance can import it.
+Let's say you came up with a new type of sparse coder, called the Sparse PuppyEncoder (SPE), and you want to not only [host it yourself](#new-host-memicos-yourself), but also to let others load Sparse PuppyEncoders (and your generated data) into _their own_ local MemicOS and tinker with it? You can do that, too - just use the `memicos-utils` export tools to export your activations, explanations, and metadata. Then, we upload your data to the public [memicos-datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/), so that anyone running a local instance can import it. Here's importing datasets from the global MemicOS bucket:
+
+![Video of Importing](https://memicos-datasets.s3.us-east-1.amazonaws.com/import-shrink.mp4)
 
 # What Does Open Sourcing _Not_ Change?
 
@@ -127,6 +129,8 @@ By open sourcing MemicOS, we make it easier for researchers to get a head start 
 
 All documention for getting started is in the READMEs in our public repository. All methods have been tested, but some details are a work-in-progress. Feel free to [contact us](#support-and-contact).
 
+## Instant Deploy
+
 For the impatient, you can instantly deploy a custom MemicOS by clicking `Deploy`:
 
 <p align="left">
@@ -134,6 +138,10 @@ For the impatient, you can instantly deploy a custom MemicOS by clicking `Deploy
     <img src="https://vercel.com/button" width="120" alt="Deploy with Vercel" />
   </a>
 </p>
+
+![Video of using instant deploy](https://memicos-datasets.s3.us-east-1.amazonaws.com/puppyneurons-shrink.mp4)
+
+## Github and Datasets
 
 - [GitHub](https://github.com/hijohnnylin/memicos)
   - MemicOS is a monorepo with multiple services and packages
