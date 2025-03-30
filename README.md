@@ -313,7 +313,9 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
 
 ## 'i want to do high volume autointerp explanations'
 
-TODO - use [utils/memicos_utils/batch-autointerp.py](utils/memicos_utils/batch-autointerp.py)
+(TODO) Section under construction
+- use EleutherAI's [Delphi library](https://github.com/EleutherAI/delphi)
+- for OpenAI's autointerp, use [utils/memicos_utils/batch-autointerp.py](utils/memicos_utils/batch-autointerp.py)
 
 ## 'i want to generate my own dashboards'
 
