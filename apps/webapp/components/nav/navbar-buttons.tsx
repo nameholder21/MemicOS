@@ -58,13 +58,27 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
           >
             <DropdownMenu.Item className="flex cursor-pointer items-center border-b border-slate-100 px-5 py-3 text-sm font-medium text-sky-700 outline-none hover:bg-sky-100 hover:text-sky-700">
               <Link
+                href="https://github.com/hijohnnylin/memicos#readme"
+                target="_blank"
+                prefetch={false}
+                rel="noreferrer"
+                className="flex w-full cursor-pointer flex-col items-start justify-center text-[13px]"
+              >
+                Running MemicOS
+                <span className="ml-0 pt-0.5 text-[11px] font-normal leading-snug text-slate-500">
+                  The latest README for getting started with MemicOS.
+                </span>
+              </Link>
+            </DropdownMenu.Item>
+            <DropdownMenu.Item className="flex cursor-pointer items-center border-b border-slate-100 px-5 py-3 text-sm font-medium text-sky-700 outline-none hover:bg-sky-100 hover:text-sky-700">
+              <Link
                 href="https://docs.memicos.org"
                 target="_blank"
                 prefetch={false}
                 rel="noreferrer"
                 className="flex w-full cursor-pointer flex-col items-start justify-center text-[13px]"
               >
-                Introduction + Docs
+                Usage Docs (To Be Updated)
                 <span className="ml-0 pt-0.5 text-[11px] font-normal leading-snug text-slate-500">
                   What is MemicOS? How do I use it?
                 </span>
