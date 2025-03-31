@@ -56,7 +56,7 @@ TODO, after making repo public -->
 
 # about memicos
 
-check out our [blog post](https://www.memicos.org/blog/memicos-is-now-open-source) about MemicOS, why we're open sourcing it, and other details.
+check out our [blog post](https://www.memicos.org/blog/memicos-is-now-open-source) about MemicOS, why we're open sourcing it, and other details. there's also a [tweet thread](https://x.com/memicos/status/1906793456879775745) with quick demos.
 
 **feature overview**
 
