@@ -47,9 +47,9 @@
 - [contact / support](#contact--support)
 - [contributing](#contributing)
 - [appendix](#appendix)
-  - ['make' commands reference](#make-commands-reference)
-  - [import data into your local database](#import-data-into-your-local-database)
-  - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
+    - ['make' commands reference](#make-commands-reference)
+    - [import data into your local database](#import-data-into-your-local-database)
+    - [why an openai api key is needed for search explanations](#why-an-openai-api-key-is-needed-for-search-explanations)
 
 <!-- # ultra-quick start: one-click deploy on vercel
 TODO, after making repo public -->
@@ -62,7 +62,6 @@ check out our [blog post](https://www.memicos.org/blog/memicos-is-now-open-sourc
 
 a diagram showing the main features of memicos as of march 2025.
 ![memicos-features](https://github.com/user-attachments/assets/13e07a93-e046-4e1c-b670-2d26d251d55d)
-
 
 # instant start - vercel deploy
 
@@ -142,7 +141,6 @@ ideally, you will probably eventually want to do all of the sub-sections below, 
 > 🔥 **pro-tip:** memicos is configured for AI agent development. here's an example using a [single prompt](https://github.com/hijohnnylin/memicos/blob/main/apps/experiments/steerify/README.md#claude-code-prompt) to build a custom app (Steerify) using MemicOS's inference server as a backend:
 
 https://github.com/user-attachments/assets/bc82f88b-8155-4c1d-948a-ea5d987ae0f8
-
 
 ## "i want to use a local database / import more memicos data"
 
@@ -307,21 +305,29 @@ look at the `.env.inference.deepseek-r1-distill-llama-8b.llamascope-slimpj-res-3
 
 ## 'i want to run/develop autointerp locally`
 
-- [TODO #5](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
-- TODO - look at the `autointerp` service in [docker-compose.yaml](docker-compose.yaml) and the [autointerp readme](apps/autointerp/README.md)
+this section is under construction.
+
+- check out the [autointerp readme](apps/autointerp/README.md)
+- [TODO](https://github.com/hijohnnylin/memicos/issues/5) instructions for setting up autointerp server locally
+- TODO - look at the `autointerp` service in [docker-compose.yaml](docker-compose.yaml)
 - schema-driven development: [openapi readme: making changes to the autointerp server](schemas/README.md#making-changes-to-the-autointerp-server)
 
 ## 'i want to do high volume autointerp explanations'
 
-(TODO) Section under construction
+this section is under construction.
+
 - use EleutherAI's [Delphi library](https://github.com/EleutherAI/delphi)
 - for OpenAI's autointerp, use [utils/memicos_utils/batch-autointerp.py](utils/memicos_utils/batch-autointerp.py)
 
 ## 'i want to generate my own dashboards'
 
+this section is under construction.
+
 TODO - use `utils/memicos_utils/generate-dashboards-as-[saelens/vectors].py`, or use the [saedashboard example](https://github.com/jbloomAus/SAEDashboard/blob/main/sae_dashboard/memicos/generating_memicos_outputs.ipynb) and then convert it using [this script](`utils/memicos_utils/convert-saedashboard-to-memicos-export.py).
 
 ## 'i want to add my dashboards/data to memicos`
+
+this section is under construction.
 
 TODO - use [utils/memicos_utils/export-data.py](utils/memicos_utils/export-data.py) once you've added your data to your local database.
 
