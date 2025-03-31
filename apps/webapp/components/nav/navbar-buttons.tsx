@@ -360,21 +360,21 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
         </>
       )}
 
-      {/* <Link
+      <Link
         href="/blog"
         className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white"
       >
         Blog
-      </Link> */}
+      </Link>
 
-      {/* <Link
-        href="https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-1qosyh8g3-9bF3gamhLNJiqCL_QqLFrA"
+      <Link
+        href="https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA"
         target="_blank"
         rel="noreferrer"
-        className="flex cursor-pointer items-center whitespace-nowrap px-0 py-0.5 text-[13px] transition-all hover:text-sky-700 hover:underline sm:mb-0 sm:px-1 sm:py-0 "
+        className="flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white"
       >
         Slack
-      </Link> */}
+      </Link>
 
       <Link
         href="/privacy"

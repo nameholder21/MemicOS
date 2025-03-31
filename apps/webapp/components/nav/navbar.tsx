@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import GithubCorner from 'react-github-corner';
 import CustomTooltip from '../custom-tooltip';
 import NavBarButtons from './navbar-buttons';
 import { useSignInModal } from './sign-in-modal';
@@ -35,7 +36,14 @@ export default function NavBar({ session }: { session: Session | null }) {
   return (
     <>
       <SignInModal />
-      <div className="fixed top-0 z-20 w-full select-none border-b border-slate-200 bg-white px-5 transition-all">
+      <div className="fixed top-0 z-20 w-full select-none border-b border-slate-200 bg-white px-5 transition-all sm:pr-8">
+        <GithubCorner
+          href="https://github.com/hijohnnylin/memicos#readme"
+          size={36}
+          className="hidden sm:inline"
+          target="_blank"
+          rel="noreferrer"
+        />
         <div className="relative flex h-12 items-center justify-between sm:mx-auto sm:h-12">
           <div className="flex flex-row gap-8 sm:mt-0">
             <Link href="/#" className="flex items-center justify-center text-base sm:text-[16px]">
@@ -104,20 +112,6 @@ export default function NavBar({ session }: { session: Session | null }) {
             ) : (
               ''
             )}
-
-            {/* <a
-              href="https://github.com/hijohnnylin/memicos"
-              className="font-bold text-slate-900 transition-all hover:text-slate-900/70 hover:underline"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <button
-                type="button"
-                className="ml-2 flex cursor-pointer select-none flex-row items-center justify-center rounded-md bg-slate-800 px-2 py-2 text-white transition-all hover:bg-slate-600 hover:shadow focus:outline-none sm:ml-2.5 sm:rounded-full sm:px-2 sm:py-2"
-              >
-                <Github className="h-4 w-4" />
-              </button>
-            </a> */}
           </div>
         </div>
       </div>
