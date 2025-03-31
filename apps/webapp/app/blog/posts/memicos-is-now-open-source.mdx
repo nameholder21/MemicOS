@@ -83,7 +83,13 @@ For the impatient, you can instantly deploy a custom MemicOS by clicking `Deploy
   </a>
 </p>
 
-![Video of using instant deploy](https://memicos-datasets.s3.us-east-1.amazonaws.com/puppyneurons-shrink.mp4)
+<video controls autoPlay muted>
+  <source
+    src="https://memicos-datasets.s3.us-east-1.amazonaws.com/puppyneurons-shrink.mp4"
+    alt="video of using instant deploy"
+    type="video/mp4"
+  />
+</video>
 
 Custom MemicOSs are as simple as a few clicks. And you can `git pull` new changes when we deploy them, to stay updated with the latest fixes/features.
 
@@ -94,7 +100,14 @@ You can now host MemicOS yourself, with your own model and data, on your own clo
 We're grateful for the people and organizations that came before us to make MemicOS possible, and we're happy to have lit the fire to inspire various projects, both public and private. Now, you can customize MemicOS to your heart's content - changing everything from updating colors to adding new features.
 
 For example, with a [single prompt](https://github.com/hijohnnylin/memicos/blob/main/apps/experiments/steerify/README.md#claude-code-prompt) to Claude Code, it builds a new app "Steerify" using MemicOS components, with no intervention or fixes:
-![Video of Steerify](https://memicos-datasets.s3.us-east-1.amazonaws.com/steerify-shrink.mp4)
+
+<video controls autoPlay muted>
+  <source
+    src="https://memicos-datasets.s3.us-east-1.amazonaws.com/steerify-shrink.mp4"
+    alt="video of building steerify"
+    type="video/mp4"
+  />
+</video>
 
 MemicOS is comprised of multiple services that can run independently, so you can also just fork parts of MemicOS that you want and replace other parts entirely. For example, if you want just the frontend of MemicOS but plug in a different system for inference, just replace the MemicOS inference server, ensuring that your new inference server matches the defined OpenAPI spec.
 
@@ -123,7 +136,14 @@ We're currently working on porting our TODOs and roadmap from our private task m
 Let's say you came up with a new type of sparse coder, called the Sparse PuppyEncoder (SPE), and you want to not only [host it yourself](#new-host-memicos-yourself), but also to let others load Sparse PuppyEncoders (and your generated data) into _their own_ local MemicOS and tinker with it? You can do that, too - just use the `memicos-utils` export tools to export your activations, explanations, and metadata. Then, we upload your data to the public [memicos-datasets](https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/), so that anyone running a local instance can import it.
 
 Here's importing datasets from the global MemicOS bucket to a localhost instance:
-![Video of Importing](https://memicos-datasets.s3.us-east-1.amazonaws.com/import-shrink.mp4)
+
+<video controls autoPlay muted>
+  <source
+    src="https://memicos-datasets.s3.us-east-1.amazonaws.com/import-shrink.mp4"
+    alt="video of importing data"
+    type="video/mp4"
+  />
+</video>
 
 # What Does Open Sourcing _Not_ Change?
 
