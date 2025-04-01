@@ -228,9 +228,9 @@ def get_sae_lens_ids_from_memicos_id(
         (df_exploded["model"] == model_id)
         & (df_exploded["memicos_id"].str.endswith(f"/{memicos_id}"))
     ]
-    assert tmp_df.shape[0] == 1, (
-        f"Found {tmp_df.shape[0]} entries when searching for {model_id}/{memicos_id}"
-    )
+    assert (
+        tmp_df.shape[0] == 1
+    ), f"Found {tmp_df.shape[0]} entries when searching for {model_id}/{memicos_id}"
     sae_lens_release = tmp_df.release.values[0]
     sae_lens_id = tmp_df.sae_lens_id.values[0]
     return sae_lens_release, sae_lens_id
