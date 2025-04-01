@@ -108,7 +108,7 @@ def test_sae_manager_initialize_different_model(mock_config_2: Config) -> None:
     assert isinstance(sae_manager.sae_data["1-gemmascope-mlp-16k"]["sae"], MockSAE)
 
     # check valid models
-    expected_accepted_model_ids = {"gemma-2-2b", "gemma-2-9b"}
+    expected_accepted_model_ids = {"gemma-2-2b"}
     assert sae_manager.config.get_valid_model_ids() == expected_accepted_model_ids
 
 
