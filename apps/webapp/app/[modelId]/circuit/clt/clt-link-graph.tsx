@@ -1,7 +1,9 @@
 /* eslint-disable no-param-reassign */
 
+import CustomTooltip from '@/components/custom-tooltip';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
+import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useRef } from 'react';
 import { CLTGraph, CLTGraphLink, CLTGraphNode, hideTooltip, isHideLayer, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
@@ -893,7 +895,15 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId]);
 
   return (
-    <div className="link-graph relative mt-11 min-h-[450px] w-full">
+    <div className="link-graph relative mt-3 min-h-[490px] w-[66%] min-w-[66%] max-w-[66%]">
+      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+        <div className="text-sm font-bold text-slate-500">Link Graph</div>
+        <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
+          <div className="flex flex-col">
+            TODO: https://transformer-circuits.pub/2025/attribution-graphs/methods.html
+          </div>
+        </CustomTooltip>
+      </div>
       <div className="tooltip tooltip-hidden" />
       <svg className="absolute z-0 w-full" height={HEIGHT} ref={bottomRef} />
       <svg className="absolute z-0 w-full" height={HEIGHT} ref={middleRef} />
