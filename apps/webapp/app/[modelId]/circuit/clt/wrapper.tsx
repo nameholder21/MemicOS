@@ -11,6 +11,10 @@ export default function CLTWrapper() {
       <div className="mb-1 w-full text-center text-base font-medium text-slate-500 text-slate-600">
         Circuit Tracing <sup className="text-xs">alpha</sup>
       </div>
+      <div className="mb-2 w-full text-center text-[11px] text-red-500">
+        This incomplete and buggy (incorrect in places) - it is a starting point for iterations and feedback. This is
+        not linked to from public MemicOS pages.
+      </div>
       <CLTModelPromptSelector />
 
       <Card className="mt-5 w-full bg-white">
