@@ -618,3 +618,109 @@ div[data-virtuoso-scroller='true'] table {
 foreignObject canvas {
   z-index: 1; /* Lower z-index for canvas elements */
 }
+
+.node-connections {
+  .header-top-row {
+    user-select: none;
+  }
+  .feature-icon {
+    color: #fff;
+    -webkit-text-stroke: 1.5px #f0f;
+    text-align: center;
+    vertical-align: middle;
+    margin-right: 5px;
+    position: relative;
+    top: -2px;
+    font-size: 10px;
+  }
+  .feature-title {
+    font-weight: 500 !important;
+    font-size: 13px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pinned .feature-icon {
+    -webkit-text-stroke: 2.5px #f0f;
+  }
+
+  .connections {
+    flex: 1 0 auto;
+    display: flex;
+    overflow-y: hidden;
+    overflow-x: visible;
+    gap: 200px;
+
+    .features {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 20px;
+      width: 100%;
+    }
+
+    .effects {
+      font-size: 11px;
+      flex: 1 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: scroll;
+      overflow-x: visible !important;
+      /* border-bottom: solid 1px #eee; */
+      padding-top: 8px;
+    }
+
+    .h4 {
+      padding-bottom: 5px;
+      border-bottom: solid 1px #eee;
+    }
+
+    .h4 label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input {
+      margin: 0;
+    }
+  }
+  .sum-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-weight: 300;
+    color: rgb(85, 85, 85);
+    line-height: 1em;
+    margin-top: 4px;
+    border-width: 0px !important;
+    margin-bottom: 0px;
+    line-height: 1em;
+
+    th,
+    td {
+      text-align: center;
+      font-size: 11px !important;
+      border-bottom-color: #fff !important;
+      line-height: 1em;
+    }
+
+    th:not(:first-child),
+    td:not(:first-child) {
+      padding-left: 0px !important;
+      padding: 0px 10px !important;
+    }
+
+    th {
+      font-weight: 400;
+    }
+
+    tr {
+      border-color: #fff !important;
+    }
+
+    tr.data td {
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
