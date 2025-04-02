@@ -470,7 +470,7 @@ export default function CLTLinkGraph() {
       );
 
     // Background elements
-    c.svgBot.append('rect').attr('width', c.width).attr('height', c.height).attr('fill', '#F5F4EE');
+    c.svgBot.append('rect').attr('width', c.width).attr('height', c.height).attr('fill', 'rgba(226, 232, 240, 0.6)');
 
     // Add background rectangles for even and odd rows
     c.svgBot
@@ -485,7 +485,7 @@ export default function CLTLinkGraph() {
         const yPos = c.y(i);
         return yPos !== undefined ? yPos : 0;
       })
-      .attr('fill', '#F0EEE7');
+      .attr('fill', 'rgba(226, 232, 240, 0.8)');
 
     // Add horizontal grid lines
     c.svgBot
@@ -897,7 +897,7 @@ export default function CLTLinkGraph() {
   return (
     <div className="link-graph relative mt-3 min-h-[490px] w-[66%] min-w-[66%] max-w-[66%]">
       <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
-        <div className="text-sm font-bold text-slate-500">Link Graph</div>
+        <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
             TODO: https://transformer-circuits.pub/2025/attribution-graphs/methods.html
