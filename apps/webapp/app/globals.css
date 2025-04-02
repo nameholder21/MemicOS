@@ -537,3 +537,84 @@ div[data-virtuoso-scroller='true'] table {
     font-size: 0.75rem;
   }
 }
+
+/* CLT */
+
+.link-graph,
+.feature-scatter,
+.feature-umap,
+.feature-diff-scatter,
+.link-diff-scatter {
+  canvas {
+    pointer-events: none;
+  }
+  overflow: visible;
+  .node {
+    cursor: pointer;
+  }
+
+  .node.clicked {
+    stroke-width: 1.5px;
+    stroke: #f0f;
+  }
+
+  .node.pinned {
+    stroke: #000;
+    stroke-width: 1.8px;
+  }
+
+  .node.hidden {
+    opacity: 0.5;
+    r: 0.5;
+  }
+
+  .node.pinned.clicked {
+    stroke-width: 2.3px;
+    stroke: #f0f;
+    /* stroke: url(#pinned-clicked-gradient); */
+  }
+}
+
+.link-graph svg {
+  overflow: visible;
+}
+
+.link-graph .node.hidden {
+  opacity: 1 !important;
+  font-size: 3.5px;
+}
+
+.link-graph .tooltip {
+  top: -1000px;
+  position: fixed;
+  padding: 5px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid lightgray;
+  pointer-events: none;
+  z-index: 10000;
+  font-size: 10px;
+  line-height: 1.3em;
+}
+
+.link-graph .tooltip-hidden {
+  opacity: 0;
+  transition: all 0.3s;
+  transition-delay: 0.1s;
+}
+
+/* SVG and canvas stacking rules */
+.svg-top {
+  position: relative;
+  z-index: 10; /* Higher z-index to ensure it's on top */
+  pointer-events: all;
+}
+
+.svg-bot {
+  position: relative;
+  z-index: 5; /* Medium z-index for middle layer */
+  pointer-events: all;
+}
+
+foreignObject canvas {
+  z-index: 1; /* Lower z-index for canvas elements */
+}
