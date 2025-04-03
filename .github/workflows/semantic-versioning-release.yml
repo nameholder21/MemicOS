@@ -2,13 +2,13 @@ name: Semantic Versioning and Release Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type (major, minor, patch)'
+        description: "Release type (major, minor, patch)"
         required: true
-        default: 'patch'
+        default: "patch"
         type: choice
         options:
           - major
@@ -62,7 +62,7 @@ jobs:
           CURRENT_VERSION: ${{ steps.current_version.outputs.version }}
         run: |
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-          
+
           if [ "$RELEASE_TYPE" == "major" ]; then
             NEW_VERSION="$((MAJOR + 1)).0.0"
           elif [ "$RELEASE_TYPE" == "minor" ]; then
@@ -70,7 +70,7 @@ jobs:
           else # patch
             NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
           fi
-          
+
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "$NEW_VERSION" > VERSION
 
@@ -79,17 +79,17 @@ jobs:
           git add VERSION
           git commit -m "chore(release): v${{ steps.bump_version.outputs.new_version }}"
           git tag -a "v${{ steps.bump_version.outputs.new_version }}" -m "Release v${{ steps.bump_version.outputs.new_version }}"
-          git push --follow-tags
+          git push https://memicos-bot:${{secrets.NP_BOT_PAT}}@github.com/hijohnnylin/memicos.git --follow-tags
 
       - name: Generate release notes with commits
         run: |
           # Get the previous tag or go back to the beginning if no tags exist
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo $(git rev-list --max-parents=0 HEAD))
-          
+
           # Generate release notes directly to a file
           echo "## Commits in this release" > release_notes.md
           git log ${PREV_TAG}..HEAD --pretty=format:"* %h - %s (%an)" >> release_notes.md
-      
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
