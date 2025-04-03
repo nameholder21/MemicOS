@@ -23,17 +23,19 @@ jobs:
   version:
     name: Semantic Versioning and Release
     runs-on: ubuntu-latest
+    if: ${{ !(github.actor == 'memicos-bot' || (github.event_name == 'push' && github.event.pusher.name == 'memicos-bot')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          persist-credentials: true
 
       - name: Setup Git user
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "memicos-bot"
+          git config --local user.email "bot@memicos.org"
 
       - name: Read version file
         id: current_version
@@ -79,7 +81,13 @@ jobs:
           git add VERSION
           git commit -m "chore(release): v${{ steps.bump_version.outputs.new_version }}"
           git tag -a "v${{ steps.bump_version.outputs.new_version }}" -m "Release v${{ steps.bump_version.outputs.new_version }}"
-          git push https://memicos-bot:${{secrets.NP_BOT_PAT}}@github.com/hijohnnylin/memicos.git --follow-tags
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          ssh: true
+          branch: main
+          tags: true
 
       - name: Generate release notes with commits
         run: |
