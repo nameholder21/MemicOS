@@ -15,7 +15,7 @@ on:
           - minor
           - patch
 
-# Add permissions to allow pushing commits, tags, and creating releases
+# Add permissions to allow pushing tags and creating releases
 permissions:
   contents: write
 
@@ -23,28 +23,26 @@ jobs:
   version:
     name: Semantic Versioning and Release
     runs-on: ubuntu-latest
-    if: ${{ !(github.actor == 'memicos-bot' || (github.event_name == 'push' && github.event.pusher.name == 'memicos-bot')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
-          persist-credentials: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Git user
         run: |
-          git config --local user.name "memicos-bot"
-          git config --local user.email "bot@memicos.org"
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Read version file
-        id: current_version
+      - name: Get latest version from tags
+        id: get_version
         run: |
-          # Create VERSION file if it doesn't exist
-          if [ ! -f "VERSION" ]; then
-            echo "0.0.0" > VERSION
-          fi
-          echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+          # Get the latest tag or default to v1.0.0 if none exist
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          # Remove 'v' prefix
+          VERSION=${LATEST_TAG#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Determine release type
         id: release_type
@@ -61,7 +59,7 @@ jobs:
         id: bump_version
         env:
           RELEASE_TYPE: ${{ steps.release_type.outputs.type }}
-          CURRENT_VERSION: ${{ steps.current_version.outputs.version }}
+          CURRENT_VERSION: ${{ steps.get_version.outputs.version }}
         run: |
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
@@ -74,20 +72,11 @@ jobs:
           fi
 
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "$NEW_VERSION" > VERSION
 
-      - name: Commit version bump
+      - name: Create and push tag
         run: |
-          git add VERSION
-          git commit -m "chore(release): v${{ steps.bump_version.outputs.new_version }}"
           git tag -a "v${{ steps.bump_version.outputs.new_version }}" -m "Release v${{ steps.bump_version.outputs.new_version }}"
-
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.8.0
-        with:
-          ssh: true
-          branch: main
-          tags: true
+          git push origin "v${{ steps.bump_version.outputs.new_version }}"
 
       - name: Generate release notes with commits
         run: |
