@@ -1,20 +1,21 @@
-import typer
-import os
 import asyncio
-import json
-import time
-import dotenv
+import datetime
 import glob
 import gzip
-import datetime
-import openai
-from cuid2 import Cuid
+import json
+import os
 import shutil
-from typing import List, Dict
-from tqdm import tqdm
-from dataclasses import dataclass, asdict
+import time
+from dataclasses import asdict, dataclass
+from typing import Dict, List
+
+import dotenv
+import openai
+import typer
+from cuid2 import Cuid
 from memicos_utils.db_models.activation import Activation
 from memicos_utils.db_models.explanation import Explanation
+from tqdm import tqdm
 
 # openai requires us to set the openai api key before the neuron_explainer imports
 dotenv.load_dotenv()
@@ -22,15 +23,16 @@ if not os.getenv("OPENAI_API_KEY"):
     raise ValueError(
         "OPENAI_API_KEY is not set. Please set it in the .env file or export it as an environment variable."
     )
+from neuron_explainer.activations.activation_records import calculate_max_activation
+
 # ruff: noqa: E402
 # flake8: noqa: E402
 from neuron_explainer.activations.activations import ActivationRecord
-from neuron_explainer.activations.activation_records import calculate_max_activation
-from neuron_explainer.explanations.prompt_builder import PromptFormat
 from neuron_explainer.explanations.explainer import (
-    TokenActivationPairExplainer,
     AttentionHeadExplainer,
+    TokenActivationPairExplainer,
 )
+from neuron_explainer.explanations.prompt_builder import PromptFormat
 
 SAVE_DIR_BASE = "./export-autointerp"
 UPLOAD_EXPLANATION_AUTHORID = os.getenv("DEFAULT_CREATOR_ID")
@@ -102,7 +104,6 @@ def replace_html_anomalies_and_special_chars(texts: list[str]) -> list[str]:
 async def call_autointerp_openai_for_activations(
     activations_sorted_by_max_value: List[Activation],
 ):
-
     if len(activations_sorted_by_max_value) == 0:
         return
 
@@ -166,7 +167,6 @@ async def call_autointerp_openai_for_activations(
         else:
             print("Explain Error, skipping index " + str(feature_index))
             print(e)
-            raise e
 
         # print this at the end
         global FAILED_FEATURE_INDEXES_OUTPUT
@@ -203,11 +203,18 @@ async def enqueue_autointerp_openai_task_with_activations(activations):
 
 
 async def start(activations_dir: str):
-
     autointerp_tasks = []
 
-    # get all .gz files in the activations directory, sorted by name
-    activations_files = sorted(glob.glob(os.path.join(activations_dir, "*.gz")))
+    def get_batch_number(filename):
+        # Extract batch number from filename like "batch-123.jsonl.gz"
+        try:
+            return int(os.path.basename(filename).split("-")[1].split(".")[0])
+        except (IndexError, ValueError):
+            return 0  # Default value if parsing fails
+
+    activations_files = sorted(
+        glob.glob(os.path.join(activations_dir, "*.gz")), key=get_batch_number
+    )
 
     print(f"got activations files: {len(activations_files)} files")
 
@@ -332,7 +339,17 @@ def main(
     if explainer_model_name not in VALID_EXPLAINER_MODEL_NAMES:
         raise ValueError(f"Invalid explainer model name: {explainer_model_name}")
 
-    global FAILED_FEATURE_INDEXES_QUEUED, INPUT_DIR_WITH_SOURCE_EXPORTS, START_INDEX, END_INDEX, EXPLAINER_MODEL_NAME, EXPLAINER_TYPE_NAME, MAX_TOP_ACTIVATIONS_TO_SHOW_EXPLAINER_PER_FEATURE, AUTOINTERP_BATCH_SIZE, EXPLANATIONS_OUTPUT_DIR, GZIP_OUTPUT
+    global \
+        FAILED_FEATURE_INDEXES_QUEUED, \
+        INPUT_DIR_WITH_SOURCE_EXPORTS, \
+        START_INDEX, \
+        END_INDEX, \
+        EXPLAINER_MODEL_NAME, \
+        EXPLAINER_TYPE_NAME, \
+        MAX_TOP_ACTIVATIONS_TO_SHOW_EXPLAINER_PER_FEATURE, \
+        AUTOINTERP_BATCH_SIZE, \
+        EXPLANATIONS_OUTPUT_DIR, \
+        GZIP_OUTPUT
     INPUT_DIR_WITH_SOURCE_EXPORTS = input_dir_with_source_exports
     if not os.path.exists(INPUT_DIR_WITH_SOURCE_EXPORTS):
         raise ValueError(
