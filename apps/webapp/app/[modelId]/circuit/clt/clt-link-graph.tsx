@@ -684,14 +684,16 @@ export default function CLTLinkGraph() {
     }
 
     // Draw links for clicked node
-    if (visState.clickedId && allCtx.clickedLinks) {
+    if (visState.clickedId) {
+      drawLinks([], allCtx.pinnedLinks || null);
+    } else {
       // Filter links connected to clicked node
       const clickedLinks = nodes
         .filter((d) => d.tmpClickedLink)
         .map((d) => d.tmpClickedLink)
         .filter(Boolean) as CLTGraphLink[];
 
-      drawLinks(clickedLinks, allCtx.clickedLinks, 1);
+      drawLinks(clickedLinks, allCtx.clickedLinks || null, 1);
     }
 
     // Highlight pinned nodes
