@@ -99,20 +99,20 @@ if we're making a config/customization change, or if we want to deploy a new inf
 # sets the project_id to fetch the correct image during the kubectl commands later
 export PROJECT_ID=$(gcloud config get-value project)
 
-kubectl apply -k k8s/overlays/cpu/gpt2-small
-kubectl apply -k k8s/overlays/cpu/gpt2-small-public
-kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-a
-kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-b
-kubectl apply -k k8s/overlays/gpu/gemma-2-2b-public
-kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-public
-kubectl apply -k k8s/overlays/gpu/gemma-2-9b-it-a
-kubectl apply -k k8s/overlays/gpu/gemma-2-9b-it-b
-kubectl apply -k k8s/overlays/gpu/gemma-2-2b
-kubectl apply -k k8s/overlays/gpu/gemma-2-9b
-kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b
-kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b-b
-kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-a
-kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-b
+kubectl apply -k k8s/overlays/cpu/gpt2-small && \
+kubectl apply -k k8s/overlays/cpu/gpt2-small-public && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-a && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-b && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-2b-public && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-2b-it-public && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-9b-it-a && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-9b-it-b && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-2b && \
+kubectl apply -k k8s/overlays/gpu/gemma-2-9b && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b-b && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-a && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-b && \
 kubectl apply -k k8s/overlays/gpu/llama-31-8b
 ```
 
@@ -133,8 +133,8 @@ kubectl rollout restart deployment gemma-2-2b-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-9b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-b-gpu-memicos-inference && \
-kubectl rollout restart deployment deepseek-r1-llama-8b-public-a && \
-kubectl rollout restart deployment deepseek-r1-llama-8b-public-b && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-public-a-gpu-lite-memicos-inference && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-public-b-gpu-lite-memicos-inference && \
 kubectl rollout restart deployment llama-31-8b-gpu-memicos-inference
 ```
 
