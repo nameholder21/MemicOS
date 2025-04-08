@@ -14,7 +14,7 @@ patches:
               cloud.google.com/gke-accelerator: nvidia-l4
             containers:
             - name: memicos-inference
-              image: gcr.io/$(PROJECT_ID)/memicos-inference:gpu
+              image: gcr.io/tokyo-griffin-401620/memicos-inference:gpu
               imagePullPolicy: Always
               resources:
                 requests:
