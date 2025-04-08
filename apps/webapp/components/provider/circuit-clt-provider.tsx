@@ -96,10 +96,14 @@ export function CircuitCLTProvider({
   // When selectedgraph is set, set the correct isHideLayer value
   useEffect(() => {
     if (selectedGraph) {
-      setVisStateInternal((prevState) => ({
-        ...prevState,
-        isHideLayer: isHideLayer(selectedGraph.metadata.scan),
-      }));
+      // if we have qParams (default queryparams/visstate), parse them as visState and set it
+      if (selectedGraph.qParams) {
+        setVisStateInternal((prevState) => ({
+          ...prevState,
+          ...selectedGraph.qParams,
+          isHideLayer: isHideLayer(selectedGraph.metadata.scan),
+        }));
+      }
     }
   }, [selectedGraph]);
 
