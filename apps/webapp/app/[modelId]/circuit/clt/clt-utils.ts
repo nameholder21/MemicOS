@@ -471,3 +471,23 @@ export function featureTypeToText(type: string): string {
   if (type === 'mlp reconstruction error') return '◆';
   return '●';
 }
+
+export type CLTFeatureExample = {
+  'ha-haiku35_resampled'?: boolean;
+  is_repeated_datapoint: boolean;
+  train_token_ind: number;
+  tokens: string[];
+  tokens_acts_list: number[];
+};
+
+export type CLTFeatureExampleQuantile = {
+  examples: CLTFeatureExample[];
+  quantile_name: string;
+};
+
+export type CLTFeature = {
+  bottom_logits: string[];
+  top_logits: string[];
+  index: number;
+  examples_quantiles: CLTFeatureExampleQuantile[];
+};

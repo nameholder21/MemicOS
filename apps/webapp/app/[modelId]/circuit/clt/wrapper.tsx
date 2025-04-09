@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent } from '@/components/shadcn/card';
+import CLTFeatureDetail from './clt-feature-detail';
 import TestGraph from './clt-link-graph';
 import CLTNodeConnections from './clt-node-connections';
 import CLTModelPromptSelector from './model-prompt-selector';
@@ -12,16 +13,21 @@ export default function CLTWrapper() {
         Circuit Tracing <sup className="text-xs">alpha</sup>
       </div>
       <div className="mb-2 w-full text-center text-[11px] text-red-500">
-        This incomplete and buggy (incorrect in places) - it is a starting point for iterations and feedback. This is
-        not linked to from public MemicOS pages.
+        This is a work in progress and not linked to from public MemicOS pages.
       </div>
       <CLTModelPromptSelector />
 
-      <Card className="mt-5 w-full bg-white">
-        <CardContent className="p-0">
-          <div className="flex w-full flex-row gap-x-2 px-5 pl-8">
+      <Card className="mb-10 mt-5 w-full bg-white">
+        <CardContent className="py-6 pt-3">
+          <div className="flex w-full flex-row gap-x-2 pl-2">
             <TestGraph />
             <CLTNodeConnections />
+          </div>
+          <div className="flex w-full flex-row gap-x-2 pl-2">
+            <div className="mt-3 min-h-[490px] w-[55%] min-w-[55%] max-w-[55%]" />
+            <div className="w-[45%] min-w-[45%] overflow-hidden">
+              <CLTFeatureDetail />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  CLTFeature,
   CLTGraph,
   CLTMetadataGraph,
   ModelToCLTMetadataGraphsMap,
@@ -23,6 +24,8 @@ type CircuitCLTContextType = {
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   metadataScanToModelDisplayName: Map<string, string>;
 
+  getFeatureDetail: (feature: number) => Promise<CLTFeature>;
+
   // visState
   visState: VisState;
   setVisState: (newState: Partial<VisState>) => void;
@@ -38,6 +41,10 @@ const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undef
 
 export function getGraphUrl(graphSlug: string): string {
   return `https://transformer-circuits.pub/2025/attribution-graphs/graph_data/${graphSlug}.json`;
+}
+
+export function getFeatureDetailUrl(model: string, feature: number): string {
+  return `https://transformer-circuits.pub/2025/attribution-graphs/features/${model}/${feature}.json`;
 }
 
 // Provider component
@@ -163,6 +170,15 @@ export function CircuitCLTProvider({
     }
   }, [selectedMetadataGraph]);
 
+  async function getFeatureDetail(feature: number): Promise<CLTFeature> {
+    const response = await fetch(getFeatureDetailUrl(selectedModelId, feature));
+    if (!response.ok) {
+      alert(`Failed to fetch feature detail for ${selectedModelId}/${feature}`);
+    }
+    const data = await response.json();
+    return data as CLTFeature;
+  }
+
   // Provide the context value
   const contextValue = useMemo(
     () => ({
@@ -180,6 +196,7 @@ export function CircuitCLTProvider({
       updateVisStateField,
       logitDiff,
       setLogitDiff,
+      getFeatureDetail,
     }),
     [metadata, selectedModelId, selectedMetadataGraph, selectedGraph, visState, logitDiff],
   );
