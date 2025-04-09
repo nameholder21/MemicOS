@@ -323,13 +323,10 @@ export default function CLTLinkGraph() {
 
   // Initialize the D3 graph visualization
   useEffect(() => {
-    console.log('Main visualization useEffect triggered');
     if (!svgRef.current || !selectedGraph) return;
 
     // Clear any existing content
     d3.select(svgRef.current).selectAll('*').remove();
-
-    if (!selectedGraph || !svgRef.current) return;
 
     const data = selectedGraph as CLTGraphExtended;
     const { nodes, links } = data;

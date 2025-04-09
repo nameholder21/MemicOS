@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/shadcn/card';
 import CLTFeatureDetail from './clt-feature-detail';
-import TestGraph from './clt-link-graph';
+import CLTLinkGraph from './clt-link-graph';
 import CLTNodeConnections from './clt-node-connections';
 import CLTModelPromptSelector from './model-prompt-selector';
 
@@ -20,11 +20,11 @@ export default function CLTWrapper() {
       <Card className="mb-10 mt-5 w-full bg-white">
         <CardContent className="py-6 pt-3">
           <div className="flex w-full flex-row gap-x-2 pl-2">
-            <TestGraph />
+            <CLTLinkGraph />
             <CLTNodeConnections />
           </div>
           <div className="flex w-full flex-row gap-x-2 pl-2">
-            <div className="mt-3 min-h-[490px] w-[55%] min-w-[55%] max-w-[55%]" />
+            <div className="min-h-[490px] w-[55%] min-w-[55%] max-w-[55%]">{/* <CLTSubgraph /> */}</div>
             <div className="w-[45%] min-w-[45%] overflow-hidden">
               <CLTFeatureDetail />
             </div>

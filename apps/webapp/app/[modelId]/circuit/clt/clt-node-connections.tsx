@@ -3,7 +3,7 @@ import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { CLTGraphNode, featureTypeToText, VisState } from './clt-utils';
+import { CLTGraphNode, CltVisState, featureTypeToText } from './clt-utils';
 
 function FeatureList({
   title,
@@ -16,7 +16,7 @@ function FeatureList({
   nodes: CLTGraphNode[];
   linkType: 'source' | 'target';
   visState: any;
-  updateVisStateField: (field: keyof VisState, value: any) => void;
+  updateVisStateField: (field: keyof CltVisState, value: any) => void;
 }) {
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
@@ -57,12 +57,32 @@ function FeatureList({
             </svg>
             <div className="flex-1 text-left leading-snug">{node.ppClerp}</div>
             {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
-              (node[linkProp]?.tmpClickedCtxOffset > 0 ? '→' : node[linkProp]?.tmpClickedCtxOffset < 0 ? '←' : '')}
-            {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
-              ? node[linkProp]?.pctInput > 0
-                ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
-                : node[linkProp]?.pctInput?.toFixed(3)
-              : ''}
+              (node[linkProp]?.tmpClickedCtxOffset > 0 ? (
+                <>
+                  <div
+                    className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
+                  >
+                    →
+                  </div>
+                </>
+              ) : node[linkProp]?.tmpClickedCtxOffset < 0 ? (
+                <>
+                  <div
+                    className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
+                  >
+                    ←
+                  </div>
+                </>
+              ) : (
+                ''
+              ))}
+            <div className="font-mono">
+              {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
+                ? node[linkProp]?.pctInput > 0
+                  ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
+                  : node[linkProp]?.pctInput?.toFixed(3)
+                : ''}
+            </div>
           </button>
         ))}
     </div>

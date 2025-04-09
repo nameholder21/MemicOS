@@ -1,4 +1,3 @@
-// ... existing code ...
 import ActivationItem from '@/components/activation-item';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useEffect, useMemo, useRef, useState } from 'react';

@@ -4,8 +4,8 @@ import {
   CLTFeature,
   CLTGraph,
   CLTMetadataGraph,
+  CltVisState,
   ModelToCLTMetadataGraphsMap,
-  VisState,
   formatCLTGraphData,
   isHideLayer,
   metadataScanToModelDisplayName,
@@ -27,9 +27,9 @@ type CircuitCLTContextType = {
   getFeatureDetail: (feature: number) => Promise<CLTFeature>;
 
   // visState
-  visState: VisState;
-  setVisState: (newState: Partial<VisState>) => void;
-  updateVisStateField: <K extends keyof VisState>(key: K, value: VisState[K]) => void;
+  visState: CltVisState;
+  setVisState: (newState: Partial<CltVisState>) => void;
+  updateVisStateField: <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => void;
 
   // logitDiff
   logitDiff: string | null;
@@ -69,7 +69,7 @@ export function CircuitCLTProvider({
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
 
   // Initialize visState
-  const [visState, setVisStateInternal] = useState<VisState>({
+  const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: [],
     hiddenIds: [],
     hoveredId: null,
@@ -105,7 +105,7 @@ export function CircuitCLTProvider({
     if (selectedGraph) {
       // if we have qParams (default queryparams/visstate), parse them as visState and set it
       if (selectedGraph.qParams) {
-        const blankVisState: VisState = {
+        const blankVisState: CltVisState = {
           pinnedIds: [],
           hiddenIds: [],
           hoveredId: null,
@@ -139,12 +139,12 @@ export function CircuitCLTProvider({
   }, [selectedGraph]);
 
   // Function to update the entire visState
-  const setVisState = (newState: Partial<VisState>) => {
+  const setVisState = (newState: Partial<CltVisState>) => {
     setVisStateInternal((prevState) => ({ ...prevState, ...newState }));
   };
 
   // Function to update a single field of visState
-  const updateVisStateField = <K extends keyof VisState>(key: K, value: VisState[K]) => {
+  const updateVisStateField = <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => {
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
   };
 
