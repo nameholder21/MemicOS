@@ -26,7 +26,7 @@ export async function getCLTMetadata(): Promise<ModelToCLTMetadataGraphsMap> {
 }
 
 // https://github.com/anthropics/attribution-graphs-frontend/blob/main/attribution_graph/init-cg.js
-export type VisState = {
+export type CltVisState = {
   pinnedIds: string[];
   hiddenIds: string[];
   hoveredId: string | null;
@@ -113,7 +113,7 @@ export type CLTGraphNode = {
   remoteClerp?: string;
   sourceLinks?: CLTGraphLink[];
   streamIdx?: number;
-  supernodeId?: string;
+  supernodeId?: string | null | undefined;
   targetLinks?: CLTGraphLink[];
   tmpClickedLink?: CLTGraphLink;
   tmpClickedSourceLink?: CLTGraphLink;
@@ -256,10 +256,10 @@ export function formatCLTGraphData(data: CLTGraph, logitDiff: string | null): CL
       if (!d.featureId.includes('__err_idx_')) d.featureId = `${d.featureId}__err_idx_${d.ctx_from_end}`;
 
       if (d.feature_type === 'mlp reconstruction error') {
-        d.clerp = `Err: mlp “${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
+        d.clerp = `Err: mlp " ${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
       }
     } else if (d.feature_type === 'embedding') {
-      d.clerp = `Emb: “${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
+      d.clerp = `Emb: " ${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
     }
 
     d.url = d.vis_link;
