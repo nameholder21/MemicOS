@@ -9,6 +9,7 @@ import {
   CLTGraph,
   CLTGraphLink,
   CLTGraphNode,
+  cltModelToLayers,
   featureTypeToText,
   hideTooltip,
   isHideLayer,
@@ -16,7 +17,7 @@ import {
 } from './clt-utils';
 import d3 from './d3-jetpack';
 
-const HEIGHT = 400;
+const HEIGHT = 380;
 
 // Extended type for custom CLTGraph properties
 interface CLTGraphExtended extends CLTGraph {
@@ -456,7 +457,8 @@ export default function CLTLinkGraph() {
 
     // Get byStream from data or create a default with 19 items
     const byStreamLength = data.byStream?.length || 19;
-    const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : 19;
+    const numLayers = cltModelToLayers[data.metadata.scan as keyof typeof cltModelToLayers];
+    const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 1;
 
     // Create an array of numbers for the y-axis
     c.y = d3.scaleBand(d3.range(yNumTicks), [c.height, 0]);
@@ -467,7 +469,7 @@ export default function CLTLinkGraph() {
       .tickValues(d3.range(yNumTicks))
       .tickFormat((i) =>
         // if (i % 2 !== 0) return '';
-        i === 18 ? 'Lgt' : i === 0 ? 'Emb' : `L${i}`,
+        i === numLayers ? 'Lgt' : i === 0 ? 'Emb' : `L${i}`,
       );
 
     // Background elements
@@ -898,7 +900,7 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[490px] w-[66%] min-w-[66%] max-w-[66%]">
+    <div className="link-graph relative mt-3 min-h-[475px] w-[66%] min-w-[66%] max-w-[66%]">
       <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>

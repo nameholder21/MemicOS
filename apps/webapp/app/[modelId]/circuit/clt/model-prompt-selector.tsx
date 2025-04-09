@@ -6,6 +6,7 @@ import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react';
 export default function CLTModelPromptSelector() {
   const {
     metadata,
+    modelToBaseUrl,
     setSelectedModelId,
     selectedModelId,
     selectedMetadataGraph,
@@ -50,17 +51,17 @@ export default function CLTModelPromptSelector() {
               <Select.ScrollUpButton className="flex h-7 cursor-pointer items-center justify-center bg-white text-slate-700 hover:bg-slate-100">
                 <ChevronUpIcon className="w-5 text-slate-500" />
               </Select.ScrollUpButton>
-              <Select.Viewport className="divide-y divide-slate-100 p-2 text-slate-700">
+              <Select.Viewport className="w-full divide-y divide-slate-100 p-2 text-slate-700">
                 {Object.keys(metadata).map((modelId) => (
                   <Select.Item
                     key={modelId}
                     value={modelId}
                     className="relative flex h-12 w-full cursor-pointer select-none items-center overflow-x-hidden whitespace-pre rounded py-0 pl-4 pr-6 text-xs hover:bg-slate-100 data-[highlighted]:bg-slate-100 data-[highlighted]:outline-none"
                   >
-                    <Select.ItemText>
-                      <div className="flex flex-col items-center justify-start gap-y-0">
-                        <div>{metadataScanToModelDisplayName.get(modelId)}</div>
-                        <div className="text-[9px] font-normal text-slate-400">{modelId}</div>
+                    <Select.ItemText className="w-full">
+                      <div className="flex w-full flex-col items-start justify-start gap-y-0">
+                        <div className="w-full truncate text-left">{metadataScanToModelDisplayName.get(modelId)}</div>
+                        <div className="w-full text-[9px] font-normal text-slate-400">{modelId}</div>
                       </div>
                     </Select.ItemText>
                   </Select.Item>
@@ -139,7 +140,7 @@ export default function CLTModelPromptSelector() {
             className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
             onClick={() => {
               if (selectedMetadataGraph) {
-                const url = getGraphUrl(selectedMetadataGraph.slug);
+                const url = getGraphUrl(selectedMetadataGraph.slug, modelToBaseUrl[selectedModelId]);
                 window.open(url, '_blank');
               }
             }}
