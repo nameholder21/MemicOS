@@ -1,10 +1,11 @@
 'use client';
 
 import {
+  CLTFeature,
   CLTGraph,
   CLTMetadataGraph,
+  CltVisState,
   ModelToCLTMetadataGraphsMap,
-  VisState,
   formatCLTGraphData,
   isHideLayer,
   metadataScanToModelDisplayName,
@@ -23,10 +24,12 @@ type CircuitCLTContextType = {
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   metadataScanToModelDisplayName: Map<string, string>;
 
+  getFeatureDetail: (feature: number) => Promise<CLTFeature>;
+
   // visState
-  visState: VisState;
-  setVisState: (newState: Partial<VisState>) => void;
-  updateVisStateField: <K extends keyof VisState>(key: K, value: VisState[K]) => void;
+  visState: CltVisState;
+  setVisState: (newState: Partial<CltVisState>) => void;
+  updateVisStateField: <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => void;
 
   // logitDiff
   logitDiff: string | null;
@@ -38,6 +41,10 @@ const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undef
 
 export function getGraphUrl(graphSlug: string): string {
   return `https://transformer-circuits.pub/2025/attribution-graphs/graph_data/${graphSlug}.json`;
+}
+
+export function getFeatureDetailUrl(model: string, feature: number): string {
+  return `https://transformer-circuits.pub/2025/attribution-graphs/features/${model}/${feature}.json`;
 }
 
 // Provider component
@@ -62,7 +69,7 @@ export function CircuitCLTProvider({
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
 
   // Initialize visState
-  const [visState, setVisStateInternal] = useState<VisState>({
+  const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: [],
     hiddenIds: [],
     hoveredId: null,
@@ -98,22 +105,46 @@ export function CircuitCLTProvider({
     if (selectedGraph) {
       // if we have qParams (default queryparams/visstate), parse them as visState and set it
       if (selectedGraph.qParams) {
-        setVisStateInternal((prevState) => ({
-          ...prevState,
-          ...selectedGraph.qParams,
+        const blankVisState: CltVisState = {
+          pinnedIds: [],
+          hiddenIds: [],
+          hoveredId: null,
+          hoveredNodeId: null,
+          hoveredCtxIdx: null,
+          clickedId: null,
+          clickedCtxIdx: null,
+          linkType: 'both',
+          isShowAllLinks: '',
+          isSyncEnabled: '',
+          subgraph: null,
+          isEditMode: 1,
           isHideLayer: isHideLayer(selectedGraph.metadata.scan),
+          sg_pos: '',
+          isModal: true,
+          isGridsnap: false,
+          supernodes: [],
+        };
+        // if the qparams has a clickedId, only set it in the visState if it exists in the nodes array
+        setVisStateInternal(() => ({
+          ...blankVisState,
+          ...selectedGraph.qParams,
+          clickedId:
+            selectedGraph.qParams.clickedId &&
+            selectedGraph.nodes.some((d) => d.nodeId === selectedGraph.qParams.clickedId)
+              ? selectedGraph.qParams.clickedId
+              : null,
         }));
       }
     }
   }, [selectedGraph]);
 
   // Function to update the entire visState
-  const setVisState = (newState: Partial<VisState>) => {
+  const setVisState = (newState: Partial<CltVisState>) => {
     setVisStateInternal((prevState) => ({ ...prevState, ...newState }));
   };
 
   // Function to update a single field of visState
-  const updateVisStateField = <K extends keyof VisState>(key: K, value: VisState[K]) => {
+  const updateVisStateField = <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => {
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
   };
 
@@ -126,7 +157,6 @@ export function CircuitCLTProvider({
     }
 
     const data = (await response.json()) as CLTGraph;
-
     const formattedData = formatCLTGraphData(data, logitDiff);
     return formattedData;
   }
@@ -139,6 +169,15 @@ export function CircuitCLTProvider({
       });
     }
   }, [selectedMetadataGraph]);
+
+  async function getFeatureDetail(feature: number): Promise<CLTFeature> {
+    const response = await fetch(getFeatureDetailUrl(selectedModelId, feature));
+    if (!response.ok) {
+      alert(`Failed to fetch feature detail for ${selectedModelId}/${feature}`);
+    }
+    const data = await response.json();
+    return data as CLTFeature;
+  }
 
   // Provide the context value
   const contextValue = useMemo(
@@ -157,6 +196,7 @@ export function CircuitCLTProvider({
       updateVisStateField,
       logitDiff,
       setLogitDiff,
+      getFeatureDetail,
     }),
     [metadata, selectedModelId, selectedMetadataGraph, selectedGraph, visState, logitDiff],
   );

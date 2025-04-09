@@ -5,7 +5,15 @@ import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useRef } from 'react';
-import { CLTGraph, CLTGraphLink, CLTGraphNode, hideTooltip, isHideLayer, showTooltip } from './clt-utils';
+import {
+  CLTGraph,
+  CLTGraphLink,
+  CLTGraphNode,
+  featureTypeToText,
+  hideTooltip,
+  isHideLayer,
+  showTooltip,
+} from './clt-utils';
 import d3 from './d3-jetpack';
 
 const HEIGHT = 400;
@@ -141,14 +149,6 @@ export default function CLTLinkGraph() {
   }
   colorLinks();
 
-  // Helper function to convert feature type to display text
-  function featureTypeToText(type: string): string {
-    if (type === 'logit') return '■';
-    if (type === 'embedding') return '■';
-    if (type === 'mlp reconstruction error') return '◆';
-    return '●';
-  }
-
   function distance(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   }
@@ -209,7 +209,7 @@ export default function CLTLinkGraph() {
     }
 
     // Get the clicked node
-    let node: any = data.nodes.find((n) => n.nodeId === visState.clickedId);
+    let node: CLTGraphNode | undefined = data.nodes.find((n) => n.nodeId === visState.clickedId);
 
     // Handle supernodes
     if (!node && visState.clickedId?.startsWith('supernode-')) {
@@ -227,15 +227,19 @@ export default function CLTLinkGraph() {
             }
           });
 
-          const memberNodes = memberNodeIds.map((id: string) => idToNode[id]).filter(Boolean);
+          const memberNodes: CLTGraphNode[] = memberNodeIds.map((id: string) => idToNode[id]).filter(Boolean);
 
           if (memberNodes.length > 0) {
+            // @ts-ignore
             node = {
               nodeId: visState.clickedId,
               memberNodes,
-              memberSet: new Set(memberNodes.map((d: CLTGraphNode) => d.nodeId)),
+              memberSet: new Set(memberNodes.map((d: CLTGraphNode) => d.nodeId || '')),
+              sourceLinks: [],
+              targetLinks: [],
             };
 
+            if (!node) return;
             const allSourceLinks = memberNodes.flatMap((d: CLTGraphNode) => d.sourceLinks || []).filter(Boolean);
 
             const allTargetLinks = memberNodes.flatMap((d: CLTGraphNode) => d.targetLinks || []).filter(Boolean);
@@ -319,13 +323,10 @@ export default function CLTLinkGraph() {
 
   // Initialize the D3 graph visualization
   useEffect(() => {
-    // console.log('Main visualization useEffect triggered');
     if (!svgRef.current || !selectedGraph) return;
 
     // Clear any existing content
     d3.select(svgRef.current).selectAll('*').remove();
-
-    if (!selectedGraph || !svgRef.current) return;
 
     const data = selectedGraph as CLTGraphExtended;
     const { nodes, links } = data;
@@ -684,7 +685,8 @@ export default function CLTLinkGraph() {
     }
 
     // Draw links for clicked node
-    if (visState.clickedId) {
+    // ensure that clickedId exists in the nodes array
+    if (visState.clickedId && nodes.some((d) => d.nodeId === visState.clickedId)) {
       drawLinks([], allCtx.pinnedLinks || null);
     } else {
       // Filter links connected to clicked node
@@ -692,7 +694,6 @@ export default function CLTLinkGraph() {
         .filter((d) => d.tmpClickedLink)
         .map((d) => d.tmpClickedLink)
         .filter(Boolean) as CLTGraphLink[];
-
       drawLinks(clickedLinks, allCtx.clickedLinks || null, 1);
     }
 
@@ -894,7 +895,7 @@ export default function CLTLinkGraph() {
     // Initial display of hovered nodes
     hoverSel.style('display', (d) => (d.featureId === visState.hoveredId ? '' : 'none'));
     // Remove visState.hoveredId from dependency array to prevent redraws on hover
-  }, [screenSize, selectedGraph, visState.hoveredId]);
+  }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
     <div className="link-graph relative mt-3 min-h-[490px] w-[66%] min-w-[66%] max-w-[66%]">
