@@ -58,21 +58,17 @@ function FeatureList({
             <div className="flex-1 text-left leading-snug">{node.ppClerp}</div>
             {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
               (node[linkProp]?.tmpClickedCtxOffset > 0 ? (
-                <>
-                  <div
-                    className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
-                  >
-                    →
-                  </div>
-                </>
+                <div
+                  className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
+                >
+                  →
+                </div>
               ) : node[linkProp]?.tmpClickedCtxOffset < 0 ? (
-                <>
-                  <div
-                    className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
-                  >
-                    ←
-                  </div>
-                </>
+                <div
+                  className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
+                >
+                  ←
+                </div>
               ) : (
                 ''
               ))}
