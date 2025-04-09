@@ -28,6 +28,7 @@ export default function ActivationItem({
   showLineBreaks = false,
   setActivationTestText,
   showTopActivationToken = false,
+  centerAndBorderOnTokenIndex = undefined,
   enableExpanding = true,
   dfa = false,
   dfaSplit = false,
@@ -43,6 +44,7 @@ export default function ActivationItem({
   showLineBreaks?: boolean;
   setActivationTestText?: (value: string) => void;
   showTopActivationToken?: boolean;
+  centerAndBorderOnTokenIndex?: number;
   enableExpanding?: boolean;
   dfa?: boolean;
   dfaSplit?: boolean;
@@ -165,27 +167,20 @@ export default function ActivationItem({
                       <Tooltip.Root disableHoverableContent>
                         <Tooltip.Trigger asChild>
                           <span
-                            className={`inline-block cursor-default whitespace-nowrap bg-origin-border font-mono
-                              ${
-                                !dfaSplit && tokenIndex === activation.dfaTargetIndex
-                                  ? DFA_TARGET_TOKEN_CLASSNAME
-                                  : dfa && tokenIndex === dfaMaxIndex
+                            className={`inline-block cursor-default whitespace-nowrap bg-origin-border font-mono ${
+                              !dfaSplit && tokenIndex === activation.dfaTargetIndex
+                                ? DFA_TARGET_TOKEN_CLASSNAME
+                                : dfa && tokenIndex === dfaMaxIndex
                                   ? DFA_SOURCE_TOKEN_CLASSNAME
                                   : REGULAR_TOKEN_CLASSNAME
-                              }
-                              ${tokenEndsWithSpace && 'pr-1'} 
-                              ${tokenStartsWithSpace && 'pl-1'}
-                              ${
-                                activation.lossValues &&
-                                (activation.lossValues[tokenIndex] > 0
-                                  ? 'border-b-red-400'
-                                  : activation.lossValues[tokenIndex] < 0
+                            } ${tokenEndsWithSpace && 'pr-1'} ${tokenStartsWithSpace && 'pl-1'} ${
+                              activation.lossValues &&
+                              (activation.lossValues[tokenIndex] > 0
+                                ? 'border-b-red-400'
+                                : activation.lossValues[tokenIndex] < 0
                                   ? 'border-b-blue-400'
                                   : '')
-                              }
-                              ${overrideTextColor} 
-                              ${overrideTextSize}
-                            `}
+                            } ${overrideTextColor} ${overrideTextSize} `}
                             style={{
                               backgroundImage: dfaSplit
                                 ? makeActivationBackgroundColorWithDFA(
@@ -265,27 +260,22 @@ export default function ActivationItem({
                     <Tooltip.Root disableHoverableContent>
                       <Tooltip.Trigger asChild>
                         <span
-                          className={`inline-block cursor-default whitespace-nowrap bg-origin-border font-mono
-                            ${
-                              tokenIndex === activation.dfaTargetIndex
-                                ? DFA_TARGET_TOKEN_CLASSNAME
-                                : dfa && (!dfaSplit || isExpanded) && tokenIndex === dfaMaxIndex
+                          className={`${centerAndBorderOnTokenIndex === tokenIndex ? 'center-me' : ''} inline-block cursor-default whitespace-nowrap bg-origin-border font-mono ${
+                            tokenIndex === activation.dfaTargetIndex
+                              ? DFA_TARGET_TOKEN_CLASSNAME
+                              : dfa && (!dfaSplit || isExpanded) && tokenIndex === dfaMaxIndex
                                 ? DFA_SOURCE_TOKEN_CLASSNAME
-                                : REGULAR_TOKEN_CLASSNAME
-                            }
-                            ${tokenEndsWithSpace && 'pr-1'} 
-                            ${tokenStartsWithSpace && 'pl-1'}
-                            ${
-                              activation.lossValues &&
-                              (activation.lossValues[tokenIndex] > 0
-                                ? 'border-b-red-400'
-                                : activation.lossValues[tokenIndex] < 0
+                                : centerAndBorderOnTokenIndex === tokenIndex
+                                  ? 'border border-slate-600'
+                                  : REGULAR_TOKEN_CLASSNAME
+                          } ${tokenEndsWithSpace && 'pr-1'} ${tokenStartsWithSpace && 'pl-1'} ${
+                            activation.lossValues &&
+                            (activation.lossValues[tokenIndex] > 0
+                              ? 'border-b-red-400'
+                              : activation.lossValues[tokenIndex] < 0
                                 ? 'border-b-blue-400'
                                 : '')
-                            }
-                            ${overrideTextColor} 
-                            ${overrideTextSize}
-                          `}
+                          } ${overrideTextColor} ${overrideTextSize} `}
                           style={{
                             backgroundImage: makeActivationBackgroundColorWithDFA(
                               overallMaxActivationValueInList,
@@ -316,7 +306,7 @@ export default function ActivationItem({
           })}
       </div>
       {showCopy && setActivationTestText && (
-        <div className="mt-0 flex flex-row items-center justify-end ">
+        <div className="mt-0 flex flex-row items-center justify-end">
           <button
             type="button"
             className="flex cursor-pointer flex-row rounded bg-slate-100 p-1.5 text-[10px] font-medium text-slate-400 hover:bg-slate-200"

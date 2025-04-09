@@ -26,7 +26,7 @@ export async function getCLTMetadata(): Promise<ModelToCLTMetadataGraphsMap> {
 }
 
 // https://github.com/anthropics/attribution-graphs-frontend/blob/main/attribution_graph/init-cg.js
-export type VisState = {
+export type CltVisState = {
   pinnedIds: string[];
   hiddenIds: string[];
   hoveredId: string | null;
@@ -113,7 +113,7 @@ export type CLTGraphNode = {
   remoteClerp?: string;
   sourceLinks?: CLTGraphLink[];
   streamIdx?: number;
-  supernodeId?: string;
+  supernodeId?: string | null | undefined;
   targetLinks?: CLTGraphLink[];
   tmpClickedLink?: CLTGraphLink;
   tmpClickedSourceLink?: CLTGraphLink;
@@ -126,6 +126,9 @@ export type CLTGraphNode = {
   vis_link?: string;
   xOffset?: number;
   yOffset?: number;
+
+  memberNodes?: CLTGraphNode[];
+  memberSet?: Set<string>;
 };
 
 export type CLTGraphLink = {
@@ -143,6 +146,9 @@ export type CLTGraphLink = {
   sourceNode?: CLTGraphNode;
   strokeWidth?: number;
   targetNode?: CLTGraphNode;
+
+  tmpClickedCtxOffset?: number;
+  tmpColor?: string;
 };
 
 export type CLTGraph = {
@@ -250,10 +256,10 @@ export function formatCLTGraphData(data: CLTGraph, logitDiff: string | null): CL
       if (!d.featureId.includes('__err_idx_')) d.featureId = `${d.featureId}__err_idx_${d.ctx_from_end}`;
 
       if (d.feature_type === 'mlp reconstruction error') {
-        d.clerp = `Err: mlp “${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
+        d.clerp = `Err: mlp " ${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
       }
     } else if (d.feature_type === 'embedding') {
-      d.clerp = `Emb: “${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
+      d.clerp = `Emb: " ${data.metadata.prompt_tokens[d.ctx_idx]}"`; // deleted ppToken, it doesn't do anything
     }
 
     d.url = d.vis_link;
@@ -457,3 +463,31 @@ export function showTooltip(ev: MouseEvent, d: CLTGraphNode) {
 
   tooltipSel.style('left', `${left}px`).style('top', `${top}px`).html(tooltipHtml).classed('tooltip-hidden', false);
 }
+
+// Helper function to convert feature type to display text
+export function featureTypeToText(type: string): string {
+  if (type === 'logit') return '■';
+  if (type === 'embedding') return '■';
+  if (type === 'mlp reconstruction error') return '◆';
+  return '●';
+}
+
+export type CLTFeatureExample = {
+  'ha-haiku35_resampled'?: boolean;
+  is_repeated_datapoint: boolean;
+  train_token_ind: number;
+  tokens: string[];
+  tokens_acts_list: number[];
+};
+
+export type CLTFeatureExampleQuantile = {
+  examples: CLTFeatureExample[];
+  quantile_name: string;
+};
+
+export type CLTFeature = {
+  bottom_logits: string[];
+  top_logits: string[];
+  index: number;
+  examples_quantiles: CLTFeatureExampleQuantile[];
+};
