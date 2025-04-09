@@ -1,5 +1,5 @@
 import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
-import { BASE_URLS, getCLTMetadata, ModelToCLTMetadataGraphsMap } from './clt-utils';
+import { CLT_BASE_URLS, getCLTMetadata, ModelToCLTMetadataGraphsMap } from './clt-utils';
 import CLTWrapper from './wrapper';
 
 export default async function Page({
@@ -19,7 +19,7 @@ export default async function Page({
   let metadata: ModelToCLTMetadataGraphsMap | null = null;
   const modelToBaseUrl: Record<string, string> = {};
   // eslint-disable-next-line
-  for (const baseUrl of BASE_URLS) {
+  for (const baseUrl of CLT_BASE_URLS) {
     try {
       // eslint-disable-next-line
       const result = await getCLTMetadata(baseUrl);

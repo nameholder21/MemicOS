@@ -8,6 +8,7 @@ import {
   ModelToCLTMetadataGraphsMap,
   formatCLTGraphData,
   isHideLayer,
+  makeCltFetchUrl,
   metadataScanToModelDisplayName,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
 import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
@@ -40,11 +41,13 @@ type CircuitCLTContextType = {
 const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undefined);
 
 export function getGraphUrl(graphSlug: string, baseUrl: string): string {
-  return `${baseUrl}/graph_data/${graphSlug}.json`;
+  const url = makeCltFetchUrl(baseUrl, `graph_data/${graphSlug}.json`);
+  return url;
 }
 
 export function getFeatureDetailUrl(model: string, feature: number, baseUrl: string): string {
-  return `${baseUrl}/features/${model}/${feature}.json`;
+  const url = makeCltFetchUrl(baseUrl, `features/${model}/${feature}.json`);
+  return url;
 }
 
 // Provider component
