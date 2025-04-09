@@ -1,5 +1,10 @@
 import d3 from './d3-jetpack';
 
+export const BASE_URLS = [
+  'https://transformer-circuits.pub/2025/attribution-graphs',
+  'http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com',
+];
+
 export type CLTMetadataGraph = {
   slug: string;
   scan: string;
@@ -12,8 +17,8 @@ export type ModelToCLTMetadataGraphsMap = {
   [scanId: string]: CLTMetadataGraph[];
 };
 
-export async function getCLTMetadata(): Promise<ModelToCLTMetadataGraphsMap> {
-  const response = await fetch('https://transformer-circuits.pub/2025/attribution-graphs/data/graph-metadata.json');
+export async function getCLTMetadata(baseUrl: string): Promise<ModelToCLTMetadataGraphsMap> {
+  const response = await fetch(`${baseUrl}/data/graph-metadata.json`);
   const data: { graphs: CLTMetadataGraph[] } = await response.json();
 
   // break up the graphs by scan (model)
@@ -63,12 +68,21 @@ export const metadataScanToModelDisplayName = new Map<string, string>([
   ['jackl-circuits-runs-1-1-druid-cp_0', '18L'],
   ['jackl-circuits-runs-12-19-valet-m_0', 'Model Organism'],
   ['jackl-circuits-runs-1-12-rune-cp3_0', '18L PLTs'],
+  ['gemma-2-2b', 'Gemma 2 2B'],
 ]);
 
 export const scanSlugToName = {
   h35: 'jackl-circuits-runs-1-4-sofa-v3_0',
   '18l': 'jackl-circuits-runs-1-1-druid-cp_0',
   moc: 'jackl-circuits-runs-12-19-valet-m_0',
+};
+
+export const cltModelToLayers = {
+  'jackl-circuits-runs-1-4-sofa-v3_0': 18,
+  'jackl-circuits-runs-1-1-druid-cp_0': 18,
+  'jackl-circuits-runs-12-19-valet-m_0': 16,
+  'jackl-circuits-runs-1-12-rune-cp3_0': 18,
+  'gemma-2-2b': 26,
 };
 
 export type CLTGraphMetadata = {

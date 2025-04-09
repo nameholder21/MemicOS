@@ -23,7 +23,7 @@ type CircuitCLTContextType = {
   setMetadata: (metadata: ModelToCLTMetadataGraphsMap) => void;
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   metadataScanToModelDisplayName: Map<string, string>;
-
+  modelToBaseUrl: Record<string, string>;
   getFeatureDetail: (feature: number) => Promise<CLTFeature>;
 
   // visState
@@ -39,23 +39,25 @@ type CircuitCLTContextType = {
 // Create the context with a default value
 const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undefined);
 
-export function getGraphUrl(graphSlug: string): string {
-  return `https://transformer-circuits.pub/2025/attribution-graphs/graph_data/${graphSlug}.json`;
+export function getGraphUrl(graphSlug: string, baseUrl: string): string {
+  return `${baseUrl}/graph_data/${graphSlug}.json`;
 }
 
-export function getFeatureDetailUrl(model: string, feature: number): string {
-  return `https://transformer-circuits.pub/2025/attribution-graphs/features/${model}/${feature}.json`;
+export function getFeatureDetailUrl(model: string, feature: number, baseUrl: string): string {
+  return `${baseUrl}/features/${model}/${feature}.json`;
 }
 
 // Provider component
 export function CircuitCLTProvider({
   children,
   initialMetadata = {},
+  initialModelToBaseUrl = {},
   initialClickedId,
   initialLogitDiff,
 }: {
   children: ReactNode;
   initialMetadata?: ModelToCLTMetadataGraphsMap;
+  initialModelToBaseUrl?: Record<string, string>;
   initialClickedId?: string;
   initialLogitDiff?: string;
 }) {
@@ -90,6 +92,8 @@ export function CircuitCLTProvider({
   });
 
   const [logitDiff, setLogitDiff] = useState<string | null>(initialLogitDiff || null);
+
+  const modelToBaseUrl = initialModelToBaseUrl;
 
   // Update selected metadata graph when model changes
   useEffect(() => {
@@ -150,7 +154,7 @@ export function CircuitCLTProvider({
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
-    const response = await fetch(getGraphUrl(graphSlug));
+    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrl[selectedModelId]));
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
@@ -171,7 +175,7 @@ export function CircuitCLTProvider({
   }, [selectedMetadataGraph]);
 
   async function getFeatureDetail(feature: number): Promise<CLTFeature> {
-    const response = await fetch(getFeatureDetailUrl(selectedModelId, feature));
+    const response = await fetch(getFeatureDetailUrl(selectedModelId, feature, modelToBaseUrl[selectedModelId]));
     if (!response.ok) {
       alert(`Failed to fetch feature detail for ${selectedModelId}/${feature}`);
     }
@@ -186,6 +190,7 @@ export function CircuitCLTProvider({
       selectedModelId,
       selectedMetadataGraph,
       selectedGraph,
+      modelToBaseUrl,
       setSelectedModelId,
       setSelectedMetadataGraph,
       setMetadata,
