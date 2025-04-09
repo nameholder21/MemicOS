@@ -126,6 +126,9 @@ export type CLTGraphNode = {
   vis_link?: string;
   xOffset?: number;
   yOffset?: number;
+
+  memberNodes?: CLTGraphNode[];
+  memberSet?: Set<string>;
 };
 
 export type CLTGraphLink = {
@@ -143,6 +146,9 @@ export type CLTGraphLink = {
   sourceNode?: CLTGraphNode;
   strokeWidth?: number;
   targetNode?: CLTGraphNode;
+
+  tmpClickedCtxOffset?: number;
+  tmpColor?: string;
 };
 
 export type CLTGraph = {
@@ -456,4 +462,12 @@ export function showTooltip(ev: MouseEvent, d: CLTGraphNode) {
         .join('');
 
   tooltipSel.style('left', `${left}px`).style('top', `${top}px`).html(tooltipHtml).classed('tooltip-hidden', false);
+}
+
+// Helper function to convert feature type to display text
+export function featureTypeToText(type: string): string {
+  if (type === 'logit') return '■';
+  if (type === 'embedding') return '■';
+  if (type === 'mlp reconstruction error') return '◆';
+  return '●';
 }

@@ -3,10 +3,72 @@ import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { CLTGraphNode } from './clt-utils';
+import { CLTGraphNode, featureTypeToText, VisState } from './clt-utils';
+
+function FeatureList({
+  title,
+  nodes,
+  linkType,
+  visState,
+  updateVisStateField,
+}: {
+  title: string;
+  nodes: CLTGraphNode[];
+  linkType: 'source' | 'target';
+  visState: any;
+  updateVisStateField: (field: keyof VisState, value: any) => void;
+}) {
+  const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
+
+  return (
+    <div className="flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-2 text-slate-800">
+      <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">{title}</div>
+      {nodes
+        ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
+        .filter((node) => node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined)
+        .map((node) => (
+          <button
+            type="button"
+            key={node.nodeId}
+            className={`flex cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
+              node.featureId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
+            } ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'text-white' : ''}`}
+            style={{ backgroundColor: node[linkProp]?.tmpColor }}
+            onMouseEnter={() => {
+              updateVisStateField('hoveredId', node.featureId);
+            }}
+            onMouseLeave={() => {
+              updateVisStateField('hoveredId', null);
+            }}
+            onClick={() => {
+              updateVisStateField('clickedId', node.nodeId);
+            }}
+          >
+            <svg width={10} height={10} className="mr-0 inline-block">
+              <g>
+                <g
+                  className={`default-icon block fill-none stroke-slate-800 ${node.nodeId && visState.pinnedIds?.includes(node.nodeId) ? 'stroke-[1.7]' : 'stroke-[0.7]'}`}
+                >
+                  <text fontSize={15} textAnchor="middle" dominantBaseline="central" dx={5} dy={4}>
+                    {featureTypeToText(node.feature_type)}
+                  </text>
+                </g>
+              </g>
+            </svg>
+            <div className="flex-1 text-left leading-snug">{node.ppClerp}</div>
+            {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
+              ? node[linkProp]?.pctInput > 0
+                ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
+                : node[linkProp]?.pctInput?.toFixed(3)
+              : ''}
+          </button>
+        ))}
+    </div>
+  );
+}
 
 export default function CLTNodeConnections() {
-  const { visState, selectedGraph } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField } = useCircuitCLT();
 
   const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
 
@@ -19,7 +81,7 @@ export default function CLTNodeConnections() {
     } else {
       setClickedNode(null);
     }
-  }, [visState.clickedId]);
+  }, [visState.clickedId, selectedGraph]);
 
   return (
     <div className="node-connections relative mt-3 min-h-[490px] flex-1">
@@ -43,50 +105,20 @@ export default function CLTNodeConnections() {
         )}
         {clickedNode && (
           <div className="mt-2 flex w-full flex-row gap-x-4">
-            <div className="forceShowScrollBar flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll pr-1">
-              <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">Input Features</div>
-              {selectedGraph?.nodes
-                ?.toSorted((a, b) => (b.tmpClickedSourceLink?.pctInput ?? 0) - (a.tmpClickedSourceLink?.pctInput ?? 0))
-                .filter(
-                  (node) =>
-                    node.tmpClickedSourceLink?.pctInput !== null && node.tmpClickedSourceLink?.pctInput !== undefined,
-                )
-                .map((node) => (
-                  <div
-                    key={node.nodeId}
-                    className="flex cursor-pointer flex-row items-center justify-between gap-x-2 rounded bg-slate-50 px-2 py-0.5 text-[10px] hover:bg-sky-100"
-                  >
-                    <div>{node.ppClerp}</div>
-                    {node.tmpClickedSourceLink?.pctInput !== null && node.tmpClickedSourceLink?.pctInput !== undefined
-                      ? node.tmpClickedSourceLink?.pctInput > 0
-                        ? `+${node.tmpClickedSourceLink?.pctInput?.toFixed(3)}`
-                        : node.tmpClickedSourceLink?.pctInput?.toFixed(3)
-                      : ''}
-                  </div>
-                ))}
-            </div>
-            <div className="forceShowScrollBar flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll pr-1">
-              <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">Output Features</div>
-              {selectedGraph?.nodes
-                ?.toSorted((a, b) => (b.tmpClickedTargetLink?.pctInput ?? 0) - (a.tmpClickedTargetLink?.pctInput ?? 0))
-                .filter(
-                  (node) =>
-                    node.tmpClickedTargetLink?.pctInput !== null && node.tmpClickedTargetLink?.pctInput !== undefined,
-                )
-                .map((node) => (
-                  <div
-                    key={node.nodeId}
-                    className="flex cursor-pointer flex-row items-center justify-between gap-x-2 rounded bg-slate-50 px-2 py-0.5 text-[10px] hover:bg-sky-100"
-                  >
-                    <div>{node.ppClerp}</div>
-                    {node.tmpClickedTargetLink?.pctInput !== null && node.tmpClickedTargetLink?.pctInput !== undefined
-                      ? node.tmpClickedTargetLink?.pctInput > 0
-                        ? `+${node.tmpClickedTargetLink?.pctInput?.toFixed(3)}`
-                        : node.tmpClickedTargetLink?.pctInput?.toFixed(3)
-                      : ''}
-                  </div>
-                ))}
-            </div>
+            <FeatureList
+              title="Input Features"
+              nodes={selectedGraph?.nodes || []}
+              linkType="source"
+              visState={visState}
+              updateVisStateField={updateVisStateField}
+            />
+            <FeatureList
+              title="Output Features"
+              nodes={selectedGraph?.nodes || []}
+              linkType="target"
+              visState={visState}
+              updateVisStateField={updateVisStateField}
+            />
           </div>
         )}
       </div>

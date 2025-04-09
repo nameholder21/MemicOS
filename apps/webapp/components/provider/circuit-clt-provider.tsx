@@ -98,10 +98,34 @@ export function CircuitCLTProvider({
     if (selectedGraph) {
       // if we have qParams (default queryparams/visstate), parse them as visState and set it
       if (selectedGraph.qParams) {
-        setVisStateInternal((prevState) => ({
-          ...prevState,
-          ...selectedGraph.qParams,
+        const blankVisState: VisState = {
+          pinnedIds: [],
+          hiddenIds: [],
+          hoveredId: null,
+          hoveredNodeId: null,
+          hoveredCtxIdx: null,
+          clickedId: null,
+          clickedCtxIdx: null,
+          linkType: 'both',
+          isShowAllLinks: '',
+          isSyncEnabled: '',
+          subgraph: null,
+          isEditMode: 1,
           isHideLayer: isHideLayer(selectedGraph.metadata.scan),
+          sg_pos: '',
+          isModal: true,
+          isGridsnap: false,
+          supernodes: [],
+        };
+        // if the qparams has a clickedId, only set it in the visState if it exists in the nodes array
+        setVisStateInternal(() => ({
+          ...blankVisState,
+          ...selectedGraph.qParams,
+          clickedId:
+            selectedGraph.qParams.clickedId &&
+            selectedGraph.nodes.some((d) => d.nodeId === selectedGraph.qParams.clickedId)
+              ? selectedGraph.qParams.clickedId
+              : null,
         }));
       }
     }
@@ -126,7 +150,6 @@ export function CircuitCLTProvider({
     }
 
     const data = (await response.json()) as CLTGraph;
-
     const formattedData = formatCLTGraphData(data, logitDiff);
     return formattedData;
   }
