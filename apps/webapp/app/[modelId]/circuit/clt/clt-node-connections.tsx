@@ -21,7 +21,7 @@ function FeatureList({
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-2 text-slate-800">
+    <div className="flex max-h-[375px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 text-slate-800">
       <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
@@ -47,7 +47,7 @@ function FeatureList({
             <svg width={10} height={10} className="mr-0 inline-block">
               <g>
                 <g
-                  className={`default-icon block fill-none stroke-slate-800 ${node.nodeId && visState.pinnedIds?.includes(node.nodeId) ? 'stroke-[1.7]' : 'stroke-[0.7]'}`}
+                  className={`default-icon block fill-none ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'stroke-white' : 'stroke-slate-800'} ${node.nodeId && visState.pinnedIds?.includes(node.nodeId) ? 'stroke-[1.7]' : 'stroke-[0.7]'}`}
                 >
                   <text fontSize={15} textAnchor="middle" dominantBaseline="central" dx={5} dy={4}>
                     {featureTypeToText(node.feature_type)}
@@ -56,6 +56,8 @@ function FeatureList({
               </g>
             </svg>
             <div className="flex-1 text-left leading-snug">{node.ppClerp}</div>
+            {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
+              (node[linkProp]?.tmpClickedCtxOffset > 0 ? '→' : node[linkProp]?.tmpClickedCtxOffset < 0 ? '←' : '')}
             {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
               ? node[linkProp]?.pctInput > 0
                 ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
@@ -85,7 +87,7 @@ export default function CLTNodeConnections() {
 
   return (
     <div className="node-connections relative mt-3 min-h-[490px] flex-1">
-      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2 px-1">
         <div className="text-sm font-bold text-slate-600">Node Connections</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
@@ -95,16 +97,16 @@ export default function CLTNodeConnections() {
       </div>
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
-          <div className="flex flex-row items-center gap-x-2 text-sm font-medium text-slate-600">
+          <div className="flex flex-row items-center gap-x-2 px-1 text-sm font-medium text-slate-600">
             <div className="">F#{clickedNode?.feature}</div>
             <Circle className="h-3.5 w-3.5 text-[#f0f]" />
             <div>{clickedNode?.ppClerp}</div>
           </div>
         ) : (
-          <div className="text-sm font-medium text-slate-500">Click a feature on the left for details</div>
+          <div className="px-1 text-sm font-medium text-slate-500">Click a feature on the left for details</div>
         )}
         {clickedNode && (
-          <div className="mt-2 flex w-full flex-row gap-x-4">
+          <div className="mt-2 flex w-full flex-row gap-x-0">
             <FeatureList
               title="Input Features"
               nodes={selectedGraph?.nodes || []}
