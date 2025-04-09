@@ -61,7 +61,8 @@ export default function CLTFeatureDetail() {
                 const scrollAdjustment = centerElementCenter - containerCenter;
 
                 // Apply the scroll with offset adjustment
-                item.scrollLeft = item.scrollLeft + scrollAdjustment;
+                // eslint-disable-next-line no-param-reassign
+                item.scrollLeft += scrollAdjustment;
               }
             }
           });
