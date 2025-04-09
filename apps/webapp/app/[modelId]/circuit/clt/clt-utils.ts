@@ -25,6 +25,16 @@ export async function getCLTMetadata(): Promise<ModelToCLTMetadataGraphsMap> {
   return graphsByScan;
 }
 
+export type CltSubgraphState = {
+  sticky: boolean;
+  dagrefy: boolean;
+  supernodes: string[][];
+  activeGrouping: {
+    isActive: boolean;
+    selectedNodeIds: Set<string>;
+  };
+};
+
 // https://github.com/anthropics/attribution-graphs-frontend/blob/main/attribution_graph/init-cg.js
 export type CltVisState = {
   pinnedIds: string[];
@@ -37,13 +47,15 @@ export type CltVisState = {
   linkType: string;
   isShowAllLinks: string;
   isSyncEnabled: string;
-  subgraph: any | null;
+  subgraph: CltSubgraphState | null;
   isEditMode: number;
   isHideLayer: boolean;
   sg_pos: string;
   isModal: boolean;
   isGridsnap: boolean;
   supernodes: string[][]; // this is from qParams
+
+  og_sg_pos?: string;
 };
 
 export const metadataScanToModelDisplayName = new Map<string, string>([
@@ -113,7 +125,7 @@ export type CLTGraphNode = {
   remoteClerp?: string;
   sourceLinks?: CLTGraphLink[];
   streamIdx?: number;
-  supernodeId?: string | null | undefined;
+  supernodeId?: string;
   targetLinks?: CLTGraphLink[];
   tmpClickedLink?: CLTGraphLink;
   tmpClickedSourceLink?: CLTGraphLink;
@@ -129,6 +141,15 @@ export type CLTGraphNode = {
 
   memberNodes?: CLTGraphNode[];
   memberSet?: Set<string>;
+
+  // Added for subgraph visualization
+  inputAbsSumExternalSn?: number;
+  sgSnInputWeighting?: number;
+  isSuperNode?: boolean;
+  memberNodeIds?: string[];
+  textHeight?: number;
+  tmpClickedSgSource?: CLTGraphLink;
+  tmpClickedSgTarget?: CLTGraphLink;
 };
 
 export type CLTGraphLink = {

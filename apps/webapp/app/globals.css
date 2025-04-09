@@ -724,3 +724,179 @@ foreignObject canvas {
     }
   }
 }
+
+.subgraph {
+  overflow: hidden;
+  /* outline: 1px solid #eee; */
+
+  marker {
+    orient: auto;
+  }
+
+  /* svg {
+    z-index: -999999999;
+  } */
+
+  .weight-label {
+    /* text-shadow: #fff .2px 0 .2px, #fff -.2px 0 .2px, #fff 0 .2px .2px, #fff 0 -.2px .2px; */
+    font-size: 9px;
+    font-family: system-ui;
+    text-anchor: middle;
+    alignment-baseline: bottom;
+    dy: -0.5em;
+    opacity: 0.8;
+    fill: #999;
+  }
+  .layer-label {
+    color: #999;
+    opacity: 0.8;
+    margin-right: 2px;
+  }
+
+  .supernode-container {
+    position: absolute;
+    /* border: 1px solid #ddd; */
+    font-size: 9px;
+    line-height: 1em;
+    cursor: pointer;
+    pointer-events: none;
+    height: 1px;
+    width: 1px;
+
+    .node-text-container {
+      /* overflow: hidden; */
+      text-align: center;
+      position: relative;
+      top: 22px;
+      text-shadow:
+        0 1px 0 #fff,
+        1px 0 0 #fff,
+        0 -1px 0 #fff,
+        -1px 0 0 #fff,
+        1px 1px 0 #fff;
+      pointer-events: all;
+      color: #777;
+      /* font-size: 12px; */
+    }
+
+    .temp-edit {
+      width: 100px;
+      font: inherit;
+      border: none;
+      padding: 0;
+      margin: 0;
+      background: none;
+      outline: none;
+      display: inline;
+    }
+
+    .clicked-weight {
+      position: absolute;
+      right: 0px;
+      padding: 1px 1px;
+      font-size: 8px;
+      overflow: visible;
+    }
+    .clicked-weight.source {
+      bottom: -12px;
+    }
+    .clicked-weight.target {
+      top: -12px;
+    }
+
+    .member-circles {
+      pointer-events: all;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%);
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 4px;
+      display: flex;
+      background: #e5e3d7;
+      outline: 1px solid #6f6d5e;
+    }
+
+    .member-circle {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      display: inline-block;
+      border: 1px solid #000;
+      outline: 0.5px solid #000;
+      z-index: 100 !important;
+    }
+
+    .not-clt-feature.member-circle {
+      border-radius: 1.5px;
+    }
+
+    .member-circle:first-child {
+      margin-left: 0;
+    }
+  }
+
+  .ungroup-btn {
+    display: none;
+  }
+
+  &.is-grouping .ungroup-btn {
+    display: block;
+  }
+
+  .hovered.node .member-circles,
+  .hovered.member-circle {
+    border-color: rgba(0, 0, 0, 0);
+    outline: 1.5px dotted #f0f;
+    z-index: 100;
+  }
+
+  .clicked.node .member-circles,
+  .clicked.member-circle {
+    border-color: rgba(0, 0, 0, 0);
+    outline: 1.5px solid #f0f;
+  }
+
+  .grouping-selected .member-circles {
+    outline: 2px solid #0ff;
+  }
+
+  .checkbox-container {
+    user-select: none;
+    position: absolute;
+    bottom: 0px;
+    color: #999;
+
+    input {
+      accent-color: #999;
+    }
+
+    label:not(:first-child) {
+      margin-left: 10px;
+      display: inline-block;
+    }
+  }
+
+  .is-supernode {
+    padding-bottom: 15px;
+  }
+
+  .ungroup-btn {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    cursor: pointer;
+    color: #0bb;
+    z-index: 100;
+    font-size: 12px;
+    padding: 2px;
+
+    &:hover {
+      opacity: 1;
+      color: #000;
+      background: #0ff;
+    }
+  }
+}
