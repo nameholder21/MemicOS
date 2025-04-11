@@ -1,5 +1,6 @@
 'use client';
 
+import SearchTopkByToken from '@/app/search-topk-by-token/search-topk-by-token';
 import ExplanationsSearcher from '@/components/explanations-searcher';
 import FeatureSelector from '@/components/feature-selector/feature-selector';
 import ModelSelector from '@/components/feature-selector/model-selector';
@@ -252,6 +253,23 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
                     showExamples={false}
                   />
                 </InferenceActivationAllProvider>
+              </div>
+            </div>
+            <div className="flex items-center border-t border-slate-200 px-8 pb-4 pt-6 text-sm font-medium text-sky-700 outline-none">
+              <div className="flex w-full flex-col items-start justify-center text-[15px] text-slate-600">
+                <div className="text-xl font-semibold leading-none tracking-tight text-slate-800">
+                  Search TopK by Token
+                </div>
+                <span className="mb-2.5 ml-0 pt-1 text-[11px] leading-snug text-slate-500">
+                  Similar to search via inference, but returns top activating features by token for a single source.
+                </span>
+                <SearchTopkByToken
+                  initialModelId={jumpToModelModelId}
+                  initialSource={defaultSource}
+                  initialText=""
+                  hideSettings
+                  showResultsInNewPage
+                />
               </div>
             </div>
 
