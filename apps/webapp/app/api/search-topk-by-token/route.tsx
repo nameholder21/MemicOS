@@ -1,5 +1,6 @@
 import { getNeuronsForTopkSearcherExplanationOnly } from '@/lib/db/neuron';
 import { assertUserCanAccessModelAndSource } from '@/lib/db/userCanAccess';
+import { NEXT_PUBLIC_SEARCH_TOPK_MAX_CHAR_LENGTH } from '@/lib/env';
 import { getActivationsTopKByToken, SearchTopKResult } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { ActivationTopkByTokenPost200Response } from 'memicos-inference-client';
@@ -8,14 +9,13 @@ import { boolean, number, object, string, ValidationError } from 'yup';
 
 export const maxDuration = 30;
 
-const SEARCHER_TOPK_MAX_CHAR_LENGTH = 250;
 const NUMBER_TOPK_RESULTS = 10;
 const DEFAULT_DENSITY_THRESHOLD = 0.01;
 
 const searchWithTopKRequestSchema = object({
   modelId: string().required().max(50),
   layer: string().required().max(50),
-  text: string().required().max(SEARCHER_TOPK_MAX_CHAR_LENGTH),
+  text: string().required().max(NEXT_PUBLIC_SEARCH_TOPK_MAX_CHAR_LENGTH),
   numResults: number().optional().min(1).max(20).default(NUMBER_TOPK_RESULTS),
   ignoreBos: boolean().optional().default(true),
   densityThreshold: number().optional().default(DEFAULT_DENSITY_THRESHOLD),

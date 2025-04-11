@@ -5,7 +5,7 @@ import ModelSelector from '@/components/feature-selector/model-selector';
 import SourceSetSelector from '@/components/feature-selector/sourceset-selector';
 import { useGlobalContext } from '@/components/provider/global-provider';
 import { LoadingSquare } from '@/components/svg/loading-square';
-import { DEFAULT_MODELID, DEFAULT_SOURCE, DEFAULT_SOURCESET } from '@/lib/env';
+import { DEFAULT_MODELID, DEFAULT_SOURCE, DEFAULT_SOURCESET, NEXT_PUBLIC_SEARCH_TOPK_MAX_CHAR_LENGTH } from '@/lib/env';
 import useWindowSize from '@/lib/hooks/use-window-size';
 import { SearchTopKResult } from '@/lib/utils/inference';
 import { INFERENCE_EXAMPLE_TEXTS } from '@/lib/utils/inference-example-texts';
@@ -13,7 +13,7 @@ import { getFirstSourceSetForModel, getSourceSetNameFromSource } from '@/lib/uti
 import { Visibility } from '@prisma/client';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import { Form, Formik, FormikProps } from 'formik';
-import { Dices, PlayIcon, Search, X } from 'lucide-react';
+import { Dices, Search, SearchIcon, X } from 'lucide-react';
 import { NeuronWithPartialRelations } from 'prisma/generated/zod';
 import { useEffect, useRef, useState } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
@@ -30,11 +30,15 @@ export default function SearchTopkByToken({
   initialSource,
   initialText,
   filterModelsToRelease,
+  hideSettings = false,
+  showResultsInNewPage = false,
 }: {
   initialModelId?: string;
   initialSource?: string;
   initialText?: string;
   filterModelsToRelease?: string;
+  hideSettings?: boolean;
+  showResultsInNewPage?: boolean;
 }) {
   // Use a ref to track initialization state - won't trigger re-renders
   const isInitializedRef = useRef(false);
@@ -76,11 +80,22 @@ export default function SearchTopkByToken({
     const modelIdToUse = overrideModelId || modelId;
     const sourceToUse = overrideSource || source;
     const textToUse = overrideText || formRef.current?.values.searchQuery || '';
+    if (showResultsInNewPage && textToUse.length > 0) {
+      window.location.href = `/search-topk-by-token?modelId=${modelIdToUse}&source=${sourceToUse}&text=${textToUse}`;
+      return;
+    }
     setIsSearching(true);
     setNeedsReloadSearch(false);
     setLockedTokenPosition(-1);
     setHoveredTokenPosition(-1);
     setSearchQuery(textToUse);
+    if (textToUse.length > NEXT_PUBLIC_SEARCH_TOPK_MAX_CHAR_LENGTH) {
+      alert(
+        `We currently support a maximum of ${NEXT_PUBLIC_SEARCH_TOPK_MAX_CHAR_LENGTH} characters in a search query. Your query is ${textToUse.length} characters long.`,
+      );
+      setIsSearching(false);
+      return;
+    }
     const result = await fetch(`/api/search-topk-by-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -219,7 +234,12 @@ export default function SearchTopkByToken({
   // Initialization effect - runs once on mount
   useEffect(() => {
     // Handle initial URL parameters if provided
-    if (initialModelId !== undefined && initialSource !== undefined && initialText !== undefined) {
+    if (
+      initialModelId !== undefined &&
+      initialSource !== undefined &&
+      initialText !== undefined &&
+      initialText.length > 0
+    ) {
       setModelId(initialModelId);
       setSourceSet(getSourceSetNameFromSource(initialSource));
       setSource(initialSource);
@@ -234,7 +254,7 @@ export default function SearchTopkByToken({
   return (
     <div className="mt-0 flex h-full w-full flex-col items-center justify-center gap-y-0 pt-0 sm:flex-row">
       <div className="flex h-full w-full max-w-screen-md flex-1 flex-col">
-        <div className="flex w-full flex-row items-center justify-center gap-x-4">
+        <div className="flex w-full flex-row items-center justify-start gap-x-2">
           <ModelSelector
             filterToRelease={filterModelsToRelease}
             modelId={modelId}
@@ -257,7 +277,7 @@ export default function SearchTopkByToken({
             layerChangedCallback={setSource}
           />
         </div>
-        <div id="searchfield" className="my-3 mt-4 flex w-full flex-row items-center justify-center">
+        <div id="searchfield" className="mb-2 mt-2 flex w-full flex-row items-center justify-center">
           <Formik
             innerRef={formRef}
             initialValues={{ searchQuery: initialText || '' }}
@@ -299,7 +319,7 @@ export default function SearchTopkByToken({
           </Formik>
         </div>
 
-        <div id="imfeelinglucky" className="mb-0 mt-0 flex w-full flex-row items-center justify-between">
+        <div id="imfeelinglucky" className="mb-2 mt-0 flex w-full flex-row items-center justify-between">
           <button
             type="button"
             disabled={isSearching}
@@ -310,10 +330,10 @@ export default function SearchTopkByToken({
               formRef.current?.setFieldValue('searchQuery', randomSentence);
               await searchClicked(undefined, undefined, randomSentence);
             }}
-            className="flex min-w-[140px] cursor-pointer flex-row justify-center gap-x-2 rounded-full border border-sky-700 bg-white px-5 py-2 text-[12px] font-medium text-sky-700 shadow transition-all hover:scale-105 hover:bg-sky-700/20 disabled:opacity-50"
+            className="flex min-w-[140px] cursor-pointer flex-row items-center justify-center gap-x-2 rounded-full border border-sky-700 bg-white px-5 py-2 text-[10px] font-medium text-sky-700 shadow transition-all hover:scale-105 hover:bg-sky-700/20 disabled:opacity-50"
           >
             <Dices className="h-5 w-5 text-sky-700" />
-            Random
+            RANDOM
           </button>
           <button
             type="button"
@@ -325,9 +345,9 @@ export default function SearchTopkByToken({
               searchQuery.length === 0 ||
               (searchQuery.length > 0 && !needsReloadSearch && topkResult && topkResult.results.length > 0)
             }
-            className="flex min-w-[140px] flex-row items-center justify-center gap-x-1.5 rounded-full bg-sky-700 px-5 py-2 text-[12px] font-medium text-white shadow transition-all enabled:hover:bg-sky-700/80 enabled:hover:text-white disabled:opacity-50"
+            className="flex min-w-[140px] flex-row items-center justify-center gap-x-1.5 rounded-full bg-sky-700 px-5 py-2 text-[10px] font-medium text-white shadow transition-all enabled:hover:bg-sky-700/80 enabled:hover:text-white disabled:opacity-50"
           >
-            <PlayIcon className="h-5 w-5 text-white" /> Go
+            <SearchIcon className="h-5 w-5 text-white" /> SEARCH
           </button>
         </div>
 
@@ -346,8 +366,7 @@ export default function SearchTopkByToken({
           </div>
         )}
 
-        <div className="mt-5 flex w-full flex-col gap-y-2 border-t border-t-slate-200 pt-5">
-          <div className="w-full text-center text-[9px] font-medium uppercase text-slate-400">Settings</div>
+        <div className={`mt-4 w-full flex-col gap-y-2 ${hideSettings ? 'hidden' : 'flex'}`}>
           <ToggleGroup.Root
             className="inline-flex flex-1 overflow-hidden rounded-md border border-slate-300 bg-slate-300 px-0 py-0"
             type="single"
@@ -494,7 +513,7 @@ export default function SearchTopkByToken({
                               ? 'rgba(2,132,199, 0.5)'
                               : 'rgba(2,132,199, 0.25',
                       }}
-                      className={`mb-0.5 inline-block cursor-pointer select-none rounded border px-[5px] py-[5px] text-sm font-normal text-slate-800 transition-all sm:mb-2 sm:text-[20px] ${
+                      className={`mb-[2px] inline-block cursor-pointer select-none rounded border px-[5px] py-[1px] text-sm font-normal text-slate-800 transition-all sm:mb-1 ${
                         lockedTokenPosition === result.position
                           ? 'text-white'
                           : result.topFeatures.filter((f) => f.featureIndex === hoveredNeuronIndex).length > 0
@@ -528,26 +547,26 @@ export default function SearchTopkByToken({
                           setFeatureModalFeature(f.feature as NeuronWithPartialRelations);
                           setFeatureModalOpen(true);
                         }}
-                        className="group relative flex w-full flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-700 transition-all hover:bg-sky-700/20 sm:py-2.5"
+                        className="group relative flex w-full flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-800 transition-all hover:bg-sky-700/20 sm:py-2.5"
                       >
-                        <div className="flex flex-1 flex-col items-start justify-start py-2">
-                          <span className="mb-1 rounded-md py-1 text-left text-xs font-bold uppercase text-slate-600">
-                            {f.feature.layer}:{f.feature.index}
-                          </span>
-                          <div className="w-full text-left text-[13px] transition-all group-hover:text-sky-700 sm:text-[15px]">
+                        <div className="flex flex-1 flex-col items-start justify-start py-1">
+                          <div className="w-full text-left text-[13px] font-semibold transition-all group-hover:text-sky-700 sm:text-[13px]">
                             {f.feature &&
                               f.feature.explanations &&
                               f.feature.explanations.length > 0 &&
                               f.feature.explanations[0].description}
                           </div>
+                          <span className="mb-0 rounded-md pt-1 text-left text-[10px] font-bold uppercase text-slate-400">
+                            {f.feature.layer}:{f.feature.index}
+                          </span>
                         </div>
-                        <div className="ml-1 flex flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold">
+                        <div className="ml-1 flex flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold text-slate-600">
                           {f.frequency}
-                          <div className="font-sans text-[8px] text-slate-600">TOKENS</div>
+                          <div className="font-sans text-[8px] text-slate-400">TOKENS</div>
                         </div>
-                        <div className="ml-1 flex flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold">
+                        <div className="ml-1 flex w-11 flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold text-slate-600">
                           {f.activation_value.toFixed(2)}
-                          <div className="font-sans text-[8px] text-slate-600">MAX ACT</div>
+                          <div className="font-sans text-[8px] text-slate-400">MAX ACT</div>
                         </div>
                       </button>
                     ))
@@ -556,22 +575,22 @@ export default function SearchTopkByToken({
                     ].topFeatures.map((f, i) => (
                       <div
                         key={i}
-                        className="group relative flex w-full cursor-default flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-700 transition-all hover:bg-sky-700/20 sm:py-2.5"
+                        className="group relative flex w-full cursor-default flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-800 transition-all hover:bg-sky-700/20 sm:py-2.5"
                       >
-                        <div className="flex flex-1 flex-col items-start justify-start py-2">
-                          <span className="mb-1 rounded-md py-1 text-left text-xs font-bold uppercase text-slate-600">
-                            {f.feature?.layer}:{f.feature?.index}
-                          </span>
-                          <div className="w-full text-left text-[13px] transition-all group-hover:text-sky-700 sm:text-[15px]">
+                        <div className="flex flex-1 flex-col items-start justify-start py-1">
+                          <div className="w-full text-left text-[13px] font-semibold transition-all group-hover:text-sky-700 sm:text-[13px]">
                             {f.feature &&
                               f.feature.explanations &&
                               f.feature.explanations.length > 0 &&
                               f.feature.explanations[0].description}
                           </div>
+                          <span className="mb-0 rounded-md pt-1 text-left text-[10px] font-bold uppercase text-slate-400">
+                            {f.feature?.layer}:{f.feature?.index}
+                          </span>
                         </div>
-                        <div className="ml-1 flex flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold">
+                        <div className="ml-1 flex w-11 flex-col items-center justify-center gap-y-0 overflow-visible py-2 font-mono text-xs font-bold text-slate-600">
                           {f.activationValue.toFixed(2)}
-                          <div className="font-sans text-[8px] text-slate-600">MAX ACT</div>
+                          <div className="font-sans text-[8px] text-slate-400">MAX ACT</div>
                         </div>
                       </div>
                     ))}

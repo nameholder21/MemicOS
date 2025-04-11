@@ -1,3 +1,5 @@
+import BreadcrumbsComponent from '@/components/breadcrumbs-component';
+import { BreadcrumbLink } from '@/components/shadcn/breadcrumbs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card';
 import SearchTopkByToken from './search-topk-by-token';
 
@@ -11,9 +13,23 @@ export default async function Page({
   const text = typeof searchParams.text === 'string' ? searchParams.text : undefined;
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center px-3 py-3 sm:max-h-[calc(100vh-80px)]">
-      <Card className="h-full w-full overflow-y-hidden bg-white">
-        <CardHeader className="w-full pb-3 pt-5">
+    <div className="flex h-full w-full flex-col items-center justify-center sm:max-h-[calc(100vh-80px)]">
+      <BreadcrumbsComponent
+        crumbsArray={[
+          <BreadcrumbLink href="/search-topk-by-token" key={1}>
+            Search TopK by Token
+          </BreadcrumbLink>,
+          ...(text && modelId && source
+            ? [
+                <BreadcrumbLink href={`/search-topk-by-token?modelId=${modelId}&source=${source}&text=${text}`} key={2}>
+                  {`"${text.trim().slice(0, 12)}..."`}
+                </BreadcrumbLink>,
+              ]
+            : []),
+        ]}
+      />
+      <Card className="mt-3 h-full w-full max-w-screen-xl overflow-y-hidden bg-white">
+        <CardHeader className="w-full pb-3 pt-6">
           <div className="flex w-full flex-row items-center justify-between">
             <CardTitle>Search TopK by Token</CardTitle>
           </div>
