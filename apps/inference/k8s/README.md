@@ -111,6 +111,8 @@ kubectl apply -k k8s/overlays/gpu/gemma-2-2b && \
 kubectl apply -k k8s/overlays/gpu/gemma-2-9b && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-distill-llama-8b-b && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-a && \
+kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-b && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-a && \
 kubectl apply -k k8s/overlays/gpu/deepseek-r1-llama-8b-public-b && \
 kubectl apply -k k8s/overlays/gpu/llama-31-8b
@@ -133,6 +135,8 @@ kubectl rollout restart deployment gemma-2-2b-gpu-memicos-inference && \
 kubectl rollout restart deployment gemma-2-9b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-gpu-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-distill-llama-8b-b-gpu-memicos-inference && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-a-gpu-lite-memicos-inference && \
+kubectl rollout restart deployment deepseek-r1-llama-8b-b-gpu-lite-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-llama-8b-public-a-gpu-lite-memicos-inference && \
 kubectl rollout restart deployment deepseek-r1-llama-8b-public-b-gpu-lite-memicos-inference && \
 kubectl rollout restart deployment llama-31-8b-gpu-memicos-inference
