@@ -12,8 +12,8 @@ const endpointToRateLimitPerWindow = [
   { endpoint: '/api/activation/new', limit: 1000 },
   { endpoint: '/api/explanation/search', limit: 200 },
   { endpoint: '/api/steer', limit: 300 },
-  { endpoint: '/api/search-topk-by-token', limit: 100 },
-  { endpoint: '/api/search-all', limit: 800 },
+  { endpoint: '/api/search-topk-by-token', limit: 500 },
+  { endpoint: '/api/search-all', limit: 1600 },
 ];
 
 const rateLimiters: { endpoint: string; limiter: Ratelimit }[] = [];
