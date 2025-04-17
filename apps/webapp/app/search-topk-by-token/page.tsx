@@ -11,6 +11,15 @@ export default async function Page({
   const modelId = typeof searchParams.modelId === 'string' ? searchParams.modelId : undefined;
   const source = typeof searchParams.source === 'string' ? searchParams.source : undefined;
   const text = typeof searchParams.text === 'string' ? searchParams.text : undefined;
+  const densityThresholdParam =
+    typeof searchParams.densityThreshold === 'string' ? searchParams.densityThreshold : undefined;
+  const initialDensityThreshold = densityThresholdParam ? parseFloat(densityThresholdParam) : undefined;
+  const ignoreBosParam = typeof searchParams.ignoreBos === 'string' ? searchParams.ignoreBos : undefined;
+  const initialIgnoreBos = ignoreBosParam === 'true' ? true : ignoreBosParam === 'false' ? false : undefined;
+
+  const sortByParam = typeof searchParams.sortBy === 'string' ? searchParams.sortBy : undefined;
+  const initialSortBy =
+    sortByParam === 'frequency' || sortByParam === 'strength' || sortByParam === 'density' ? sortByParam : undefined;
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center sm:max-h-[calc(100vh-80px)]">
@@ -28,14 +37,21 @@ export default async function Page({
             : []),
         ]}
       />
-      <Card className="mt-3 h-full w-full max-w-screen-xl overflow-y-hidden bg-white">
+      <Card className="mt-3 w-full max-w-screen-xl overflow-y-hidden bg-white sm:h-full">
         <CardHeader className="w-full pb-3 pt-6">
           <div className="flex w-full flex-row items-center justify-between">
             <CardTitle>Search TopK by Token</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="h-full w-full overflow-y-hidden pt-3">
-          <SearchTopkByToken initialModelId={modelId} initialSource={source} initialText={text} />
+          <SearchTopkByToken
+            initialModelId={modelId}
+            initialSource={source}
+            initialText={text}
+            initialDensityThreshold={initialDensityThreshold}
+            initialIgnoreBos={initialIgnoreBos}
+            initialSortBy={initialSortBy}
+          />
         </CardContent>
       </Card>
     </div>
