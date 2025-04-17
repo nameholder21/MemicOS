@@ -414,8 +414,14 @@ export default function SearchTopkByToken({
                 className="relative flex h-8 w-full touch-none select-none items-center"
                 defaultValue={[valueToPosition(densityThreshold)]} // Use helper
                 value={[valueToPosition(densityThreshold)]} // Use helper
-                onValueChange={(value) => {
-                  setDensityThreshold(Number(positionToValue(value[0]).toFixed(4))); // Use helper, rounded to 4 decimal places
+                onValueChange={(position) => {
+                  let value = Number(positionToValue(position[0]).toFixed(4));
+                  if (value === 0) {
+                    value = 0.0001;
+                  } else if (value > 0.9999) {
+                    value = 0.9999;
+                  }
+                  setDensityThreshold(Number(value.toFixed(4))); // Use helper, rounded to 4 decimal places
                 }}
                 min={0}
                 max={DENSITY_SLIDER_MAX}
