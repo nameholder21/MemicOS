@@ -18,10 +18,7 @@ from transformer_lens import ActivationCache, HookedTransformer
 
 from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
-from memicos_inference.shared import (
-    Model,
-    with_request_lock,
-)
+from memicos_inference.shared import Model, with_request_lock
 
 logger = logging.getLogger(__name__)
 
@@ -58,13 +55,17 @@ async def activation_single(
         index = int(request.index)
 
         sae = sae_manager.get_sae(source)
-        prepend_bos = model.cfg.tokenizer_prepends_bos
+
+        # TODO: we assume that if either SAE or model prepends bos, then we should prepend bos
+        # this is not exactly correct, but sometimes the SAE doesn't have the prepend_bos flag set
+        prepend_bos = sae.cfg.prepend_bos or model.cfg.tokenizer_prepends_bos
 
         tokens = model.to_tokens(
             prompt,
             prepend_bos=prepend_bos,
             truncate=False,
         )[0]
+
         if len(tokens) > config.TOKEN_LIMIT:
             logger.error(
                 "Text too long: %s tokens, max is %s",
