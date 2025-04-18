@@ -365,7 +365,7 @@ const steerSchema = object({
         strength: number()
           .required()
           .min(STEER_STRENGTH_MIN)
-          .max(STEER_STRENGTH_MAX)
+          .max(STEER_STRENGTH_MAX * 3)
           .transform((value) => value),
       }).required(),
     )
