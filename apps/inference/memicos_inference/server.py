@@ -33,6 +33,9 @@ from memicos_inference.endpoints.steer.completion import (
 from memicos_inference.endpoints.steer.completion_chat import (
     router as steer_completion_chat_router,
 )
+from memicos_inference.endpoints.tokenize import (
+    router as tokenize_router,
+)
 from memicos_inference.endpoints.util.sae_topk_by_decoder_cossim import (
     router as sae_topk_by_decoder_cossim_router,
 )
@@ -88,6 +91,7 @@ v1_router.include_router(activation_single_router)
 v1_router.include_router(activation_topk_by_token_router)
 v1_router.include_router(sae_topk_by_decoder_cossim_router)
 v1_router.include_router(sae_vector_router)
+v1_router.include_router(tokenize_router)
 
 app.include_router(v1_router)
 
