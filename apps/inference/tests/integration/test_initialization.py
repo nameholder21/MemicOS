@@ -5,7 +5,7 @@ from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import Model
 
 
-def test_initialize(initialize_models: FixtureRequest) -> None: # noqa: ARG001
+def test_initialize(initialize_models: FixtureRequest) -> None:  # noqa: ARG001
     """
     Test that the model and SAE are properly initialized when using the /initialize endpoint.
     """
