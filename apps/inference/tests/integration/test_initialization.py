@@ -3,7 +3,7 @@ from memicos_inference.shared import Model
 from memicos_inference.sae_manager import SAEManager
 
 def test_model_initialization(initialize_models):
-    """Test that the model and SAE are properly initialized."""
+    """Test that the model and SAE are properly initialized when using the /initialize endpoint."""
     # Check that the model is loaded
     model = Model.get_instance()
     assert model is not None
@@ -20,7 +20,6 @@ def test_model_initialization(initialize_models):
     tokens = model.to_tokens(input_text)
     with torch.no_grad():
         logits = model(tokens)
-    print("This is logits:", logits.shape)
     assert logits is not None
     assert logits.shape[0] == 1  # batch size of 1
     assert logits.shape[1] == len(tokens[0])  # sequence length
