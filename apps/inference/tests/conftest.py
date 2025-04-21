@@ -51,7 +51,7 @@ def initialize_models():
     # Cleanup
     Config._instance = None
     SAEManager._instance = None
-    Model._instance = None
+    Model._instance = None # type: ignore
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     gc.collect()
