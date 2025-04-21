@@ -28,10 +28,10 @@ const DEFAULT_DENSITY_THRESHOLD = -1;
  * @swagger
  * /api/search-all:
  *   post:
- *     summary: Top Features for Text
+ *     summary: Top Features for Entire Text
  *     description: Returns the top features for a given text input. Equivalent to the https://memicos.org/search functionality. Contact us to increase your rate limit for free if you hit it.
  *     tags:
- *       - Search
+ *       - Search via Inference
  *     security:
  *       - apiKey: []
  *     requestBody:
