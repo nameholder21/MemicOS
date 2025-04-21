@@ -10,7 +10,6 @@ from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import Model
 from memicos_inference.server import initialize
 from memicos_inference.args import parse_env_and_args
-from unittest.mock import patch
 
 @pytest.fixture(scope="session")
 def initialize_models():

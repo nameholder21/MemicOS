@@ -2,8 +2,10 @@ import torch
 from memicos_inference.shared import Model
 from memicos_inference.sae_manager import SAEManager
 
-def test_model_initialization(initialize_models):
-    """Test that the model and SAE are properly initialized when using the /initialize endpoint."""
+def test_initialize(initialize_models): # noqa: ARG001
+    """
+    Test that the model and SAE are properly initialized when using the /initialize endpoint.
+    """
     # Check that the model is loaded
     model = Model.get_instance()
     assert model is not None
