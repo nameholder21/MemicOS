@@ -1,15 +1,18 @@
 import asyncio
-import pytest
-import os
-import torch
 import gc
 import json
+import os
+
+import pytest
+import torch
+
 import memicos_inference.server as server
+from memicos_inference.args import parse_env_and_args
 from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
-from memicos_inference.shared import Model
 from memicos_inference.server import initialize
-from memicos_inference.args import parse_env_and_args
+from memicos_inference.shared import Model
+
 
 @pytest.fixture(scope="session")
 def initialize_models():
