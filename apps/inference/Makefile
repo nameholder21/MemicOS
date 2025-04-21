@@ -12,6 +12,9 @@ RUFF = $(POETRY) run ruff
 unit-test:
 	$(POETRY) run $(PYTEST) $(PYTEST_ARGS) tests/unit
 
+integration-test:
+	$(POETRY) run $(PYTEST) $(PYTEST_ARGS) tests/integration
+
 test-verbose:
 	$(POETRY) run $(PYTEST) $(PYTEST_ARGS) -vv
 
