@@ -17,7 +17,8 @@ import {
   ExplanationType,
 } from '@prisma/client';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { ChevronDownIcon, HelpCircle, Info, Link, X } from 'lucide-react';
+import { ChevronDownIcon, HelpCircle, Info, X } from 'lucide-react';
+import Link from 'next/link';
 import router from 'next/router';
 import { useEffect, useState } from 'react';
 import { LoadingSpinner } from '../svg/loading-spinner';
@@ -140,8 +141,7 @@ export default function ExplanationsPane({
                   <div className="h-fill flex-1">
                     <div className="flex-inline relative flex items-center">
                       <h1
-                        className={`cursor-text select-text py-0 text-xs font-medium
-                                               leading-snug text-slate-700`}
+                        className="cursor-text select-text py-0 text-xs font-medium leading-snug text-slate-700"
                         title={explanation.description}
                       >
                         {explanation.description}
@@ -237,7 +237,7 @@ export default function ExplanationsPane({
                             >
                               <div className="flex h-full flex-col items-stretch">
                                 {explanation.scores && explanation.scores.length > 0 && (
-                                  <div className="flex flex-col  pb-0.5">
+                                  <div className="flex flex-col pb-0.5">
                                     <div className="flex items-center justify-center pt-2 text-center text-[10px] uppercase text-slate-400">
                                       Current Scores
                                     </div>
@@ -596,7 +596,7 @@ export default function ExplanationsPane({
           ))}
         </div>
       )}
-      <div className="flex w-full flex-col rounded-b-md border-t border-slate-200 px-3  py-3 pt-3 ">
+      <div className="flex w-full flex-col rounded-b-md border-t border-slate-200 px-3 py-3 pt-3">
         <div className="mb-1.5 w-full text-center text-[10px] font-normal uppercase leading-none text-slate-400">
           New Auto-Interp
         </div>

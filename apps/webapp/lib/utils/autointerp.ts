@@ -42,8 +42,9 @@ export const isReasoningModel = (modelId: string) =>
   modelId.startsWith('deepseek-r1') ||
   modelId.indexOf('-thinking') !== -1;
 
+// TODO: this should be in the database
 export const getAutoInterpModelTypeFromModelId = (modelId: string) => {
-  if (modelId.startsWith('gpt') || modelId.startsWith('o1-') || modelId.startsWith('o3-')) {
+  if (modelId.startsWith('gpt') || modelId.startsWith('o1') || modelId.startsWith('o3') || modelId.startsWith('o4')) {
     return AutoInterpModelType.OPENAI;
   }
   if (modelId.startsWith('claude')) {
