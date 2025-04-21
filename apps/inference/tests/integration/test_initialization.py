@@ -1,6 +1,8 @@
 import torch
-from memicos_inference.shared import Model
+
 from memicos_inference.sae_manager import SAEManager
+from memicos_inference.shared import Model
+
 
 def test_initialize(initialize_models): # noqa: ARG001
     """
