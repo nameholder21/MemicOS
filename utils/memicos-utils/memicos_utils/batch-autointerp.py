@@ -47,7 +47,7 @@ DEFAULT_EMBEDDING_DIMENSIONS = 256
 VALID_EXPLAINER_TYPE_NAMES = ["oai_token-act-pair", "oai_attention-head"]
 
 # you can change this yourself if you want to experiment with other models
-VALID_EXPLAINER_MODEL_NAMES = ["gpt-4o-mini"]
+VALID_EXPLAINER_MODEL_NAMES = ["gpt-4o-mini", "gpt-4.1-nano"]
 
 # the number of parallel autointerps to do
 # this is two bottlenecks:
@@ -306,7 +306,7 @@ def main(
         prompt_required=False,
     ),
     explainer_model_name: str = typer.Option(
-        "gpt-4o-mini",
+        "gpt-4.1-nano",
         help="The name of the explainer model eg gpt-4o-mini",
         prompt=True,
     ),
@@ -470,7 +470,7 @@ def generate_embeddings_and_flush_explanations_to_file(explanations: List[Explan
     if len(embeddings.data) != len(explanations):
         raise Exception("Number of embeddings doesn't match number of explanations")
     for exp, emb in zip(explanations, embeddings.data):
-        exp.embedding = emb.embedding
+        exp.embedding = [round(value, 9) for value in emb.embedding]
     # print(f"Generated {len(embeddings.data)} embeddings")
 
     batch_number = get_next_batch_number()
