@@ -46,7 +46,7 @@ def initialize_models():
     # Initialize the model and SAEs
     asyncio.run(initialize())
 
-    yield 
+    yield
 
     # Cleanup
     Config._instance = None
