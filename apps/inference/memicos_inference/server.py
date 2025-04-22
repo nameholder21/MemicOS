@@ -1,5 +1,6 @@
 import asyncio
 import gc
+import json
 import logging
 import os
 import sys
@@ -239,11 +240,21 @@ async def check_model(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     config = Config.get_instance()
-    if hasattr(request, "model") and (
-        request.model != config.MODEL_ID and request.model != config.OVERRIDE_MODEL_ID  # type: ignore
-    ):
-        logger.error("Unsupported model: %s", request.model)  # type: ignore
-        return JSONResponse(content={"error": "Unsupported model"}, status_code=400)
+
+    if request.method == "POST":
+        try:
+            body = await request.json()
+            if "model" in body and (
+                body["model"] != config.MODEL_ID
+                and body["model"] != config.OVERRIDE_MODEL_ID
+            ):
+                logger.error("Unsupported model: %s", body["model"])
+                return JSONResponse(
+                    content={"error": "Unsupported model"}, status_code=400
+                )
+        except (json.JSONDecodeError, ValueError):
+            pass
+
     return await call_next(request)
 
 
