@@ -28,6 +28,7 @@ from neuron_explainer.activations.activation_records import calculate_max_activa
 # ruff: noqa: E402
 # flake8: noqa: E402
 from neuron_explainer.activations.activations import ActivationRecord
+from neuron_explainer.api_client import ApiClient
 from neuron_explainer.explanations.explainer import (
     AttentionHeadExplainer,
     TokenActivationPairExplainer,
@@ -47,7 +48,19 @@ DEFAULT_EMBEDDING_DIMENSIONS = 256
 VALID_EXPLAINER_TYPE_NAMES = ["oai_token-act-pair", "oai_attention-head"]
 
 # you can change this yourself if you want to experiment with other models
-VALID_EXPLAINER_MODEL_NAMES = ["gpt-4o-mini", "gpt-4.1-nano"]
+VALID_EXPLAINER_MODEL_NAMES = ["gpt-4o-mini", "gpt-4.1-nano", "gemini-2.0-flash"]
+
+# GEMINI SUPPORT
+GEMINI_MODEL_NAMES = ["gemini-2.0-flash"]
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# we should use this one (ai studio, simpler) but we're super rate limited
+# GEMINI_BASE_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+# so we use vertex instead. when we are not rate limited on AI studio, remove the following 4 properties
+GEMINI_PROJECT_ID = os.getenv("GEMINI_PROJECT_ID")
+GEMINI_LOCATION = os.getenv("GEMINI_LOCATION")
+GEMINI_BASE_API_URL = f"https://{GEMINI_LOCATION}-aiplatform.googleapis.com/v1beta1/projects/{GEMINI_PROJECT_ID}/locations/{GEMINI_LOCATION}/endpoints/openapi"
+GEMINI_VERTEX = True
 
 # the number of parallel autointerps to do
 # this is two bottlenecks:
@@ -115,6 +128,22 @@ async def call_autointerp_openai_for_activations(
 
     feature_index = top_activation.index
 
+    # only needed for vertex
+    if GEMINI_VERTEX:
+        model_name = (
+            "google/" + EXPLAINER_MODEL_NAME
+            if is_gemini_model(EXPLAINER_MODEL_NAME)
+            else EXPLAINER_MODEL_NAME
+        )
+    else:
+        model_name = EXPLAINER_MODEL_NAME
+    base_api_url = (
+        GEMINI_BASE_API_URL
+        if is_gemini_model(EXPLAINER_MODEL_NAME)
+        else ApiClient.BASE_API_URL
+    )
+    override_api_key = GEMINI_API_KEY if is_gemini_model(EXPLAINER_MODEL_NAME) else None
+
     try:
         activationRecords = []
 
@@ -128,9 +157,11 @@ async def call_autointerp_openai_for_activations(
                 )
                 activationRecords.append(activationRecord)
             explainer = AttentionHeadExplainer(
-                model_name=EXPLAINER_MODEL_NAME,
+                model_name=model_name,
                 prompt_format=PromptFormat.HARMONY_V4,
                 max_concurrent=1,
+                base_api_url=base_api_url,
+                override_api_key=override_api_key,
             )
             explanations = await asyncio.wait_for(
                 explainer.generate_explanations(
@@ -147,9 +178,11 @@ async def call_autointerp_openai_for_activations(
                 )
                 activationRecords.append(activationRecord)
             explainer = TokenActivationPairExplainer(
-                model_name=EXPLAINER_MODEL_NAME,
+                model_name=model_name,
                 prompt_format=PromptFormat.HARMONY_V4,
                 max_concurrent=1,
+                base_api_url=base_api_url,
+                override_api_key=override_api_key,
             )
             explanations = await asyncio.wait_for(
                 explainer.generate_explanations(
@@ -290,6 +323,10 @@ class AutoInterpConfig:
     gzip_output: bool
 
 
+def is_gemini_model(model_name: str) -> bool:
+    return model_name in GEMINI_MODEL_NAMES
+
+
 def main(
     input_dir_with_source_exports: str = typer.Option(
         ...,
@@ -338,6 +375,11 @@ def main(
 
     if explainer_model_name not in VALID_EXPLAINER_MODEL_NAMES:
         raise ValueError(f"Invalid explainer model name: {explainer_model_name}")
+
+    if is_gemini_model(explainer_model_name) and GEMINI_API_KEY is None:
+        raise ValueError(
+            "GEMINI_API_KEY is not set even though you're using a Gemini model"
+        )
 
     global \
         FAILED_FEATURE_INDEXES_QUEUED, \
