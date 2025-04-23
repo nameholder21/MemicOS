@@ -97,7 +97,7 @@ export default function CLTFeatureDetail() {
             </span>
           ))}
         </div>
-        <div ref={activationContainerRef} className="flex max-h-[400px] w-full flex-col overflow-y-scroll">
+        <div ref={activationContainerRef} className="flex max-h-[350px] w-full flex-col overflow-y-scroll">
           {featureDetail?.examples_quantiles?.map((quantile, qIdx) => (
             <div key={qIdx} className="flex w-full flex-col gap-y-0.5">
               <div className="mb-1.5 mt-4 border-b pb-2 text-sm font-bold text-slate-600">{quantile.quantile_name}</div>
@@ -127,5 +127,5 @@ export default function CLTFeatureDetail() {
     );
   }, [featureDetail, overallMaxActivationValue]);
 
-  return <div className="flex min-h-[490px] w-full flex-1 flex-col gap-y-1">{memoizedFeatureDetail}</div>;
+  return <div className="flex min-h-[400px] w-full flex-1 flex-col gap-y-1">{memoizedFeatureDetail}</div>;
 }
