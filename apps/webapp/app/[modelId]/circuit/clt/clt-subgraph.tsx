@@ -467,11 +467,11 @@ export default function CLTSubgraph() {
     const svgPaths = svg
       .appendMany('path.link-path', sgLinks)
       .attr('fill', 'none')
-      .attr('markerMid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
-      .attr('strokeWidth', (d) => Math.abs(d.weight) * 15)
+      .attr('marker-mid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
+      .attr('stroke-width', (d) => Math.abs(d.weight) * 15)
       .attr('stroke', (d) => d.color)
       .attr('opacity', 0.8)
-      .attr('strokeLinecap', 'round');
+      .attr('stroke-linecap', 'round');
 
     // Add weight labels for links
     const edgeLabels = svg.appendMany('text.weight-label', sgLinks);
@@ -822,7 +822,7 @@ export default function CLTSubgraph() {
   }, [screenSize, selectedGraph, visState, updateVisStateField, pctInputColorFn, bgColorToTextColor]);
 
   return (
-    <div className="relative mt-3 min-h-[490px] w-full">
+    <div className="relative mt-3 min-h-[440px] w-full">
       <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>

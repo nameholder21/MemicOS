@@ -25,7 +25,7 @@ export default function CLTWrapper() {
             <CLTNodeConnections />
           </div>
           <div className="flex w-full flex-row gap-x-2 pl-2">
-            <div className="min-h-[490px] w-[53%] min-w-[53%] max-w-[53%]">
+            <div className="min-h-[440px] w-[53%] min-w-[53%] max-w-[53%]">
               <CLTSubgraph />
             </div>
             <div className="w-[45%] min-w-[45%] overflow-hidden">
