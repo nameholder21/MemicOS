@@ -623,8 +623,8 @@ div[data-virtuoso-scroller='true'] table {
 
 .link-graph .tooltip-hidden {
   opacity: 0;
-  transition: all 0.3s;
-  transition-delay: 0.1s;
+  /* transition: all 0.3s;
+  transition-delay: 0.1s; */
 }
 
 /* SVG and canvas stacking rules */

@@ -558,6 +558,10 @@ export default function CLTSubgraph() {
       .style('width', `${NODE_WIDTH}px`)
       .style('height', `${NODE_HEIGHT}px`)
       .on('mouseover', (ev: MouseEvent, d: ForceNode) => {
+        // check if it's a click. if so, don't run the rest of the code (or it will rerender and not run the click)
+        if (ev.button === 0) {
+          return;
+        }
         if (!ev.shiftKey) {
           updateVisStateField('hoveredId', d.node.featureId || null);
           updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
@@ -639,6 +643,9 @@ export default function CLTSubgraph() {
         },
       })
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
+        if (ev.button === 0) {
+          return;
+        }
         updateVisStateField('hoveredId', d.featureId || null);
         updateVisStateField('hoveredCtxIdx', d.ctx_idx);
         showTooltip(ev, d);
@@ -649,9 +656,28 @@ export default function CLTSubgraph() {
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
       })
-      .on('click', (ev: MouseEvent) => {
+      .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
         if (!visState.subgraph?.activeGrouping.isActive) {
           ev.stopPropagation();
+        }
+        // Regular click behavior
+        if (ev.metaKey || ev.ctrlKey) {
+          // Toggle pinned state
+          const newPinnedIds = [...visState.pinnedIds];
+          const pinnedIndex = newPinnedIds.indexOf(d.nodeId || '');
+
+          if (pinnedIndex === -1 && d.nodeId) {
+            newPinnedIds.push(d.nodeId);
+          } else if (pinnedIndex !== -1) {
+            newPinnedIds.splice(pinnedIndex, 1);
+          }
+
+          updateVisStateField('pinnedIds', newPinnedIds);
+        } else {
+          // Set as clicked node
+          const newClickedId = visState.clickedId === d.nodeId ? null : d.nodeId;
+          updateVisStateField('clickedId', newClickedId || null);
+          updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
         }
       })
       .attr('title', (d: CLTGraphNode) => d.ppClerp || '');
