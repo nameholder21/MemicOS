@@ -8,7 +8,7 @@ from memicos_inference.server import app
 client = TestClient(app)
 
 
-def test_activation_all_basic(initialize_models: None):  # noqa: ARG001
+def test_activation_all(initialize_models: None):  # noqa: ARG001
     """
     Test basic functionality of the /activation/all endpoint with a simple request.
     """
