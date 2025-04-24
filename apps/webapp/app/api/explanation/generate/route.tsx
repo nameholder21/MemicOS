@@ -68,7 +68,7 @@ const ACTIVATIONS_TO_LOAD = 10;
  *                 description: The type of explanation to generate. Currently supported types are "oai_attention-head" and "oai_token-act-pair".
  *               explanationModelName:
  *                 type: string
- *                 description: The name of the model to use for generating the explanation. See full list of supported models in the auto-interpdropdown on a MemicOS dashboard: https://memicos.org/gpt2-small/8-res-jb/55
+ *                 description: "The name of the model to use for generating the explanation. See full list of supported models in the auto-interpdropdown on a MemicOS dashboard: https://memicos.org/gpt2-small/8-res-jb/55"
  *     responses:
  *       200:
  *         description: Successfully generated explanation

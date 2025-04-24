@@ -57,6 +57,8 @@ export const getAutoInterpModelTypeFromModelId = (modelId: string) => {
 };
 export const ERROR_NO_AUTOINTERP_KEY = 'No auto-interp key found for user.';
 export const ERROR_REQUIRES_OPENROUTER = 'This autointerp type requires an OpenRouter key.';
+export const ERROR_RECALL_ALT_FAILED =
+  'All scoring requests failed. Check that you have enough credits in your API key (Either OpenRouter or others), and that your key has not been revoked.';
 export function getKeyTypeForAutoInterpModelType(modelType: AutoInterpModelType) {
   if (modelType === AutoInterpModelType.OPENAI) {
     return UserSecretType.OPENAI;
