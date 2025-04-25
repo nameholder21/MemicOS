@@ -80,7 +80,7 @@ export default function CLTFeatureDetail() {
 
     return (
       <>
-        <div className="mb-2 border-b pb-2 text-sm font-bold text-slate-600">Token Predictions</div>
+        <div className="mb-1.5 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
         <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
           <div className="mr-2">Top:</div>
           {featureDetail?.top_logits.map((logit, idx) => (
@@ -97,10 +97,10 @@ export default function CLTFeatureDetail() {
             </span>
           ))}
         </div>
-        <div ref={activationContainerRef} className="flex max-h-[350px] w-full flex-col overflow-y-scroll">
+        <div ref={activationContainerRef} className="flex max-h-[320px] w-full flex-col overflow-y-scroll">
           {featureDetail?.examples_quantiles?.map((quantile, qIdx) => (
             <div key={qIdx} className="flex w-full flex-col gap-y-0.5">
-              <div className="mb-1.5 mt-4 border-b pb-2 text-sm font-bold text-slate-600">{quantile.quantile_name}</div>
+              <div className="mb-1.5 mt-3 border-b pb-1 text-sm font-bold text-slate-600">{quantile.quantile_name}</div>
               {quantile.examples.map((example, i) => (
                 <div key={i} className="flex w-full flex-col items-center">
                   <div className="activation-item-wrap max-w-full overflow-x-auto overscroll-x-none">

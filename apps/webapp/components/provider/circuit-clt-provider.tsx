@@ -11,7 +11,7 @@ import {
   makeCltFetchUrl,
   metadataScanToModelDisplayName,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
-import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 // Define the context type
 type CircuitCLTContextType = {
@@ -151,9 +151,9 @@ export function CircuitCLTProvider({
   };
 
   // Function to update a single field of visState
-  const updateVisStateField = <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => {
+  const updateVisStateField = useCallback(<K extends keyof CltVisState>(key: K, value: CltVisState[K]) => {
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
-  };
+  }, []);
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
@@ -206,7 +206,7 @@ export function CircuitCLTProvider({
       setLogitDiff,
       getFeatureDetail,
     }),
-    [metadata, selectedModelId, selectedMetadataGraph, selectedGraph, visState, logitDiff],
+    [metadata, selectedModelId, selectedMetadataGraph, selectedGraph, visState, logitDiff, updateVisStateField],
   );
 
   return <CircuitCLTContext.Provider value={contextValue}>{children}</CircuitCLTContext.Provider>;
