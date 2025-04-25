@@ -84,7 +84,7 @@ export default function CLTFeatureDetail() {
         <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
           <div className="mr-2">Top:</div>
           {featureDetail?.top_logits.map((logit, idx) => (
-            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-0.5 text-slate-700">
+            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
             </span>
           ))}
@@ -92,7 +92,7 @@ export default function CLTFeatureDetail() {
         <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
           <div className="mr-2">Bottom:</div>
           {featureDetail?.bottom_logits.map((logit, idx) => (
-            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-0.5 text-slate-700">
+            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
             </span>
           ))}
