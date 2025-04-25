@@ -21,7 +21,7 @@ function FeatureList({
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[355px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 text-slate-800">
+    <div className="flex max-h-[320px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 text-slate-800">
       <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
@@ -102,7 +102,7 @@ export default function CLTNodeConnections() {
   }, [visState.clickedId, selectedGraph]);
 
   return (
-    <div className="node-connections relative mt-3 min-h-[450px] flex-1">
+    <div className="node-connections relative mt-2 min-h-[350px] flex-1">
       <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2 px-1">
         <div className="text-sm font-bold text-slate-600">Node Connections</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>

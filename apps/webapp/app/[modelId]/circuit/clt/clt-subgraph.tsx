@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import CustomTooltip from '@/components/custom-tooltip';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
@@ -568,7 +566,10 @@ export default function CLTSubgraph() {
           showTooltip(ev, d.node);
         }
       })
-      .on('mouseleave', () => {
+      .on('mouseleave', (ev: MouseEvent) => {
+        if (ev.buttons === 1) {
+          return;
+        }
         updateVisStateField('hoveredId', null);
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
@@ -643,7 +644,7 @@ export default function CLTSubgraph() {
         },
       })
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
-        if (ev.button === 0) {
+        if (ev.buttons === 1) {
           return;
         }
         updateVisStateField('hoveredId', d.featureId || null);
@@ -651,7 +652,10 @@ export default function CLTSubgraph() {
         showTooltip(ev, d);
         ev.stopPropagation();
       })
-      .on('mouseleave', () => {
+      .on('mouseleave', (ev: MouseEvent) => {
+        if (ev.buttons === 1) {
+          return;
+        }
         updateVisStateField('hoveredId', null);
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
@@ -849,7 +853,7 @@ export default function CLTSubgraph() {
 
   return (
     <div className="relative mt-3 min-h-[440px] w-full">
-      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+      {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
@@ -861,7 +865,7 @@ export default function CLTSubgraph() {
             </ul>
           </div>
         </CustomTooltip>
-      </div>
+      </div> */}
       <div className="subgraph relative min-h-[400px] w-full">
         <svg className="absolute h-[400px] w-full" height={400} ref={svgRef} />
         <div className="absolute h-[400px] w-full" ref={divRef} />
