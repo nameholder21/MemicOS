@@ -25,7 +25,10 @@ type CircuitCLTContextType = {
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   metadataScanToModelDisplayName: Map<string, string>;
   modelToBaseUrl: Record<string, string>;
-  getFeatureDetail: (feature: number) => Promise<CLTFeature>;
+
+  // isLoadingGraphData
+  isLoadingGraphData: boolean;
+  setIsLoadingGraphData: (isLoading: boolean) => void;
 
   // visState
   visState: CltVisState;
@@ -45,9 +48,17 @@ export function getGraphUrl(graphSlug: string, baseUrl: string): string {
   return url;
 }
 
-export function getFeatureDetailUrl(model: string, feature: number, baseUrl: string): string {
-  const url = makeCltFetchUrl(baseUrl, `features/${model}/${feature}.json`);
-  return url;
+async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T>, batchSize: number): Promise<T[]> {
+  const results: T[] = [];
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batchItems = items.slice(i, i + batchSize);
+    const batchPromises = batchItems.map(fetchFn);
+    const batchResults = await Promise.all(batchPromises); // Or Promise.allSettled for better error handling
+    results.push(...batchResults);
+    // Optional: Add a small delay between batches if needed
+    // await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  return results;
 }
 
 // Provider component
@@ -72,6 +83,7 @@ export function CircuitCLTProvider({
     selectedModelId && initialMetadata[selectedModelId]?.length > 0 ? initialMetadata[selectedModelId][0] : null,
   );
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
+  const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
 
   // Initialize visState
   const [visState, setVisStateInternal] = useState<CltVisState>({
@@ -155,6 +167,16 @@ export function CircuitCLTProvider({
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
   }, []);
 
+  async function fetchFeatureDetail(modelId: string, feature: number, baseUrl: string): Promise<CLTFeature | null> {
+    const response = await fetch(makeCltFetchUrl(baseUrl, `features/${modelId}/${feature}.json`));
+    if (!response.ok) {
+      console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
+      return null;
+    }
+    const data = await response.json();
+    return data as CLTFeature;
+  }
+
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
     const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrl[selectedModelId]));
@@ -165,26 +187,32 @@ export function CircuitCLTProvider({
 
     const data = (await response.json()) as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
+
+    const batchSize = 20;
+    const featureDetails = await fetchInBatches(
+      formattedData.nodes,
+      (d) => fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrl[selectedModelId]),
+      batchSize,
+    );
+
+    formattedData.nodes.forEach((d, i) => {
+      // eslint-disable-next-line no-param-reassign
+      d.featureDetail = featureDetails[i] || undefined;
+    });
+
+    setIsLoadingGraphData(false);
     return formattedData;
   }
 
   // Fetch graph data when selected metadata graph changes
   useEffect(() => {
     if (selectedMetadataGraph) {
+      setIsLoadingGraphData(true);
       getGraph(selectedMetadataGraph.slug).then((g) => {
         setSelectedGraph(g);
       });
     }
   }, [selectedMetadataGraph]);
-
-  async function getFeatureDetail(feature: number): Promise<CLTFeature> {
-    const response = await fetch(getFeatureDetailUrl(selectedModelId, feature, modelToBaseUrl[selectedModelId]));
-    if (!response.ok) {
-      alert(`Failed to fetch feature detail for ${selectedModelId}/${feature}`);
-    }
-    const data = await response.json();
-    return data as CLTFeature;
-  }
 
   // Provide the context value
   const contextValue = useMemo(
@@ -204,9 +232,20 @@ export function CircuitCLTProvider({
       updateVisStateField,
       logitDiff,
       setLogitDiff,
-      getFeatureDetail,
+      isLoadingGraphData,
+      setIsLoadingGraphData,
     }),
-    [metadata, selectedModelId, selectedMetadataGraph, selectedGraph, visState, logitDiff, updateVisStateField],
+    [
+      metadata,
+      selectedModelId,
+      selectedMetadataGraph,
+      selectedGraph,
+      visState,
+      logitDiff,
+      updateVisStateField,
+      isLoadingGraphData,
+      setIsLoadingGraphData,
+    ],
   );
 
   return <CircuitCLTContext.Provider value={contextValue}>{children}</CircuitCLTContext.Provider>;

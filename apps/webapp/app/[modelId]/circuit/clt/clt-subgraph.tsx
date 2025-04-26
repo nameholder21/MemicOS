@@ -649,12 +649,14 @@ export default function CLTSubgraph() {
         if (ev.buttons === 1) {
           return;
         }
-        if (visState.subgraph?.activeGrouping.isActive) {
-          // grouping, don't hover
+        if (visState.subgraph?.activeGrouping.isActive || ev.metaKey || ev.ctrlKey) {
+          // grouping, don't activate behavior
           return;
         }
-        updateVisStateField('hoveredId', d.featureId || null);
-        updateVisStateField('hoveredCtxIdx', d.ctx_idx);
+        updateVisStateField('clickedId', d.nodeId || null);
+        updateVisStateField('clickedCtxIdx', d.ctx_idx);
+        // updateVisStateField('hoveredId', d.featureId || null);
+        // updateVisStateField('hoveredCtxIdx', d.ctx_idx);
         showTooltip(ev, d);
         ev.stopPropagation();
       })
@@ -662,8 +664,10 @@ export default function CLTSubgraph() {
         if (ev.buttons === 1) {
           return;
         }
-        updateVisStateField('hoveredId', null);
-        updateVisStateField('hoveredCtxIdx', null);
+        updateVisStateField('clickedId', null);
+        updateVisStateField('clickedCtxIdx', null);
+        // updateVisStateField('hoveredId', null);
+        // updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
       })
       .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
