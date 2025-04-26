@@ -410,7 +410,7 @@ export default function SearchTopkByTokenSimple({
                         ].topFeatures.map((f, i) => (
                           <div
                             key={i}
-                            className={`group relative flex w-full cursor-default flex-row items-center justify-center gap-x-3 rounded-xl bg-gBlue/5 py-0 pl-5 pr-5 text-gBlue transition-all hover:bg-gBlue/20 sm:py-2.5`}
+                            className="group relative flex w-full cursor-default flex-row items-center justify-center gap-x-3 rounded-xl bg-gBlue/5 py-0 pl-5 pr-5 text-gBlue transition-all hover:bg-gBlue/20 sm:py-2.5"
                           >
                             <div className="flex flex-1 flex-col">
                               <div className="w-full cursor-default py-2 text-[13px] transition-all group-hover:text-gBlue sm:text-[15px]">
