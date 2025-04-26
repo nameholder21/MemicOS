@@ -736,8 +736,10 @@ export default function CLTLinkGraph() {
           // Only update state if it needs to change
           if (currentHoveredFeatureId) {
             // console.log('Clearing hover state');
-            updateVisStateField('hoveredId', null);
-            updateVisStateField('hoveredCtxIdx', null);
+            updateVisStateField('clickedId', null);
+            updateVisStateField('clickedCtxIdx', null);
+            // updateVisStateField('hoveredId', null);
+            // updateVisStateField('hoveredCtxIdx', null);
             currentHoveredFeatureId = null;
           }
         } else if (currentHoveredFeatureId !== closestNode.featureId) {
@@ -746,8 +748,10 @@ export default function CLTLinkGraph() {
 
           // Hover behavior
           // console.log('Setting hover state:', currentHoveredFeatureId);
-          updateVisStateField('hoveredId', currentHoveredFeatureId);
-          updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
+          // updateVisStateField('hoveredId', currentHoveredFeatureId);
+          // updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
+          updateVisStateField('clickedId', closestNode.nodeId || null);
+          updateVisStateField('clickedCtxIdx', closestNode.ctx_idx);
           showTooltip(event, closestNode);
           // Visual feedback for hover - direct DOM update without requiring a state update
           hoverSel.style('display', (d) => (d.featureId === currentHoveredFeatureId ? '' : 'none'));
@@ -761,8 +765,10 @@ export default function CLTLinkGraph() {
 
         // Only update state if needed
         if (currentHoveredFeatureId) {
-          updateVisStateField('hoveredId', null);
-          updateVisStateField('hoveredCtxIdx', null);
+          // updateVisStateField('hoveredId', null);
+          // updateVisStateField('hoveredCtxIdx', null);
+          updateVisStateField('clickedId', null);
+          updateVisStateField('clickedCtxIdx', null);
           currentHoveredFeatureId = null;
         }
       })
@@ -812,8 +818,10 @@ export default function CLTLinkGraph() {
 
             // Clear hover state
             if (currentHoveredFeatureId) {
-              updateVisStateField('hoveredId', null);
-              updateVisStateField('hoveredCtxIdx', null);
+              // updateVisStateField('hoveredId', null);
+              // updateVisStateField('hoveredCtxIdx', null);
+              updateVisStateField('clickedId', null);
+              updateVisStateField('clickedCtxIdx', null);
               currentHoveredFeatureId = null;
             }
 

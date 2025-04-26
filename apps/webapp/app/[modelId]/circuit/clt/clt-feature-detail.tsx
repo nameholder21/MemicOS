@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CLTFeature } from './clt-utils';
 
 export default function CLTFeatureDetail() {
-  const { visState, selectedGraph, getFeatureDetail } = useCircuitCLT();
+  const { visState, selectedGraph } = useCircuitCLT();
   const [featureDetail, setFeatureDetail] = useState<CLTFeature | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
   const activationContainerRef = useRef<HTMLDivElement>(null);
@@ -18,12 +18,14 @@ export default function CLTFeatureDetail() {
           cNode.feature_type !== 'mlp reconstruction error' &&
           cNode.feature_type !== 'logit'
         ) {
-          getFeatureDetail(cNode.feature).then((detail) => {
-            setFeatureDetail(detail);
+          if (cNode.featureDetail) {
+            setFeatureDetail(cNode.featureDetail);
             setOverallMaxActivationValue(
-              Math.max(...detail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list)),
+              Math.max(...cNode.featureDetail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list)),
             );
-          });
+          } else {
+            setFeatureDetail(null);
+          }
         } else {
           setFeatureDetail(null);
         }
