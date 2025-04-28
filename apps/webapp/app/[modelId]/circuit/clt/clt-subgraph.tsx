@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import CustomTooltip from '@/components/custom-tooltip';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
@@ -14,9 +12,6 @@ const NODE_HEIGHT = 25;
 // Custom force container function to keep nodes within bounds
 function forceContainer(bbox: [[number, number], [number, number]]) {
   let nodes: any[];
-
-  // eslint-disable-next-line
-  const strength = 1;
 
   function force(alpha: number) {
     let i;
@@ -118,7 +113,7 @@ export default function CLTSubgraph() {
         });
       }
 
-      const subgraphEl = document.querySelector('.link-graph');
+      const subgraphEl = document.querySelector('.subgraph');
       if (subgraphEl) {
         subgraphEl.classList.add('is-grouping');
       }
@@ -131,6 +126,7 @@ export default function CLTSubgraph() {
       if (visState.subgraph.activeGrouping.selectedNodeIds.size > 1) {
         const allSelectedIds: string[] = [];
         let prevSupernodeLabel = '';
+        const supernodesToRemove: string[][] = [];
 
         visState.subgraph.activeGrouping.selectedNodeIds.forEach((id) => {
           const node = nodeIdToNode[id];
@@ -141,39 +137,43 @@ export default function CLTSubgraph() {
 
           prevSupernodeLabel = node.ppClerp || '';
 
-          // If a supernode is selected, remove the previous supernode
-          const newSupernodes =
-            visState.subgraph?.supernodes.filter(
-              // eslint-disable-next-line
-              ([_, ...nodeIds]) => !nodeIds.every((d) => node.memberNodeIds?.includes(d)),
-            ) || [];
+          // find the supernode to remove
+          // eslint-disable-next-line
+          const supernodeToRemove = visState.subgraph?.supernodes.find(([_, ...nodeIds]) =>
+            nodeIds.every((d) => node.memberNodeIds?.includes(d)),
+          );
+
+          if (supernodeToRemove) {
+            supernodesToRemove.push(supernodeToRemove);
+          }
 
           // Add its member nodes to selection
           node.memberNodeIds.forEach((memberId) => allSelectedIds.push(memberId));
-
-          if (visState.subgraph) {
-            updateVisStateField('subgraph', {
-              ...visState.subgraph,
-              supernodes: newSupernodes,
-            });
-          }
         });
 
         // Find a label for the new supernode
         const label =
           prevSupernodeLabel || allSelectedIds.map((id) => nodeIdToNode[id]?.ppClerp).find((d) => d) || 'supernode';
 
+        // remove the supernodes to remove
+        let newSupernodes = visState.subgraph?.supernodes.filter(
+          // eslint-disable-next-line
+          ([_, ...nodeIds]) => !supernodesToRemove.some((d) => nodeIds.every((e) => d.includes(e))),
+        );
+
         if (visState.subgraph) {
-          const newSupernodes = [...(visState.subgraph.supernodes || []), [label, ...new Set(allSelectedIds)]];
+          newSupernodes = [...(newSupernodes || []), [label, ...new Set(allSelectedIds)]];
           updateVisStateField('subgraph', {
             ...visState.subgraph,
             supernodes: newSupernodes,
+            activeGrouping: {
+              isActive: false,
+              selectedNodeIds: new Set(),
+            },
           });
         }
-      }
-
-      // Reset grouping state
-      if (visState.subgraph) {
+      } else {
+        // reset grouping state
         updateVisStateField('subgraph', {
           ...visState.subgraph,
           activeGrouping: {
@@ -183,7 +183,7 @@ export default function CLTSubgraph() {
         });
       }
 
-      const subgraphEl = document.querySelector('.link-graph');
+      const subgraphEl = document.querySelector('.subgraph');
       if (subgraphEl) {
         subgraphEl.classList.remove('is-grouping');
       }
@@ -467,11 +467,11 @@ export default function CLTSubgraph() {
     const svgPaths = svg
       .appendMany('path.link-path', sgLinks)
       .attr('fill', 'none')
-      .attr('markerMid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
-      .attr('strokeWidth', (d) => Math.abs(d.weight) * 15)
+      .attr('marker-mid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
+      .attr('stroke-width', (d) => Math.abs(d.weight) * 15)
       .attr('stroke', (d) => d.color)
       .attr('opacity', 0.8)
-      .attr('strokeLinecap', 'round');
+      .attr('stroke-linecap', 'round');
 
     // Add weight labels for links
     const edgeLabels = svg.appendMany('text.weight-label', sgLinks);
@@ -558,13 +558,20 @@ export default function CLTSubgraph() {
       .style('width', `${NODE_WIDTH}px`)
       .style('height', `${NODE_HEIGHT}px`)
       .on('mouseover', (ev: MouseEvent, d: ForceNode) => {
+        // check if it's a click. if so, don't run the rest of the code (or it will rerender and not run the click)
+        if (ev.button === 0) {
+          return;
+        }
         if (!ev.shiftKey) {
           updateVisStateField('hoveredId', d.node.featureId || null);
           updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
           showTooltip(ev, d.node);
         }
       })
-      .on('mouseleave', () => {
+      .on('mouseleave', (ev: MouseEvent) => {
+        if (ev.buttons === 1) {
+          return;
+        }
         updateVisStateField('hoveredId', null);
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
@@ -639,27 +646,64 @@ export default function CLTSubgraph() {
         },
       })
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
-        updateVisStateField('hoveredId', d.featureId || null);
-        updateVisStateField('hoveredCtxIdx', d.ctx_idx);
+        if (ev.buttons === 1) {
+          return;
+        }
+        if (visState.subgraph?.activeGrouping.isActive || ev.metaKey || ev.ctrlKey) {
+          // grouping, don't activate behavior
+          return;
+        }
+        updateVisStateField('clickedId', d.nodeId || null);
+        updateVisStateField('clickedCtxIdx', d.ctx_idx);
+        // updateVisStateField('hoveredId', d.featureId || null);
+        // updateVisStateField('hoveredCtxIdx', d.ctx_idx);
         showTooltip(ev, d);
         ev.stopPropagation();
       })
-      .on('mouseleave', () => {
-        updateVisStateField('hoveredId', null);
-        updateVisStateField('hoveredCtxIdx', null);
+      .on('mouseleave', (ev: MouseEvent) => {
+        if (ev.buttons === 1) {
+          return;
+        }
+        updateVisStateField('clickedId', null);
+        updateVisStateField('clickedCtxIdx', null);
+        // updateVisStateField('hoveredId', null);
+        // updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
       })
-      .on('click', (ev: MouseEvent) => {
+      .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
         if (!visState.subgraph?.activeGrouping.isActive) {
           ev.stopPropagation();
+        } else {
+          // grouping, don't select
+          return;
+        }
+        // Regular click behavior
+        if (ev.metaKey || ev.ctrlKey) {
+          // Toggle pinned state
+          const newPinnedIds = [...visState.pinnedIds];
+          const pinnedIndex = newPinnedIds.indexOf(d.nodeId || '');
+
+          if (pinnedIndex === -1 && d.nodeId) {
+            newPinnedIds.push(d.nodeId);
+          } else if (pinnedIndex !== -1) {
+            newPinnedIds.splice(pinnedIndex, 1);
+          }
+
+          updateVisStateField('pinnedIds', newPinnedIds);
+        } else {
+          // Set as clicked node
+          const newClickedId = visState.clickedId === d.nodeId ? null : d.nodeId;
+          updateVisStateField('clickedId', newClickedId || null);
+          updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
         }
       })
       .attr('title', (d: CLTGraphNode) => d.ppClerp || '');
 
     // Add ungroup button for supernodes in edit mode
     if (visState.isEditMode) {
-      memberNodeSel
-        .filter((d) => d.isSuperNode || false)
+      nodeSel
+        .select('.member-circles')
+        .filter((d) => d.node.isSuperNode || false)
         .append('div.ungroup-btn')
         .text('×')
         .style('top', '2px')
@@ -667,14 +711,13 @@ export default function CLTSubgraph() {
         .style('position', 'absolute')
         .style('cursor', 'pointer')
         .style('fontWeight', 'bold')
-        .style('color', '#f00')
-        .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
+        .on('click', (ev: MouseEvent, d: ForceNode) => {
           ev.stopPropagation();
 
-          if (visState.subgraph && d.memberNodeIds) {
+          if (visState.subgraph && d.node.memberNodeIds) {
             const newSupernodes = visState.subgraph.supernodes.filter(
               // eslint-disable-next-line
-              ([_, ...nodeIds]) => !nodeIds.every((id) => d.memberNodeIds?.includes(id)),
+              ([_, ...nodeIds]) => !nodeIds.every((id) => d.node.memberNodeIds?.includes(id)),
             );
 
             updateVisStateField('subgraph', {
@@ -707,13 +750,7 @@ export default function CLTSubgraph() {
     }
 
     // Add text labels
-    const nodeTextSel = nodeSel
-      .append('div.node-text-container')
-      .style('padding', '4px')
-      .style('overflow', 'hidden')
-      .style('textOverflow', 'ellipsis')
-      .style('whiteSpace', 'nowrap')
-      .style('fontSize', '12px');
+    const nodeTextSel = nodeSel.append('div.node-text-container');
 
     nodeTextSel.append('span').text((d) => d.node.ppClerp || '');
 
@@ -782,7 +819,7 @@ export default function CLTSubgraph() {
       memberNodeSel
         .classed('clicked', (d: CLTGraphNode) => d.nodeId === visState.clickedId)
         .classed('hovered', (d: CLTGraphNode) => d.featureId === visState.hoveredId)
-        .style('background', (d: CLTGraphNode) => d.tmpClickedLink?.pctInputColor || '#ccc')
+        .style('background', (d: CLTGraphNode) => d.tmpClickedLink?.pctInputColor || '#fff')
         .style('color', (d: CLTGraphNode) => bgColorToTextColor(d.tmpClickedLink?.pctInputColor) || 'black');
 
       // Style clicked links using supernode adjusted graph
@@ -822,8 +859,8 @@ export default function CLTSubgraph() {
   }, [screenSize, selectedGraph, visState, updateVisStateField, pctInputColorFn, bgColorToTextColor]);
 
   return (
-    <div className="relative mt-3 min-h-[490px] w-full">
-      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+    <div className="relative mt-3 min-h-[440px] w-full">
+      {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
@@ -835,7 +872,7 @@ export default function CLTSubgraph() {
             </ul>
           </div>
         </CustomTooltip>
-      </div>
+      </div> */}
       <div className="subgraph relative min-h-[400px] w-full">
         <svg className="absolute h-[400px] w-full" height={400} ref={svgRef} />
         <div className="absolute h-[400px] w-full" ref={divRef} />

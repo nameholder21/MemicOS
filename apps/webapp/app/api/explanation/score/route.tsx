@@ -2,7 +2,11 @@ import { prisma } from '@/lib/db';
 import { getAutoInterpKeyToUse } from '@/lib/db/userSecret';
 import { generateScoreEleuther } from '@/lib/external/autointerp-scorer-eleuther';
 import { generateScoreRecallAlt } from '@/lib/external/autointerp-scorer-recall-json';
-import { ERROR_REQUIRES_OPENROUTER, requiresOpenRouterForExplanationScoreType } from '@/lib/utils/autointerp';
+import {
+  ERROR_RECALL_ALT_FAILED,
+  ERROR_REQUIRES_OPENROUTER,
+  requiresOpenRouterForExplanationScoreType,
+} from '@/lib/utils/autointerp';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { UserSecretType } from '@prisma/client';
 import { NextResponse } from 'next/server';
@@ -196,18 +200,25 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     activations = activations.filter((activation) => activation.maxValue > 0);
 
     if (explanationScoreType.name === 'recall_alt') {
-      const score = await generateScoreRecallAlt(
-        activations,
-        zeroActivations,
-        explanation,
-        explanationScoreModel,
-        explanationScoreModelOpenRouterId,
-        request.user,
-        scorerKeyType,
-        scorerKey,
-      );
+      try {
+        const score = await generateScoreRecallAlt(
+          activations,
+          zeroActivations,
+          explanation,
+          explanationScoreModel,
+          explanationScoreModelOpenRouterId,
+          request.user,
+          scorerKeyType,
+          scorerKey,
+        );
 
-      return NextResponse.json({ score });
+        return NextResponse.json({ score });
+      } catch (error) {
+        if (error instanceof Error && error.message === ERROR_RECALL_ALT_FAILED) {
+          return NextResponse.json({ message: ERROR_RECALL_ALT_FAILED }, { status: 400 });
+        }
+        throw error;
+      }
     }
     if (explanationScoreType.name === 'eleuther_fuzz') {
       const score = await generateScoreEleuther(

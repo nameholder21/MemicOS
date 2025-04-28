@@ -1,6 +1,8 @@
 'use client';
 
+import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { Card, CardContent } from '@/components/shadcn/card';
+import { LoadingSquare } from '@/components/svg/loading-square';
 import CLTFeatureDetail from './clt-feature-detail';
 import CLTLinkGraph from './clt-link-graph';
 import CLTNodeConnections from './clt-node-connections';
@@ -8,6 +10,7 @@ import CLTSubgraph from './clt-subgraph';
 import CLTModelPromptSelector from './model-prompt-selector';
 
 export default function CLTWrapper() {
+  const { isLoadingGraphData } = useCircuitCLT();
   return (
     <div className="mt-8 flex w-full max-w-screen-xl flex-col px-2 text-slate-700">
       <div className="mb-1 w-full text-center text-base font-medium text-slate-500 text-slate-600">
@@ -20,18 +23,26 @@ export default function CLTWrapper() {
 
       <Card className="mb-10 mt-5 w-full bg-white">
         <CardContent className="py-6 pt-3">
-          <div className="flex w-full flex-row gap-x-2 pl-2">
-            <CLTLinkGraph />
-            <CLTNodeConnections />
-          </div>
-          <div className="flex w-full flex-row gap-x-2 pl-2">
-            <div className="min-h-[490px] w-[53%] min-w-[53%] max-w-[53%]">
-              <CLTSubgraph />
+          {isLoadingGraphData ? (
+            <div className="flex h-full min-h-[800px] w-full items-center justify-center">
+              <LoadingSquare className="h-6 w-6" />
             </div>
-            <div className="w-[45%] min-w-[45%] overflow-hidden">
-              <CLTFeatureDetail />
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex w-full flex-row gap-x-2 pl-2">
+                <CLTLinkGraph />
+                <CLTNodeConnections />
+              </div>
+              <div className="flex w-full flex-row gap-x-2 pl-2">
+                <div className="min-h-[440px] w-[53%] min-w-[53%] max-w-[53%]">
+                  <CLTSubgraph />
+                </div>
+                <div className="w-[45%] min-w-[45%] overflow-hidden">
+                  <CLTFeatureDetail />
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

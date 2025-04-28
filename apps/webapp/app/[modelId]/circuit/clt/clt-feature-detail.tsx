@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CLTFeature } from './clt-utils';
 
 export default function CLTFeatureDetail() {
-  const { visState, selectedGraph, getFeatureDetail } = useCircuitCLT();
+  const { visState, selectedGraph } = useCircuitCLT();
   const [featureDetail, setFeatureDetail] = useState<CLTFeature | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
   const activationContainerRef = useRef<HTMLDivElement>(null);
@@ -18,12 +18,14 @@ export default function CLTFeatureDetail() {
           cNode.feature_type !== 'mlp reconstruction error' &&
           cNode.feature_type !== 'logit'
         ) {
-          getFeatureDetail(cNode.feature).then((detail) => {
-            setFeatureDetail(detail);
+          if (cNode.featureDetail) {
+            setFeatureDetail(cNode.featureDetail);
             setOverallMaxActivationValue(
-              Math.max(...detail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list)),
+              Math.max(...cNode.featureDetail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list)),
             );
-          });
+          } else {
+            setFeatureDetail(null);
+          }
         } else {
           setFeatureDetail(null);
         }
@@ -80,11 +82,11 @@ export default function CLTFeatureDetail() {
 
     return (
       <>
-        <div className="mb-2 border-b pb-2 text-sm font-bold text-slate-600">Token Predictions</div>
+        <div className="mb-1.5 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
         <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
           <div className="mr-2">Top:</div>
           {featureDetail?.top_logits.map((logit, idx) => (
-            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-0.5 text-slate-700">
+            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
             </span>
           ))}
@@ -92,15 +94,15 @@ export default function CLTFeatureDetail() {
         <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
           <div className="mr-2">Bottom:</div>
           {featureDetail?.bottom_logits.map((logit, idx) => (
-            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-0.5 text-slate-700">
+            <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
             </span>
           ))}
         </div>
-        <div ref={activationContainerRef} className="flex max-h-[400px] w-full flex-col overflow-y-scroll">
+        <div ref={activationContainerRef} className="flex max-h-[320px] w-full flex-col overflow-y-scroll">
           {featureDetail?.examples_quantiles?.map((quantile, qIdx) => (
             <div key={qIdx} className="flex w-full flex-col gap-y-0.5">
-              <div className="mb-1.5 mt-4 border-b pb-2 text-sm font-bold text-slate-600">{quantile.quantile_name}</div>
+              <div className="mb-1.5 mt-3 border-b pb-1 text-sm font-bold text-slate-600">{quantile.quantile_name}</div>
               {quantile.examples.map((example, i) => (
                 <div key={i} className="flex w-full flex-col items-center">
                   <div className="activation-item-wrap max-w-full overflow-x-auto overscroll-x-none">
@@ -127,5 +129,5 @@ export default function CLTFeatureDetail() {
     );
   }, [featureDetail, overallMaxActivationValue]);
 
-  return <div className="flex min-h-[490px] w-full flex-1 flex-col gap-y-1">{memoizedFeatureDetail}</div>;
+  return <div className="flex min-h-[400px] w-full flex-1 flex-col gap-y-1">{memoizedFeatureDetail}</div>;
 }
