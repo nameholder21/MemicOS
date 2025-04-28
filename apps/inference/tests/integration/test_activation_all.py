@@ -46,7 +46,7 @@ def test_activation_all(client):  # noqa: ARG001
     duplicate_indices = [index for index, count in index_counts.items() if count > 1]
     assert len(duplicate_indices) == 0, f"Found duplicate indices: {duplicate_indices}"
 
-    # Check expected tokens sequence (specific content validation)
+    # Check expected tokens sequence 
     assert (
         response_model.tokens[0] == BOS_TOKEN_STR
     ), f"First token is not '{BOS_TOKEN_STR}'"
