@@ -10,7 +10,7 @@ from memicos_inference_client.models.activation_all_post_request import (
 from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT
 
 
-def test_activation_all(client):  # noqa: ARG001
+def test_activation_all(client: None):  # noqa: ARG001
     """
     Test basic functionality of the /activation/all endpoint with a simple request.
     """
