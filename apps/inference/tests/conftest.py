@@ -64,5 +64,5 @@ def initialize_models():
 
 
 @pytest.fixture(scope="session")
-def client(initialize_models):  # noqa: ARG001
+def client(initialize_models: None):  # noqa: ARG001
     return TestClient(app)
