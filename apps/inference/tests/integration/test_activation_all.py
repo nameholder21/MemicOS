@@ -1,14 +1,12 @@
-from fastapi.testclient import TestClient
+from memicos_inference_client.models.activation_all_post200_response import (
+    ActivationAllPost200Response,
+)
 from memicos_inference_client.models.activation_all_post_request import (
     ActivationAllPostRequest,
 )
 
-from memicos_inference.server import app
 
-client = TestClient(app)
-
-
-def test_activation_all(initialize_models: None):  # noqa: ARG001
+def test_activation_all(client, initialize_models):  # noqa: ARG001
     """
     Test basic functionality of the /activation/all endpoint with a simple request.
     """
@@ -31,13 +29,9 @@ def test_activation_all(initialize_models: None):  # noqa: ARG001
     data = response.json()
     assert "activations" in data
     assert "tokens" in data
+    assert isinstance(data["tokens"], list)
+    assert isinstance(data["activations"], list)
     assert len(data["tokens"]) > 0
     assert len(data["activations"]) > 0
 
-    # Check activation structure
-    activation = data["activations"][0]
-    assert "source" in activation
-    assert "index" in activation
-    assert "values" in activation
-    assert "max_value" in activation
-    assert "max_value_index" in activation
+    ActivationAllPost200Response(**data)

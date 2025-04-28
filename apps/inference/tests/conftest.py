@@ -5,12 +5,13 @@ import os
 
 import pytest
 import torch
+from fastapi.testclient import TestClient
 
 import memicos_inference.server as server
 from memicos_inference.args import parse_env_and_args
 from memicos_inference.config import Config
 from memicos_inference.sae_manager import SAEManager
-from memicos_inference.server import initialize
+from memicos_inference.server import app, initialize
 from memicos_inference.shared import Model
 
 
@@ -56,3 +57,8 @@ def initialize_models():
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     gc.collect()
+
+
+@pytest.fixture(scope="session")
+def client(initialize_models):  # noqa: ARG001
+    return TestClient(app)
