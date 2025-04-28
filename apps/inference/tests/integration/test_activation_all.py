@@ -1,5 +1,6 @@
 from collections import Counter
 
+from fastapi.testclient import TestClient
 from memicos_inference_client.models.activation_all_post200_response import (
     ActivationAllPost200Response,
 )
@@ -10,7 +11,7 @@ from memicos_inference_client.models.activation_all_post_request import (
 from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT
 
 
-def test_activation_all(client: None):  # noqa: ARG001
+def test_activation_all(client: TestClient):
     """
     Test basic functionality of the /activation/all endpoint with a simple request.
     """
