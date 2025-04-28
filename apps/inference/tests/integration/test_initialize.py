@@ -2,6 +2,7 @@ import torch
 
 from memicos_inference.sae_manager import SAEManager
 from memicos_inference.shared import Model
+from tests.conftest import TEST_PROMPT
 
 
 def test_initialize(initialize_models: None):  # noqa: ARG001
@@ -20,8 +21,7 @@ def test_initialize(initialize_models: None):  # noqa: ARG001
     assert sae is not None
 
     # Test a simple forward pass
-    input_text = "Hello, world!"
-    tokens = model.to_tokens(input_text)
+    tokens = model.to_tokens(TEST_PROMPT)
     with torch.no_grad():
         logits = model(tokens)
     assert logits is not None

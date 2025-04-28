@@ -14,10 +14,14 @@ from memicos_inference.sae_manager import SAEManager
 from memicos_inference.server import app, initialize
 from memicos_inference.shared import Model
 
+BOS_TOKEN_STR = "<|endoftext|>"
+TEST_PROMPT = "Hello, world!"
+
 
 @pytest.fixture(scope="session")
 def initialize_models():
-    """Session-scoped fixture that initializes the model and SAEs.
+    """
+    Defining the global state of the app with a session-scoped fixture that initializes the model and SAEs.
 
     This fixture will be run once per test session and will be available to all tests
     that need an initialized model. It uses the same initialization logic as the
