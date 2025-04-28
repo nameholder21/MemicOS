@@ -116,7 +116,7 @@ export default function SearchTopkByToken({
       body: JSON.stringify({
         modelId: modelIdToUse,
         text: textToUse,
-        layer: sourceToUse,
+        source: sourceToUse,
         ignoreBos,
         densityThreshold,
       }),
@@ -636,9 +636,14 @@ export default function SearchTopkByToken({
                   : topkResult.results[
                       lockedTokenPosition > -1 ? lockedTokenPosition : hoveredTokenPosition
                     ].topFeatures.map((f, i) => (
-                      <div
+                      <button
                         key={i}
-                        className="group relative flex w-full cursor-default flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-800 transition-all hover:bg-sky-700/20 sm:py-2.5"
+                        type="button"
+                        onClick={() => {
+                          setFeatureModalFeature(f.feature as NeuronWithPartialRelations);
+                          setFeatureModalOpen(true);
+                        }}
+                        className="group relative flex w-full flex-row items-center justify-center gap-x-3 rounded-xl bg-sky-700/5 py-0 pl-5 pr-5 text-sky-800 transition-all hover:bg-sky-700/20 sm:py-2.5"
                       >
                         <div className="flex flex-1 flex-col items-start justify-start py-1">
                           <div className="w-full text-left text-[13px] font-semibold transition-all group-hover:text-sky-700 sm:text-[13px]">
@@ -655,7 +660,7 @@ export default function SearchTopkByToken({
                           {f.activationValue.toFixed(2)}
                           <div className="font-sans text-[8px] text-slate-400">MAX ACT</div>
                         </div>
-                      </div>
+                      </button>
                     ))}
               </div>
             </div>

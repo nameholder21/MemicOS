@@ -1,9 +1,7 @@
 /* eslint-disable no-param-reassign */
 
-import CustomTooltip from '@/components/custom-tooltip';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { useCallback, useEffect, useRef } from 'react';
 import {
   CLTGraph,
@@ -17,7 +15,7 @@ import {
 } from './clt-utils';
 import d3 from './d3-jetpack';
 
-const HEIGHT = 380;
+const HEIGHT = 360;
 
 // Extended type for custom CLTGraph properties
 interface CLTGraphExtended extends CLTGraph {
@@ -738,8 +736,10 @@ export default function CLTLinkGraph() {
           // Only update state if it needs to change
           if (currentHoveredFeatureId) {
             // console.log('Clearing hover state');
-            updateVisStateField('hoveredId', null);
-            updateVisStateField('hoveredCtxIdx', null);
+            updateVisStateField('clickedId', null);
+            updateVisStateField('clickedCtxIdx', null);
+            // updateVisStateField('hoveredId', null);
+            // updateVisStateField('hoveredCtxIdx', null);
             currentHoveredFeatureId = null;
           }
         } else if (currentHoveredFeatureId !== closestNode.featureId) {
@@ -748,8 +748,10 @@ export default function CLTLinkGraph() {
 
           // Hover behavior
           // console.log('Setting hover state:', currentHoveredFeatureId);
-          updateVisStateField('hoveredId', currentHoveredFeatureId);
-          updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
+          // updateVisStateField('hoveredId', currentHoveredFeatureId);
+          // updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
+          updateVisStateField('clickedId', closestNode.nodeId || null);
+          updateVisStateField('clickedCtxIdx', closestNode.ctx_idx);
           showTooltip(event, closestNode);
           // Visual feedback for hover - direct DOM update without requiring a state update
           hoverSel.style('display', (d) => (d.featureId === currentHoveredFeatureId ? '' : 'none'));
@@ -763,8 +765,10 @@ export default function CLTLinkGraph() {
 
         // Only update state if needed
         if (currentHoveredFeatureId) {
-          updateVisStateField('hoveredId', null);
-          updateVisStateField('hoveredCtxIdx', null);
+          // updateVisStateField('hoveredId', null);
+          // updateVisStateField('hoveredCtxIdx', null);
+          updateVisStateField('clickedId', null);
+          updateVisStateField('clickedCtxIdx', null);
           currentHoveredFeatureId = null;
         }
       })
@@ -814,8 +818,10 @@ export default function CLTLinkGraph() {
 
             // Clear hover state
             if (currentHoveredFeatureId) {
-              updateVisStateField('hoveredId', null);
-              updateVisStateField('hoveredCtxIdx', null);
+              // updateVisStateField('hoveredId', null);
+              // updateVisStateField('hoveredCtxIdx', null);
+              updateVisStateField('clickedId', null);
+              updateVisStateField('clickedCtxIdx', null);
               currentHoveredFeatureId = null;
             }
 
@@ -900,15 +906,15 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[475px] w-[66%] min-w-[66%] max-w-[66%]">
-      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+    <div className="link-graph relative mt-3 min-h-[425px] w-[66%] min-w-[66%] max-w-[66%] pt-5">
+      {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
             TODO: https://transformer-circuits.pub/2025/attribution-graphs/methods.html
           </div>
         </CustomTooltip>
-      </div>
+      </div> */}
       <div className="tooltip tooltip-hidden" />
       <svg className="absolute z-0 w-full" height={HEIGHT} ref={bottomRef} />
       <svg className="absolute z-0 w-full" height={HEIGHT} ref={middleRef} />

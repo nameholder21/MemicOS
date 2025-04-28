@@ -28,8 +28,8 @@ sae-lens = "^5.8.1"
 fastapi = "^0.115.6"
 uvicorn = "^0.34.0"
 sentry-sdk = {extras = ["fastapi"], version = "^2.20.0"}
-memicos-inference-client = {path = "../../packages/python/memicos-inference-client"}
 nnsight = "^0.4.3"
+memicos-inference-client = {path = "../../packages/python/memicos-inference-client"}
 
 [tool.poetry.group.dev.dependencies]
 # line-profiler = "^4.1.3"
@@ -37,6 +37,7 @@ pytest = "^8.3.1"
 coverage = "^7.6.0"
 ruff = "^0.7.4"
 pyright = "^1.1.351"
+pytest-cov = "^6.0.0"
 
 [tool.ruff.lint]
 exclude = ["*.ipynb"]

@@ -125,6 +125,9 @@ export type CLTGraphNode = {
   jsNodeId: string;
   clerp: string;
 
+  // feature details
+  featureDetail?: CLTFeature;
+
   // following ones are added after formatData
   active_feature_idx?: number;
   ctx_from_end?: number;
