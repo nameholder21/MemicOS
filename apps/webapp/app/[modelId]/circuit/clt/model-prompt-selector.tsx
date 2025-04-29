@@ -54,7 +54,7 @@ export default function CLTModelPromptSelector() {
               position="popper"
               align="center"
               sideOffset={3}
-              className="z-20 max-h-[400px] overflow-hidden rounded-md border bg-white shadow-lg"
+              className="z-[99999] max-h-[400px] overflow-hidden rounded-md border bg-white shadow-lg"
             >
               <Select.ScrollUpButton className="flex h-7 cursor-pointer items-center justify-center bg-white text-slate-700 hover:bg-slate-100">
                 <ChevronUpIcon className="w-5 text-slate-500" />
@@ -121,7 +121,7 @@ export default function CLTModelPromptSelector() {
               position="popper"
               align="start"
               sideOffset={3}
-              className="z-20 max-h-[640px] w-full max-w-[800px] overflow-hidden rounded-md border bg-white shadow-lg"
+              className="z-[99999] max-h-[640px] w-full max-w-[800px] overflow-hidden rounded-md border bg-white shadow-lg"
             >
               <Select.ScrollUpButton className="flex h-7 cursor-pointer items-center justify-center bg-white text-slate-700 hover:bg-slate-100">
                 <ChevronUpIcon className="w-5 text-slate-500" />

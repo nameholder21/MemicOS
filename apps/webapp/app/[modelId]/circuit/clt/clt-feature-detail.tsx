@@ -66,16 +66,16 @@ export default function CLTFeatureDetail() {
           <div>{node.ppClerp}</div>
         </div>
         <div className="mb-1.5 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
-        <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
-          <div className="mr-2">Top:</div>
+        <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+          <div className="sticky left-0 mr-1 flex h-5 items-center justify-center bg-white">Top:</div>
           {node.featureDetail?.top_logits.map((logit, idx) => (
             <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
             </span>
           ))}
         </div>
-        <div className="flex w-full flex-wrap items-center justify-start gap-x-1 gap-y-0.5 font-mono text-[10px] text-slate-400">
-          <div className="mr-2">Bottom:</div>
+        <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+          <div className="sticky left-0 mr-1 flex h-5 items-center justify-center bg-white">Bottom:</div>
           {node?.featureDetail?.bottom_logits.map((logit, idx) => (
             <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
               {logit}
