@@ -14,7 +14,7 @@ export default function CLTFeatureDetail() {
     //   const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId);
 
     if (visState.hoveredId) {
-      const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.hoveredId);
+      const cNode = selectedGraph?.nodes.find((e) => e.featureId === visState.hoveredId);
       if (cNode && cNode.feature) {
         if (
           cNode.feature_type !== 'embedding' &&

@@ -31,11 +31,11 @@ function FeatureList({
             type="button"
             key={node.nodeId}
             className={`flex cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
-              node.nodeId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
+              node.featureId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
             } ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'text-white' : ''}`}
             style={{ backgroundColor: node[linkProp]?.tmpColor }}
             onMouseEnter={() => {
-              updateVisStateField('hoveredId', node.nodeId);
+              updateVisStateField('hoveredId', node.featureId);
             }}
             onMouseLeave={() => {
               updateVisStateField('hoveredId', null);
@@ -114,7 +114,9 @@ export default function CLTNodeConnections() {
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
           <div className="flex flex-row items-center gap-x-2 px-1 text-sm font-medium text-slate-600">
-            <div className="">F#{clickedNode?.feature}</div>
+            <div className="">
+              F#{clickedNode?.feature} {clickedNode?.nodeId}
+            </div>
             <Circle className="h-3.5 w-3.5 text-[#f0f]" />
             <div>{clickedNode?.ppClerp}</div>
           </div>

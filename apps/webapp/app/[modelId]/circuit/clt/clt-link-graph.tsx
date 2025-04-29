@@ -748,7 +748,7 @@ export default function CLTLinkGraph() {
 
           // Hover behavior
           // console.log('Setting hover state:', currentHoveredFeatureId);
-          updateVisStateField('hoveredId', closestNode.nodeId || null);
+          updateVisStateField('hoveredId', closestNode.featureId || null);
           updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
           // updateVisStateField('clickedId', closestNode.nodeId || null);
           // updateVisStateField('clickedCtxIdx', closestNode.ctx_idx);
@@ -818,10 +818,10 @@ export default function CLTLinkGraph() {
 
             // Clear hover state
             if (currentHoveredFeatureId) {
-              // updateVisStateField('hoveredId', null);
-              // updateVisStateField('hoveredCtxIdx', null);
-              updateVisStateField('clickedId', null);
-              updateVisStateField('clickedCtxIdx', null);
+              updateVisStateField('hoveredId', null);
+              updateVisStateField('hoveredCtxIdx', null);
+              // updateVisStateField('clickedId', null);
+              // updateVisStateField('clickedCtxIdx', null);
               currentHoveredFeatureId = null;
             }
 

@@ -655,7 +655,7 @@ export default function CLTSubgraph() {
         }
         // updateVisStateField('clickedId', d.nodeId || null);
         // updateVisStateField('clickedCtxIdx', d.ctx_idx);
-        updateVisStateField('hoveredId', d.nodeId || null);
+        updateVisStateField('hoveredId', d.featureId || null);
         updateVisStateField('hoveredCtxIdx', d.ctx_idx);
         showTooltip(ev, d);
         ev.stopPropagation();
