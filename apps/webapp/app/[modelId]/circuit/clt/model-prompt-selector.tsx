@@ -24,7 +24,13 @@ export default function CLTModelPromptSelector() {
             setSelectedModelId(newVal);
           }}
         >
-          <Select.Trigger className="inline-flex h-12 w-52 max-w-52 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none">
+          <Select.Trigger
+            onKeyDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="inline-flex h-12 w-52 max-w-52 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none"
+          >
             <Select.Value>
               {metadataScanToModelDisplayName.get(selectedModelId) ? (
                 <div className="flex flex-col items-center justify-start gap-y-0.5">
@@ -83,7 +89,13 @@ export default function CLTModelPromptSelector() {
             }
           }}
         >
-          <Select.Trigger className="relative inline-flex h-12 w-full flex-1 items-center justify-between gap-1 overflow-hidden whitespace-pre rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none">
+          <Select.Trigger
+            onKeyDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="relative inline-flex h-12 w-full flex-1 items-center justify-between gap-1 overflow-hidden whitespace-pre rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none"
+          >
             <Select.Value>
               {selectedMetadataGraph ? (
                 <div className="flex flex-col items-start justify-start gap-y-0.5">
