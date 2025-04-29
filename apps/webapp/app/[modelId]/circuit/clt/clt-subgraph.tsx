@@ -859,7 +859,7 @@ export default function CLTSubgraph() {
   }, [screenSize, selectedGraph, visState, updateVisStateField, pctInputColorFn, bgColorToTextColor]);
 
   return (
-    <div className="relative mt-3 min-h-[440px] w-full">
+    <div className="relative mt-3 w-full">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
