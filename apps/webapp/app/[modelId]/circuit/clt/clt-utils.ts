@@ -20,14 +20,15 @@ export type ModelToCLTMetadataGraphsMap = {
   [scanId: string]: CLTMetadataGraph[];
 };
 
-export function makeCltFetchUrl(baseUrl: string, path: string): string {
-  if (CLT_BASE_URLS_REQUIRE_PROXY.some((baseURL) => baseUrl.includes(baseURL))) {
+export function makeCltFetchUrl(baseUrl: string, path: string, useProxy: boolean = true): string {
+  if (useProxy && CLT_BASE_URLS_REQUIRE_PROXY.some((baseURL) => baseUrl.includes(baseURL))) {
     // encode the url in base64 as url param for the proxy route
     return `${NEXT_PUBLIC_URL}/api/proxy-s3?url=${Buffer.from(`${baseUrl}/${path}`).toString('base64')}`;
   }
   return `${baseUrl}/${path}`;
 }
 
+// no proxy needed since this is server to server
 export async function getCLTMetadata(baseUrl: string): Promise<ModelToCLTMetadataGraphsMap> {
   const fetchUrl = makeCltFetchUrl(baseUrl, 'data/graph-metadata.json');
   const response = await fetch(fetchUrl);

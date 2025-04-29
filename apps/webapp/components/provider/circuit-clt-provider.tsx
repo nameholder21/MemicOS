@@ -43,8 +43,8 @@ type CircuitCLTContextType = {
 // Create the context with a default value
 const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undefined);
 
-export function getGraphUrl(graphSlug: string, baseUrl: string): string {
-  const url = makeCltFetchUrl(baseUrl, `graph_data/${graphSlug}.json`);
+export function getGraphUrl(graphSlug: string, baseUrl: string, useProxy: boolean = true): string {
+  const url = makeCltFetchUrl(baseUrl, `graph_data/${graphSlug}.json`, useProxy);
   return url;
 }
 
@@ -68,12 +68,14 @@ export function CircuitCLTProvider({
   initialModelToBaseUrl = {},
   initialClickedId,
   initialLogitDiff,
+  initialUseProxy = true,
 }: {
   children: ReactNode;
   initialMetadata?: ModelToCLTMetadataGraphsMap;
   initialModelToBaseUrl?: Record<string, string>;
   initialClickedId?: string;
   initialLogitDiff?: string;
+  initialUseProxy?: boolean;
 }) {
   const [metadata, setMetadata] = useState<ModelToCLTMetadataGraphsMap>(initialMetadata);
   const [selectedModelId, setSelectedModelId] = useState<string>(
@@ -84,6 +86,8 @@ export function CircuitCLTProvider({
   );
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
   const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
+
+  const [useProxy, setUseProxy] = useState<boolean>(initialUseProxy);
 
   // Initialize visState
   const [visState, setVisStateInternal] = useState<CltVisState>({
@@ -168,7 +172,7 @@ export function CircuitCLTProvider({
   }, []);
 
   async function fetchFeatureDetail(modelId: string, feature: number, baseUrl: string): Promise<CLTFeature | null> {
-    const response = await fetch(makeCltFetchUrl(baseUrl, `features/${modelId}/${feature}.json`));
+    const response = await fetch(makeCltFetchUrl(baseUrl, `features/${modelId}/${feature}.json`, useProxy));
     if (!response.ok) {
       console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
       return null;
@@ -179,7 +183,7 @@ export function CircuitCLTProvider({
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
-    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrl[selectedModelId]));
+    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrl[selectedModelId], useProxy));
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
@@ -234,6 +238,8 @@ export function CircuitCLTProvider({
       setLogitDiff,
       isLoadingGraphData,
       setIsLoadingGraphData,
+      useProxy,
+      setUseProxy,
     }),
     [
       metadata,
@@ -245,6 +251,8 @@ export function CircuitCLTProvider({
       updateVisStateField,
       isLoadingGraphData,
       setIsLoadingGraphData,
+      useProxy,
+      setUseProxy,
     ],
   );
 

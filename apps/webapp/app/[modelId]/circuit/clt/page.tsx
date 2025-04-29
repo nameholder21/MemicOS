@@ -7,7 +7,7 @@ export default async function Page({
   searchParams,
 }: {
   // params: { modelId: string };
-  searchParams: { clickedId?: string; logitDiff?: string };
+  searchParams: { clickedId?: string; logitDiff?: string; proxy?: string };
 }) {
   // const { modelId } = params;
   // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
@@ -15,6 +15,8 @@ export default async function Page({
   // if (!model) {
   //   notFound();
   // }
+
+  const useProxy = searchParams.proxy !== 'false';
 
   let metadata: ModelToCLTMetadataGraphsMap | null = null;
   const modelToBaseUrl: Record<string, string> = {};
@@ -57,6 +59,7 @@ export default async function Page({
       initialModelToBaseUrl={modelToBaseUrl}
       initialClickedId={searchParams.clickedId}
       initialLogitDiff={searchParams.logitDiff}
+      initialUseProxy={useProxy}
     >
       <CLTWrapper />
     </CircuitCLTProvider>
