@@ -1,7 +1,7 @@
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import CLTFeatureDetailItem from './clt-feature-detail-item';
 import { CLTGraphNode } from './clt-utils';
 
@@ -10,6 +10,7 @@ export default function CLTFeatureDetail() {
   const [feature, setFeature] = useState<CLTGraphNode | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
   const activationContainerRef = useRef<HTMLDivElement>(null);
+  const groupRef = useRef<GroupedVirtuosoHandle>(null);
 
   useEffect(() => {
     const clickedNode = visState.clickedId
@@ -41,8 +42,12 @@ export default function CLTFeatureDetail() {
     } else {
       setFeature(clickedNode);
     }
-    //  }, [visState.clickedId, selectedGraph]);
-  }, [visState.hoveredId, selectedGraph]);
+  }, [visState.hoveredId, visState.clickedId, selectedGraph]);
+
+  // Separate useEffect for scrolling when 'feature' changes
+  useEffect(() => {
+    groupRef.current?.scrollToIndex(0);
+  }, [feature]);
 
   const groupCounts = useMemo(() => {
     if (!feature) return [];
@@ -86,6 +91,7 @@ export default function CLTFeatureDetail() {
           className="flex max-h-[320px] w-full flex-col overflow-y-scroll overscroll-none"
         >
           <GroupedVirtuoso
+            ref={groupRef}
             className="min-h-[320px] w-full"
             groupCounts={groupCounts}
             // eslint-disable-next-line react/no-unstable-nested-components
