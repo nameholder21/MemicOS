@@ -1,12 +1,11 @@
-import { NEXT_PUBLIC_URL } from '@/lib/env';
 import d3 from './d3-jetpack';
 
 export const CLT_BASE_URLS = [
   'https://transformer-circuits.pub/2025/attribution-graphs',
-  'http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com',
+  'https://d1fk9w8oratjix.cloudfront.net',
 ];
 
-export const CLT_BASE_URLS_REQUIRE_PROXY = ['http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com'];
+// export const CLT_BASE_URLS_REQUIRE_PROXY = ['https://d1fk9w8oratjix.cloudfront.net'];
 
 export type CLTMetadataGraph = {
   slug: string;
@@ -20,11 +19,11 @@ export type ModelToCLTMetadataGraphsMap = {
   [scanId: string]: CLTMetadataGraph[];
 };
 
-export function makeCltFetchUrl(baseUrl: string, path: string, useProxy: boolean = true): string {
-  if (useProxy && CLT_BASE_URLS_REQUIRE_PROXY.some((baseURL) => baseUrl.includes(baseURL))) {
-    // encode the url in base64 as url param for the proxy route
-    return `${NEXT_PUBLIC_URL}/api/proxy-s3?url=${Buffer.from(`${baseUrl}/${path}`).toString('base64')}`;
-  }
+export function makeCltFetchUrl(baseUrl: string, path: string): string {
+  // if (CLT_BASE_URLS_REQUIRE_PROXY.some((baseURL) => baseUrl.includes(baseURL))) {
+  //   // encode the url in base64 as url param for the proxy route
+  //   return `${NEXT_PUBLIC_URL}/api/proxy-s3?url=${Buffer.from(`${baseUrl}/${path}`).toString('base64')}`;
+  // }
   return `${baseUrl}/${path}`;
 }
 
