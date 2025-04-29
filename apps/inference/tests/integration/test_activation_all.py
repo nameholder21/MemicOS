@@ -8,7 +8,7 @@ from memicos_inference_client.models.activation_all_post_request import (
     ActivationAllPostRequest,
 )
 
-from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT
+from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT, X_SECRET_KEY     
 
 
 def test_activation_all(client: TestClient):
@@ -27,7 +27,7 @@ def test_activation_all(client: TestClient):
     response = client.post(
         "/v1/activation/all",
         json=request.model_dump(),
-        headers={"X-SECRET-KEY": "cat"},
+        headers={"X-SECRET-KEY": X_SECRET_KEY},
     )
 
     assert response.status_code == 200

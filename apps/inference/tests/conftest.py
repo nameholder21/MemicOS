@@ -16,6 +16,7 @@ from memicos_inference.shared import Model
 
 BOS_TOKEN_STR = "<|endoftext|>"
 TEST_PROMPT = "Hello, world!"
+X_SECRET_KEY = "cat"
 
 
 @pytest.fixture(scope="session")
@@ -41,7 +42,7 @@ def initialize_models():
             ),  # Only load the specific SAE we want
             "EXCLUDE_SAE": json.dumps([]),
             "MAX_LOADED_SAES": "1",
-            "SECRET": "cat",  # Match the secret key used in tests
+            "SECRET": X_SECRET_KEY ,  
         }
     )
 
