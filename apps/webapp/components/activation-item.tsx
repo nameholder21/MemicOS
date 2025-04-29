@@ -17,6 +17,7 @@ const ACTIVATION_MAX_COPY_TOKENS = 128;
 const DFA_TARGET_TOKEN_CLASSNAME = 'border-2 border-orange-400';
 const DFA_SOURCE_TOKEN_CLASSNAME = 'border-2 border-emerald-400';
 const REGULAR_TOKEN_CLASSNAME = 'border-2 border-transparent hover:bg-slate-200';
+export const CENTER_ME_CLASSNAME = 'center-me';
 
 export default function ActivationItem({
   activation,
@@ -260,7 +261,7 @@ export default function ActivationItem({
                     <Tooltip.Root disableHoverableContent>
                       <Tooltip.Trigger asChild>
                         <span
-                          className={`${centerAndBorderOnTokenIndex === tokenIndex ? 'center-me' : ''} inline-block cursor-default whitespace-nowrap bg-origin-border font-mono ${
+                          className={`${centerAndBorderOnTokenIndex === tokenIndex ? CENTER_ME_CLASSNAME : ''} inline-block cursor-default whitespace-nowrap bg-origin-border font-mono ${
                             tokenIndex === activation.dfaTargetIndex
                               ? DFA_TARGET_TOKEN_CLASSNAME
                               : dfa && (!dfaSplit || isExpanded) && tokenIndex === dfaMaxIndex

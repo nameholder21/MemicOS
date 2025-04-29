@@ -114,9 +114,7 @@ export default function CLTNodeConnections() {
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
           <div className="flex flex-row items-center gap-x-2 px-1 text-sm font-medium text-slate-600">
-            <div className="">
-              F#{clickedNode?.feature} {clickedNode?.nodeId}
-            </div>
+            <div className="">F#{clickedNode?.feature}</div>
             <Circle className="h-3.5 w-3.5 text-[#f0f]" />
             <div>{clickedNode?.ppClerp}</div>
           </div>
