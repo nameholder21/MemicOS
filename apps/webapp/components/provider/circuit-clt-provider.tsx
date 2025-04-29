@@ -12,10 +12,13 @@ import {
   metadataScanToModelDisplayName,
   nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { useIsMount } from '@/lib/hooks/use-is-mount';
 import { useRouter } from 'next-nprogress-bar';
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+const FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
 
 // Define the context type
 type CircuitCLTContextType = {
@@ -57,10 +60,8 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
   for (let i = 0; i < items.length; i += batchSize) {
     const batchItems = items.slice(i, i + batchSize);
     const batchPromises = batchItems.map(fetchFn);
-    const batchResults = await Promise.all(batchPromises); // Or Promise.allSettled for better error handling
+    const batchResults = await Promise.all(batchPromises);
     results.push(...batchResults);
-    // Optional: Add a small delay between batches if needed
-    // await new Promise(resolve => setTimeout(resolve, 100));
   }
   return results;
 }
@@ -134,14 +135,18 @@ export function CircuitCLTProvider({
     router.replace(`${pathname}?${params.toString()}`);
   };
 
+  const isMount = useIsMount();
+
   // Update selected metadata graph when model changes
   useEffect(() => {
-    if (selectedModelId && metadata[selectedModelId]?.length > 0) {
-      setSelectedMetadataGraph(metadata[selectedModelId][0]);
-    } else {
-      setSelectedMetadataGraph(null);
+    if (!isMount) {
+      if (selectedModelId && metadata[selectedModelId]?.length > 0) {
+        setSelectedMetadataGraph(metadata[selectedModelId][0]);
+      } else {
+        setSelectedMetadataGraph(null);
+      }
     }
-  }, [selectedModelId, metadata]);
+  }, [selectedModelId]);
 
   useEffect(() => {
     if (selectedMetadataGraph) {
@@ -218,7 +223,6 @@ export function CircuitCLTProvider({
     const data = (await response.json()) as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
 
-    const batchSize = 20;
     const featureDetails = await fetchInBatches(
       formattedData.nodes,
       (d) => {
@@ -227,7 +231,7 @@ export function CircuitCLTProvider({
         }
         return Promise.resolve(null);
       },
-      batchSize,
+      FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
     );
 
     formattedData.nodes.forEach((d, i) => {
