@@ -220,8 +220,13 @@ export function CircuitCLTProvider({
 
     const batchSize = 20;
     const featureDetails = await fetchInBatches(
-      formattedData.nodes.filter((d) => nodeHasFeatureDetail(d)),
-      (d) => fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrl[selectedModelId]),
+      formattedData.nodes,
+      (d) => {
+        if (nodeHasFeatureDetail(d)) {
+          return fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrl[selectedModelId]);
+        }
+        return Promise.resolve(null);
+      },
       batchSize,
     );
 
