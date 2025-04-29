@@ -10,8 +10,11 @@ export default function CLTFeatureDetail() {
   const activationContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (visState.clickedId) {
-      const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId);
+    // if (visState.clickedId) {
+    //   const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId);
+
+    if (visState.hoveredId) {
+      const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.hoveredId);
       if (cNode && cNode.feature) {
         if (
           cNode.feature_type !== 'embedding' &&
@@ -35,7 +38,8 @@ export default function CLTFeatureDetail() {
     } else {
       setFeatureDetail(null);
     }
-  }, [visState.clickedId, selectedGraph]);
+    //  }, [visState.clickedId, selectedGraph]);
+  }, [visState.hoveredId, selectedGraph]);
 
   // Scroll to center the elements with 'center-me' class
   useEffect(() => {
