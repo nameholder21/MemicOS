@@ -3,7 +3,7 @@ import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import CLTFeatureDetailItem from './clt-feature-detail-item';
-import { CLTGraphNode } from './clt-utils';
+import { CLTGraphNode, nodeHasFeatureDetail } from './clt-utils';
 
 export default function CLTFeatureDetail() {
   const { visState, selectedGraph } = useCircuitCLT();
@@ -20,11 +20,7 @@ export default function CLTFeatureDetail() {
     if (visState.hoveredId) {
       const hoveredNode = selectedGraph?.nodes.find((e) => e.featureId === visState.hoveredId);
       if (hoveredNode && hoveredNode.feature) {
-        if (
-          hoveredNode.feature_type !== 'embedding' &&
-          hoveredNode.feature_type !== 'mlp reconstruction error' &&
-          hoveredNode.feature_type !== 'logit'
-        ) {
+        if (nodeHasFeatureDetail(hoveredNode)) {
           if (hoveredNode.featureDetail) {
             setFeature(hoveredNode);
             setOverallMaxActivationValue(

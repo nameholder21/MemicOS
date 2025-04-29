@@ -10,7 +10,11 @@ import {
   isHideLayer,
   makeCltFetchUrl,
   metadataScanToModelDisplayName,
+  nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { useRouter } from 'next-nprogress-bar';
+
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 // Define the context type
@@ -68,24 +72,28 @@ export function CircuitCLTProvider({
   initialModelToBaseUrl = {},
   initialClickedId,
   initialLogitDiff,
+  initialModel,
+  initialMetadataGraph,
 }: {
   children: ReactNode;
   initialMetadata?: ModelToCLTMetadataGraphsMap;
   initialModelToBaseUrl?: Record<string, string>;
   initialClickedId?: string;
   initialLogitDiff?: string;
+  initialModel?: string;
+  initialMetadataGraph?: CLTMetadataGraph;
 }) {
   const [metadata, setMetadata] = useState<ModelToCLTMetadataGraphsMap>(initialMetadata);
   const [selectedModelId, setSelectedModelId] = useState<string>(
-    Object.keys(initialMetadata).length > 0 ? Object.keys(initialMetadata)[0] : '',
+    initialModel || (Object.keys(initialMetadata).length > 0 ? Object.keys(initialMetadata)[0] : ''),
   );
   const [selectedMetadataGraph, setSelectedMetadataGraph] = useState<CLTMetadataGraph | null>(
-    selectedModelId && initialMetadata[selectedModelId]?.length > 0 ? initialMetadata[selectedModelId][0] : null,
+    initialMetadataGraph ||
+      (selectedModelId && initialMetadata[selectedModelId]?.length > 0 ? initialMetadata[selectedModelId][0] : null),
   );
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
   const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
 
-  // Initialize visState
   const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: [],
     hiddenIds: [],
@@ -118,6 +126,27 @@ export function CircuitCLTProvider({
       setSelectedMetadataGraph(null);
     }
   }, [selectedModelId, metadata]);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const updateParams = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  useEffect(() => {
+    if (selectedMetadataGraph) {
+      updateParams('modelId', selectedModelId);
+      updateParams('slug', selectedMetadataGraph.slug);
+    }
+  }, [selectedMetadataGraph]);
 
   // When selectedgraph is set, set the correct isHideLayer value
   useEffect(() => {
@@ -190,7 +219,7 @@ export function CircuitCLTProvider({
 
     const batchSize = 20;
     const featureDetails = await fetchInBatches(
-      formattedData.nodes,
+      formattedData.nodes.filter((d) => nodeHasFeatureDetail(d)),
       (d) => fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrl[selectedModelId]),
       batchSize,
     );

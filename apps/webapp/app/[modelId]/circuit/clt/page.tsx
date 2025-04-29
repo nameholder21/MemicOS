@@ -6,9 +6,10 @@ export default async function Page({
   // params,
   searchParams,
 }: {
-  // params: { modelId: string };
-  searchParams: { clickedId?: string; logitDiff?: string };
+  // params: {};
+  searchParams: { clickedId?: string; logitDiff?: string; modelId: string; slug: string };
 }) {
+  // TODO: update this to use modelid from url
   // const { modelId } = params;
   // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
 
@@ -51,12 +52,18 @@ export default async function Page({
     return <div>No metadata found</div>;
   }
 
+  const metadataGraph = searchParams.modelId
+    ? metadata[searchParams.modelId]?.find((graph) => graph.slug === searchParams.slug)
+    : undefined;
+
   return (
     <CircuitCLTProvider
       initialMetadata={metadata}
       initialModelToBaseUrl={modelToBaseUrl}
       initialClickedId={searchParams.clickedId}
       initialLogitDiff={searchParams.logitDiff}
+      initialModel={searchParams.modelId}
+      initialMetadataGraph={metadataGraph}
     >
       <CLTWrapper />
     </CircuitCLTProvider>

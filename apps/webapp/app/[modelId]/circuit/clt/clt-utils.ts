@@ -27,6 +27,14 @@ export function makeCltFetchUrl(baseUrl: string, path: string): string {
   return `${baseUrl}/${path}`;
 }
 
+export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
+  return (
+    node.feature_type !== 'embedding' &&
+    node.feature_type !== 'mlp reconstruction error' &&
+    node.feature_type !== 'logit'
+  );
+}
+
 // no proxy needed since this is server to server
 export async function getCLTMetadata(baseUrl: string): Promise<ModelToCLTMetadataGraphsMap> {
   const fetchUrl = makeCltFetchUrl(baseUrl, 'data/graph-metadata.json');
