@@ -6,7 +6,7 @@ export const CLT_BASE_URLS = [
   'http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com',
 ];
 
-export const CLT_BASE_URLS_REQUIRE_PROXY = []; // ['http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com'];
+export const CLT_BASE_URLS_REQUIRE_PROXY = ['http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com'];
 
 export type CLTMetadataGraph = {
   slug: string;
@@ -81,6 +81,18 @@ export const metadataScanToModelDisplayName = new Map<string, string>([
   ['jackl-circuits-runs-12-19-valet-m_0', 'Model Organism'],
   ['jackl-circuits-runs-1-12-rune-cp3_0', '18L PLTs'],
   ['gemma-2-2b', 'Gemma 2 2B'],
+  ['llama-3-131k-relu', 'Llama 3.2 1B - Relu'],
+  // ['llama-hf-3-nobos', 'Llama 3.2 1B - NoBos'],
+  // ['llama-hf-3', 'Llama 3.2 1B - Other'],
+]);
+
+export const metadataScansToDisplay = new Set([
+  'jackl-circuits-runs-1-4-sofa-v3_0',
+  'jackl-circuits-runs-1-1-druid-cp_0',
+  'jackl-circuits-runs-12-19-valet-m_0',
+  'jackl-circuits-runs-1-12-rune-cp3_0',
+  'gemma-2-2b',
+  'llama-3-131k-relu',
 ]);
 
 export const scanSlugToName = {
@@ -95,6 +107,7 @@ export const cltModelToLayers = {
   'jackl-circuits-runs-12-19-valet-m_0': 16,
   'jackl-circuits-runs-1-12-rune-cp3_0': 18,
   'gemma-2-2b': 26,
+  'llama-3-131k-relu': 16,
 };
 
 export type CLTGraphMetadata = {

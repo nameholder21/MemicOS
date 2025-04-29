@@ -1,5 +1,5 @@
 import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
-import { CLT_BASE_URLS, getCLTMetadata, ModelToCLTMetadataGraphsMap } from './clt-utils';
+import { CLT_BASE_URLS, getCLTMetadata, metadataScansToDisplay, ModelToCLTMetadataGraphsMap } from './clt-utils';
 import CLTWrapper from './wrapper';
 
 export default async function Page({
@@ -30,7 +30,7 @@ export default async function Page({
           // Merge the results
           // eslint-disable-next-line
           Object.keys(result).forEach((scanId) => {
-            if (metadata) {
+            if (metadata && metadataScansToDisplay.has(scanId)) {
               if (!metadata[scanId]) {
                 metadata[scanId] = result[scanId];
               } else {
