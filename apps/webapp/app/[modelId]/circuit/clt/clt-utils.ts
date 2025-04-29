@@ -6,7 +6,7 @@ export const CLT_BASE_URLS = [
   'http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com',
 ];
 
-export const CLT_BASE_URLS_REQUIRE_PROXY = ['http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com'];
+export const CLT_BASE_URLS_REQUIRE_PROXY = []; // ['http://afp-circuit-tracing.s3-website-us-west-2.amazonaws.com'];
 
 export type CLTMetadataGraph = {
   slug: string;

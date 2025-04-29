@@ -816,15 +816,6 @@ export default function CLTLinkGraph() {
             updateVisStateField('clickedId', newClickedId || null);
             updateVisStateField('clickedCtxIdx', newClickedId ? closestNode.ctx_idx : null);
 
-            // Clear hover state
-            if (currentHoveredFeatureId) {
-              updateVisStateField('hoveredId', null);
-              updateVisStateField('hoveredCtxIdx', null);
-              // updateVisStateField('clickedId', null);
-              // updateVisStateField('clickedCtxIdx', null);
-              currentHoveredFeatureId = null;
-            }
-
             // Update clicked visualization
             nodeSel.classed('clicked', (d) => Boolean(d.nodeId === newClickedId));
           }
