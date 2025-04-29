@@ -26,12 +26,6 @@ class SAE_TYPE:
     SAELENS = "saelens-1"
 
 
-def get_layer_num_from_sae_id(sae_id: str) -> int:
-    if sae_id.isdigit():
-        return int(sae_id)
-    return int(sae_id.split("-")[0])
-
-
 class SAEManager:
     NEURONS_SOURCESET = "neurons"
 
