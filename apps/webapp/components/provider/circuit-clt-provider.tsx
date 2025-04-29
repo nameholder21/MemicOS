@@ -118,6 +118,22 @@ export function CircuitCLTProvider({
 
   const modelToBaseUrl = initialModelToBaseUrl;
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const updateParams = (keysToValues: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(keysToValues).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   // Update selected metadata graph when model changes
   useEffect(() => {
     if (selectedModelId && metadata[selectedModelId]?.length > 0) {
@@ -127,24 +143,9 @@ export function CircuitCLTProvider({
     }
   }, [selectedModelId, metadata]);
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const updateParams = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    router.replace(`${pathname}?${params.toString()}`);
-  };
-
   useEffect(() => {
     if (selectedMetadataGraph) {
-      updateParams('modelId', selectedModelId);
-      updateParams('slug', selectedMetadataGraph.slug);
+      updateParams({ modelId: selectedModelId, slug: selectedMetadataGraph.slug });
     }
   }, [selectedMetadataGraph]);
 
