@@ -26,8 +26,10 @@ export default function CLTModelPromptSelector() {
         >
           <Select.Trigger
             onKeyDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+              if (e.key === 'g') {
+                e.preventDefault();
+                e.stopPropagation();
+              }
             }}
             className="inline-flex h-12 w-52 max-w-52 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none"
           >
@@ -91,8 +93,10 @@ export default function CLTModelPromptSelector() {
         >
           <Select.Trigger
             onKeyDown={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+              if (e.key === 'g') {
+                e.preventDefault();
+                e.stopPropagation();
+              }
             }}
             className="relative inline-flex h-12 w-full flex-1 items-center justify-between gap-1 overflow-hidden whitespace-pre rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none"
           >
