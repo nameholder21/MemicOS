@@ -17,13 +17,17 @@ export default function CLTFeatureDetail() {
       ? selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId) || null
       : null;
 
+    let maxActValue = Math.max(
+      ...(clickedNode?.featureDetail?.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list) || []),
+    );
+
     if (visState.hoveredId) {
       const hoveredNode = selectedGraph?.nodes.find((e) => e.featureId === visState.hoveredId);
       if (hoveredNode && hoveredNode.feature) {
         setNode(hoveredNode);
         if (hoveredNode.featureDetail) {
-          setOverallMaxActivationValue(
-            Math.max(...hoveredNode.featureDetail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list)),
+          maxActValue = Math.max(
+            ...hoveredNode.featureDetail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list),
           );
         }
       } else {
@@ -32,6 +36,8 @@ export default function CLTFeatureDetail() {
     } else {
       setNode(clickedNode);
     }
+
+    setOverallMaxActivationValue(maxActValue);
   }, [visState.hoveredId, visState.clickedId, selectedGraph]);
 
   // Separate useEffect for scrolling when 'feature' changes
