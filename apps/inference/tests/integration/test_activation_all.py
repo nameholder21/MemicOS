@@ -8,7 +8,7 @@ from memicos_inference_client.models.activation_all_post_request import (
     ActivationAllPostRequest,
 )
 
-from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT, X_SECRET_KEY     
+from tests.conftest import BOS_TOKEN_STR, TEST_PROMPT, X_SECRET_KEY
 
 
 def test_activation_all(client: TestClient):

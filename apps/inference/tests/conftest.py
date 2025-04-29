@@ -42,7 +42,7 @@ def initialize_models():
             ),  # Only load the specific SAE we want
             "EXCLUDE_SAE": json.dumps([]),
             "MAX_LOADED_SAES": "1",
-            "SECRET": X_SECRET_KEY ,  
+            "SECRET": X_SECRET_KEY,
         }
     )
 
