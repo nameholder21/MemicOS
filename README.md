@@ -222,22 +222,25 @@ once you start using a local environment, you won't be connected to the demo env
 3. build the image, picking the correct command based on if the machine has CUDA or not:
    ```
    # CUDA
-   make inference-localhost-build-gpu
+   make inference-localhost-build-gpu USE_LOCAL_HF_CACHE=1
    ```
    ```
    # no CUDA
-   make inference-localhost-build
+   make inference-localhost-build USE_LOCAL_HF_CACHE=1
    ```
+   > ➡️ The [`USE_LOCAL_HF_CACHE=1` flag](https://github.com/hijohnnylin/memicos/pull/89) mounts your local HuggingFace cache at `${HOME}/.cache/huggingface/hub:/root/.cache/huggingface/hub`. If you wish to create a new cache in your container instead, you can omit this flag here and in the next step.
 4. run the inference server, using the `MODEL_SOURCESET` argument to specify the `.env.inference.[model_sourceset]` file you're loading from. for this example, we will run `gpt2-small`, and load the `res-jb` sourceset/SAE set, which is configured in the `.env.inference.gpt2-small.res-jb` file. you can see the other [pre-loaded inference configs](#pre-loaded-inference-server-configurations) or [create your own config](#making-your-own-inference-server-configurations) as well.
 
    ```
    # CUDA
    make inference-localhost-dev-gpu \
-        MODEL_SOURCESET=gpt2-small.res-jb
+        MODEL_SOURCESET=gpt2-small.res-jb \
+        USE_LOCAL_HF_CACHE=1
 
    # no CUDA
    make inference-localhost-dev \
-        MODEL_SOURCESET=gpt2-small.res-jb
+        MODEL_SOURCESET=gpt2-small.res-jb \
+        USE_LOCAL_HF_CACHE=1
    ```
 
 5. wait for it to load (first time will take longer). when you see `Initialized: True`, the local inference server is now ready on `localhost:5002`
