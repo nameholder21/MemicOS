@@ -135,7 +135,9 @@ export function CircuitCLTProvider({
   };
 
   useEffect(() => {
+    console.log('selectedMetadataGraph', selectedMetadataGraph);
     if (selectedMetadataGraph) {
+      console.log('updating params', selectedModelId, selectedMetadataGraph.slug);
       updateParams({ modelId: selectedModelId, slug: selectedMetadataGraph.slug });
     }
   }, [selectedMetadataGraph]);

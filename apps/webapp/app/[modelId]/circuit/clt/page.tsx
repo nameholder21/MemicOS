@@ -52,9 +52,14 @@ export default async function Page({
     return <div>No metadata found</div>;
   }
 
+  console.log(searchParams);
+
   const metadataGraph = searchParams.modelId
     ? metadata[searchParams.modelId]?.find((graph) => graph.slug === searchParams.slug)
     : undefined;
+
+  console.log(searchParams.modelId, searchParams.slug);
+  console.log(metadataGraph);
 
   return (
     <CircuitCLTProvider
