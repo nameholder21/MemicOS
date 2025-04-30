@@ -22,6 +22,7 @@ export default function CLTModelPromptSelector() {
           value={selectedModelId}
           onValueChange={(newVal) => {
             setSelectedModelId(newVal);
+            setSelectedMetadataGraph(metadata[newVal][0]);
           }}
         >
           <Select.Trigger
@@ -35,7 +36,7 @@ export default function CLTModelPromptSelector() {
           >
             <Select.Value>
               {metadataScanToModelDisplayName.get(selectedModelId) ? (
-                <div className="flex flex-col items-center justify-start gap-y-0.5">
+                <div className="flex flex-col items-start justify-start gap-y-0.5 text-left">
                   <div className="text-xs font-medium text-slate-600">
                     {metadataScanToModelDisplayName.get(selectedModelId)}
                   </div>

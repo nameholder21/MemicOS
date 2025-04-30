@@ -12,7 +12,6 @@ import {
   metadataScanToModelDisplayName,
   nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
-import { useIsMount } from '@/lib/hooks/use-is-mount';
 import { useRouter } from 'next-nprogress-bar';
 
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -134,19 +133,6 @@ export function CircuitCLTProvider({
     });
     router.replace(`${pathname}?${params.toString()}`);
   };
-
-  const isMount = useIsMount();
-
-  // Update selected metadata graph when model changes
-  useEffect(() => {
-    if (!isMount) {
-      if (selectedModelId && metadata[selectedModelId]?.length > 0) {
-        setSelectedMetadataGraph(metadata[selectedModelId][0]);
-      } else {
-        setSelectedMetadataGraph(null);
-      }
-    }
-  }, [selectedModelId]);
 
   useEffect(() => {
     if (selectedMetadataGraph) {
