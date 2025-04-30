@@ -126,9 +126,10 @@ inference-localhost-build: ## Inference: Localhost Environment - Build
 	ENV_FILE=.env.localhost \
 		BUILD_TYPE=$(BUILD_TYPE) \
 		docker compose \
+		$(if $(USE_LOCAL_HF_CACHE),-f docker-compose.hf-cache.yaml,) \
 		build inference
 
-inference-localhost-build-gpu: ## Inference: Localhost Environment - Build (CUDA)
+inference-localhost-build-gpu: ## Inference: Localhost Environment - Build (CUDA). Usage: make inference-localhost-build-gpu [USE_LOCAL_HF_CACHE=1]
 	$(MAKE) inference-localhost-build BUILD_TYPE=cuda
 
 inference-localhost-dev: ## Inference: Localhost Environment - Run (Development Build). Usage: make inference-localhost-dev [MODEL_SOURCESET=gpt2-small.res-jb] [AUTORELOAD=1]
@@ -146,6 +147,7 @@ inference-localhost-dev: ## Inference: Localhost Environment - Run (Development 
 			-f docker-compose.yaml \
 			-f docker-compose.inference.dev.yaml \
 			$(if $(ENABLE_GPU),-f docker-compose.inference.gpu.yaml,) \
+			$(if $(USE_LOCAL_HF_CACHE),-f docker-compose.hf-cache.yaml,) \
 			--env-file .env.inference.$(MODEL_SOURCESET) \
 			--env-file .env.localhost \
 			--env-file .env \
@@ -156,7 +158,7 @@ inference-localhost-dev: ## Inference: Localhost Environment - Run (Development 
 		exit 1; \
 	fi
 
-inference-localhost-dev-gpu: ## Inference: Localhost Environment - Run (Development Build with CUDA). Usage: make inference-localhost-dev-gpu [MODEL_SOURCESET=gpt2-small.res-jb] [AUTORELOAD=1]
+inference-localhost-dev-gpu: ## Inference: Localhost Environment - Run (Development Build with CUDA). Usage: make inference-localhost-dev-gpu [MODEL_SOURCESET=gpt2-small.res-jb] [AUTORELOAD=1] [USE_LOCAL_HF_CACHE=1]
 	$(MAKE) inference-localhost-dev ENABLE_GPU=1 MODEL_SOURCESET=$(MODEL_SOURCESET) AUTORELOAD=$(AUTORELOAD)
 
 inference-list-configs: ## Inference: List Configurations (possible values for MODEL_SOURCESET)
