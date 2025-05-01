@@ -7,7 +7,14 @@ export default async function Page({
   searchParams,
 }: {
   // params: {};
-  searchParams: { clickedId?: string; logitDiff?: string; model?: string; slug?: string };
+  searchParams: {
+    clickedId?: string;
+    logitDiff?: string;
+    model?: string;
+    slug?: string;
+    pinnedIds?: string;
+    supernodes?: string;
+  };
 }) {
   // TODO: update this to use modelid from url
   // const { modelId } = params;
@@ -18,7 +25,7 @@ export default async function Page({
   // }
 
   let metadata: ModelToCLTMetadataGraphsMap | null = null;
-  const modelToBaseUrl: Record<string, string> = {};
+  const modelToBaseUrlMap: Record<string, string> = {};
   // eslint-disable-next-line
   for (const baseUrl of CLT_BASE_URLS) {
     try {
@@ -41,7 +48,7 @@ export default async function Page({
           });
         }
         Object.keys(result).forEach((scanId) => {
-          modelToBaseUrl[scanId] = baseUrl;
+          modelToBaseUrlMap[scanId] = baseUrl;
         });
       }
     } catch (error) {
@@ -52,23 +59,26 @@ export default async function Page({
     return <div>No metadata found</div>;
   }
 
-  console.log(searchParams);
-
   const metadataGraph = searchParams.model
     ? metadata[searchParams.model]?.find((graph) => graph.slug === searchParams.slug)
     : undefined;
 
-  console.log(searchParams.model, searchParams.slug);
-  console.log(metadataGraph);
+  let parsedSupernodes: string[][] | undefined = undefined;
+  try {
+    parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
+  } catch (error) {
+    console.error('Error parsing supernodes:', error);
+  }
 
   return (
     <CircuitCLTProvider
+      modelToBaseUrlMap={modelToBaseUrlMap}
       initialMetadata={metadata}
-      initialModelToBaseUrl={modelToBaseUrl}
-      initialClickedId={searchParams.clickedId}
-      initialLogitDiff={searchParams.logitDiff}
       initialModel={searchParams.model}
       initialMetadataGraph={metadataGraph}
+      initialPinnedIds={searchParams.pinnedIds}
+      initialClickedId={searchParams.clickedId}
+      initialSupernodes={parsedSupernodes}
     >
       <CLTWrapper />
     </CircuitCLTProvider>

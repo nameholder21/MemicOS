@@ -810,7 +810,7 @@ export default function CLTSubgraph() {
       nodeSel
         .classed('clicked', (d: ForceNode) => d.node.nodeId === visState.clickedId)
         .classed('hovered', (d: ForceNode) => d.node.featureId === visState.hoveredId)
-        .style('z-index', (d: ForceNode) => `${Math.round(d.x * 20 + d.y) + 1000}`)
+        //.style('z-index', (d: ForceNode) => `${Math.round(d.x * 20 + d.y) + 1000}`)
         .classed(
           'grouping-selected',
           (d: ForceNode) => visState.subgraph?.activeGrouping.selectedNodeIds.has(d.node.nodeId || '') || false,
@@ -873,9 +873,9 @@ export default function CLTSubgraph() {
           </div>
         </CustomTooltip>
       </div> */}
-      <div className="subgraph relative min-h-[400px] w-full">
-        <svg className="absolute h-[400px] w-full" height={400} ref={svgRef} />
-        <div className="absolute h-[400px] w-full" ref={divRef} />
+      <div className="subgraph relative min-h-[435px] w-full">
+        <svg className="absolute h-[435px] w-full" height={435} ref={svgRef} />
+        <div className="absolute h-[435px] w-full" ref={divRef} />
       </div>
     </div>
   );

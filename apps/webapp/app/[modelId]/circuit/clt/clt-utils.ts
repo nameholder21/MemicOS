@@ -29,7 +29,6 @@ export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
   );
 }
 
-// no proxy needed since this is server to server
 export async function getCLTMetadata(baseUrl: string): Promise<ModelToCLTMetadataGraphsMap> {
   const fetchUrl = makeCltFetchUrl(baseUrl, 'data/graph-metadata.json');
   const response = await fetch(fetchUrl);
