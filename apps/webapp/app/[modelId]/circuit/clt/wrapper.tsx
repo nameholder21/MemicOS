@@ -10,7 +10,7 @@ import CLTSubgraph from './clt-subgraph';
 import CLTModelPromptSelector from './model-prompt-selector';
 
 export default function CLTWrapper() {
-  const { isLoadingGraphData, visState } = useCircuitCLT();
+  const { isLoadingGraphData } = useCircuitCLT();
   return (
     <div className="mt-3 flex w-full flex-col justify-center px-4 text-slate-700">
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
