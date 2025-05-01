@@ -903,7 +903,7 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[425px] w-[66%] min-w-[66%] max-w-[66%] pt-5">
+    <div className="link-graph relative mt-3 min-h-[425px] w-[66%] min-w-[66%] max-w-[66%] select-none pt-5">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>

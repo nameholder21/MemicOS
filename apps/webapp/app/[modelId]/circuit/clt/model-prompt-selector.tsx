@@ -155,7 +155,7 @@ export default function CLTModelPromptSelector() {
           variant="outline"
           size="sm"
           aria-label="Reset Graph to Defaults"
-          className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
+          className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-xs text-slate-600 hover:bg-slate-50"
           onClick={() => {
             resetSelectedGraphToDefaultVisState();
           }}

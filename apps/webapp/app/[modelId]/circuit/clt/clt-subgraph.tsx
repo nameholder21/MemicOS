@@ -2,6 +2,8 @@
 
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
+import * as Checkbox from '@radix-ui/react-checkbox';
+import { Check } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
@@ -70,9 +72,17 @@ export default function CLTSubgraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const { visState, selectedGraph, updateVisStateField } = useCircuitCLT();
-  const [simulation, setSimulation] = useState<d3.Simulation<ForceNode, undefined> | null>(null);
+  const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
+  const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
+  const memberNodeSelRef = useRef<d3.Selection<HTMLDivElement, CLTGraphNode, HTMLDivElement, ForceNode> | null>(null);
+  const svgPathsRef = useRef<d3.Selection<SVGPathElement, SubgraphLink, SVGGElement, unknown> | null>(null);
+  const edgeLabelsRef = useRef<d3.Selection<SVGTextElement, SubgraphLink, SVGGElement, unknown> | null>(null);
+  const sgLinksRef = useRef<SubgraphLink[]>([]);
   const [selForceNodes, setSelForceNodes] = useState<ForceNode[]>([]);
   const [nodeIdToNode, setNodeIdToNode] = useState<Record<string, CLTGraphNode>>({});
+
+  // Ref to hold the latest active grouping state for event handlers
+  const activeGroupingRef = useRef(visState.subgraph?.activeGrouping);
 
   const screenSize = useScreenSize();
 
@@ -94,6 +104,11 @@ export default function CLTSubgraph() {
     const luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
     return luminance > 160 ? 'black' : 'white';
   }, []);
+
+  // Effect to keep the activeGroupingRef updated
+  useEffect(() => {
+    activeGroupingRef.current = visState.subgraph?.activeGrouping;
+  }, [visState.subgraph?.activeGrouping]);
 
   // Handler for keydown event to enable grouping mode
   useEffect(() => {
@@ -214,19 +229,23 @@ export default function CLTSubgraph() {
     });
   }, [visState, updateVisStateField]);
 
-  // Initialize the D3 subgraph visualization
+  // Initialize the D3 subgraph visualization - runs only when layout needs reset
   useEffect(() => {
-    console.log('rendering');
+    console.log('re-rendering simulation setup'); // Add log for debugging resets
     if (!svgRef.current || !divRef.current || !selectedGraph) return;
 
-    // Stop any existing simulation
-    if (simulation) {
-      simulation.stop();
-    }
+    // Stop any existing simulation before clearing refs
+    simulationRef.current?.stop();
 
-    // Clear any existing content
+    // Clear any existing content and refs
     d3.select(svgRef.current).selectAll('*').remove();
     d3.select(divRef.current).selectAll('*').remove();
+    nodeSelRef.current = null;
+    memberNodeSelRef.current = null;
+    svgPathsRef.current = null;
+    edgeLabelsRef.current = null;
+    sgLinksRef.current = [];
+    simulationRef.current = null;
 
     const data = selectedGraph;
     const { nodes, links } = data;
@@ -408,6 +427,7 @@ export default function CLTSubgraph() {
       .filter((d) => d.source !== d.target);
 
     const sgLinks = d3.sort(combinedLinks, (d) => Math.abs(d.weight));
+    sgLinksRef.current = sgLinks; // Store links in ref
 
     // Create scales for initial positioning
     const xScale = d3
@@ -461,26 +481,42 @@ export default function CLTSubgraph() {
       .force('x', d3.forceX((d: ForceNode) => xScale(d.node.ctx_idx || 0)).strength(0.1))
       .force('y', d3.forceY((d: ForceNode) => yScale(d.node.streamIdx || 0)).strength(2));
 
-    setSimulation(newSimulation);
+    // Store the new simulation in the ref
+    simulationRef.current = newSimulation;
 
-    // Create SVG path elements for links
-    const svgPaths = svg
-      .appendMany('path.link-path', sgLinks)
-      .attr('fill', 'none')
-      .attr('marker-mid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
-      .attr('stroke-width', (d) => Math.abs(d.weight) * 15)
-      .attr('stroke', (d) => d.color)
-      .attr('opacity', 0.8)
-      .attr('stroke-linecap', 'round');
+    // Function to run on each simulation tick - defined inside so it closes over refs if needed
+    function renderForce() {
+      if (!nodeSelRef.current) return;
+      nodeSelRef.current.translate((d) => [d.x, d.y]);
 
-    // Add weight labels for links
-    const edgeLabels = svg.appendMany('text.weight-label', sgLinks);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      renderEdges(); // Calls renderEdges which uses refs
 
-    // Function to render edges with offsets
+      // Only update edge labels if they exist and nodes aren't dagre-positioned
+      edgeLabelsRef.current
+        ?.filter((d) => {
+          const source = typeof d.source === 'object' ? d.source : null;
+          const target = typeof d.target === 'object' ? d.target : null;
+          if (!source || !target) return false;
+          return !(source.dagrePositioned && target.dagrePositioned);
+        })
+        .translate((d) => {
+          const source = typeof d.source === 'object' ? d.source : null;
+          const target = typeof d.target === 'object' ? d.target : null;
+          if (!source || !target) return [0, 0];
+
+          return [(source.x + target.x) / 2 + NODE_WIDTH / 2, (source.y + target.y) / 2 + NODE_HEIGHT / 2];
+        });
+    }
+
+    // Function to render edges with offsets - defined inside to access refs
     function renderEdges() {
+      if (!svgPathsRef.current) return;
+      const currentSgLinks = sgLinksRef.current; // Use links from ref
+
       // Adjust link source positions based on source node member count
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      d3.nestBy(sgLinks, (d) => d.source).forEach((links) => {
+      d3.nestBy(currentSgLinks, (d) => d.source).forEach((links) => {
         const sourceNode = typeof links[0].source === 'object' ? links[0].source : null;
         if (!sourceNode || !sourceNode.node) return;
 
@@ -498,7 +534,7 @@ export default function CLTSubgraph() {
 
       // Adjust link target positions based on target node member count
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      d3.nestBy(sgLinks, (d) => d.target).forEach((links) => {
+      d3.nestBy(currentSgLinks, (d) => d.target).forEach((links) => {
         const targetNode = typeof links[0].target === 'object' ? links[0].target : null;
         if (!targetNode || !targetNode.node) return;
 
@@ -514,8 +550,8 @@ export default function CLTSubgraph() {
         });
       });
 
-      // Update SVG paths
-      svgPaths.attr('d', (d: SubgraphLink) => {
+      // Update SVG paths using the ref
+      svgPathsRef.current.attr('d', (d: SubgraphLink) => {
         const source = typeof d.source === 'object' ? d.source : null;
         const target = typeof d.target === 'object' ? d.target : null;
         if (!source || !target) return '';
@@ -529,22 +565,39 @@ export default function CLTSubgraph() {
       });
     }
 
+    // Create SVG path elements for links
+    const svgPaths = svg
+      .appendMany('path.link-path', sgLinks)
+      .attr('fill', 'none')
+      .attr('marker-mid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
+      .attr('stroke-width', (d) => Math.abs(d.weight) * 15)
+      .attr('stroke', (d) => d.color)
+      .attr('opacity', 0.8)
+      .attr('stroke-linecap', 'round');
+
+    // @ts-ignore
+    svgPathsRef.current = svgPaths;
+
+    // Add weight labels for links
+    const edgeLabels = svg.appendMany('text.weight-label', sgLinks);
+    // @ts-ignore
+    edgeLabelsRef.current = edgeLabels;
+
     // Setup drag behavior
     const drag = d3
       .drag()
       .on('drag', (ev: any) => {
         // Only when actually dragging, mark as no longer dagre positioned and restart sim
         ev.subject.dagrePositioned = false;
-        if (!ev.active) newSimulation.alphaTarget(0.3).restart();
+        if (!ev.active) simulationRef.current?.alphaTarget(0.3).restart();
         ev.subject.fx = ev.x;
         ev.subject.x = ev.x;
         ev.subject.fy = ev.y;
         ev.subject.y = ev.y;
-        // eslint-disable-next-line
         renderForce();
       })
       .on('end', (ev: any) => {
-        if (!ev.active) newSimulation.alphaTarget(0);
+        if (!ev.active) simulationRef.current?.alphaTarget(0);
         if (!visState.subgraph?.sticky && !ev.subject.dagrePositioned) {
           ev.subject.fx = null;
           ev.subject.fy = null;
@@ -558,40 +611,42 @@ export default function CLTSubgraph() {
       .style('width', `${NODE_WIDTH}px`)
       .style('height', `${NODE_HEIGHT}px`)
       .on('mouseover', (ev: MouseEvent, d: ForceNode) => {
-        // check if it's a click. if so, don't run the rest of the code (or it will rerender and not run the click)
-        if (ev.button === 0) {
-          return;
-        }
-        if (!ev.shiftKey) {
+        if (ev.buttons === 1) return; // Ignore if dragging/clicking
+        if (!ev.metaKey && !ev.ctrlKey && !activeGroupingRef.current?.isActive) {
           updateVisStateField('hoveredId', d.node.featureId || null);
           updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
           showTooltip(ev, d.node);
         }
       })
       .on('mouseleave', (ev: MouseEvent) => {
-        if (ev.buttons === 1) {
-          return;
-        }
+        if (ev.buttons === 1) return; // Ignore if dragging/clicking
         updateVisStateField('hoveredId', null);
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
       })
       .on('click', (ev: MouseEvent, d: ForceNode) => {
+        const currentActiveGrouping = activeGroupingRef.current;
+
         // Handle grouping mode
-        if (visState.subgraph?.activeGrouping.isActive) {
+        if (currentActiveGrouping?.isActive) {
           const nodeId = d.node.supernodeId || d.node.nodeId;
           if (nodeId) {
-            const selectedNodeIds = new Set(visState.subgraph.activeGrouping.selectedNodeIds);
+            // Read selected IDs from the ref, but create a new Set for modification
+            const currentSelectedNodeIds = currentActiveGrouping?.selectedNodeIds || new Set();
+            const selectedNodeIds = new Set(currentSelectedNodeIds);
             if (selectedNodeIds.has(nodeId)) {
               selectedNodeIds.delete(nodeId);
             } else {
               selectedNodeIds.add(nodeId);
             }
 
+            // Update the main state (which will trigger the ref update and styling effect)
             updateVisStateField('subgraph', {
-              ...visState.subgraph,
+              sticky: visState.subgraph?.sticky || false,
+              dagrefy: visState.subgraph?.dagrefy || false,
+              supernodes: visState.subgraph?.supernodes || [],
               activeGrouping: {
-                ...visState.subgraph.activeGrouping,
+                isActive: true,
                 selectedNodeIds,
               },
             });
@@ -602,7 +657,6 @@ export default function CLTSubgraph() {
           return;
         }
 
-        // Regular click behavior
         if (ev.metaKey || ev.ctrlKey) {
           // Toggle pinned state
           const newPinnedIds = [...visState.pinnedIds];
@@ -625,6 +679,9 @@ export default function CLTSubgraph() {
       // @ts-ignore
       .call(drag);
 
+    // @ts-ignore
+    nodeSelRef.current = nodeSel;
+
     // Style nodes as supernodes
     nodeSel.classed('is-supernode', true).style('height', `${NODE_HEIGHT + 12}px`);
 
@@ -646,32 +703,21 @@ export default function CLTSubgraph() {
         },
       })
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
-        if (ev.buttons === 1) {
-          return;
-        }
-        if (visState.subgraph?.activeGrouping.isActive || ev.metaKey || ev.ctrlKey) {
-          // grouping, don't activate behavior
-          return;
-        }
-        // updateVisStateField('clickedId', d.nodeId || null);
-        // updateVisStateField('clickedCtxIdx', d.ctx_idx);
+        if (ev.buttons === 1) return; // Ignore if dragging
+        if (activeGroupingRef.current?.isActive || ev.metaKey || ev.ctrlKey) return;
         updateVisStateField('hoveredId', d.featureId || null);
         updateVisStateField('hoveredCtxIdx', d.ctx_idx);
         showTooltip(ev, d);
         ev.stopPropagation();
       })
       .on('mouseleave', (ev: MouseEvent) => {
-        if (ev.buttons === 1) {
-          return;
-        }
-        // updateVisStateField('clickedId', null);
-        // updateVisStateField('clickedCtxIdx', null);
+        if (ev.buttons === 1) return; // Ignore if dragging out
         updateVisStateField('hoveredId', null);
         updateVisStateField('hoveredCtxIdx', null);
         hideTooltip();
       })
       .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
-        if (!visState.subgraph?.activeGrouping.isActive) {
+        if (!activeGroupingRef.current?.isActive) {
           ev.stopPropagation();
         } else {
           // grouping, don't select
@@ -699,6 +745,9 @@ export default function CLTSubgraph() {
       })
       .attr('title', (d: CLTGraphNode) => d.ppClerp || '');
 
+    // @ts-ignore
+    memberNodeSelRef.current = memberNodeSel;
+
     // Add ungroup button for supernodes in edit mode
     if (visState.isEditMode) {
       nodeSel
@@ -725,27 +774,6 @@ export default function CLTSubgraph() {
               supernodes: newSupernodes,
             });
           }
-        });
-    }
-
-    // Function to run on each simulation tick
-    function renderForce() {
-      nodeSel.translate((d) => [d.x, d.y]);
-      renderEdges();
-
-      edgeLabels
-        .filter((d) => {
-          const source = typeof d.source === 'object' ? d.source : null;
-          const target = typeof d.target === 'object' ? d.target : null;
-          if (!source || !target) return false;
-          return !(source.dagrePositioned && target.dagrePositioned);
-        })
-        .translate((d) => {
-          const source = typeof d.source === 'object' ? d.source : null;
-          const target = typeof d.target === 'object' ? d.target : null;
-          if (!source || !target) return [0, 0];
-
-          return [(source.x + target.x) / 2 + NODE_WIDTH / 2, (source.y + target.y) / 2 + NODE_HEIGHT / 2];
         });
     }
 
@@ -783,7 +811,7 @@ export default function CLTSubgraph() {
         d.fx = null;
         d.fy = null;
       });
-      newSimulation.alphaTarget(0.3).restart();
+      simulationRef.current?.alphaTarget(0.3).restart();
     }
 
     if (visState.subgraph?.dagrefy) {
@@ -805,58 +833,119 @@ export default function CLTSubgraph() {
       }
     }
 
-    // Function to update node styles
-    function styleNodes() {
-      nodeSel
-        .classed('clicked', (d: ForceNode) => d.node.nodeId === visState.clickedId)
-        .classed('hovered', (d: ForceNode) => d.node.featureId === visState.hoveredId)
-        // .style('z-index', (d: ForceNode) => `${Math.round(d.x * 20 + d.y) + 1000}`)
-        .classed(
-          'grouping-selected',
-          (d: ForceNode) => visState.subgraph?.activeGrouping.selectedNodeIds.has(d.node.nodeId || '') || false,
-        );
-
-      memberNodeSel
-        .classed('clicked', (d: CLTGraphNode) => d.nodeId === visState.clickedId)
-        .classed('hovered', (d: CLTGraphNode) => d.featureId === visState.hoveredId)
-        .style('background', (d: CLTGraphNode) => d.tmpClickedLink?.pctInputColor || '#fff')
-        .style('color', (d: CLTGraphNode) => bgColorToTextColor(d.tmpClickedLink?.pctInputColor) || 'black');
-
-      // Style clicked links using supernode adjusted graph
-      sgNodes.forEach((d) => {
-        d.tmpClickedSgSource = d.tmpClickedLink?.sourceNode === d ? d.tmpClickedLink : undefined;
-        d.tmpClickedSgTarget = d.tmpClickedLink?.targetNode === d ? d.tmpClickedLink : undefined;
-      });
-
-      if (visState.clickedId) {
-        sgLinks.forEach((d) => {
-          const source = typeof d.source === 'object' ? d.source : null;
-          const target = typeof d.target === 'object' ? d.target : null;
-
-          if (source?.node.nodeId === visState.clickedId && target && nodeIdToNode[target.node.nodeId]) {
-            nodeIdToNode[target.node.nodeId].tmpClickedSgTarget = d;
-          }
-
-          if (target?.node.nodeId === visState.clickedId && source && nodeIdToNode[source.node.nodeId]) {
-            nodeIdToNode[source.node.nodeId].tmpClickedSgSource = d;
-          }
-        });
-      }
-    }
-
-    // Start rendering and apply styles
-    styleNodes();
+    // Initial render of edges and force
     renderEdges();
+    renderForce(); // Start simulation ticks
 
-    // Add tick handler to simulation
-    newSimulation.on('tick', renderForce);
+    // Add tick handler to simulation stored in ref
+    simulationRef.current?.on('tick', renderForce);
 
     // Cleanup function
     // eslint-disable-next-line
     return () => {
-      newSimulation.stop();
+      console.log('stopping simulation'); // Add log
+      simulationRef.current?.stop();
     };
-  }, [screenSize, selectedGraph, visState, updateVisStateField, pctInputColorFn, bgColorToTextColor]);
+  }, [
+    screenSize,
+    selectedGraph,
+    visState.pinnedIds,
+    visState.subgraph?.supernodes,
+    visState.subgraph?.sticky,
+    visState.subgraph?.dagrefy,
+    visState.sg_pos,
+    visState.isHideLayer,
+    updateVisStateField,
+    pctInputColorFn,
+    bgColorToTextColor,
+  ]);
+
+  // Separate useEffect for applying styles based on interaction state
+  useEffect(() => {
+    // Ensure selections exist and we have the necessary state
+    if (!nodeSelRef.current || !memberNodeSelRef.current || !visState.subgraph || !nodeIdToNode) return;
+
+    const nodeSel = nodeSelRef.current;
+    const memberNodeSel = memberNodeSelRef.current;
+    const currentSgLinks = sgLinksRef.current; // Use links from ref for styling logic
+
+    // Apply classes based on interaction state
+    nodeSel
+      .classed('clicked', (d: ForceNode) => d.node.nodeId === visState.clickedId)
+      .classed('hovered', (d: ForceNode) => d.node.featureId === visState.hoveredId)
+      .classed(
+        'grouping-selected', // This class should now be applied correctly
+        (d: ForceNode) => visState.subgraph?.activeGrouping.selectedNodeIds.has(d.node.nodeId || '') || false,
+      );
+
+    // --- Logic for calculating and applying tmpClickedLink styles ---
+    // Clear previous highlighting state from actual node data used by D3
+    Object.values(nodeIdToNode).forEach((node) => {
+      node.tmpClickedLink = undefined;
+      node.tmpClickedSgSource = undefined;
+      node.tmpClickedSgTarget = undefined;
+    });
+    // Also clear temporary data possibly bound to elements if necessary (might be redundant)
+    memberNodeSel.each((d) => {
+      if (d) d.tmpClickedLink = undefined;
+    });
+
+    // Calculate and apply new clicked link highlighting state
+    if (visState.clickedId && nodeIdToNode[visState.clickedId]) {
+      currentSgLinks.forEach((link) => {
+        // Resolve source/target, potentially using nodeIdToNode map if needed
+        const sourceForceNode = typeof link.source === 'object' ? link.source : null;
+        const targetForceNode = typeof link.target === 'object' ? link.target : null;
+        const sourceNodeId = sourceForceNode?.node.nodeId || (link.source as string);
+        const targetNodeId = targetForceNode?.node.nodeId || (link.target as string);
+        const sourceNode = nodeIdToNode[sourceNodeId];
+        const targetNode = nodeIdToNode[targetNodeId];
+
+        if (link.ogLinks && sourceNode && targetNode) {
+          if (sourceNodeId === visState.clickedId) {
+            // Highlight target member nodes
+            link.ogLinks.forEach((ogLink) => {
+              if (ogLink.targetNode && nodeIdToNode[ogLink.targetNode.nodeId || '']) {
+                // Ensure node exists in current map before assigning
+                nodeIdToNode[ogLink.targetNode.nodeId || ''].tmpClickedLink = ogLink;
+              }
+            });
+            // Store sg link info for target supernode/node styling if needed
+            if (nodeIdToNode[targetNodeId]) {
+              nodeIdToNode[targetNodeId].tmpClickedSgTarget = link;
+            }
+          } else if (targetNodeId === visState.clickedId) {
+            // Highlight source member nodes
+            link.ogLinks.forEach((ogLink) => {
+              if (ogLink.sourceNode && nodeIdToNode[ogLink.sourceNode.nodeId || '']) {
+                // Ensure node exists in current map before assigning
+                nodeIdToNode[ogLink.sourceNode.nodeId || ''].tmpClickedLink = ogLink;
+              }
+            });
+            // Store sg link info for source supernode/node styling if needed
+            if (nodeIdToNode[sourceNodeId]) {
+              nodeIdToNode[sourceNodeId].tmpClickedSgSource = link;
+            }
+          }
+        }
+      });
+    }
+
+    // Apply styles based on the potentially updated tmpClickedLink property
+    memberNodeSel
+      .classed('clicked', (d: CLTGraphNode) => d.nodeId === visState.clickedId)
+      .classed('hovered', (d: CLTGraphNode) => d.featureId === visState.hoveredId)
+      .style('background', (d: CLTGraphNode) => d?.tmpClickedLink?.pctInputColor || '#fff')
+      .style('color', (d: CLTGraphNode) => bgColorToTextColor(d?.tmpClickedLink?.pctInputColor) || 'black');
+
+    // NOTE: This effect intentionally avoids restarting the simulation or changing layout.
+  }, [
+    visState.clickedId,
+    visState.hoveredId,
+    visState.subgraph?.activeGrouping.selectedNodeIds,
+    bgColorToTextColor,
+    nodeIdToNode,
+  ]);
 
   return (
     <div className="relative mt-3 w-full">
@@ -876,6 +965,62 @@ export default function CLTSubgraph() {
       <div className="subgraph relative min-h-[435px] w-full">
         <svg className="absolute h-[435px] w-full" height={435} ref={svgRef} />
         <div className="absolute h-[435px] w-full" ref={divRef} />
+      </div>
+      <div className="hidden w-full flex-row items-center justify-center gap-x-3">
+        <label
+          className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
+          htmlFor="stickyCheck"
+        >
+          <Checkbox.Root
+            className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
+            defaultChecked
+            checked={visState.subgraph?.sticky ? visState.subgraph.sticky : false}
+            onCheckedChange={(e) => {
+              updateVisStateField('subgraph', {
+                sticky: e === true,
+                dagrefy: visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false,
+                supernodes: visState.subgraph?.supernodes || [],
+                activeGrouping: visState.subgraph?.activeGrouping || {
+                  isActive: false,
+                  selectedNodeIds: new Set(),
+                },
+              });
+            }}
+            id="stickyCheck"
+          >
+            <Checkbox.Indicator className="text-slate-600">
+              <Check className="h-4 w-4" />
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+          Sticky
+        </label>
+        <label
+          className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
+          htmlFor="dagrefyCheck"
+        >
+          <Checkbox.Root
+            className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
+            defaultChecked
+            checked={visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false}
+            onCheckedChange={(e) => {
+              updateVisStateField('subgraph', {
+                dagrefy: e === true,
+                sticky: visState.subgraph?.sticky ? visState.subgraph.sticky : false,
+                supernodes: visState.subgraph?.supernodes || [],
+                activeGrouping: visState.subgraph?.activeGrouping || {
+                  isActive: false,
+                  selectedNodeIds: new Set(),
+                },
+              });
+            }}
+            id="dagrefyCheck"
+          >
+            <Checkbox.Indicator className="text-slate-600">
+              <Check className="h-4 w-4" />
+            </Checkbox.Indicator>
+          </Checkbox.Root>
+          Dagrefy
+        </label>
       </div>
     </div>
   );
