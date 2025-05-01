@@ -10,9 +10,9 @@ import CLTSubgraph from './clt-subgraph';
 import CLTModelPromptSelector from './model-prompt-selector';
 
 export default function CLTWrapper() {
-  const { isLoadingGraphData } = useCircuitCLT();
+  const { isLoadingGraphData, visState } = useCircuitCLT();
   return (
-    <div className="mt-4 flex w-full flex-col justify-center px-4 text-slate-700">
+    <div className="mt-3 flex w-full flex-col justify-center px-4 text-slate-700">
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
         <div className="mb-2 w-full pt-8 text-center text-sm text-red-500">
           Sorry, this page is not optimized for mobile. Please visit this link on a desktop browser.
@@ -23,13 +23,14 @@ export default function CLTWrapper() {
           {/* <div className="mb-1 w-full text-center text-base font-medium text-slate-600">
             Circuit Tracing <sup className="text-xs">alpha</sup>
           </div> */}
-          <div className="mb-2 w-full text-center text-[11px] text-red-500">
+          <div className="mb-0 w-full text-center text-[11px] text-red-500">
             This is a work in progress and not linked to from public MemicOS pages.
           </div>
+          {/* <div>{JSON.stringify(visState)}</div> */}
           <CLTModelPromptSelector />
         </div>
 
-        <Card className="mb-10 mt-5 w-full bg-white">
+        <Card className="mb-10 mt-3 w-full bg-white">
           <CardContent className="py-6 pt-3">
             {isLoadingGraphData ? (
               <div className="flex h-full min-h-[800px] w-full items-center justify-center">

@@ -12,10 +12,8 @@ import {
   metadataScanToModelDisplayName,
   nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
-import { useRouter } from 'next-nprogress-bar';
-
-import { usePathname, useSearchParams } from 'next/navigation';
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 const FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
 
@@ -30,7 +28,7 @@ type CircuitCLTContextType = {
   setMetadata: (metadata: ModelToCLTMetadataGraphsMap) => void;
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   metadataScanToModelDisplayName: Map<string, string>;
-  modelToBaseUrl: Record<string, string>;
+  modelToBaseUrlMap: Record<string, string>;
 
   // isLoadingGraphData
   isLoadingGraphData: boolean;
@@ -44,6 +42,9 @@ type CircuitCLTContextType = {
   // logitDiff
   logitDiff: string | null;
   setLogitDiff: (logitDiff: string | null) => void;
+
+  // resetSelectedGraphToDefaultVisState
+  resetSelectedGraphToDefaultVisState: () => void;
 };
 
 // Create the context with a default value
@@ -68,20 +69,22 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
 // Provider component
 export function CircuitCLTProvider({
   children,
+  modelToBaseUrlMap = {},
   initialMetadata = {},
-  initialModelToBaseUrl = {},
-  initialClickedId,
-  initialLogitDiff,
   initialModel,
   initialMetadataGraph,
+  initialPinnedIds,
+  initialClickedId,
+  initialSupernodes,
 }: {
   children: ReactNode;
+  modelToBaseUrlMap?: Record<string, string>;
   initialMetadata?: ModelToCLTMetadataGraphsMap;
-  initialModelToBaseUrl?: Record<string, string>;
-  initialClickedId?: string;
-  initialLogitDiff?: string;
   initialModel?: string;
   initialMetadataGraph?: CLTMetadataGraph;
+  initialPinnedIds?: string;
+  initialClickedId?: string;
+  initialSupernodes?: string[][];
 }) {
   const [metadata, setMetadata] = useState<ModelToCLTMetadataGraphsMap>(initialMetadata);
   const [selectedModelId, setSelectedModelId] = useState<string>(
@@ -94,8 +97,10 @@ export function CircuitCLTProvider({
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
   const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
 
+  const hasAppliedInitialOverrides = useRef(false);
+
   const [visState, setVisStateInternal] = useState<CltVisState>({
-    pinnedIds: [],
+    pinnedIds: initialPinnedIds ? initialPinnedIds.split(',') : [],
     hiddenIds: [],
     hoveredId: null,
     hoveredNodeId: null,
@@ -111,18 +116,34 @@ export function CircuitCLTProvider({
     sg_pos: '',
     isModal: true,
     isGridsnap: false,
-    supernodes: [],
+    supernodes: initialSupernodes || [],
   });
 
-  const [logitDiff, setLogitDiff] = useState<string | null>(initialLogitDiff || null);
+  // update qParams when visState changes
+  useEffect(() => {
+    if (selectedGraph) {
+      const newParams = {
+        model: selectedModelId,
+        slug: selectedMetadataGraph?.slug || null,
+        pinnedIds: visState.pinnedIds.join(','),
+        clickedId: visState.clickedId || null,
+        supernodes:
+          visState.subgraph && visState.subgraph.supernodes.length > 0
+            ? JSON.stringify(visState.subgraph.supernodes)
+            : null,
+      };
+      updateParams(newParams);
+    }
+  }, [visState]);
 
-  const modelToBaseUrl = initialModelToBaseUrl;
+  // TODO: this does not seem to be used - but in the original it had it in the url params
+  const [logitDiff, setLogitDiff] = useState<string | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const updateParams = (keysToValues: Record<string, string>) => {
+  const updateParams = (keysToValues: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(keysToValues).forEach(([key, value]) => {
       if (value) {
@@ -131,52 +152,96 @@ export function CircuitCLTProvider({
         params.delete(key);
       }
     });
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  useEffect(() => {
-    console.log('selectedMetadataGraph', selectedMetadataGraph);
-    if (selectedMetadataGraph) {
-      console.log('updating params', selectedModelId, selectedMetadataGraph.slug);
-      updateParams({ model: selectedModelId, slug: selectedMetadataGraph.slug });
+  function resetSelectedGraphToDefaultVisState() {
+    // default vis state is either saved qParams or blank
+    if (selectedGraph) {
+      setVisStateInternal(getGraphDefaultVisState(selectedGraph));
     }
-  }, [selectedMetadataGraph]);
+  }
 
-  // When selectedgraph is set, set the correct isHideLayer value
+  function getGraphDefaultVisState(graph: CLTGraph) {
+    let visStateToReturn: CltVisState = {
+      pinnedIds: [],
+      hiddenIds: [],
+      hoveredId: null,
+      hoveredNodeId: null,
+      hoveredCtxIdx: null,
+      clickedId: null,
+      clickedCtxIdx: null,
+      linkType: 'both',
+      isShowAllLinks: '',
+      isSyncEnabled: '',
+      subgraph: null,
+      isEditMode: 1,
+      isHideLayer: isHideLayer(graph.metadata.scan),
+      sg_pos: '',
+      isModal: true,
+      isGridsnap: false,
+      supernodes: [],
+    };
+
+    // if we have qParams (default queryparams/visstate), parse them as visState and set it
+    if (graph.qParams) {
+      visStateToReturn = {
+        ...visStateToReturn,
+        ...graph.qParams,
+        // if the qparams has a clickedId, only set it in the visState if it exists in the nodes array
+        clickedId:
+          graph.qParams.clickedId && graph.nodes.some((d) => d.nodeId === graph.qParams.clickedId)
+            ? graph.qParams.clickedId
+            : null,
+      };
+    }
+
+    return visStateToReturn;
+  }
+
   useEffect(() => {
     if (selectedGraph) {
-      // if we have qParams (default queryparams/visstate), parse them as visState and set it
-      if (selectedGraph.qParams) {
-        const blankVisState: CltVisState = {
-          pinnedIds: [],
-          hiddenIds: [],
-          hoveredId: null,
-          hoveredNodeId: null,
-          hoveredCtxIdx: null,
-          clickedId: null,
-          clickedCtxIdx: null,
-          linkType: 'both',
-          isShowAllLinks: '',
-          isSyncEnabled: '',
-          subgraph: null,
-          isEditMode: 1,
-          isHideLayer: isHideLayer(selectedGraph.metadata.scan),
-          sg_pos: '',
-          isModal: true,
-          isGridsnap: false,
-          supernodes: [],
-        };
-        // if the qparams has a clickedId, only set it in the visState if it exists in the nodes array
-        setVisStateInternal(() => ({
-          ...blankVisState,
-          ...selectedGraph.qParams,
-          clickedId:
-            selectedGraph.qParams.clickedId &&
-            selectedGraph.nodes.some((d) => d.nodeId === selectedGraph.qParams.clickedId)
-              ? selectedGraph.qParams.clickedId
-              : null,
-        }));
+      const visStateToSet = getGraphDefaultVisState(selectedGraph);
+
+      if (!hasAppliedInitialOverrides.current) {
+        console.log('applying initial overrides');
+        // apply overrides with each state value from initial values
+        // only do this one time (first load from url)
+        // we don't want to reapply these values when we switch graphs
+
+        // override pinnedIds
+        if (initialPinnedIds) {
+          visStateToSet.pinnedIds = initialPinnedIds.split(',');
+        }
+
+        // overwrite clickedId
+        if (initialClickedId) {
+          visStateToSet.clickedId = initialClickedId;
+        }
+
+        // override supernodes
+        if (initialSupernodes) {
+          if (visStateToSet.subgraph) {
+            visStateToSet.subgraph.supernodes = initialSupernodes;
+          } else {
+            visStateToSet.subgraph = {
+              supernodes: initialSupernodes,
+              sticky: true,
+              dagrefy: true,
+              activeGrouping: {
+                isActive: false,
+                selectedNodeIds: new Set(),
+              },
+            };
+          }
+        }
+
+        hasAppliedInitialOverrides.current = true;
+      } else {
+        console.log('not applying initial overrides');
       }
+
+      setVisStateInternal(visStateToSet);
     }
   }, [selectedGraph]);
 
@@ -202,7 +267,7 @@ export function CircuitCLTProvider({
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
-    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrl[selectedModelId]));
+    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrlMap[selectedModelId]));
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
@@ -215,7 +280,7 @@ export function CircuitCLTProvider({
       formattedData.nodes,
       (d) => {
         if (nodeHasFeatureDetail(d)) {
-          return fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrl[selectedModelId]);
+          return fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrlMap[selectedModelId]);
         }
         return Promise.resolve(null);
       },
@@ -248,7 +313,7 @@ export function CircuitCLTProvider({
       selectedModelId,
       selectedMetadataGraph,
       selectedGraph,
-      modelToBaseUrl,
+      modelToBaseUrlMap,
       setSelectedModelId,
       setSelectedMetadataGraph,
       setMetadata,
@@ -261,6 +326,7 @@ export function CircuitCLTProvider({
       setLogitDiff,
       isLoadingGraphData,
       setIsLoadingGraphData,
+      resetSelectedGraphToDefaultVisState,
     }),
     [
       metadata,
@@ -272,6 +338,7 @@ export function CircuitCLTProvider({
       updateVisStateField,
       isLoadingGraphData,
       setIsLoadingGraphData,
+      resetSelectedGraphToDefaultVisState,
     ],
   );
 

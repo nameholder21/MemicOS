@@ -1,12 +1,14 @@
 import { getGraphUrl, useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
-import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react';
+import copy from 'copy-to-clipboard';
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon } from 'lucide-react';
 
 export default function CLTModelPromptSelector() {
   const {
     metadata,
-    modelToBaseUrl,
+    modelToBaseUrlMap,
+    resetSelectedGraphToDefaultVisState,
     setSelectedModelId,
     selectedModelId,
     selectedMetadataGraph,
@@ -149,6 +151,17 @@ export default function CLTModelPromptSelector() {
             </Select.Content>
           </Select.Portal>
         </Select.Root>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label="Reset Graph to Defaults"
+          className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
+          onClick={() => {
+            resetSelectedGraphToDefaultVisState();
+          }}
+        >
+          Reset
+        </Button>
         {selectedMetadataGraph && (
           <Button
             variant="outline"
@@ -157,7 +170,7 @@ export default function CLTModelPromptSelector() {
             className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
             onClick={() => {
               if (selectedMetadataGraph) {
-                const url = getGraphUrl(selectedMetadataGraph.slug, modelToBaseUrl[selectedModelId]);
+                const url = getGraphUrl(selectedMetadataGraph.slug, modelToBaseUrlMap[selectedModelId]);
                 window.open(url, '_blank');
               }
             }}
@@ -165,6 +178,18 @@ export default function CLTModelPromptSelector() {
             <DownloadIcon className="h-4 w-4" />
           </Button>
         )}
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label="Copy URL to Clipboard, including State"
+          className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-600 hover:bg-slate-50"
+          onClick={() => {
+            copy(window.location.href);
+            alert('The graph state has been copied to clipboard.');
+          }}
+        >
+          <CopyIcon className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

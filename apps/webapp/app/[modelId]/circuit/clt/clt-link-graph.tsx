@@ -15,7 +15,7 @@ import {
 } from './clt-utils';
 import d3 from './d3-jetpack';
 
-const HEIGHT = 320;
+const HEIGHT = 360;
 
 // Extended type for custom CLTGraph properties
 interface CLTGraphExtended extends CLTGraph {
@@ -506,8 +506,14 @@ export default function CLTLinkGraph() {
     // Draw axis
     c.svgBot.append('g').attr('class', 'y axis').call(c.yAxis);
 
-    if (isHideLayer(data.metadata.scan)) c.svgBot.select('.y').remove();
+    // Set y-axis tick text color
+    c.svgBot.selectAll('.y text').attr('fill', '#64748b').attr('font-size', '9px');
+
+    if (isHideLayer(data.metadata.scan)) {
+      c.svgBot.select('.y').remove();
+    }
     c.svgBot.selectAll('.y line').remove();
+    c.svgBot.selectAll('.y .domain').remove();
 
     // Spread nodes across each context
     ctxCounts.forEach((d, i) => {
@@ -897,7 +903,7 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[400px] w-[66%] min-w-[66%] max-w-[66%] pt-5">
+    <div className="link-graph relative mt-3 min-h-[425px] w-[66%] min-w-[66%] max-w-[66%] pt-5">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
