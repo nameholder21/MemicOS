@@ -802,11 +802,15 @@ foreignObject canvas {
     }
 
     .temp-edit {
-      width: 100px;
+      width: 100%;
       font: inherit;
-      border: none;
+      font-size: 10px;
+      border: 1px solid #0ea5e9;
+      border-radius: 2px;
       padding: 0;
+      box-shadow: none;
       margin: 0;
+      text-align: center;
       background: none;
       outline: none;
       display: inline;

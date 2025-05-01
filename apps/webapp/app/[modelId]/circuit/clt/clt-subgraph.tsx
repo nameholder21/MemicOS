@@ -780,7 +780,66 @@ export default function CLTSubgraph() {
     // Add text labels
     const nodeTextSel = nodeSel.append('div.node-text-container');
 
-    nodeTextSel.append('span').text((d) => d.node.ppClerp || '');
+    nodeTextSel
+      .append('span')
+      .text((d) => d.node.ppClerp || '')
+      .on('click', (ev, d) => {
+        if (!visState.isEditMode) return;
+        if (!d.node.isSuperNode) return;
+        ev.stopPropagation();
+
+        const spanSel = d3.select(ev.target).st({ display: 'none' });
+        const input = d3
+          .select(spanSel.node().parentNode)
+          .append('input')
+          .at({ class: 'temp-edit', value: spanSel.text() })
+          // eslint-disable-next-line
+          .on('blur', save)
+          .on('keydown', (saveEvent) => {
+            if (saveEvent.key === 'Enter') {
+              // eslint-disable-next-line
+              save();
+              input.node()?.blur();
+            }
+            saveEvent.stopPropagation();
+          });
+
+        input.node()?.focus();
+
+        function save() {
+          // eslint-disable-next-line
+          const idx = visState.subgraph?.supernodes.findIndex(([_, ...nodeIds]) =>
+            nodeIds.every((id) => d.node.memberNodeIds?.includes(id)),
+          );
+
+          if (visState.subgraph && typeof idx === 'number' && idx >= 0) {
+            const newValue = input.node()?.value || 'supernode';
+
+            // We need to create a new one because otherwise useEffect won't trigger
+            const newSupernodes = visState.subgraph.supernodes.map((supernodeEntry, i) => {
+              if (i === idx) {
+                // eslint-disable-next-line
+                const [_, ...restIds] = supernodeEntry;
+                return [newValue, ...restIds];
+              }
+              return supernodeEntry;
+            });
+
+            updateVisStateField('subgraph', {
+              ...visState.subgraph,
+              supernodes: newSupernodes,
+            });
+
+            input.remove();
+            spanSel.st({ display: 'inline' });
+          } else {
+            // Handle case where idx is not found or subgraph doesn't exist
+            console.error('Could not find supernode index or subgraph is missing.');
+            input.remove();
+            spanSel.st({ display: 'inline' });
+          }
+        }
+      });
 
     // Get actual text height for each node
     nodeTextSel.each(function (d: ForceNode) {

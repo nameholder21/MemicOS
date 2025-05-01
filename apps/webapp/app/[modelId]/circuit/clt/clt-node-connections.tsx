@@ -26,10 +26,10 @@ function FeatureList({
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
         .filter((node) => node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined)
-        .map((node) => (
+        .map((node, idx) => (
           <button
             type="button"
-            key={node.nodeId}
+            key={`${node.featureId}-${idx}`}
             className={`flex cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
               node.featureId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
             } ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'text-white' : ''}`}
