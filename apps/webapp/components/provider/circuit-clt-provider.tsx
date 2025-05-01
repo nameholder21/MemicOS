@@ -86,6 +86,10 @@ export function CircuitCLTProvider({
   initialClickedId?: string;
   initialSupernodes?: string[][];
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [metadata, setMetadata] = useState<ModelToCLTMetadataGraphsMap>(initialMetadata);
   const [selectedModelId, setSelectedModelId] = useState<string>(
     initialModel || (Object.keys(initialMetadata).length > 0 ? Object.keys(initialMetadata)[0] : ''),
@@ -119,6 +123,18 @@ export function CircuitCLTProvider({
     supernodes: initialSupernodes || [],
   });
 
+  const updateParams = (keysToValues: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(keysToValues).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
   // update qParams when visState changes
   useEffect(() => {
     if (selectedGraph) {
@@ -138,29 +154,6 @@ export function CircuitCLTProvider({
 
   // TODO: this does not seem to be used - but in the original it had it in the url params
   const [logitDiff, setLogitDiff] = useState<string | null>(null);
-
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const updateParams = (keysToValues: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    Object.entries(keysToValues).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-    });
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
-  function resetSelectedGraphToDefaultVisState() {
-    // default vis state is either saved qParams or blank
-    if (selectedGraph) {
-      setVisStateInternal(getGraphDefaultVisState(selectedGraph));
-    }
-  }
 
   function getGraphDefaultVisState(graph: CLTGraph) {
     let visStateToReturn: CltVisState = {
@@ -197,6 +190,13 @@ export function CircuitCLTProvider({
     }
 
     return visStateToReturn;
+  }
+
+  function resetSelectedGraphToDefaultVisState() {
+    // default vis state is either saved qParams or blank
+    if (selectedGraph) {
+      setVisStateInternal(getGraphDefaultVisState(selectedGraph));
+    }
   }
 
   useEffect(() => {

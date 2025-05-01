@@ -63,7 +63,7 @@ export default async function Page({
     ? metadata[searchParams.model]?.find((graph) => graph.slug === searchParams.slug)
     : undefined;
 
-  let parsedSupernodes: string[][] | undefined = undefined;
+  let parsedSupernodes: string[][] | undefined;
   try {
     parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
   } catch (error) {
