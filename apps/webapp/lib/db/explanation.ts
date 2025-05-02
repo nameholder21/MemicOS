@@ -43,14 +43,19 @@ export const searchExplanationsAllVec = async (
     }
   }
 
-  let results = (await prisma.$queryRaw`
+  let results = (await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
+    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+
+    return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
-        1 - (embedding <=> ${queryEmbedding}::vector) AS cosine_similarity
+           1 - (embedding <=> ${queryEmbedding}::vector) AS cosine_similarity
     FROM "Explanation"
     ORDER BY (embedding <=> ${queryEmbedding}::vector)
     LIMIT ${MAX_EXPLANATION_SEARCH_RESULTS}
     OFFSET ${offset || 0};
-  `) as ExplanationPartialWithRelations[];
+  `;
+  })) as ExplanationPartialWithRelations[];
 
   // if the layer is not in sourceIds, then remove it - user's not supposed to see it
   results = results.filter((result) => {
@@ -85,7 +90,12 @@ export const searchExplanationsVec = async (
       await assertUserCanAccessModelAndSource(modelId, layer, user);
     }
   }
-  const results = await prisma.$queryRaw`
+
+  return (await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
+    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+
+    return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",  
         1 - (embedding <=> ${queryEmbedding}::vector) AS cosine_similarity
     FROM "Explanation"
@@ -94,8 +104,8 @@ export const searchExplanationsVec = async (
     ORDER BY (embedding <=> ${queryEmbedding}::vector)
     LIMIT ${MAX_EXPLANATION_SEARCH_RESULTS}
     OFFSET ${offset || 0};
-  `;
-  return results as ExplanationPartialWithRelations[];
+    `;
+  })) as ExplanationPartialWithRelations[];
 };
 
 export const searchExplanationsReleaseVec = async (
@@ -106,7 +116,11 @@ export const searchExplanationsReleaseVec = async (
 ) => {
   await assertUserCanAccessRelease(releaseName, user);
 
-  const results = await prisma.$queryRaw`
+  return (await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
+    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+
+    return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
         1 - (embedding <=> ${queryEmbedding}::vector) AS cosine_similarity
     FROM "Explanation" e
@@ -125,9 +139,8 @@ export const searchExplanationsReleaseVec = async (
     ORDER BY (embedding <=> ${queryEmbedding}::vector)
     LIMIT ${MAX_EXPLANATION_SEARCH_RESULTS}
     OFFSET ${offset || 0};
-  `;
-
-  return results as ExplanationPartialWithRelations[];
+    `;
+  })) as ExplanationPartialWithRelations[];
 };
 
 export const searchExplanationsModelVec = async (
@@ -147,7 +160,11 @@ export const searchExplanationsModelVec = async (
     }
   }
 
-  let results = (await prisma.$queryRaw`
+  let results = (await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
+    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+
+    return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
         1 - (embedding <=> ${queryEmbedding}::vector) AS cosine_similarity
     FROM "Explanation"
@@ -155,7 +172,8 @@ export const searchExplanationsModelVec = async (
     ORDER BY (embedding <=> ${queryEmbedding}::vector)
     LIMIT ${MAX_EXPLANATION_SEARCH_RESULTS}
     OFFSET ${offset || 0};
-  `) as ExplanationPartialWithRelations[];
+    `;
+  })) as ExplanationPartialWithRelations[];
 
   // if the layer is not in sourceIds, then remove it - user's not supposed to see it
   results = results.filter((result) => {
@@ -165,7 +183,7 @@ export const searchExplanationsModelVec = async (
     return false;
   });
 
-  return results as ExplanationPartialWithRelations[];
+  return results;
 };
 
 export const exportExplanations = async (

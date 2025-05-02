@@ -12,9 +12,10 @@ generator zod {
   createRelationValuesTypes = "true"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
+// Don't always generate.
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
 
 datasource db {
   provider  = "postgresql"
