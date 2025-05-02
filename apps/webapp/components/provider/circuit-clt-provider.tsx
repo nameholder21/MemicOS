@@ -3,6 +3,7 @@
 import {
   CLTFeature,
   CLTGraph,
+  CLTGraphNode,
   CLTMetadataGraph,
   CltVisState,
   ModelToCLTMetadataGraphsMap,
@@ -45,6 +46,13 @@ type CircuitCLTContextType = {
 
   // resetSelectedGraphToDefaultVisState
   resetSelectedGraphToDefaultVisState: () => void;
+
+  // isEditingLabel
+  isEditingLabel: boolean;
+  setIsEditingLabel: (isEditingLabel: boolean) => void;
+
+  // getOverrideClerpForNode
+  getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
 };
 
 // Create the context with a default value
@@ -76,6 +84,7 @@ export function CircuitCLTProvider({
   initialPinnedIds,
   initialClickedId,
   initialSupernodes,
+  initialClerps,
 }: {
   children: ReactNode;
   modelToBaseUrlMap?: Record<string, string>;
@@ -85,6 +94,7 @@ export function CircuitCLTProvider({
   initialPinnedIds?: string;
   initialClickedId?: string;
   initialSupernodes?: string[][];
+  initialClerps?: string[][];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -102,6 +112,7 @@ export function CircuitCLTProvider({
   const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
 
   const hasAppliedInitialOverrides = useRef(false);
+  const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
 
   const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: initialPinnedIds ? initialPinnedIds.split(',') : [],
@@ -121,9 +132,19 @@ export function CircuitCLTProvider({
     isModal: true,
     isGridsnap: false,
     supernodes: initialSupernodes || [],
+    clerps: initialClerps || [],
   });
 
-  const updateParams = (keysToValues: Record<string, string | null>) => {
+  const getOverrideClerpForNode = (node: CLTGraphNode) => {
+    const defaultClerp = node.ppClerp;
+    if (visState.clerps && visState.clerps.length > 0) {
+      const overrideClerp = visState.clerps.find((e) => e[0] === node.featureId);
+      return overrideClerp ? overrideClerp[1] : defaultClerp;
+    }
+    return defaultClerp;
+  };
+
+  const updateUrlParams = (keysToValues: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
     Object.entries(keysToValues).forEach(([key, value]) => {
       if (value) {
@@ -147,8 +168,9 @@ export function CircuitCLTProvider({
           visState.subgraph && visState.subgraph.supernodes.length > 0
             ? JSON.stringify(visState.subgraph.supernodes)
             : null,
+        clerps: visState.clerps && visState.clerps.length > 0 ? JSON.stringify(visState.clerps) : null,
       };
-      updateParams(newParams);
+      updateUrlParams(newParams);
     }
   }, [visState]);
 
@@ -174,6 +196,7 @@ export function CircuitCLTProvider({
       isModal: true,
       isGridsnap: false,
       supernodes: [],
+      clerps: [],
     };
 
     // if we have qParams (default queryparams/visstate), parse them as visState and set it
@@ -234,6 +257,11 @@ export function CircuitCLTProvider({
               },
             };
           }
+        }
+
+        // override clerps
+        if (initialClerps) {
+          visStateToSet.clerps = initialClerps;
         }
 
         hasAppliedInitialOverrides.current = true;
@@ -327,6 +355,9 @@ export function CircuitCLTProvider({
       isLoadingGraphData,
       setIsLoadingGraphData,
       resetSelectedGraphToDefaultVisState,
+      isEditingLabel,
+      setIsEditingLabel,
+      getOverrideClerpForNode,
     }),
     [
       metadata,
@@ -339,6 +370,9 @@ export function CircuitCLTProvider({
       isLoadingGraphData,
       setIsLoadingGraphData,
       resetSelectedGraphToDefaultVisState,
+      isEditingLabel,
+      setIsEditingLabel,
+      getOverrideClerpForNode,
     ],
   );
 

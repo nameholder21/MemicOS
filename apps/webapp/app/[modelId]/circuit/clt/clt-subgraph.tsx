@@ -71,7 +71,7 @@ interface SubgraphLink extends CLTGraphLink {
 export default function CLTSubgraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
-  const { visState, selectedGraph, updateVisStateField } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
   const memberNodeSelRef = useRef<d3.Selection<HTMLDivElement, CLTGraphNode, HTMLDivElement, ForceNode> | null>(null);
@@ -83,6 +83,8 @@ export default function CLTSubgraph() {
 
   // Ref to hold the latest active grouping state for event handlers
   const activeGroupingRef = useRef(visState.subgraph?.activeGrouping);
+  // Ref to hold the latest isEditingLabel state for event handlers
+  const isEditingLabelRef = useRef(isEditingLabel);
 
   const screenSize = useScreenSize();
 
@@ -109,6 +111,11 @@ export default function CLTSubgraph() {
   useEffect(() => {
     activeGroupingRef.current = visState.subgraph?.activeGrouping;
   }, [visState.subgraph?.activeGrouping]);
+
+  // Effect to keep the isEditingLabelRef updated
+  useEffect(() => {
+    isEditingLabelRef.current = isEditingLabel;
+  }, [isEditingLabel]);
 
   // Handler for keydown event to enable grouping mode
   useEffect(() => {
@@ -594,6 +601,7 @@ export default function CLTSubgraph() {
         ev.subject.x = ev.x;
         ev.subject.fy = ev.y;
         ev.subject.y = ev.y;
+        hideTooltip();
         renderForce();
       })
       .on('end', (ev: any) => {
@@ -612,10 +620,10 @@ export default function CLTSubgraph() {
       .style('height', `${NODE_HEIGHT}px`)
       .on('mouseover', (ev: MouseEvent, d: ForceNode) => {
         if (ev.buttons === 1) return; // Ignore if dragging/clicking
-        if (!ev.metaKey && !ev.ctrlKey && !activeGroupingRef.current?.isActive) {
+        if (!ev.metaKey && !ev.ctrlKey && !activeGroupingRef.current?.isActive && !isEditingLabelRef.current) {
           updateVisStateField('hoveredId', d.node.featureId || null);
           updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
-          showTooltip(ev, d.node);
+          showTooltip(ev, d.node, getOverrideClerpForNode(d.node));
         }
       })
       .on('mouseleave', (ev: MouseEvent) => {
@@ -704,10 +712,10 @@ export default function CLTSubgraph() {
       })
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
         if (ev.buttons === 1) return; // Ignore if dragging
-        if (activeGroupingRef.current?.isActive || ev.metaKey || ev.ctrlKey) return;
+        if (activeGroupingRef.current?.isActive || ev.metaKey || ev.ctrlKey || isEditingLabelRef.current) return;
         updateVisStateField('hoveredId', d.featureId || null);
         updateVisStateField('hoveredCtxIdx', d.ctx_idx);
-        showTooltip(ev, d);
+        showTooltip(ev, d, getOverrideClerpForNode(d));
         ev.stopPropagation();
       })
       .on('mouseleave', (ev: MouseEvent) => {
@@ -743,7 +751,7 @@ export default function CLTSubgraph() {
           updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
         }
       })
-      .attr('title', (d: CLTGraphNode) => d.ppClerp || '');
+      .attr('title', (d: CLTGraphNode) => getOverrideClerpForNode(d) || '');
 
     // @ts-ignore
     memberNodeSelRef.current = memberNodeSel;
@@ -782,7 +790,7 @@ export default function CLTSubgraph() {
 
     nodeTextSel
       .append('span')
-      .text((d) => d.node.ppClerp || '')
+      .text((d) => getOverrideClerpForNode(d.node) || '')
       .on('click', (ev, d) => {
         if (!visState.isEditMode) return;
         if (!d.node.isSuperNode) return;
@@ -902,7 +910,6 @@ export default function CLTSubgraph() {
     // Cleanup function
     // eslint-disable-next-line
     return () => {
-      console.log('stopping simulation'); // Add log
       simulationRef.current?.stop();
     };
   }, [
@@ -914,6 +921,7 @@ export default function CLTSubgraph() {
     visState.subgraph?.dagrefy,
     visState.sg_pos,
     visState.isHideLayer,
+    visState.clerps,
     updateVisStateField,
     pctInputColorFn,
     bgColorToTextColor,

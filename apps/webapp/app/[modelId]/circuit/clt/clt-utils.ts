@@ -74,6 +74,8 @@ export type CltVisState = {
   supernodes: string[][]; // this is from qParams
 
   og_sg_pos?: string;
+
+  clerps: string[][];
 };
 
 export const metadataScanToModelDisplayName = new Map<string, string>([
@@ -503,7 +505,7 @@ const keysToSkip = new Set([
   'umap_concat_y',
 ]);
 
-export function showTooltip(ev: MouseEvent, d: CLTGraphNode) {
+export function showTooltip(ev: MouseEvent, d: CLTGraphNode, overrideClerp?: string) {
   const tooltipSel = d3.select('.tooltip');
   const x = ev.clientX;
   const y = ev.clientY;
@@ -513,7 +515,7 @@ export function showTooltip(ev: MouseEvent, d: CLTGraphNode) {
   const top = window.innerHeight > y + 20 + bb.height ? y + 20 : y - bb.height - 20;
 
   const tooltipHtml = !ev.metaKey
-    ? d.ppClerp || `F#${d.feature}`
+    ? overrideClerp || d.ppClerp || `F#${d.feature}`
     : Object.keys(d)
         // @ts-ignore
         .filter((str) => typeof d[str] !== 'object' && typeof d[str] !== 'function' && !keysToSkip.has(str))
