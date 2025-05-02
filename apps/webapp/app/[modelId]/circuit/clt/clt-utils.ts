@@ -3,6 +3,7 @@ import d3 from './d3-jetpack';
 export const CLT_BASE_URLS = [
   'https://transformer-circuits.pub/2025/attribution-graphs',
   'https://d1fk9w8oratjix.cloudfront.net',
+  'https://dx3cf1keixxrs.cloudfront.net',
 ];
 
 export type CLTMetadataGraph = {
