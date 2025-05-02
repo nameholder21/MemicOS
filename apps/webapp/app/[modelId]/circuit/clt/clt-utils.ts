@@ -1,9 +1,12 @@
 import d3 from './d3-jetpack';
 
+// TODO: make this an env variable
+export const NP_GRAPH_BUCKET = 'memicos-attrib';
+
 export const CLT_BASE_URLS = [
   'https://transformer-circuits.pub/2025/attribution-graphs',
   'https://d1fk9w8oratjix.cloudfront.net',
-  'https://dx3cf1keixxrs.cloudfront.net',
+  // 'https://dx3cf1keixxrs.cloudfront.net', // NP graph bucket
 ];
 
 export type CLTMetadataGraph = {
