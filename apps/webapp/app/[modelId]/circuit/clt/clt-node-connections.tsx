@@ -11,17 +11,21 @@ function FeatureList({
   linkType,
   visState,
   updateVisStateField,
+  isEditingLabel,
+  getOverrideClerpForNode,
 }: {
   title: string;
   nodes: CLTGraphNode[];
   linkType: 'source' | 'target';
   visState: any;
   updateVisStateField: (field: keyof CltVisState, value: any) => void;
+  isEditingLabel: boolean;
+  getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
 }) {
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[320px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 text-slate-800">
+    <div className="flex max-h-[320px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 pb-1 text-slate-800">
       <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
@@ -35,7 +39,9 @@ function FeatureList({
             } ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'text-white' : ''}`}
             style={{ backgroundColor: node[linkProp]?.tmpColor }}
             onMouseEnter={() => {
-              updateVisStateField('hoveredId', node.featureId);
+              if (!isEditingLabel) {
+                updateVisStateField('hoveredId', node.featureId);
+              }
             }}
             onMouseLeave={() => {
               updateVisStateField('hoveredId', null);
@@ -55,7 +61,7 @@ function FeatureList({
                 </g>
               </g>
             </svg>
-            <div className="flex-1 text-left leading-snug">{node.ppClerp}</div>
+            <div className="flex-1 text-left leading-snug">{getOverrideClerpForNode(node)}</div>
             {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
               (node[linkProp]?.tmpClickedCtxOffset > 0 ? (
                 <div
@@ -86,7 +92,7 @@ function FeatureList({
 }
 
 export default function CLTNodeConnections() {
-  const { visState, selectedGraph, updateVisStateField } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
 
   const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
 
@@ -129,6 +135,8 @@ export default function CLTNodeConnections() {
               linkType="source"
               visState={visState}
               updateVisStateField={updateVisStateField}
+              isEditingLabel={isEditingLabel}
+              getOverrideClerpForNode={getOverrideClerpForNode}
             />
             <FeatureList
               title="Output Features"
@@ -136,6 +144,8 @@ export default function CLTNodeConnections() {
               linkType="target"
               visState={visState}
               updateVisStateField={updateVisStateField}
+              isEditingLabel={isEditingLabel}
+              getOverrideClerpForNode={getOverrideClerpForNode}
             />
           </div>
         )}

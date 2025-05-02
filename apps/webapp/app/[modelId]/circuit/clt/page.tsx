@@ -14,6 +14,7 @@ export default async function Page({
     slug?: string;
     pinnedIds?: string;
     supernodes?: string;
+    clerps?: string;
   };
 }) {
   // TODO: update this to use modelid from url
@@ -70,6 +71,13 @@ export default async function Page({
     console.error('Error parsing supernodes:', error);
   }
 
+  let parsedClerps: string[][] | undefined;
+  try {
+    parsedClerps = searchParams.clerps ? JSON.parse(searchParams.clerps) : undefined;
+  } catch (error) {
+    console.error('Error parsing clerps:', error);
+  }
+
   return (
     <CircuitCLTProvider
       modelToBaseUrlMap={modelToBaseUrlMap}
@@ -79,6 +87,7 @@ export default async function Page({
       initialPinnedIds={searchParams.pinnedIds}
       initialClickedId={searchParams.clickedId}
       initialSupernodes={parsedSupernodes}
+      initialClerps={parsedClerps}
     >
       <CLTWrapper />
     </CircuitCLTProvider>

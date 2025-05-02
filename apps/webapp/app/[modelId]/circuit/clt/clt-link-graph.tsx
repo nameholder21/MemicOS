@@ -117,7 +117,8 @@ export default function CLTLinkGraph() {
   const middleRef = useRef<SVGSVGElement>(null);
   const bottomRef = useRef<SVGSVGElement>(null);
   const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([null, null, null, null]);
-  const { visState, selectedGraph, updateVisStateField } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
+  const isEditingLabelRef = useRef(isEditingLabel);
 
   function colorNodes() {
     selectedGraph?.nodes.forEach((d) => {
@@ -173,9 +174,14 @@ export default function CLTLinkGraph() {
     return [closestPoint, closestDistance];
   }
 
-  // Update hoverState when hoveredId changes - equivalent to renderAll.hoveredId.fns.push()
+  // Effect to keep the isEditingLabelRef updated
   useEffect(() => {
-    if (!selectedGraph || !visState.hoveredId) return;
+    isEditingLabelRef.current = isEditingLabel;
+  }, [isEditingLabel]);
+
+  // Update hoverState when hoveredId changes
+  useEffect(() => {
+    if (!selectedGraph || !visState.hoveredId || isEditingLabelRef.current) return;
 
     // Use hovered node if possible, otherwise use last occurrence of feature
     const targetCtxIdx = visState.hoveredCtxIdx ?? 999;
@@ -741,14 +747,11 @@ export default function CLTLinkGraph() {
 
           // Only update state if it needs to change
           if (currentHoveredFeatureId) {
-            // console.log('Clearing hover state');
-            // updateVisStateField('clickedId', null);
-            // updateVisStateField('clickedCtxIdx', null);
             updateVisStateField('hoveredId', null);
             updateVisStateField('hoveredCtxIdx', null);
             currentHoveredFeatureId = null;
           }
-        } else if (currentHoveredFeatureId !== closestNode.featureId) {
+        } else if (currentHoveredFeatureId !== closestNode.featureId && !isEditingLabelRef.current) {
           // Only update when the hovered node actually changes
           currentHoveredFeatureId = closestNode.featureId || null;
 
@@ -756,9 +759,7 @@ export default function CLTLinkGraph() {
           // console.log('Setting hover state:', currentHoveredFeatureId);
           updateVisStateField('hoveredId', closestNode.featureId || null);
           updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
-          // updateVisStateField('clickedId', closestNode.nodeId || null);
-          // updateVisStateField('clickedCtxIdx', closestNode.ctx_idx);
-          showTooltip(event, closestNode);
+          showTooltip(event, closestNode, getOverrideClerpForNode(closestNode));
           // Visual feedback for hover - direct DOM update without requiring a state update
           hoverSel.style('display', (d) => (d.featureId === currentHoveredFeatureId ? '' : 'none'));
         }
@@ -768,13 +769,11 @@ export default function CLTLinkGraph() {
 
         // Clear hover state
         hoverSel.style('display', 'none');
-
+        hideTooltip();
         // Only update state if needed
         if (currentHoveredFeatureId) {
           updateVisStateField('hoveredId', null);
           updateVisStateField('hoveredCtxIdx', null);
-          // updateVisStateField('clickedId', null);
-          // updateVisStateField('clickedCtxIdx', null);
           currentHoveredFeatureId = null;
         }
       })
@@ -899,7 +898,6 @@ export default function CLTLinkGraph() {
 
     // Initial display of hovered nodes
     hoverSel.style('display', (d) => (d.featureId === visState.hoveredId ? '' : 'none'));
-    // Remove visState.hoveredId from dependency array to prevent redraws on hover
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (

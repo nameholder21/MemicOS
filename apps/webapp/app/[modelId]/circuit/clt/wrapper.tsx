@@ -10,7 +10,7 @@ import CLTSubgraph from './clt-subgraph';
 import CLTModelPromptSelector from './model-prompt-selector';
 
 export default function CLTWrapper() {
-  const { isLoadingGraphData } = useCircuitCLT();
+  const { isLoadingGraphData, visState } = useCircuitCLT();
   return (
     <div className="mt-3 flex w-full flex-col justify-center px-4 text-slate-700">
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
@@ -20,9 +20,6 @@ export default function CLTWrapper() {
       </div>
       <div className="hidden w-full flex-col items-center justify-center sm:flex">
         <div className="flex w-full max-w-screen-xl flex-col">
-          {/* <div className="mb-1 w-full text-center text-base font-medium text-slate-600">
-            Circuit Tracing <sup className="text-xs">alpha</sup>
-          </div> */}
           <div className="mb-0 w-full text-center text-[11px] text-red-500">
             This is a work in progress and not linked to from public MemicOS pages.
           </div>
