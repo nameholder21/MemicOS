@@ -12,6 +12,10 @@ generator zod {
   createRelationValuesTypes = "true"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
 datasource db {
   provider  = "postgresql"
   url       = env("POSTGRES_PRISMA_URL")
