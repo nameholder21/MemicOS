@@ -47,22 +47,6 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       );
     }
 
-    // if exists, return error
-    const existingGraph = await prisma.graphMetadata.findUnique({
-      where: {
-        modelId_slug: {
-          modelId: graph.metadata.scan,
-          slug: graph.metadata.slug,
-        },
-      },
-    });
-    if (existingGraph) {
-      return NextResponse.json(
-        { error: 'This model already has this slug. Please use a different slug.' },
-        { status: 400 },
-      );
-    }
-
     // if model doesn't exist in our database, return error
     const model = await prisma.model.findUnique({
       where: {
@@ -73,9 +57,41 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       return NextResponse.json({ error: 'Model not supported' }, { status: 400 });
     }
 
+    // if exists, return error (only if it's not the same user)
+    const existingGraph = await prisma.graphMetadata.findUnique({
+      where: {
+        modelId_slug: {
+          modelId: graph.metadata.scan,
+          slug: graph.metadata.slug,
+        },
+      },
+    });
+    if (existingGraph && existingGraph.userId !== userId) {
+      return NextResponse.json(
+        { error: 'This model already has this slug. Please use a different slug.' },
+        { status: 400 },
+      );
+    }
+
     // graph is valid, save it to the database
-    await prisma.graphMetadata.create({
-      data: {
+    await prisma.graphMetadata.upsert({
+      where: {
+        modelId_slug: {
+          modelId: graph.metadata.scan,
+          slug: graph.metadata.slug,
+        },
+      },
+      update: {
+        userId,
+        modelId: graph.metadata.scan,
+        slug: graph.metadata.slug,
+        titlePrefix: '',
+        promptTokens: graph.metadata.prompt_tokens,
+        prompt: graph.metadata.prompt,
+        url: cleanUrl,
+        isFeatured: false,
+      },
+      create: {
         userId,
         modelId: graph.metadata.scan,
         slug: graph.metadata.slug,

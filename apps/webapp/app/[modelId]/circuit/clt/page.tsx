@@ -2,7 +2,7 @@ import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
 import { prisma } from '@/lib/db';
 import {
   getGraphMetadatasFromBucket,
-  GRAPH_BASE_URLS,
+  GRAPH_BASE_URL_TO_NAME,
   ModelToGraphMetadatasMap,
   supportedGraphModels,
 } from './clt-utils';
@@ -36,7 +36,7 @@ export default async function Page({
 
   // first, get all the graphmetadatas from the buckets
   // eslint-disable-next-line
-  for (const baseUrl of GRAPH_BASE_URLS) {
+  for (const baseUrl of Object.keys(GRAPH_BASE_URL_TO_NAME)) {
     try {
       const modelIdToGraphMetadata = await getGraphMetadatasFromBucket(baseUrl);
 
@@ -82,7 +82,11 @@ export default async function Page({
     if (!modelIdToGraphMetadatasMap[graphMetadata.modelId]) {
       modelIdToGraphMetadatasMap[graphMetadata.modelId] = [];
     }
-    modelIdToGraphMetadatasMap[graphMetadata.modelId].push(graphMetadata);
+    // ensure that there is no existing graph with the same slug
+    // we don't want a user-uploaded graph to override a featured graph
+    if (!modelIdToGraphMetadatasMap[graphMetadata.modelId].find((graph) => graph.slug === graphMetadata.slug)) {
+      modelIdToGraphMetadatasMap[graphMetadata.modelId].push(graphMetadata);
+    }
   });
 
   const metadataGraph = searchParams.model

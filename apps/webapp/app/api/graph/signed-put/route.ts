@@ -4,6 +4,7 @@ import { getUserByName } from '@/lib/db/user';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
@@ -28,17 +29,20 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
 
   try {
     const body = await signedPutRequestSchema.validate(bodyJson);
-
     const userId = user.id;
 
-    if (!request.ip) {
+    const headersList = headers();
+    const forwardedFor = headersList.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+
+    if (!ip) {
       throw new Error('IP address is required');
     }
 
     // look up how many put requests this IP has made in the last 24 hours
     const putRequests = await prisma.graphMetadataDataPutRequest.findMany({
       where: {
-        ipAddress: request.ip,
+        ipAddress: ip,
         createdAt: {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
         },
@@ -80,7 +84,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     const putRequest = await prisma.graphMetadataDataPutRequest.create({
       data: {
         userId: request.user.id,
-        ipAddress: request.ip,
+        ipAddress: ip,
         filename: body.filename,
         url: signedUrl,
       },

@@ -6,14 +6,26 @@ import d3 from './d3-jetpack';
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
-export const GRAPH_BASE_URLS = [
-  'https://transformer-circuits.pub/2025/attribution-graphs',
-  'https://d1fk9w8oratjix.cloudfront.net',
-  'https://dx3cf1keixxrs.cloudfront.net', // NP graph bucket
-];
+export const GRAPH_BASE_URL_TO_NAME = {
+  'https://transformer-circuits.pub/2025/attribution-graphs': 'Ameisen et al.',
+  'https://d1fk9w8oratjix.cloudfront.net': 'Piotrowski & Hanna',
+};
+
+export function getGraphBaseUrlToName(url: string) {
+  // if url starts with one of the keys in GRAPH_BASE_URL_TO_NAME, return the value
+  const key = Object.keys(GRAPH_BASE_URL_TO_NAME).find((k) => url.startsWith(k));
+  if (key) {
+    return GRAPH_BASE_URL_TO_NAME[key as keyof typeof GRAPH_BASE_URL_TO_NAME];
+  }
+  return '';
+}
+
+export function makeGraphPublicAccessGraphUri(modelId: string, slug: string) {
+  return `/beta/circuit/clt?model=${modelId}&slug=${slug}`;
+}
 
 export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {
-  return `${NEXT_PUBLIC_URL}/beta/circuit/clt?model=${modelId}&slug=${slug}`;
+  return `${NEXT_PUBLIC_URL}/${makeGraphPublicAccessGraphUri(modelId, slug)}`;
 }
 
 export type AnthropicGraphMetadata = {

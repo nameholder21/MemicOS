@@ -178,11 +178,13 @@ export function CircuitCLTProvider({
   };
 
   const setDefaultMetadataGraph = (modelOverride?: string) => {
+    console.log('setting default metadata graph');
     // based on the filter, find the first graph that matches the filter
     const filteredGraphs = modelIdToMetadataMap[modelOverride || selectedModelId].filter((graph) =>
       filterGraphsSetting.includes(getFilterGraphTypeForCurrentUser(graph)),
     );
     if (filteredGraphs.length > 0) {
+      console.log('filteredGraphs:', filteredGraphs[0].slug);
       setSelectedMetadataGraph(filteredGraphs[0]);
     } else {
       setSelectedMetadataGraph(null);
@@ -190,7 +192,9 @@ export function CircuitCLTProvider({
   };
 
   useEffect(() => {
-    setDefaultMetadataGraph();
+    if (hasAppliedInitialOverrides.current) {
+      setDefaultMetadataGraph();
+    }
   }, [filterGraphsSetting]);
 
   const updateUrlParams = (keysToValues: Record<string, string | null>) => {
@@ -385,6 +389,7 @@ export function CircuitCLTProvider({
   // Fetch graph data when selected metadata graph changes
   useEffect(() => {
     if (selectedMetadataGraph) {
+      console.log('selectedMetadataGraph:', selectedMetadataGraph.slug);
       setIsLoadingGraphData(true);
       getGraph(selectedMetadataGraph.slug).then((g) => {
         setSelectedGraph(g);
