@@ -1,5 +1,5 @@
-// eslint-disable-next-line import/no-cycle
 import { prisma } from '@/lib/db';
+// eslint-disable-next-line import/no-cycle
 import CustomPrismaAdapterForNextAuth from '@/lib/db/custom-prisma-adapter';
 import { sendLoginEmail, sendWelcomeEmail } from '@/lib/email/email';
 import {
