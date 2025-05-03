@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
@@ -1015,8 +1016,9 @@ export default function CLTSubgraph() {
   ]);
 
   return (
-    <div className="relative mt-3 w-full">
-      {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
+    <Card className="mt-2 w-full bg-white">
+      <CardContent className="px-2 py-2">
+        {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
@@ -1029,66 +1031,67 @@ export default function CLTSubgraph() {
           </div>
         </CustomTooltip>
       </div> */}
-      <div className="subgraph relative min-h-[435px] w-full">
-        <svg className="absolute h-[435px] w-full" height={435} ref={svgRef} />
-        <div className="absolute h-[435px] w-full" ref={divRef} />
-      </div>
-      <div className="hidden w-full flex-row items-center justify-center gap-x-3">
-        <label
-          className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
-          htmlFor="stickyCheck"
-        >
-          <Checkbox.Root
-            className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
-            defaultChecked
-            checked={visState.subgraph?.sticky ? visState.subgraph.sticky : false}
-            onCheckedChange={(e) => {
-              updateVisStateField('subgraph', {
-                sticky: e === true,
-                dagrefy: visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false,
-                supernodes: visState.subgraph?.supernodes || [],
-                activeGrouping: visState.subgraph?.activeGrouping || {
-                  isActive: false,
-                  selectedNodeIds: new Set(),
-                },
-              });
-            }}
-            id="stickyCheck"
+        <div className="subgraph relative min-h-[410px] w-full">
+          <svg className="absolute h-[410px] w-full" height={410} ref={svgRef} />
+          <div className="absolute h-[410px] w-full" ref={divRef} />
+        </div>
+        <div className="hidden w-full flex-row items-center justify-center gap-x-3">
+          <label
+            className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
+            htmlFor="stickyCheck"
           >
-            <Checkbox.Indicator className="text-slate-600">
-              <Check className="h-4 w-4" />
-            </Checkbox.Indicator>
-          </Checkbox.Root>
-          Sticky
-        </label>
-        <label
-          className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
-          htmlFor="dagrefyCheck"
-        >
-          <Checkbox.Root
-            className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
-            defaultChecked
-            checked={visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false}
-            onCheckedChange={(e) => {
-              updateVisStateField('subgraph', {
-                dagrefy: e === true,
-                sticky: visState.subgraph?.sticky ? visState.subgraph.sticky : false,
-                supernodes: visState.subgraph?.supernodes || [],
-                activeGrouping: visState.subgraph?.activeGrouping || {
-                  isActive: false,
-                  selectedNodeIds: new Set(),
-                },
-              });
-            }}
-            id="dagrefyCheck"
+            <Checkbox.Root
+              className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
+              defaultChecked
+              checked={visState.subgraph?.sticky ? visState.subgraph.sticky : false}
+              onCheckedChange={(e) => {
+                updateVisStateField('subgraph', {
+                  sticky: e === true,
+                  dagrefy: visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false,
+                  supernodes: visState.subgraph?.supernodes || [],
+                  activeGrouping: visState.subgraph?.activeGrouping || {
+                    isActive: false,
+                    selectedNodeIds: new Set(),
+                  },
+                });
+              }}
+              id="stickyCheck"
+            >
+              <Checkbox.Indicator className="text-slate-600">
+                <Check className="h-4 w-4" />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            Sticky
+          </label>
+          <label
+            className="flex flex-row items-center gap-x-1 text-xs font-bold leading-none text-slate-600"
+            htmlFor="dagrefyCheck"
           >
-            <Checkbox.Indicator className="text-slate-600">
-              <Check className="h-4 w-4" />
-            </Checkbox.Indicator>
-          </Checkbox.Root>
-          Dagrefy
-        </label>
-      </div>
-    </div>
+            <Checkbox.Root
+              className="flex h-4 w-4 appearance-none items-center justify-center rounded-[3px] border border-slate-300 bg-white outline-none"
+              defaultChecked
+              checked={visState.subgraph?.dagrefy ? visState.subgraph.dagrefy : false}
+              onCheckedChange={(e) => {
+                updateVisStateField('subgraph', {
+                  dagrefy: e === true,
+                  sticky: visState.subgraph?.sticky ? visState.subgraph.sticky : false,
+                  supernodes: visState.subgraph?.supernodes || [],
+                  activeGrouping: visState.subgraph?.activeGrouping || {
+                    isActive: false,
+                    selectedNodeIds: new Set(),
+                  },
+                });
+              }}
+              id="dagrefyCheck"
+            >
+              <Checkbox.Indicator className="text-slate-600">
+                <Check className="h-4 w-4" />
+              </Checkbox.Indicator>
+            </Checkbox.Root>
+            Dagrefy
+          </label>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

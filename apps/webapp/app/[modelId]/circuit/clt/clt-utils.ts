@@ -1,15 +1,23 @@
+import { DEFAULT_CREATOR_USER_ID } from '@/lib/env';
 import d3 from './d3-jetpack';
 
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
-export const CLT_BASE_URLS = [
+export const GRAPH_BASE_URLS = [
   'https://transformer-circuits.pub/2025/attribution-graphs',
   'https://d1fk9w8oratjix.cloudfront.net',
-  // 'https://dx3cf1keixxrs.cloudfront.net', // NP graph bucket
+  'https://dx3cf1keixxrs.cloudfront.net', // NP graph bucket
 ];
 
-export type CLTMetadataGraph = {
+export type CLTGraphMetadata = {
+  // memicos-specific
+  baseUrl: string | undefined;
+  filterGraphType: FilterGraphType | undefined;
+  userId: string | undefined;
+  userName: string | undefined;
+
+  // common with others
   slug: string;
   scan: string;
   prompt_tokens: string[];
@@ -17,13 +25,9 @@ export type CLTMetadataGraph = {
   title_prefix: string;
 };
 
-export type ModelToCLTMetadataGraphsMap = {
-  [scanId: string]: CLTMetadataGraph[];
+export type ModelToCLTGraphMetadatasMap = {
+  [modelId: string]: CLTGraphMetadata[];
 };
-
-export function makeCltFetchUrl(baseUrl: string, path: string): string {
-  return `${baseUrl}/${path}`;
-}
 
 export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
   return (
@@ -33,18 +37,41 @@ export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
   );
 }
 
-export async function getCLTMetadata(baseUrl: string): Promise<ModelToCLTMetadataGraphsMap> {
-  const fetchUrl = makeCltFetchUrl(baseUrl, 'data/graph-metadata.json');
-  const response = await fetch(fetchUrl);
-  const data: { graphs: CLTMetadataGraph[] } = await response.json();
+export async function getGraphMetadatasFromBucket(baseUrl: string): Promise<ModelToCLTGraphMetadatasMap> {
+  // first get featured graphs
+  const featuredResponse = await fetch(`${baseUrl}/data/graph-metadata.json`);
+  const featuredGraphs: { graphs: CLTGraphMetadata[] } = await featuredResponse.json();
 
-  // break up the graphs by scan (model)
-  const graphsByScan = data.graphs.reduce((acc, graph) => {
+  for (const graph of featuredGraphs.graphs) {
+    // eslint-disable-next-line
+    graph.baseUrl = baseUrl;
+    // eslint-disable-next-line
+    graph.filterGraphType = FilterGraphType.Featured;
+    // eslint-disable-next-line
+    graph.userId = DEFAULT_CREATOR_USER_ID;
+  }
+
+  // // then get user graphs
+  // const userResponse = await fetch(`${baseUrl}/data/user-graphs.json`);
+  // const userGraphs: { graphs: CLTGraphMetadata[] } = await userResponse.json();
+
+  // // then get user graphs
+  // for (const graph of featuredGraphs.graphs) {
+  //   // eslint-disable-next-line
+  //   graph.baseUrl = baseUrl;
+  //   // eslint-disable-next-line
+  //   graph.filterGraphType = FilterGraphType.Featured;
+  //   // eslint-disable-next-line
+  //   graph.userId = DEFAULT_CREATOR_USER_ID;
+  // }
+
+  // add all graphs to the map
+  const graphsByModelId = featuredGraphs.graphs.reduce((acc, graph) => {
     acc[graph.scan] = [...(acc[graph.scan] || []), graph];
     return acc;
-  }, {} as ModelToCLTMetadataGraphsMap);
+  }, {} as ModelToCLTGraphMetadatasMap);
 
-  return graphsByScan;
+  return graphsByModelId;
 }
 
 export type CltSubgraphState = {
@@ -82,7 +109,7 @@ export type CltVisState = {
   clerps: string[][];
 };
 
-export const metadataScanToModelDisplayName = new Map<string, string>([
+export const modelIdToModelDisplayName = new Map<string, string>([
   ['jackl-circuits-runs-1-4-sofa-v3_0', 'Haiku'],
   ['jackl-circuits-runs-1-1-druid-cp_0', '18L'],
   ['jackl-circuits-runs-12-19-valet-m_0', 'Model Organism'],
@@ -93,7 +120,7 @@ export const metadataScanToModelDisplayName = new Map<string, string>([
   // ['llama-hf-3', 'Llama 3.2 1B - Other'],
 ]);
 
-export const metadataScansToDisplay = new Set([
+export const supportedGraphModels = new Set([
   'jackl-circuits-runs-1-4-sofa-v3_0',
   'jackl-circuits-runs-1-1-druid-cp_0',
   'jackl-circuits-runs-12-19-valet-m_0',
@@ -108,7 +135,7 @@ export const scanSlugToName = {
   moc: 'jackl-circuits-runs-12-19-valet-m_0',
 };
 
-export const cltModelToLayers = {
+export const cltModelToNumLayers = {
   'jackl-circuits-runs-1-4-sofa-v3_0': 18,
   'jackl-circuits-runs-1-1-druid-cp_0': 18,
   'jackl-circuits-runs-12-19-valet-m_0': 16,
@@ -117,7 +144,7 @@ export const cltModelToLayers = {
   'llama-3-131k-relu': 16,
 };
 
-export type CLTGraphMetadata = {
+export type CLTGraphInnerMetadata = {
   slug: string;
   scan: string;
   prompt_tokens: string[];
@@ -222,11 +249,17 @@ export type CLTGraphLink = {
 };
 
 export type CLTGraph = {
-  metadata: CLTGraphMetadata;
+  metadata: CLTGraphInnerMetadata;
   qParams: CLTGraphQParams;
   nodes: CLTGraphNode[];
   links: CLTGraphLink[];
 };
+
+export enum FilterGraphType {
+  Featured = 'featured',
+  Community = 'community',
+  Mine = 'mine',
+}
 
 export function isHideLayer(scan: string) {
   return scan === scanSlugToName.h35 || scan === scanSlugToName.moc;

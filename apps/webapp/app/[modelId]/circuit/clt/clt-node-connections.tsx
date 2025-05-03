@@ -1,6 +1,4 @@
-import CustomTooltip from '@/components/custom-tooltip';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
-import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CLTGraphNode, CltVisState, featureTypeToText } from './clt-utils';
@@ -26,7 +24,7 @@ function FeatureList({
 
   return (
     <div className="flex max-h-[320px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 pb-1 text-slate-800">
-      <div className="sticky top-0 bg-white pb-1 text-sm font-medium text-slate-600">{title}</div>
+      <div className="sticky top-0 pb-1 text-sm font-medium text-slate-600">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
         .filter((node) => node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined)
@@ -111,11 +109,11 @@ export default function CLTNodeConnections() {
     <div className="node-connections relative mt-2 min-h-[320px] flex-1">
       <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2 px-1">
         <div className="text-sm font-bold text-slate-600">Node Connections</div>
-        <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
+        {/* <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
             TODO: https://transformer-circuits.pub/2025/attribution-graphs/methods.html
           </div>
-        </CustomTooltip>
+        </CustomTooltip> */}
       </div>
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (

@@ -18,9 +18,9 @@ generator zod {
 // }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  provider   = "postgresql"
+  url        = env("POSTGRES_PRISMA_URL")
+  directUrl  = env("POSTGRES_URL_NON_POOLING")
   extensions = [vector]
 }
 
@@ -87,38 +87,39 @@ model User {
   emailVerified DateTime?
 
   secrets UserSecret[]
-  
-  githubUsername         String?
-  bot                    Boolean                   @default(false)
-  image                  String?
-  admin                  Boolean                   @default(false)
-  accounts               Account[]
-  explanations           Explanation[]
-  triggeredExplanations  Explanation[]             @relation(name: "triggeredByUser")
-  canTriggerExplanations Boolean                   @default(false)
-  neurons                Neuron[]
-  sources                Source[]
-  sourceSets             SourceSet[]
-  sourceReleases         SourceRelease[]
-  models                 Model[]
-  sessions               Session[]
-  votes                  Vote[]
-  activations            Activation[]
-  bookmarks              Bookmark[]
-  comments               Comment[]
-  lists                  List[]
-  listsOnNeurons         ListsOnNeurons[]
-  listComments           ListComment[]
-  savedSearches          SavedSearch[]
-  explanationActivations ExplanationActivationV1[]
-  steerOutput            SteerOutput[]
+
+  githubUsername            String?
+  bot                       Boolean                   @default(false)
+  image                     String?
+  admin                     Boolean                   @default(false)
+  accounts                  Account[]
+  explanations              Explanation[]
+  triggeredExplanations     Explanation[]             @relation(name: "triggeredByUser")
+  canTriggerExplanations    Boolean                   @default(false)
+  neurons                   Neuron[]
+  sources                   Source[]
+  sourceSets                SourceSet[]
+  sourceReleases            SourceRelease[]
+  models                    Model[]
+  sessions                  Session[]
+  votes                     Vote[]
+  activations               Activation[]
+  bookmarks                 Bookmark[]
+  comments                  Comment[]
+  lists                     List[]
+  listsOnNeurons            ListsOnNeurons[]
+  listComments              ListComment[]
+  savedSearches             SavedSearch[]
+  explanationActivations    ExplanationActivationV1[]
+  steerOutput               SteerOutput[]
   explanationType           ExplanationType[]
   explanationScoreType      ExplanationScoreType[]
   initiatedExplanationScore ExplanationScore[]
+  graphMetadata             GraphMetadata[]
 
   emailNewsletterNotification Boolean @default(true)
-  emailUnsubscribeAll     Boolean @default(false)
-  emailUnsubscribeCode    String  @default(cuid())
+  emailUnsubscribeAll         Boolean @default(false)
+  emailUnsubscribeCode        String  @default(cuid())
 
   createdAt DateTime @default(now())
 
@@ -126,13 +127,44 @@ model User {
   @@index(bot)
 }
 
+enum FilterGraphType {
+  Featured
+  Community
+  Mine
+}
+
+model GraphMetadata {
+  // we can use either id or modelId + slug to look up the graph
+  id String @id @default(cuid())
+
+  // following are common with anthropic, but some renamed
+  modelId      String // anthropic equivalent = "scan"
+  model        Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  slug         String // anthropic equivalent = "slug"
+  promptTokens String[] // anthropic equivalent = "prompt_tokens"
+  prompt       String // anthropic equivalent = "prompt"
+  titlePrefix  String // anthropic equivalent = "title_prefix"
+
+  // following are only ours
+  url    String // where the json file is stored
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([modelId, slug])
+  @@index([userId])
+  @@index([modelId])
+}
+
 model ListComment {
-  id        String   @id @default(cuid())
-  listId    String
-  text      String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  listId String
+  text   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  list   List   @relation(fields: [listId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -152,8 +184,8 @@ model List {
   userId          String
   user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@index(userId)
 }
@@ -198,38 +230,39 @@ model Model {
   displayName      String @default("")
   creatorId        String
 
-  tlensId          String?
-  dimension        Int?
-  thinking         Boolean @default(false)
+  tlensId   String?
+  dimension Int?
+  thinking  Boolean @default(false)
 
-  visibility   Visibility         @default(PRIVATE)
+  visibility Visibility @default(PRIVATE)
 
   defaultSourceSetName String?
   defaultSourceSet     SourceSet? @relation(name: "defaultSourceSet", fields: [defaultSourceSetName, id], references: [name, modelId], onDelete: Cascade)
   defaultSourceId      String?
-  defaultSource        Source? @relation(name: "defaultSource", fields: [defaultSourceId, id], references: [id, modelId], onDelete: Cascade)
+  defaultSource        Source?    @relation(name: "defaultSource", fields: [defaultSourceId, id], references: [id, modelId], onDelete: Cascade)
 
   inferenceEnabled Boolean @default(false)
-  instruct Boolean @default(false)
+  instruct         Boolean @default(false)
 
   /// @zod.number.int().min(0)
-  layers            Int
+  layers               Int
   /// @zod.number.int().min(0)
-  neuronsPerLayer   Int
-  createdAt         DateTime          @default(now())
+  neuronsPerLayer      Int
+  createdAt            DateTime              @default(now())
   /// @zod.custom.use(z.string().trim().min(1))
-  owner             String
-  updatedAt         DateTime          @default(now()) @updatedAt
+  owner                String
+  updatedAt            DateTime              @default(now()) @updatedAt
   /// @zod.string.url()
-  website           String?
-  explanations      Explanation[]
-  creator           User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  neurons           Neuron[]
-  savedSearches     SavedSearch[]
-  sourceSets        SourceSet[]
-  steerOutputs      SteerOutput[]
-  evals             Eval[]
+  website              String?
+  explanations         Explanation[]
+  creator              User                  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  neurons              Neuron[]
+  savedSearches        SavedSearch[]
+  sourceSets           SourceSet[]
+  steerOutputs         SteerOutput[]
+  evals                Eval[]
   sourceInferenceHosts InferenceHostSource[]
+  graphMetadata        GraphMetadata[]
 
   @@unique([defaultSourceSetName, id])
   @@unique([defaultSourceId, id])
@@ -238,8 +271,8 @@ model Model {
 }
 
 model InferenceHostSource {
-  id String @id @default(cuid())
-  name String
+  id      String @id @default(cuid())
+  name    String
   hostUrl String
 
   modelId String
@@ -254,12 +287,12 @@ model InferenceHostSource {
 }
 
 model InferenceHostSourceOnSource {
-  sourceId String
+  sourceId      String
   sourceModelId String
-  source   Source @relation(fields: [sourceId, sourceModelId], references: [id, modelId], onDelete: Cascade)
+  source        Source @relation(fields: [sourceId, sourceModelId], references: [id, modelId], onDelete: Cascade)
 
   inferenceHostId String
-  inferenceHost InferenceHostSource @relation(fields: [inferenceHostId], references: [id], onDelete: Cascade)
+  inferenceHost   InferenceHostSource @relation(fields: [inferenceHostId], references: [id], onDelete: Cascade)
 
   @@id([sourceId, sourceModelId, inferenceHostId])
   @@index([sourceModelId])
@@ -272,7 +305,7 @@ model Source {
 
   hasDashboards Boolean @default(true)
 
-  inferenceEnabled Boolean @default(false)
+  inferenceEnabled Boolean                       @default(false)
   inferenceHosts   InferenceHostSourceOnSource[]
 
   saelensConfig  Json?
@@ -281,11 +314,11 @@ model Source {
   hfRepoId       String?
   hfFolderId     String?
 
-  neurons      Neuron[]
-  visibility   Visibility          @default(PRIVATE)
+  neurons    Neuron[]
+  visibility Visibility @default(PRIVATE)
 
   defaultOfModelId String?
-  defaultOfModel   Model?   @relation(name: "defaultSource")
+  defaultOfModel   Model?  @relation(name: "defaultSource")
 
   setName            String
   set                SourceSet @relation(fields: [modelId, setName], references: [modelId, name])
@@ -301,12 +334,12 @@ model Source {
   notes                String?
 
   // this is the default Source that will be used for cosine similarity matching in addition to comparing with the own source
-  cosSimMatchModelId String?
+  cosSimMatchModelId  String?
   cosSimMatchSourceId String?
-  cosSimMatchSource   Source? @relation("cosSimMatching", fields: [cosSimMatchSourceId, cosSimMatchModelId], references: [id, modelId], onDelete: SetNull)
-  matchedBySources   Source[] @relation("cosSimMatching")
+  cosSimMatchSource   Source?  @relation("cosSimMatching", fields: [cosSimMatchSourceId, cosSimMatchModelId], references: [id, modelId], onDelete: SetNull)
+  matchedBySources    Source[] @relation("cosSimMatching")
 
-  evals             Eval[]
+  evals Eval[]
 
   createdAt DateTime @default(now())
 
@@ -322,10 +355,10 @@ model SourceSet {
   model   Model  @relation(fields: [modelId], references: [id], onDelete: Cascade)
   name    String
 
-  hasDashboards Boolean @default(true)
+  hasDashboards        Boolean @default(true)
   allowInferenceSearch Boolean @default(true)
 
-  visibility   Visibility             @default(PRIVATE)
+  visibility Visibility @default(PRIVATE)
 
   description  String
   type         String         @default("")
@@ -340,7 +373,7 @@ model SourceSet {
   releases     SourceRelease? @relation(fields: [releaseName], references: [name], onDelete: Cascade)
 
   defaultOfModelId String?
-  defaultOfModel   Model?   @relation(name: "defaultSourceSet")
+  defaultOfModel   Model?  @relation(name: "defaultSourceSet")
 
   // how many tokens to show before and after the max activation token index
   // the value at index in ACTIVATION_DISPLAY_DEFAULT_CONTEXT_TOKENS
@@ -364,7 +397,7 @@ model SourceSet {
 model SourceRelease {
   name String @unique
 
-  visibility   Visibility                 @default(PRIVATE)
+  visibility Visibility @default(PRIVATE)
 
   isNewUi Boolean @default(false)
 
@@ -404,7 +437,7 @@ model Eval {
   sourceId String
   source   Source @relation(fields: [modelId, sourceId], references: [modelId, id], onDelete: Cascade)
 
-  output Json
+  output          Json
   detailedMetrics Json?
 
   createdAt DateTime @default(now())
@@ -421,7 +454,7 @@ model EvalType {
   description       String
   longerDescription String @default("")
 
-  outputSchema        Json
+  outputSchema Json
 
   featured Boolean @default(false)
 
@@ -434,29 +467,29 @@ model EvalType {
 }
 
 model Neuron {
-  modelId                String
-  layer                  String
-  index                  String
-  lists                  ListsOnNeurons[]
-  source                 Source?                 @relation(fields: [modelId, layer], references: [modelId, id], onDelete: Cascade)
-  sourceSetName          String?
-  sourceSet              SourceSet?              @relation(fields: [modelId, sourceSetName], references: [modelId, name], onDelete: Cascade)
-  creatorId              String?
-  creator                User?                   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  createdAt              DateTime                @default(now())
-  activations            Activation[]
-  explanations           Explanation[]
-  comments               Comment[]
-  bookmarks              Bookmark[]
-  model                  Model                   @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  steerOutputs           SteerOutputToNeuron[]
-  maxActApprox           Float?                  @default(0)
+  modelId       String
+  layer         String
+  index         String
+  lists         ListsOnNeurons[]
+  source        Source?               @relation(fields: [modelId, layer], references: [modelId, id], onDelete: Cascade)
+  sourceSetName String?
+  sourceSet     SourceSet?            @relation(fields: [modelId, sourceSetName], references: [modelId, name], onDelete: Cascade)
+  creatorId     String?
+  creator       User?                 @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt     DateTime              @default(now())
+  activations   Activation[]
+  explanations  Explanation[]
+  comments      Comment[]
+  bookmarks     Bookmark[]
+  model         Model                 @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  steerOutputs  SteerOutputToNeuron[]
+  maxActApprox  Float?                @default(0)
 
-  hasVector              Boolean                 @default(false)
-  vector                 Float[]                 @default([])
-  vectorLabel            String?
-  vectorDefaultSteerStrength Float? @default(10)
-  hookName               String?
+  hasVector                  Boolean @default(false)
+  vector                     Float[] @default([])
+  vectorLabel                String?
+  vectorDefaultSteerStrength Float?  @default(10)
+  hookName                   String?
 
   topkCosSimIndices Int[]   @default([])
   topkCosSimValues  Float[] @default([])
@@ -499,25 +532,25 @@ model Neuron {
 }
 
 model Explanation {
-  id                String                    @id @default(cuid())
-  modelId           String
-  layer             String
-  index             String
+  id      String @id @default(cuid())
+  modelId String
+  layer   String
+  index   String
 
   embedding Unsupported("vector(256)")?
 
   description       String
   authorId          String
-  author            User                      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author            User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   triggeredByUserId String?
-  triggeredByUser   User?                     @relation(name: "triggeredByUser", fields: [triggeredByUserId], references: [id], onDelete: SetNull)
+  triggeredByUser   User?   @relation(name: "triggeredByUser", fields: [triggeredByUserId], references: [id], onDelete: SetNull)
   notes             String?
 
-  model             Model                     @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  neuron            Neuron                    @relation(fields: [modelId, layer, index], references: [modelId, layer, index], onDelete: Cascade)
-  votes             Vote[]
-  scoreV1           Float                     @default(0)
-  scoreV2           Float?
+  model                     Model  @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  neuron                    Neuron @relation(fields: [modelId, layer, index], references: [modelId, layer, index], onDelete: Cascade)
+  votes                     Vote[]
+  scoreV1                   Float  @default(0)
+  scoreV2                   Float?
   umap_x                    Float? @default(0)
   umap_y                    Float? @default(0)
   umap_cluster              Int?   @default(0)
@@ -531,11 +564,11 @@ model Explanation {
 
   scores ExplanationScore[]
 
-  createdAt         DateTime                  @default(now())
-  updatedAt         DateTime                  @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // deprecated
-  activationsV1     ExplanationActivationV1[]
+  activationsV1 ExplanationActivationV1[]
 
   @@index([modelId, layer, index])
   @@index([modelId, layer])
@@ -546,7 +579,6 @@ model Explanation {
   @@index([createdAt])
   @@index([explanationModelName])
   @@index([typeName, explanationModelName])
-
   @@index([embedding], map: "Explanation_embedding_idx")
   @@index([embedding], map: "idx_explanation_embedding_null")
 }
@@ -677,18 +709,18 @@ model ExplanationScoreModel {
 }
 
 model ExplanationActivationV1 {
-  id                    String                  @id @default(cuid())
+  id                    String      @id @default(cuid())
   explanationId         String
-  explanation           Explanation             @relation(fields: [explanationId], references: [id], onDelete: Cascade)
+  explanation           Explanation @relation(fields: [explanationId], references: [id], onDelete: Cascade)
   activationId          String
-  activation            Activation              @relation(fields: [activationId], references: [id], onDelete: Cascade)
+  activation            Activation  @relation(fields: [activationId], references: [id], onDelete: Cascade)
   expectedValues        Float[]
-  score                 Float                   @default(0)
+  score                 Float       @default(0)
   scorerId              String?
-  scorer                User?                   @relation(fields: [scorerId], references: [id], onDelete: Cascade)
+  scorer                User?       @relation(fields: [scorerId], references: [id], onDelete: Cascade)
   scorerAutoInterpModel String?
-  version               Int                     @default(2) // version 0 is user scored, v1 is logprobs scoring, v2 is gpt3.5-json scoring, v-2 is old gpt4 scoring
-  createdAt             DateTime                @default(now())
+  version               Int         @default(2) // version 0 is user scored, v1 is logprobs scoring, v2 is gpt3.5-json scoring, v-2 is old gpt4 scoring
+  createdAt             DateTime    @default(now())
 
   @@unique([scorerId, explanationId, activationId, version])
   @@index([explanationId])
@@ -697,15 +729,15 @@ model ExplanationActivationV1 {
 }
 
 model Vote {
-  id                 String        @id @default(cuid())
-  voterId            String
-  reason             String?
-  points             Int           @default(1)
-  explanationId      String
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @default(now()) @updatedAt
-  explanation        Explanation   @relation(fields: [explanationId], references: [id], onDelete: Cascade)
-  voter              User          @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
+  voterId       String
+  reason        String?
+  points        Int         @default(1)
+  explanationId String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now()) @updatedAt
+  explanation   Explanation @relation(fields: [explanationId], references: [id], onDelete: Cascade)
+  voter         User        @relation(fields: [voterId], references: [id], onDelete: Cascade)
 
   @@unique([voterId, explanationId], name: "voter_explanation_index")
   @@index([voterId])
@@ -779,23 +811,23 @@ model Bookmark {
 }
 
 model SavedSearch {
-  id             String                  @id @default(cuid())
-  query          String
-  tokens         String[]
-  modelId        String
-  model          Model                   @relation(fields: [modelId], references: [id], onDelete: Cascade)
-  activations    SavedSearchActivation[]
-  selectedLayers String[]                @default([])
-  sortByIndexes  Int[]                   @default([]) // blank is sort by top act from any index (default), otherwise it's the sum of the indexes
-  ignoreBos      Boolean                 @default(true) // this hides the BOS results if true (only applicable on models that show BOS)
-  sourceSet      String?
-  userId         String?
-  user           User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  updatedAt      DateTime                @default(now())
-  createdAt      DateTime                @default(now())
-  counts         String                  @default("")
-  numResults     Int                     @default(50)
-  densityThreshold Float                 @default(-1)
+  id               String                  @id @default(cuid())
+  query            String
+  tokens           String[]
+  modelId          String
+  model            Model                   @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  activations      SavedSearchActivation[]
+  selectedLayers   String[]                @default([])
+  sortByIndexes    Int[]                   @default([]) // blank is sort by top act from any index (default), otherwise it's the sum of the indexes
+  ignoreBos        Boolean                 @default(true) // this hides the BOS results if true (only applicable on models that show BOS)
+  sourceSet        String?
+  userId           String?
+  user             User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  updatedAt        DateTime                @default(now())
+  createdAt        DateTime                @default(now())
+  counts           String                  @default("")
+  numResults       Int                     @default(50)
+  densityThreshold Float                   @default(-1)
 
   @@unique([modelId, query, selectedLayers, sourceSet, sortByIndexes, ignoreBos, numResults, densityThreshold], name: "modelId_query")
 }

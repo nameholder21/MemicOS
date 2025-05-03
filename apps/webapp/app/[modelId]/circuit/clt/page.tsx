@@ -1,5 +1,11 @@
 import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
-import { CLT_BASE_URLS, getCLTMetadata, metadataScansToDisplay, ModelToCLTMetadataGraphsMap } from './clt-utils';
+import { getUserNames } from '@/lib/db/user';
+import {
+  getGraphMetadatasFromBucket,
+  GRAPH_BASE_URLS,
+  ModelToCLTGraphMetadatasMap,
+  supportedGraphModels,
+} from './clt-utils';
 import CLTWrapper from './wrapper';
 
 export default async function Page({
@@ -25,43 +31,57 @@ export default async function Page({
   //   notFound();
   // }
 
-  let metadata: ModelToCLTMetadataGraphsMap | null = null;
-  const modelToBaseUrlMap: Record<string, string> = {};
+  // iterate through all baseUrls/buckets, and merge all the metadata into a single map
+  const modelIdToGraphMetadatasMap: ModelToCLTGraphMetadatasMap = {};
+  const userIdsToLookUp: Set<string> = new Set();
   // eslint-disable-next-line
-  for (const baseUrl of CLT_BASE_URLS) {
+  for (const baseUrl of GRAPH_BASE_URLS) {
     try {
       // eslint-disable-next-line
-      const result = await getCLTMetadata(baseUrl);
-      if (result) {
-        if (!metadata) {
-          metadata = result;
-        } else {
-          // Merge the results
-          // eslint-disable-next-line
-          Object.keys(result).forEach((scanId) => {
-            if (metadata && metadataScansToDisplay.has(scanId)) {
-              if (!metadata[scanId]) {
-                metadata[scanId] = result[scanId];
-              } else {
-                metadata[scanId] = [...metadata[scanId], ...result[scanId]];
-              }
-            }
+      const modelIdToGraphMetadata = await getGraphMetadatasFromBucket(baseUrl);
+      if (modelIdToGraphMetadata) {
+        // eslint-disable-next-line
+        Object.keys(modelIdToGraphMetadata).forEach((modelId) => {
+          // add the correct baseUrl to each graph before adding it to the map
+          modelIdToGraphMetadata[modelId].forEach((graph) => {
+            // eslint-disable-next-line
+            userIdsToLookUp.add(graph.userId);
           });
-        }
-        Object.keys(result).forEach((scanId) => {
-          modelToBaseUrlMap[scanId] = baseUrl;
+          // only add models that are supported
+          if (supportedGraphModels.has(modelId)) {
+            // if we don't have the modelId in the map, add it and all its graphs
+            if (!modelIdToGraphMetadatasMap[modelId]) {
+              modelIdToGraphMetadatasMap[modelId] = modelIdToGraphMetadata[modelId];
+            } else {
+              // if we already have the modelId in the map, add all its graphs to the existing array
+              modelIdToGraphMetadatasMap[modelId] = [
+                ...modelIdToGraphMetadatasMap[modelId],
+                ...modelIdToGraphMetadata[modelId],
+              ];
+            }
+          }
         });
       }
     } catch (error) {
       console.error(`Failed to fetch metadata from ${baseUrl}:`, error);
     }
   }
-  if (!metadata) {
+  if (!modelIdToGraphMetadatasMap) {
     return <div>No metadata found</div>;
   }
 
+  const userIdsToLookUpArray = Array.from(userIdsToLookUp);
+  const userNames = await getUserNames(userIdsToLookUpArray);
+  // fill the userName field for each graph
+  Object.keys(modelIdToGraphMetadatasMap).forEach((modelId) => {
+    modelIdToGraphMetadatasMap[modelId].forEach((graph) => {
+      // eslint-disable-next-line
+      graph.userName = userNames.find((user) => user.id === graph.userId)?.name;
+    });
+  });
+
   const metadataGraph = searchParams.model
-    ? metadata[searchParams.model]?.find((graph) => graph.slug === searchParams.slug)
+    ? modelIdToGraphMetadatasMap[searchParams.model]?.find((graph) => graph.slug === searchParams.slug)
     : undefined;
 
   let parsedSupernodes: string[][] | undefined;
@@ -80,8 +100,7 @@ export default async function Page({
 
   return (
     <CircuitCLTProvider
-      modelToBaseUrlMap={modelToBaseUrlMap}
-      initialMetadata={metadata}
+      initialModelIdToMetadataGraphsMap={modelIdToGraphMetadatasMap}
       initialModel={searchParams.model}
       initialMetadataGraph={metadataGraph}
       initialPinnedIds={searchParams.pinnedIds}

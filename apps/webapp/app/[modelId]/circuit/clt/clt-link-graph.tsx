@@ -7,7 +7,7 @@ import {
   CLTGraph,
   CLTGraphLink,
   CLTGraphNode,
-  cltModelToLayers,
+  cltModelToNumLayers,
   featureTypeToText,
   hideTooltip,
   isHideLayer,
@@ -461,7 +461,7 @@ export default function CLTLinkGraph() {
 
     // Get byStream from data or create a default with 19 items
     const byStreamLength = data.byStream?.length || 19;
-    const numLayers = cltModelToLayers[data.metadata.scan as keyof typeof cltModelToLayers];
+    const numLayers = cltModelToNumLayers[data.metadata.scan as keyof typeof cltModelToNumLayers];
     const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 1;
 
     // Create an array of numbers for the y-axis
@@ -901,7 +901,7 @@ export default function CLTLinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[425px] w-[66%] min-w-[66%] max-w-[66%] select-none pt-5">
+    <div className="link-graph relative mt-3 min-h-[415px] w-[66%] min-w-[66%] max-w-[66%] select-none pt-5">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
