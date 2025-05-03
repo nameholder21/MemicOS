@@ -1,10 +1,11 @@
 /* eslint-disable no-param-reassign */
 
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check } from 'lucide-react';
+import { Check, HelpCircleIcon, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
@@ -1015,6 +1016,18 @@ export default function CLTSubgraph() {
     nodeIdToNode,
   ]);
 
+  useEffect(() => {
+    if (visState.pinnedIds.length === 0) {
+      setShowSubgraphHelp(true);
+    } else {
+      setShowSubgraphHelp(false);
+    }
+  }, [visState.pinnedIds]);
+
+  const [showSubgraphHelp, setShowSubgraphHelp] = useState(true);
+
+  const SUBGRAPH_HEIGHT = 410;
+
   return (
     <Card className="mt-2 w-full bg-white">
       <CardContent className="px-2 py-2">
@@ -1031,9 +1044,55 @@ export default function CLTSubgraph() {
           </div>
         </CustomTooltip>
       </div> */}
-        <div className="subgraph relative min-h-[410px] w-full">
-          <svg className="absolute h-[410px] w-full" height={410} ref={svgRef} />
-          <div className="absolute h-[410px] w-full" ref={divRef} />
+        <div className={`subgraph relative w-full min-h-[${SUBGRAPH_HEIGHT}px]`}>
+          <svg className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} height={SUBGRAPH_HEIGHT} ref={svgRef} />
+          <div className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} ref={divRef} />
+
+          {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
+            <div
+              className={`absolute flex bg-white/80 h-[${SUBGRAPH_HEIGHT}px] min-h-[${SUBGRAPH_HEIGHT}px] w-full flex-col items-start justify-center gap-y-1.5 px-5 text-slate-700`}
+            >
+              <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
+              <div>
+                <strong>Pin or Unpin a Node</strong>
+                {`: Hold 'Command/Ctrl', then click a node in the link graph above.`}
+              </div>
+              <div>
+                <strong>Group Nodes into a Supernode</strong>
+                {`: Hold 'g', then click multiple nodes in this subgraph. When you release, they'll be grouped into a "supernode".`}
+              </div>
+              <div>
+                <strong>Ungroup Supernodes</strong>
+                {`: Hold 'g', then click the x next to a supernode to ungroup it.`}
+              </div>
+              <div>
+                <strong>Label a Supernode</strong>
+                {`: Click the label under a supernode to edit its name.`}
+              </div>
+              <div>
+                <strong>Share the Subgraph</strong>
+                {`: Copy the URL, or click the Copy button in the top right toolbar.`}
+              </div>
+            </div>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute left-1.5 top-1 h-8 w-28 gap-x-1.5 rounded-full border-0 bg-slate-100 px-0 py-0 text-slate-600 hover:bg-slate-200'}`}
+            onClick={() => setShowSubgraphHelp(!showSubgraphHelp)}
+          >
+            {showSubgraphHelp ? (
+              <>
+                <XIcon className="h-5 w-5" />
+                <span>Hide Help</span>
+              </>
+            ) : (
+              <>
+                <HelpCircleIcon className="h-5 w-5" />
+                <span>Show Help</span>
+              </>
+            )}
+          </Button>
         </div>
         <div className="hidden w-full flex-row items-center justify-center gap-x-3">
           <label
