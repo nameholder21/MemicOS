@@ -5,9 +5,8 @@ import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw, UploadCloud } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import UploadGraphModal from './upload-graph-modal';
 
 export default function GraphTools() {
   const session = useSession();
@@ -268,7 +267,7 @@ export default function GraphTools() {
               <CopyIcon className="h-4 w-4" />
             </Button>
 
-            {session.data?.user ? (
+            {/* {session.data?.user ? (
               <UploadGraphModal />
             ) : (
               <Button
@@ -281,7 +280,7 @@ export default function GraphTools() {
               >
                 <UploadCloud className="h-4 w-4" />
               </Button>
-            )}
+            )} */}
           </div>
         </div>
       </div>
