@@ -1,8 +1,11 @@
+/* eslint-disable react/jsx-props-no-spreading */
+
 'use client';
 
-import { cn } from '@/lib/utils/ui';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
 import * as React from 'react';
+
+import { cn } from '@/lib/utils/ui';
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
@@ -10,12 +13,11 @@ const Progress = React.forwardRef<
 >(({ className, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
-    className={cn('bg-primary/20 relative h-2 w-full overflow-hidden rounded-full', className)}
-    // eslint-disable-next-line react/jsx-props-no-spreading
+    className={cn('relative h-2 w-full overflow-hidden rounded-full bg-sky-700/20', className)}
     {...props}
   >
     <ProgressPrimitive.Indicator
-      className="bg-primary h-full w-full flex-1 transition-all"
+      className="h-full w-full flex-1 bg-sky-700 transition-all"
       style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
     />
   </ProgressPrimitive.Root>

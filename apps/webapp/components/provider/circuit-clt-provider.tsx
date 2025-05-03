@@ -3,14 +3,14 @@
 import {
   CLTFeature,
   CLTGraph,
+  CLTGraphMetadata,
   CLTGraphNode,
-  CLTMetadataGraph,
   CltVisState,
-  ModelToCLTMetadataGraphsMap,
+  FilterGraphType,
+  ModelToCLTGraphMetadatasMap,
   formatCLTGraphData,
   isHideLayer,
-  makeCltFetchUrl,
-  metadataScanToModelDisplayName,
+  modelIdToModelDisplayName,
   nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -20,16 +20,16 @@ const FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
 
 // Define the context type
 type CircuitCLTContextType = {
-  metadata: ModelToCLTMetadataGraphsMap;
+  modelIdToMetadataMap: ModelToCLTGraphMetadatasMap;
   selectedModelId: string;
-  selectedMetadataGraph: CLTMetadataGraph | null;
+  selectedMetadataGraph: CLTGraphMetadata | null;
   selectedGraph: CLTGraph | null;
   setSelectedModelId: (modelId: string) => void;
-  setSelectedMetadataGraph: (graph: CLTMetadataGraph | null) => void;
-  setMetadata: (metadata: ModelToCLTMetadataGraphsMap) => void;
+  setSelectedMetadataGraph: (graph: CLTGraphMetadata | null) => void;
+  setDefaultMetadataGraph: (modelOverride?: string) => void;
+  setModelIdToMetadataMap: (metadata: ModelToCLTGraphMetadatasMap) => void;
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
-  metadataScanToModelDisplayName: Map<string, string>;
-  modelToBaseUrlMap: Record<string, string>;
+  modelIdToModelDisplayName: Map<string, string>;
 
   // isLoadingGraphData
   isLoadingGraphData: boolean;
@@ -53,13 +53,17 @@ type CircuitCLTContextType = {
 
   // getOverrideClerpForNode
   getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
+
+  // Graph filtering setting
+  filterGraphsSetting: FilterGraphType[];
+  setFilterGraphsSetting: (setting: FilterGraphType[]) => void;
 };
 
 // Create the context with a default value
 const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undefined);
 
 export function getGraphUrl(graphSlug: string, baseUrl: string): string {
-  const url = makeCltFetchUrl(baseUrl, `graph_data/${graphSlug}.json`);
+  const url = `${baseUrl}/graph_data/${graphSlug}.json`;
   return url;
 }
 
@@ -77,8 +81,7 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
 // Provider component
 export function CircuitCLTProvider({
   children,
-  modelToBaseUrlMap = {},
-  initialMetadata = {},
+  initialModelIdToMetadataGraphsMap = {},
   initialModel,
   initialMetadataGraph,
   initialPinnedIds,
@@ -87,10 +90,9 @@ export function CircuitCLTProvider({
   initialClerps,
 }: {
   children: ReactNode;
-  modelToBaseUrlMap?: Record<string, string>;
-  initialMetadata?: ModelToCLTMetadataGraphsMap;
+  initialModelIdToMetadataGraphsMap?: ModelToCLTGraphMetadatasMap;
   initialModel?: string;
-  initialMetadataGraph?: CLTMetadataGraph;
+  initialMetadataGraph?: CLTGraphMetadata;
   initialPinnedIds?: string;
   initialClickedId?: string;
   initialSupernodes?: string[][];
@@ -100,16 +102,32 @@ export function CircuitCLTProvider({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [metadata, setMetadata] = useState<ModelToCLTMetadataGraphsMap>(initialMetadata);
-  const [selectedModelId, setSelectedModelId] = useState<string>(
-    initialModel || (Object.keys(initialMetadata).length > 0 ? Object.keys(initialMetadata)[0] : ''),
+  const [modelIdToMetadataMap, setModelIdToMetadataMap] = useState<ModelToCLTGraphMetadatasMap>(
+    initialModelIdToMetadataGraphsMap,
   );
-  const [selectedMetadataGraph, setSelectedMetadataGraph] = useState<CLTMetadataGraph | null>(
+  const [selectedModelId, setSelectedModelId] = useState<string>(
+    initialModel ||
+      (Object.keys(initialModelIdToMetadataGraphsMap).length > 0
+        ? Object.keys(initialModelIdToMetadataGraphsMap)[0]
+        : ''),
+  );
+  const [selectedMetadataGraph, setSelectedMetadataGraph] = useState<CLTGraphMetadata | null>(
     initialMetadataGraph ||
-      (selectedModelId && initialMetadata[selectedModelId]?.length > 0 ? initialMetadata[selectedModelId][0] : null),
+      (selectedModelId && initialModelIdToMetadataGraphsMap[selectedModelId]?.length > 0
+        ? initialModelIdToMetadataGraphsMap[selectedModelId][0]
+        : null),
   );
   const [selectedGraph, setSelectedGraph] = useState<CLTGraph | null>(null);
   const [isLoadingGraphData, setIsLoadingGraphData] = useState<boolean>(true);
+  const [filterGraphsSetting, setFilterGraphsSetting] = useState<FilterGraphType[]>([
+    FilterGraphType.Featured,
+    FilterGraphType.Community,
+    FilterGraphType.Mine,
+  ]);
+
+  useEffect(() => {
+    setDefaultMetadataGraph();
+  }, [filterGraphsSetting]);
 
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
@@ -142,6 +160,18 @@ export function CircuitCLTProvider({
       return overrideClerp ? overrideClerp[1] : defaultClerp;
     }
     return defaultClerp;
+  };
+
+  const setDefaultMetadataGraph = (modelOverride?: string) => {
+    // based on the filter, find the first graph that matches the filter
+    const filteredGraphs = modelIdToMetadataMap[modelOverride || selectedModelId].filter((graph) =>
+      filterGraphsSetting.includes(graph.filterGraphType || FilterGraphType.Featured),
+    );
+    if (filteredGraphs.length > 0) {
+      setSelectedMetadataGraph(filteredGraphs[0]);
+    } else {
+      setSelectedMetadataGraph(null);
+    }
   };
 
   const updateUrlParams = (keysToValues: Record<string, string | null>) => {
@@ -177,27 +207,30 @@ export function CircuitCLTProvider({
   // TODO: this does not seem to be used - but in the original it had it in the url params
   const [logitDiff, setLogitDiff] = useState<string | null>(null);
 
+  const blankVisState = {
+    pinnedIds: [],
+    hiddenIds: [],
+    hoveredId: null,
+    hoveredNodeId: null,
+    hoveredCtxIdx: null,
+    clickedId: null,
+    clickedCtxIdx: null,
+    linkType: 'both',
+    isShowAllLinks: '',
+    isSyncEnabled: '',
+    subgraph: null,
+    isEditMode: 1,
+    isHideLayer: false,
+    sg_pos: '',
+    isModal: true,
+    isGridsnap: false,
+    supernodes: [],
+    clerps: [],
+  };
+
   function getGraphDefaultVisState(graph: CLTGraph) {
-    let visStateToReturn: CltVisState = {
-      pinnedIds: [],
-      hiddenIds: [],
-      hoveredId: null,
-      hoveredNodeId: null,
-      hoveredCtxIdx: null,
-      clickedId: null,
-      clickedCtxIdx: null,
-      linkType: 'both',
-      isShowAllLinks: '',
-      isSyncEnabled: '',
-      subgraph: null,
-      isEditMode: 1,
-      isHideLayer: isHideLayer(graph.metadata.scan),
-      sg_pos: '',
-      isModal: true,
-      isGridsnap: false,
-      supernodes: [],
-      clerps: [],
-    };
+    let visStateToReturn: CltVisState = blankVisState;
+    visStateToReturn.isHideLayer = isHideLayer(graph.metadata.scan);
 
     // if we have qParams (default queryparams/visstate), parse them as visState and set it
     if (graph.qParams) {
@@ -284,7 +317,7 @@ export function CircuitCLTProvider({
   }, []);
 
   async function fetchFeatureDetail(modelId: string, feature: number, baseUrl: string): Promise<CLTFeature | null> {
-    const response = await fetch(makeCltFetchUrl(baseUrl, `features/${modelId}/${feature}.json`));
+    const response = await fetch(`${baseUrl}/features/${modelId}/${feature}.json`);
     if (!response.ok) {
       console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
       return null;
@@ -293,9 +326,17 @@ export function CircuitCLTProvider({
     return data as CLTFeature;
   }
 
+  function findGraphInModelIdToMetadataMap(modelId: string, graphSlug: string): CLTGraphMetadata | undefined {
+    return modelIdToMetadataMap[modelId]?.find((g) => g.slug === graphSlug);
+  }
+
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
-    const response = await fetch(getGraphUrl(graphSlug, modelToBaseUrlMap[selectedModelId]));
+    const graph = findGraphInModelIdToMetadataMap(selectedModelId, graphSlug);
+    if (!graph) {
+      throw new Error(`Graph not found for ${graphSlug}`);
+    }
+    const response = await fetch(getGraphUrl(graphSlug, graph.baseUrl || ''));
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
@@ -308,7 +349,7 @@ export function CircuitCLTProvider({
       formattedData.nodes,
       (d) => {
         if (nodeHasFeatureDetail(d)) {
-          return fetchFeatureDetail(selectedModelId, d.feature, modelToBaseUrlMap[selectedModelId]);
+          return fetchFeatureDetail(selectedModelId, d.feature, graph.baseUrl || '');
         }
         return Promise.resolve(null);
       },
@@ -331,22 +372,28 @@ export function CircuitCLTProvider({
       getGraph(selectedMetadataGraph.slug).then((g) => {
         setSelectedGraph(g);
       });
+    } else {
+      updateUrlParams({
+        model: selectedModelId,
+        slug: null,
+      });
+      setSelectedGraph(null);
     }
   }, [selectedMetadataGraph]);
 
   // Provide the context value
   const contextValue = useMemo(
     () => ({
-      metadata,
+      modelIdToMetadataMap,
       selectedModelId,
       selectedMetadataGraph,
+      setDefaultMetadataGraph,
       selectedGraph,
-      modelToBaseUrlMap,
       setSelectedModelId,
       setSelectedMetadataGraph,
-      setMetadata,
+      setModelIdToMetadataMap,
       getGraph,
-      metadataScanToModelDisplayName,
+      modelIdToModelDisplayName,
       visState,
       setVisState,
       updateVisStateField,
@@ -358,11 +405,14 @@ export function CircuitCLTProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      filterGraphsSetting,
+      setFilterGraphsSetting,
     }),
     [
-      metadata,
+      modelIdToMetadataMap,
       selectedModelId,
       selectedMetadataGraph,
+      setDefaultMetadataGraph,
       selectedGraph,
       visState,
       logitDiff,
@@ -373,6 +423,7 @@ export function CircuitCLTProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      filterGraphsSetting,
     ],
   );
 

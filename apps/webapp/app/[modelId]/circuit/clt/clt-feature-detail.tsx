@@ -152,7 +152,7 @@ export default function CLTFeatureDetail() {
           <>
             <div className="mb-1.5 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
             <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center bg-white">Top:</div>
+              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Top:</div>
               {node.featureDetail?.top_logits.map((logit, idx) => (
                 <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
                   {logit}
@@ -160,7 +160,7 @@ export default function CLTFeatureDetail() {
               ))}
             </div>
             <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center bg-white">Bottom:</div>
+              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Bottom:</div>
               {node?.featureDetail?.bottom_logits.map((logit, idx) => (
                 <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
                   {logit}
@@ -169,15 +169,15 @@ export default function CLTFeatureDetail() {
             </div>
             <div
               ref={activationContainerRef}
-              className="flex max-h-[320px] w-full flex-col overflow-y-scroll overscroll-none"
+              className="flex max-h-[300px] w-full flex-col overflow-y-scroll overscroll-none"
             >
               <GroupedVirtuoso
                 ref={groupRef}
-                className="min-h-[320px] w-full"
+                className="min-h-[300px] w-full"
                 groupCounts={groupCounts}
                 // eslint-disable-next-line react/no-unstable-nested-components
                 groupContent={(index) => (
-                  <div className="h-8 border-b bg-white pb-1 pt-2 text-sm font-bold text-slate-600">
+                  <div className="h-8 border-b bg-slate-50 pb-1 pt-2 text-sm font-bold text-slate-600">
                     {node?.featureDetail?.examples_quantiles[index].quantile_name}
                   </div>
                 )}
