@@ -1,5 +1,5 @@
+import { prisma } from '@/lib/db';
 import { DEFAULT_STEER_MODEL } from '@/lib/env';
-import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
 export default async function Page() {

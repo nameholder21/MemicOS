@@ -3,16 +3,18 @@
 import {
   CLTFeature,
   CLTGraph,
-  CLTGraphMetadata,
   CLTGraphNode,
   CltVisState,
   FilterGraphType,
-  ModelToCLTGraphMetadatasMap,
+  ModelToGraphMetadatasMap,
   formatCLTGraphData,
   isHideLayer,
   modelIdToModelDisplayName,
   nodeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { GraphMetadataWithPartialRelations } from '@/prisma/generated/zod';
+import { GraphMetadata } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -20,14 +22,14 @@ const FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
 
 // Define the context type
 type CircuitCLTContextType = {
-  modelIdToMetadataMap: ModelToCLTGraphMetadatasMap;
+  modelIdToMetadataMap: ModelToGraphMetadatasMap;
   selectedModelId: string;
-  selectedMetadataGraph: CLTGraphMetadata | null;
+  selectedMetadataGraph: GraphMetadataWithPartialRelations | null;
   selectedGraph: CLTGraph | null;
   setSelectedModelId: (modelId: string) => void;
-  setSelectedMetadataGraph: (graph: CLTGraphMetadata | null) => void;
+  setSelectedMetadataGraph: (graph: GraphMetadataWithPartialRelations | null) => void;
   setDefaultMetadataGraph: (modelOverride?: string) => void;
-  setModelIdToMetadataMap: (metadata: ModelToCLTGraphMetadatasMap) => void;
+  setModelIdToMetadataMap: (metadata: ModelToGraphMetadatasMap) => void;
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
   modelIdToModelDisplayName: Map<string, string>;
 
@@ -57,6 +59,7 @@ type CircuitCLTContextType = {
   // Graph filtering setting
   filterGraphsSetting: FilterGraphType[];
   setFilterGraphsSetting: (setting: FilterGraphType[]) => void;
+  shouldShowGraphToCurrentUser: (graph: GraphMetadata) => boolean;
 };
 
 // Create the context with a default value
@@ -90,19 +93,20 @@ export function CircuitCLTProvider({
   initialClerps,
 }: {
   children: ReactNode;
-  initialModelIdToMetadataGraphsMap?: ModelToCLTGraphMetadatasMap;
+  initialModelIdToMetadataGraphsMap?: ModelToGraphMetadatasMap;
   initialModel?: string;
-  initialMetadataGraph?: CLTGraphMetadata;
+  initialMetadataGraph?: GraphMetadata;
   initialPinnedIds?: string;
   initialClickedId?: string;
   initialSupernodes?: string[][];
   initialClerps?: string[][];
 }) {
   const router = useRouter();
+  const session = useSession();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [modelIdToMetadataMap, setModelIdToMetadataMap] = useState<ModelToCLTGraphMetadatasMap>(
+  const [modelIdToMetadataMap, setModelIdToMetadataMap] = useState<ModelToGraphMetadatasMap>(
     initialModelIdToMetadataGraphsMap,
   );
   const [selectedModelId, setSelectedModelId] = useState<string>(
@@ -111,7 +115,7 @@ export function CircuitCLTProvider({
         ? Object.keys(initialModelIdToMetadataGraphsMap)[0]
         : ''),
   );
-  const [selectedMetadataGraph, setSelectedMetadataGraph] = useState<CLTGraphMetadata | null>(
+  const [selectedMetadataGraph, setSelectedMetadataGraph] = useState<GraphMetadata | null>(
     initialMetadataGraph ||
       (selectedModelId && initialModelIdToMetadataGraphsMap[selectedModelId]?.length > 0
         ? initialModelIdToMetadataGraphsMap[selectedModelId][0]
@@ -162,10 +166,24 @@ export function CircuitCLTProvider({
     return defaultClerp;
   };
 
+  const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {
+    if (session.data?.user?.id === graph.userId) {
+      return FilterGraphType.Mine;
+    } else if (graph.isFeatured) {
+      return FilterGraphType.Featured;
+    }
+    return FilterGraphType.Community;
+  };
+
+  const shouldShowGraphToCurrentUser = (graph: GraphMetadata) => {
+    let graphType = getFilterGraphTypeForCurrentUser(graph);
+    return filterGraphsSetting.includes(graphType);
+  };
+
   const setDefaultMetadataGraph = (modelOverride?: string) => {
     // based on the filter, find the first graph that matches the filter
     const filteredGraphs = modelIdToMetadataMap[modelOverride || selectedModelId].filter((graph) =>
-      filterGraphsSetting.includes(graph.filterGraphType || FilterGraphType.Featured),
+      filterGraphsSetting.includes(getFilterGraphTypeForCurrentUser(graph)),
     );
     if (filteredGraphs.length > 0) {
       setSelectedMetadataGraph(filteredGraphs[0]);
@@ -326,17 +344,18 @@ export function CircuitCLTProvider({
     return data as CLTFeature;
   }
 
-  function findGraphInModelIdToMetadataMap(modelId: string, graphSlug: string): CLTGraphMetadata | undefined {
-    return modelIdToMetadataMap[modelId]?.find((g) => g.slug === graphSlug);
-  }
+  const getBaseUrlFromUrl = (url: string) => {
+    const urlObj = new URL(url);
+    return urlObj.origin;
+  };
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
-    const graph = findGraphInModelIdToMetadataMap(selectedModelId, graphSlug);
+    const graph = modelIdToMetadataMap[selectedModelId]?.find((g) => g.slug === graphSlug);
     if (!graph) {
       throw new Error(`Graph not found for ${graphSlug}`);
     }
-    const response = await fetch(getGraphUrl(graphSlug, graph.baseUrl || ''));
+    const response = await fetch(graph.url);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
@@ -349,7 +368,7 @@ export function CircuitCLTProvider({
       formattedData.nodes,
       (d) => {
         if (nodeHasFeatureDetail(d)) {
-          return fetchFeatureDetail(selectedModelId, d.feature, graph.baseUrl || '');
+          return fetchFeatureDetail(selectedModelId, d.feature, getBaseUrlFromUrl(graph.url));
         }
         return Promise.resolve(null);
       },
@@ -407,6 +426,7 @@ export function CircuitCLTProvider({
       getOverrideClerpForNode,
       filterGraphsSetting,
       setFilterGraphsSetting,
+      shouldShowGraphToCurrentUser,
     }),
     [
       modelIdToMetadataMap,
@@ -424,6 +444,7 @@ export function CircuitCLTProvider({
       setIsEditingLabel,
       getOverrideClerpForNode,
       filterGraphsSetting,
+      shouldShowGraphToCurrentUser,
     ],
   );
 

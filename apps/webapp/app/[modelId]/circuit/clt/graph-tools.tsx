@@ -1,5 +1,5 @@
 import { FilterGraphType } from '@/app/[modelId]/circuit/clt/clt-utils';
-import { getGraphUrl, useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { useGlobalContext } from '@/components/provider/global-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
@@ -23,6 +23,7 @@ export default function GraphTools() {
     modelIdToModelDisplayName,
     filterGraphsSetting,
     setFilterGraphsSetting,
+    shouldShowGraphToCurrentUser,
   } = useCircuitCLT();
 
   return (
@@ -159,7 +160,9 @@ export default function GraphTools() {
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
                       <div className="text-[9px] font-normal text-slate-400">{selectedMetadataGraph.slug}</div>
-                      <div className="pr-6 text-[9px] font-normal text-slate-400">{selectedMetadataGraph.userName}</div>
+                      <div className="pr-6 text-[9px] font-normal text-slate-400">
+                        {selectedMetadataGraph.user?.name}
+                      </div>
                     </div>
                   </div>
                 </Select.Value>
@@ -182,9 +185,7 @@ export default function GraphTools() {
                 </Select.ScrollUpButton>
                 <Select.Viewport className="w-full divide-y divide-slate-100 p-2 text-slate-700">
                   {modelIdToMetadataMap[selectedModelId]
-                    ?.filter((graph) =>
-                      filterGraphsSetting.includes(graph.filterGraphType || FilterGraphType.Community),
-                    )
+                    ?.filter((graph) => shouldShowGraphToCurrentUser(graph))
                     ?.map((graph) => (
                       <Select.Item
                         key={graph.slug}
@@ -198,15 +199,14 @@ export default function GraphTools() {
                             </div>
                             <div className="flex w-full min-w-full flex-row items-center justify-between">
                               <div className="text-[9px] font-normal text-slate-400">{graph.slug}</div>
-                              <div className="text-[9px] font-normal text-slate-400">{graph.userName}</div>
+                              <div className="text-[9px] font-normal text-slate-400">{graph.user?.name}</div>
                             </div>
                           </div>
                         </Select.ItemText>
                       </Select.Item>
                     ))}
-                  {modelIdToMetadataMap[selectedModelId]?.filter((graph) =>
-                    filterGraphsSetting.includes(graph.filterGraphType || FilterGraphType.Community),
-                  ).length === 0 && (
+                  {modelIdToMetadataMap[selectedModelId]?.filter((graph) => shouldShowGraphToCurrentUser(graph))
+                    .length === 0 && (
                     <div className="relative w-full cursor-default select-none px-5 py-3 text-center text-sm text-slate-400">
                       No graphs matched your filters. Include more filters on the left.
                     </div>
@@ -246,8 +246,7 @@ export default function GraphTools() {
               className="flex h-12 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-slate-300 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-50"
               onClick={() => {
                 if (selectedMetadataGraph) {
-                  const url = getGraphUrl(selectedMetadataGraph.slug, selectedMetadataGraph.baseUrl || '');
-                  window.open(url, '_blank');
+                  window.open(selectedMetadataGraph.url, '_blank');
                 }
               }}
               disabled={selectedMetadataGraph === null}

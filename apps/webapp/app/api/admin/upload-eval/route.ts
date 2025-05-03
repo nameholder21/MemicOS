@@ -1,5 +1,5 @@
+import { prisma } from '@/lib/db';
 import { DEFAULT_CREATOR_USER_ID } from '@/lib/env';
-import prisma from '@/lib/prisma';
 import { getSourceSetNameFromSource } from '@/lib/utils/source';
 import { RequestAuthedAdminUser, withAuthedAdminUser } from '@/lib/with-user';
 import { Visibility } from '@prisma/client';

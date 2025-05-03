@@ -1,5 +1,5 @@
+import { prisma } from '@/lib/db';
 import { STEER_FORCE_ALLOW_INSTRUCT_MODELS } from '@/lib/env';
-import prisma from '@/lib/prisma';
 import { notFound, permanentRedirect } from 'next/navigation';
 
 // this page url is formatted as: /steer/[steer-model] or /steer/[steer-output-id]

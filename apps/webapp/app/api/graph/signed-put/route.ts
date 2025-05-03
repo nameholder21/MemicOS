@@ -1,4 +1,5 @@
 import { NP_GRAPH_BUCKET } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
@@ -8,7 +9,7 @@ import { number, object, string } from 'yup';
 
 const USER_GRAPHS_DIR = 'user-graphs';
 const MAX_GRAPH_SIZE_MEGABYTES = 100;
-
+const MAX_PUT_REQUESTS_PER_DAY = 100;
 const signedPutRequestSchema = object({
   filename: string().required(),
   contentLength: number()
@@ -30,8 +31,26 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
 
     const userId = user.id;
 
-    if (!body.filename) {
-      return NextResponse.json({ error: 'Filename is required' }, { status: 400 });
+    if (!request.ip) {
+      throw new Error('IP address is required');
+    }
+
+    // look up how many put requests this IP has made in the last 24 hours
+    const putRequests = await prisma.graphMetadataDataPutRequest.findMany({
+      where: {
+        ipAddress: request.ip,
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+    if (putRequests.length >= MAX_PUT_REQUESTS_PER_DAY) {
+      return NextResponse.json(
+        { error: `Too many put requests today. The maximum is ${MAX_PUT_REQUESTS_PER_DAY}.` },
+        { status: 429 },
+      );
+    } else {
+      console.log('putRequests count | user ID', putRequests.length, userId);
     }
 
     const key = `${USER_GRAPHS_DIR}/${userId}/${body.filename}`;
@@ -58,9 +77,20 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       expiresIn: 3600, // 1 hour
     });
 
+    // add the put request to the database
+    const putRequest = await prisma.graphMetadataDataPutRequest.create({
+      data: {
+        userId: request.user.id,
+        ipAddress: request.ip,
+        filename: body.filename,
+        url: signedUrl,
+      },
+    });
+
     return NextResponse.json({
       url: signedUrl,
       key,
+      putRequestId: putRequest.id,
     });
   } catch (error) {
     console.error('Error generating signed URL:', error);

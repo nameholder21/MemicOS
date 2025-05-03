@@ -60,6 +60,10 @@ export const UserSecretScalarFieldEnumSchema = z.enum(['id','username','type','v
 
 export const UserScalarFieldEnumSchema = z.enum(['id','name','bio','email','emailVerified','githubUsername','bot','image','admin','canTriggerExplanations','emailNewsletterNotification','emailUnsubscribeAll','emailUnsubscribeCode','createdAt']);
 
+export const GraphMetadataScalarFieldEnumSchema = z.enum(['id','modelId','slug','promptTokens','prompt','titlePrefix','isFeatured','url','userId','createdAt','updatedAt']);
+
+export const GraphMetadataDataPutRequestScalarFieldEnumSchema = z.enum(['id','ipAddress','filename','url','userId','createdAt']);
+
 export const ListCommentScalarFieldEnumSchema = z.enum(['id','listId','text','userId','createdAt']);
 
 export const ListScalarFieldEnumSchema = z.enum(['id','name','description','defaultTestText','userId','createdAt','updatedAt']);
@@ -375,6 +379,8 @@ export type UserRelations = {
   explanationType: ExplanationTypeWithRelations[];
   explanationScoreType: ExplanationScoreTypeWithRelations[];
   initiatedExplanationScore: ExplanationScoreWithRelations[];
+  graphMetadatas: GraphMetadataWithRelations[];
+  graphMetadataDataPutRequests: GraphMetadataDataPutRequestWithRelations[];
 };
 
 export type UserWithRelations = z.infer<typeof UserSchema> & UserRelations
@@ -403,6 +409,8 @@ export const UserWithRelationsSchema: z.ZodType<UserWithRelations> = UserSchema.
   explanationType: z.lazy(() => ExplanationTypeWithRelationsSchema).array(),
   explanationScoreType: z.lazy(() => ExplanationScoreTypeWithRelationsSchema).array(),
   initiatedExplanationScore: z.lazy(() => ExplanationScoreWithRelationsSchema).array(),
+  graphMetadatas: z.lazy(() => GraphMetadataWithRelationsSchema).array(),
+  graphMetadataDataPutRequests: z.lazy(() => GraphMetadataDataPutRequestWithRelationsSchema).array(),
 }))
 
 // USER PARTIAL RELATION SCHEMA
@@ -432,6 +440,8 @@ export type UserPartialRelations = {
   explanationType?: ExplanationTypePartialWithRelations[];
   explanationScoreType?: ExplanationScoreTypePartialWithRelations[];
   initiatedExplanationScore?: ExplanationScorePartialWithRelations[];
+  graphMetadatas?: GraphMetadataPartialWithRelations[];
+  graphMetadataDataPutRequests?: GraphMetadataDataPutRequestPartialWithRelations[];
 };
 
 export type UserPartialWithRelations = z.infer<typeof UserPartialSchema> & UserPartialRelations
@@ -460,6 +470,8 @@ export const UserPartialWithRelationsSchema: z.ZodType<UserPartialWithRelations>
   explanationType: z.lazy(() => ExplanationTypePartialWithRelationsSchema).array(),
   explanationScoreType: z.lazy(() => ExplanationScoreTypePartialWithRelationsSchema).array(),
   initiatedExplanationScore: z.lazy(() => ExplanationScorePartialWithRelationsSchema).array(),
+  graphMetadatas: z.lazy(() => GraphMetadataPartialWithRelationsSchema).array(),
+  graphMetadataDataPutRequests: z.lazy(() => GraphMetadataDataPutRequestPartialWithRelationsSchema).array(),
 })).partial()
 
 export type UserWithPartialRelations = z.infer<typeof UserSchema> & UserPartialRelations
@@ -488,6 +500,128 @@ export const UserWithPartialRelationsSchema: z.ZodType<UserWithPartialRelations>
   explanationType: z.lazy(() => ExplanationTypePartialWithRelationsSchema).array(),
   explanationScoreType: z.lazy(() => ExplanationScoreTypePartialWithRelationsSchema).array(),
   initiatedExplanationScore: z.lazy(() => ExplanationScorePartialWithRelationsSchema).array(),
+  graphMetadatas: z.lazy(() => GraphMetadataPartialWithRelationsSchema).array(),
+  graphMetadataDataPutRequests: z.lazy(() => GraphMetadataDataPutRequestPartialWithRelationsSchema).array(),
+}).partial())
+
+/////////////////////////////////////////
+// GRAPH METADATA SCHEMA
+/////////////////////////////////////////
+
+export const GraphMetadataSchema = z.object({
+  id: z.string().cuid(),
+  modelId: z.string(),
+  slug: z.string(),
+  promptTokens: z.string().array(),
+  prompt: z.string(),
+  titlePrefix: z.string(),
+  isFeatured: z.boolean(),
+  url: z.string(),
+  userId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type GraphMetadata = z.infer<typeof GraphMetadataSchema>
+
+/////////////////////////////////////////
+// GRAPH METADATA PARTIAL SCHEMA
+/////////////////////////////////////////
+
+export const GraphMetadataPartialSchema = GraphMetadataSchema.partial()
+
+export type GraphMetadataPartial = z.infer<typeof GraphMetadataPartialSchema>
+
+// GRAPH METADATA RELATION SCHEMA
+//------------------------------------------------------
+
+export type GraphMetadataRelations = {
+  model: ModelWithRelations;
+  user: UserWithRelations;
+};
+
+export type GraphMetadataWithRelations = z.infer<typeof GraphMetadataSchema> & GraphMetadataRelations
+
+export const GraphMetadataWithRelationsSchema: z.ZodType<GraphMetadataWithRelations> = GraphMetadataSchema.merge(z.object({
+  model: z.lazy(() => ModelWithRelationsSchema),
+  user: z.lazy(() => UserWithRelationsSchema),
+}))
+
+// GRAPH METADATA PARTIAL RELATION SCHEMA
+//------------------------------------------------------
+
+export type GraphMetadataPartialRelations = {
+  model?: ModelPartialWithRelations;
+  user?: UserPartialWithRelations;
+};
+
+export type GraphMetadataPartialWithRelations = z.infer<typeof GraphMetadataPartialSchema> & GraphMetadataPartialRelations
+
+export const GraphMetadataPartialWithRelationsSchema: z.ZodType<GraphMetadataPartialWithRelations> = GraphMetadataPartialSchema.merge(z.object({
+  model: z.lazy(() => ModelPartialWithRelationsSchema),
+  user: z.lazy(() => UserPartialWithRelationsSchema),
+})).partial()
+
+export type GraphMetadataWithPartialRelations = z.infer<typeof GraphMetadataSchema> & GraphMetadataPartialRelations
+
+export const GraphMetadataWithPartialRelationsSchema: z.ZodType<GraphMetadataWithPartialRelations> = GraphMetadataSchema.merge(z.object({
+  model: z.lazy(() => ModelPartialWithRelationsSchema),
+  user: z.lazy(() => UserPartialWithRelationsSchema),
+}).partial())
+
+/////////////////////////////////////////
+// GRAPH METADATA DATA PUT REQUEST SCHEMA
+/////////////////////////////////////////
+
+export const GraphMetadataDataPutRequestSchema = z.object({
+  id: z.string().cuid(),
+  ipAddress: z.string(),
+  filename: z.string(),
+  url: z.string(),
+  userId: z.string(),
+  createdAt: z.coerce.date(),
+})
+
+export type GraphMetadataDataPutRequest = z.infer<typeof GraphMetadataDataPutRequestSchema>
+
+/////////////////////////////////////////
+// GRAPH METADATA DATA PUT REQUEST PARTIAL SCHEMA
+/////////////////////////////////////////
+
+export const GraphMetadataDataPutRequestPartialSchema = GraphMetadataDataPutRequestSchema.partial()
+
+export type GraphMetadataDataPutRequestPartial = z.infer<typeof GraphMetadataDataPutRequestPartialSchema>
+
+// GRAPH METADATA DATA PUT REQUEST RELATION SCHEMA
+//------------------------------------------------------
+
+export type GraphMetadataDataPutRequestRelations = {
+  user: UserWithRelations;
+};
+
+export type GraphMetadataDataPutRequestWithRelations = z.infer<typeof GraphMetadataDataPutRequestSchema> & GraphMetadataDataPutRequestRelations
+
+export const GraphMetadataDataPutRequestWithRelationsSchema: z.ZodType<GraphMetadataDataPutRequestWithRelations> = GraphMetadataDataPutRequestSchema.merge(z.object({
+  user: z.lazy(() => UserWithRelationsSchema),
+}))
+
+// GRAPH METADATA DATA PUT REQUEST PARTIAL RELATION SCHEMA
+//------------------------------------------------------
+
+export type GraphMetadataDataPutRequestPartialRelations = {
+  user?: UserPartialWithRelations;
+};
+
+export type GraphMetadataDataPutRequestPartialWithRelations = z.infer<typeof GraphMetadataDataPutRequestPartialSchema> & GraphMetadataDataPutRequestPartialRelations
+
+export const GraphMetadataDataPutRequestPartialWithRelationsSchema: z.ZodType<GraphMetadataDataPutRequestPartialWithRelations> = GraphMetadataDataPutRequestPartialSchema.merge(z.object({
+  user: z.lazy(() => UserPartialWithRelationsSchema),
+})).partial()
+
+export type GraphMetadataDataPutRequestWithPartialRelations = z.infer<typeof GraphMetadataDataPutRequestSchema> & GraphMetadataDataPutRequestPartialRelations
+
+export const GraphMetadataDataPutRequestWithPartialRelationsSchema: z.ZodType<GraphMetadataDataPutRequestWithPartialRelations> = GraphMetadataDataPutRequestSchema.merge(z.object({
+  user: z.lazy(() => UserPartialWithRelationsSchema),
 }).partial())
 
 /////////////////////////////////////////
@@ -811,6 +945,7 @@ export type ModelRelations = {
   steerOutputs: SteerOutputWithRelations[];
   evals: EvalWithRelations[];
   sourceInferenceHosts: InferenceHostSourceWithRelations[];
+  graphMetadata: GraphMetadataWithRelations[];
 };
 
 export type ModelWithRelations = z.infer<typeof ModelSchema> & ModelRelations
@@ -826,6 +961,7 @@ export const ModelWithRelationsSchema: z.ZodType<ModelWithRelations> = ModelSche
   steerOutputs: z.lazy(() => SteerOutputWithRelationsSchema).array(),
   evals: z.lazy(() => EvalWithRelationsSchema).array(),
   sourceInferenceHosts: z.lazy(() => InferenceHostSourceWithRelationsSchema).array(),
+  graphMetadata: z.lazy(() => GraphMetadataWithRelationsSchema).array(),
 }))
 
 // MODEL PARTIAL RELATION SCHEMA
@@ -842,6 +978,7 @@ export type ModelPartialRelations = {
   steerOutputs?: SteerOutputPartialWithRelations[];
   evals?: EvalPartialWithRelations[];
   sourceInferenceHosts?: InferenceHostSourcePartialWithRelations[];
+  graphMetadata?: GraphMetadataPartialWithRelations[];
 };
 
 export type ModelPartialWithRelations = z.infer<typeof ModelPartialSchema> & ModelPartialRelations
@@ -857,6 +994,7 @@ export const ModelPartialWithRelationsSchema: z.ZodType<ModelPartialWithRelation
   steerOutputs: z.lazy(() => SteerOutputPartialWithRelationsSchema).array(),
   evals: z.lazy(() => EvalPartialWithRelationsSchema).array(),
   sourceInferenceHosts: z.lazy(() => InferenceHostSourcePartialWithRelationsSchema).array(),
+  graphMetadata: z.lazy(() => GraphMetadataPartialWithRelationsSchema).array(),
 })).partial()
 
 export type ModelWithPartialRelations = z.infer<typeof ModelSchema> & ModelPartialRelations
@@ -872,6 +1010,7 @@ export const ModelWithPartialRelationsSchema: z.ZodType<ModelWithPartialRelation
   steerOutputs: z.lazy(() => SteerOutputPartialWithRelationsSchema).array(),
   evals: z.lazy(() => EvalPartialWithRelationsSchema).array(),
   sourceInferenceHosts: z.lazy(() => InferenceHostSourcePartialWithRelationsSchema).array(),
+  graphMetadata: z.lazy(() => GraphMetadataPartialWithRelationsSchema).array(),
 }).partial())
 
 /////////////////////////////////////////

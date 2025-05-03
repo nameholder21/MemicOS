@@ -1,4 +1,6 @@
-import { DEFAULT_CREATOR_USER_ID } from '@/lib/env';
+import { DEFAULT_CREATOR_USER_ID, NEXT_PUBLIC_URL } from '@/lib/env';
+import { GraphMetadata, GraphMetadataWithPartialRelations } from '@/prisma/generated/zod';
+import cuid from 'cuid';
 import d3 from './d3-jetpack';
 
 // TODO: make this an env variable
@@ -10,14 +12,18 @@ export const GRAPH_BASE_URLS = [
   'https://dx3cf1keixxrs.cloudfront.net', // NP graph bucket
 ];
 
-export type CLTGraphMetadata = {
-  // memicos-specific
-  baseUrl: string | undefined;
-  filterGraphType: FilterGraphType | undefined;
-  userId: string | undefined;
-  userName: string | undefined;
+export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {
+  return `${NEXT_PUBLIC_URL}/beta/circuit/clt?model=${modelId}&slug=${slug}`;
+}
 
-  // common with others
+export type AnthropicGraphMetadata = {
+  // // memicos-specific
+  // baseUrl: string | undefined;
+  // filterGraphType: FilterGraphType | undefined;
+  // userId: string | undefined;
+  // userName: string | undefined;
+
+  // // common with others
   slug: string;
   scan: string;
   prompt_tokens: string[];
@@ -25,8 +31,8 @@ export type CLTGraphMetadata = {
   title_prefix: string;
 };
 
-export type ModelToCLTGraphMetadatasMap = {
-  [modelId: string]: CLTGraphMetadata[];
+export type ModelToGraphMetadatasMap = {
+  [modelId: string]: GraphMetadataWithPartialRelations[];
 };
 
 export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
@@ -37,39 +43,34 @@ export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
   );
 }
 
-export async function getGraphMetadatasFromBucket(baseUrl: string): Promise<ModelToCLTGraphMetadatasMap> {
+// Anthropic graph metadata are ones where the metadata is stored in the bucket in graph-metadata.json
+// We store our metadata in the database
+export async function getGraphMetadatasFromBucket(baseUrl: string): Promise<ModelToGraphMetadatasMap> {
   // first get featured graphs
   const featuredResponse = await fetch(`${baseUrl}/data/graph-metadata.json`);
-  const featuredGraphs: { graphs: CLTGraphMetadata[] } = await featuredResponse.json();
+  const anthropicFeaturedGraphs: { graphs: AnthropicGraphMetadata[] } = await featuredResponse.json();
 
-  for (const graph of featuredGraphs.graphs) {
-    // eslint-disable-next-line
-    graph.baseUrl = baseUrl;
-    // eslint-disable-next-line
-    graph.filterGraphType = FilterGraphType.Featured;
-    // eslint-disable-next-line
-    graph.userId = DEFAULT_CREATOR_USER_ID;
-  }
-
-  // // then get user graphs
-  // const userResponse = await fetch(`${baseUrl}/data/user-graphs.json`);
-  // const userGraphs: { graphs: CLTGraphMetadata[] } = await userResponse.json();
-
-  // // then get user graphs
-  // for (const graph of featuredGraphs.graphs) {
-  //   // eslint-disable-next-line
-  //   graph.baseUrl = baseUrl;
-  //   // eslint-disable-next-line
-  //   graph.filterGraphType = FilterGraphType.Featured;
-  //   // eslint-disable-next-line
-  //   graph.userId = DEFAULT_CREATOR_USER_ID;
-  // }
+  // convert to our GraphMetadata type to read locally
+  // by default all anthropic graphs are featured
+  const featuredGraphs: GraphMetadata[] = anthropicFeaturedGraphs.graphs.map((graph) => ({
+    modelId: graph.scan,
+    slug: graph.slug,
+    promptTokens: graph.prompt_tokens,
+    prompt: graph.prompt,
+    titlePrefix: graph.title_prefix,
+    url: `${baseUrl}/graph_data/${graph.slug}.json`,
+    userId: DEFAULT_CREATOR_USER_ID,
+    id: cuid(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    isFeatured: true,
+  }));
 
   // add all graphs to the map
-  const graphsByModelId = featuredGraphs.graphs.reduce((acc, graph) => {
-    acc[graph.scan] = [...(acc[graph.scan] || []), graph];
+  const graphsByModelId = featuredGraphs.reduce((acc, graph) => {
+    acc[graph.modelId] = [...(acc[graph.modelId] || []), graph];
     return acc;
-  }, {} as ModelToCLTGraphMetadatasMap);
+  }, {} as ModelToGraphMetadatasMap);
 
   return graphsByModelId;
 }
