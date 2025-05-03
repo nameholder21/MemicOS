@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Progress } from '@/components/shadcn/progress';
 import { ChartScatter, Loader2, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next-nprogress-bar';
 import { useState } from 'react';
 import { CLTGraph, makeGraphPublicAccessGraphUrl } from './clt-utils';
 
@@ -19,7 +18,6 @@ export default function UploadGraphModal() {
   const [graphData, setGraphData] = useState<CLTGraph | null>(null);
   const [uploadedFilename, setUploadedFilename] = useState<string>('');
   const session = useSession();
-  const router = useRouter();
   const { setSignInModalOpen } = useGlobalContext();
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
