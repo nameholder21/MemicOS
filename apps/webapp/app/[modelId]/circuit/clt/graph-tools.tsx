@@ -1,16 +1,14 @@
 import { FilterGraphType } from '@/app/[modelId]/circuit/clt/clt-utils';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
-import { useGlobalContext } from '@/components/provider/global-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
 import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw } from 'lucide-react';
-import { useSession } from 'next-auth/react';
 
 export default function GraphTools() {
-  const session = useSession();
-  const { setSignInModalOpen } = useGlobalContext();
+  // const session = useSession();
+  // const { setSignInModalOpen } = useGlobalContext();
   const {
     modelIdToMetadataMap,
     resetSelectedGraphToDefaultVisState,
