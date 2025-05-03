@@ -1,14 +1,17 @@
-import { FilterGraphType } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { FilterGraphType, getGraphBaseUrlToName } from '@/app/[modelId]/circuit/clt/clt-utils';
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGlobalContext } from '@/components/provider/global-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw, UploadCloud } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import UploadGraphModal from './upload-graph-modal';
 
 export default function GraphTools() {
-  // const session = useSession();
-  // const { setSignInModalOpen } = useGlobalContext();
+  const session = useSession();
+  const { setSignInModalOpen } = useGlobalContext();
   const {
     modelIdToMetadataMap,
     resetSelectedGraphToDefaultVisState,
@@ -183,6 +186,25 @@ export default function GraphTools() {
                 <Select.Viewport className="w-full divide-y divide-slate-100 p-2 text-slate-700">
                   {modelIdToMetadataMap[selectedModelId]
                     ?.filter((graph) => shouldShowGraphToCurrentUser(graph))
+                    ?.sort((a, b) => {
+                      // Sort order:
+                      // 1. User's own graphs (alphabetical by slug)
+                      // 2. Featured graphs (alphabetical by slug)
+                      // 3. Everything else (alphabetical by slug)
+                      if (session.data?.user?.id === a.userId && session.data?.user?.id !== b.userId) {
+                        return -1;
+                      }
+                      if (session.data?.user?.id !== a.userId && session.data?.user?.id === b.userId) {
+                        return 1;
+                      }
+                      if (a.isFeatured && !b.isFeatured) {
+                        return -1;
+                      }
+                      if (!a.isFeatured && b.isFeatured) {
+                        return 1;
+                      }
+                      return a.slug.localeCompare(b.slug);
+                    })
                     ?.map((graph) => (
                       <Select.Item
                         key={graph.slug}
@@ -194,9 +216,11 @@ export default function GraphTools() {
                             <div className="w-full whitespace-pre-line text-[11px] text-slate-600">
                               {graph.prompt.trim()}
                             </div>
-                            <div className="flex w-full min-w-full flex-row items-center justify-between">
+                            <div className="flex w-full min-w-full flex-row items-center justify-between gap-x-5">
                               <div className="text-[9px] font-normal text-slate-400">{graph.slug}</div>
-                              <div className="text-[9px] font-normal text-slate-400">{graph.user?.name}</div>
+                              <div className="text-[9px] font-normal text-slate-400">
+                                {graph.user?.name ? graph.user?.name : getGraphBaseUrlToName(graph.url)}
+                              </div>
                             </div>
                           </div>
                         </Select.ItemText>
@@ -265,7 +289,7 @@ export default function GraphTools() {
               <CopyIcon className="h-4 w-4" />
             </Button>
 
-            {/* {session.data?.user ? (
+            {session.data?.user ? (
               <UploadGraphModal />
             ) : (
               <Button
@@ -278,7 +302,7 @@ export default function GraphTools() {
               >
                 <UploadCloud className="h-4 w-4" />
               </Button>
-            )} */}
+            )}
           </div>
         </div>
       </div>

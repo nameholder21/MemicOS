@@ -7,7 +7,7 @@ import { Progress } from '@/components/shadcn/progress';
 import { ChartScatter, Loader2, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { CLTGraph, makeGraphPublicAccessGraphUrl } from './clt-utils';
+import { CLTGraph, makeGraphPublicAccessGraphUri } from './clt-utils';
 
 export default function UploadGraphModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -178,7 +178,10 @@ export default function UploadGraphModal() {
     if (graphData) {
       setIsOpen(false);
 
-      window.location.href = makeGraphPublicAccessGraphUrl(graphData.metadata.scan, graphData.metadata.slug);
+      const baseUrl = `${window.location.protocol}//${window.location.host}`;
+      const graphUri = makeGraphPublicAccessGraphUri(graphData.metadata.scan, graphData.metadata.slug);
+      alert(`${baseUrl}${graphUri}`);
+      window.location.href = `${baseUrl}${graphUri}`;
     }
   };
 
