@@ -345,10 +345,7 @@ export function CircuitCLTProvider({
     return data as CLTFeature;
   }
 
-  const getBaseUrlFromUrl = (url: string) => {
-    const urlObj = new URL(url);
-    return urlObj.origin;
-  };
+  const getAnthropicBaseUrlFromGraphUrl = (url: string) => url.split('/graph_data/')[0];
 
   // Function to fetch graph data
   async function getGraph(graphSlug: string): Promise<CLTGraph> {
@@ -369,7 +366,7 @@ export function CircuitCLTProvider({
       formattedData.nodes,
       (d) => {
         if (nodeHasFeatureDetail(d)) {
-          return fetchFeatureDetail(selectedModelId, d.feature, getBaseUrlFromUrl(graph.url));
+          return fetchFeatureDetail(selectedModelId, d.feature, getAnthropicBaseUrlFromGraphUrl(graph.url));
         }
         return Promise.resolve(null);
       },
