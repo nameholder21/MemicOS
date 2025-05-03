@@ -129,10 +129,6 @@ export function CircuitCLTProvider({
     FilterGraphType.Mine,
   ]);
 
-  useEffect(() => {
-    setDefaultMetadataGraph();
-  }, [filterGraphsSetting]);
-
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
 
@@ -169,14 +165,15 @@ export function CircuitCLTProvider({
   const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {
     if (session.data?.user?.id === graph.userId) {
       return FilterGraphType.Mine;
-    } else if (graph.isFeatured) {
+    }
+    if (graph.isFeatured) {
       return FilterGraphType.Featured;
     }
     return FilterGraphType.Community;
   };
 
   const shouldShowGraphToCurrentUser = (graph: GraphMetadata) => {
-    let graphType = getFilterGraphTypeForCurrentUser(graph);
+    const graphType = getFilterGraphTypeForCurrentUser(graph);
     return filterGraphsSetting.includes(graphType);
   };
 
@@ -191,6 +188,10 @@ export function CircuitCLTProvider({
       setSelectedMetadataGraph(null);
     }
   };
+
+  useEffect(() => {
+    setDefaultMetadataGraph();
+  }, [filterGraphsSetting]);
 
   const updateUrlParams = (keysToValues: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());

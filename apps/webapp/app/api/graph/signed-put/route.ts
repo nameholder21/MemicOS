@@ -49,9 +49,8 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
         { error: `Too many put requests today. The maximum is ${MAX_PUT_REQUESTS_PER_DAY}.` },
         { status: 429 },
       );
-    } else {
-      console.log('putRequests count | user ID', putRequests.length, userId);
     }
+    console.log('putRequests count | user ID', putRequests.length, userId);
 
     const key = `${USER_GRAPHS_DIR}/${userId}/${body.filename}`;
 
