@@ -1016,6 +1016,8 @@ export default function CLTSubgraph() {
     nodeIdToNode,
   ]);
 
+  const [showSubgraphHelp, setShowSubgraphHelp] = useState(true);
+
   useEffect(() => {
     if (visState.pinnedIds.length === 0) {
       setShowSubgraphHelp(true);
@@ -1023,8 +1025,6 @@ export default function CLTSubgraph() {
       setShowSubgraphHelp(false);
     }
   }, [visState.pinnedIds]);
-
-  const [showSubgraphHelp, setShowSubgraphHelp] = useState(true);
 
   const SUBGRAPH_HEIGHT = 410;
 
@@ -1044,7 +1044,7 @@ export default function CLTSubgraph() {
           </div>
         </CustomTooltip>
       </div> */}
-        <div className={`subgraph relative w-full min-h-[${SUBGRAPH_HEIGHT}px]`}>
+        <div className="subgraph relative h-[410px] w-full">
           <svg className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} height={SUBGRAPH_HEIGHT} ref={svgRef} />
           <div className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} ref={divRef} />
 
@@ -1054,24 +1054,22 @@ export default function CLTSubgraph() {
             >
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
-                <strong>Pin or Unpin a Node</strong>
+                <strong>· Pin or Unpin a Node</strong>
                 {`: Hold 'Command/Ctrl', then click a node in the link graph above.`}
               </div>
               <div>
-                <strong>Group Nodes into a Supernode</strong>
+                <strong>· Group Nodes into a Supernode</strong>
                 {`: Hold 'g', then click multiple nodes in this subgraph. When you release, they'll be grouped into a "supernode".`}
               </div>
               <div>
-                <strong>Ungroup Supernodes</strong>
+                <strong>· Ungroup Supernodes</strong>
                 {`: Hold 'g', then click the x next to a supernode to ungroup it.`}
               </div>
               <div>
-                <strong>Label a Supernode</strong>
-                {`: Click the label under a supernode to edit its name.`}
+                <strong>· Label a Supernode</strong>: Click the label under a supernode to edit its name.
               </div>
               <div>
-                <strong>Share the Subgraph</strong>
-                {`: Copy the URL, or click the Copy button in the top right toolbar.`}
+                <strong>· Share the Subgraph</strong>: Copy the URL, or click the Copy button in the top right toolbar.
               </div>
             </div>
           )}

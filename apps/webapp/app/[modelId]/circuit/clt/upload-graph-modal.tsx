@@ -8,7 +8,7 @@ import { ChartScatter, Loader2, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useState } from 'react';
-import { CLTGraph } from './clt-utils';
+import { CLTGraph, makeGraphPublicAccessGraphUrl } from './clt-utils';
 
 export default function UploadGraphModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +49,7 @@ export default function UploadGraphModal() {
         throw new Error('Failed to get upload URL');
       }
 
-      const { url } = await response.json();
+      const { url, putRequestId } = await response.json();
 
       // Extract the clean S3 URL without query parameters for GET check
       const cleanedURL = url.split('?')[0];
@@ -122,7 +122,7 @@ export default function UploadGraphModal() {
 
       // Download and parse the file immediately
       // eslint-disable-next-line
-      await downloadAndParseGraph(fileToUpload.name, url);
+      await downloadParseAndPersistGraph(url, putRequestId);
     } catch (error: unknown) {
       console.error('Upload error:', error);
       alert(`Error uploading graph: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -131,7 +131,7 @@ export default function UploadGraphModal() {
     }
   };
 
-  const downloadAndParseGraph = async (filename: string, url: string) => {
+  const downloadParseAndPersistGraph = async (url: string, putRequestId: string) => {
     try {
       setIsDownloading(true);
 
@@ -144,18 +144,33 @@ export default function UploadGraphModal() {
       }
 
       // Parse the JSON data
-      const data = await response.json();
+      const data = (await response.json()) as CLTGraph;
 
       // Validate that it's a CLTGraph
       if (!data.metadata || !data.nodes || !data.links) {
         throw new Error('Invalid graph format');
       }
 
-      // Store the graph data
+      // we only need putRequestId because we have the request in the database, which we use to look up
+      const saveResponse = await fetch('/api/graph/save-to-db', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          putRequestId,
+        }),
+      });
+
+      if (!saveResponse.ok) {
+        throw new Error('Failed to save graph metadata to database');
+      }
+
+      // Set and show the graph data here
       setGraphData(data as CLTGraph);
     } catch (error) {
-      console.error('Download error:', error);
-      alert(`Error downloading graph: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Error:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsDownloading(false);
     }
@@ -163,13 +178,9 @@ export default function UploadGraphModal() {
 
   const handleOpenGraph = () => {
     if (graphData) {
-      // Close the modal
       setIsOpen(false);
 
-      // Navigate to the graph view
-      // const modelId = pathname.split('/')[1]; // Extract modelId from the current path
-      const currentUrl = window.location.href.split('?')[0];
-      window.location.href = `${currentUrl}?model=${graphData.metadata.scan}&slug=${graphData.metadata.slug}`;
+      window.location.href = makeGraphPublicAccessGraphUrl(graphData.metadata.scan, graphData.metadata.slug);
     }
   };
 
@@ -260,7 +271,7 @@ export default function UploadGraphModal() {
               // Downloading state
               <div className="flex flex-col items-center justify-center gap-4 py-6">
                 <Loader2 className="h-8 w-8 animate-spin text-sky-600" />
-                <p className="text-sm text-slate-600">Downloading and parsing file...</p>
+                <p className="text-sm text-slate-600">Validating and persisting metadata...</p>
               </div>
             ) : graphData ? (
               // Graph data loaded state

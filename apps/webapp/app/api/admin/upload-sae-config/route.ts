@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { RequestAuthedAdminUser, withAuthedAdminUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 

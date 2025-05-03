@@ -97,17 +97,6 @@ export const getUserByName = async (username: string) =>
     },
   });
 
-export const getUserNames = async (userIds: string[]) =>
-  prisma.user.findMany({
-    where: {
-      id: { in: userIds },
-    },
-    select: {
-      id: true,
-      name: true,
-    },
-  });
-
 export const getUserMemicOSApiKey = async (username: string, type: UserSecretType) =>
   prisma.userSecret.findUniqueOrThrow({
     where: {

@@ -88,34 +88,35 @@ model User {
 
   secrets UserSecret[]
 
-  githubUsername            String?
-  bot                       Boolean                   @default(false)
-  image                     String?
-  admin                     Boolean                   @default(false)
-  accounts                  Account[]
-  explanations              Explanation[]
-  triggeredExplanations     Explanation[]             @relation(name: "triggeredByUser")
-  canTriggerExplanations    Boolean                   @default(false)
-  neurons                   Neuron[]
-  sources                   Source[]
-  sourceSets                SourceSet[]
-  sourceReleases            SourceRelease[]
-  models                    Model[]
-  sessions                  Session[]
-  votes                     Vote[]
-  activations               Activation[]
-  bookmarks                 Bookmark[]
-  comments                  Comment[]
-  lists                     List[]
-  listsOnNeurons            ListsOnNeurons[]
-  listComments              ListComment[]
-  savedSearches             SavedSearch[]
-  explanationActivations    ExplanationActivationV1[]
-  steerOutput               SteerOutput[]
-  explanationType           ExplanationType[]
-  explanationScoreType      ExplanationScoreType[]
-  initiatedExplanationScore ExplanationScore[]
-  graphMetadata             GraphMetadata[]
+  githubUsername               String?
+  bot                          Boolean                       @default(false)
+  image                        String?
+  admin                        Boolean                       @default(false)
+  accounts                     Account[]
+  explanations                 Explanation[]
+  triggeredExplanations        Explanation[]                 @relation(name: "triggeredByUser")
+  canTriggerExplanations       Boolean                       @default(false)
+  neurons                      Neuron[]
+  sources                      Source[]
+  sourceSets                   SourceSet[]
+  sourceReleases               SourceRelease[]
+  models                       Model[]
+  sessions                     Session[]
+  votes                        Vote[]
+  activations                  Activation[]
+  bookmarks                    Bookmark[]
+  comments                     Comment[]
+  lists                        List[]
+  listsOnNeurons               ListsOnNeurons[]
+  listComments                 ListComment[]
+  savedSearches                SavedSearch[]
+  explanationActivations       ExplanationActivationV1[]
+  steerOutput                  SteerOutput[]
+  explanationType              ExplanationType[]
+  explanationScoreType         ExplanationScoreType[]
+  initiatedExplanationScore    ExplanationScore[]
+  graphMetadatas               GraphMetadata[]
+  graphMetadataDataPutRequests GraphMetadataDataPutRequest[]
 
   emailNewsletterNotification Boolean @default(true)
   emailUnsubscribeAll         Boolean @default(false)
@@ -125,12 +126,6 @@ model User {
 
   @@unique(emailUnsubscribeCode)
   @@index(bot)
-}
-
-enum FilterGraphType {
-  Featured
-  Community
-  Mine
 }
 
 model GraphMetadata {
@@ -146,7 +141,8 @@ model GraphMetadata {
   titlePrefix  String // anthropic equivalent = "title_prefix"
 
   // following are only ours
-  url    String // where the json file is stored
+  isFeatured Boolean @default(false)
+  url    String  // full url of where the json file is stored
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -156,6 +152,22 @@ model GraphMetadata {
   @@unique([modelId, slug])
   @@index([userId])
   @@index([modelId])
+}
+
+model GraphMetadataDataPutRequest {
+  id String @id @default(cuid())
+
+  ipAddress String
+  filename  String
+  url       String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([ipAddress])
+  @@index([userId])
 }
 
 model ListComment {

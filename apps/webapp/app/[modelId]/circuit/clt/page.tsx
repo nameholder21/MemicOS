@@ -1,9 +1,9 @@
 import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
-import { getUserNames } from '@/lib/db/user';
+import { prisma } from '@/lib/db';
 import {
   getGraphMetadatasFromBucket,
   GRAPH_BASE_URLS,
-  ModelToCLTGraphMetadatasMap,
+  ModelToGraphMetadatasMap,
   supportedGraphModels,
 } from './clt-utils';
 import CLTWrapper from './wrapper';
@@ -32,52 +32,57 @@ export default async function Page({
   // }
 
   // iterate through all baseUrls/buckets, and merge all the metadata into a single map
-  const modelIdToGraphMetadatasMap: ModelToCLTGraphMetadatasMap = {};
-  const userIdsToLookUp: Set<string> = new Set();
+  const modelIdToGraphMetadatasMap: ModelToGraphMetadatasMap = {};
+
+  // first, get all the graphmetadatas from the buckets
   // eslint-disable-next-line
   for (const baseUrl of GRAPH_BASE_URLS) {
     try {
-      // eslint-disable-next-line
       const modelIdToGraphMetadata = await getGraphMetadatasFromBucket(baseUrl);
-      if (modelIdToGraphMetadata) {
-        // eslint-disable-next-line
-        Object.keys(modelIdToGraphMetadata).forEach((modelId) => {
-          // add the correct baseUrl to each graph before adding it to the map
-          modelIdToGraphMetadata[modelId].forEach((graph) => {
-            // eslint-disable-next-line
-            userIdsToLookUp.add(graph.userId);
-          });
-          // only add models that are supported
-          if (supportedGraphModels.has(modelId)) {
-            // if we don't have the modelId in the map, add it and all its graphs
-            if (!modelIdToGraphMetadatasMap[modelId]) {
-              modelIdToGraphMetadatasMap[modelId] = modelIdToGraphMetadata[modelId];
-            } else {
-              // if we already have the modelId in the map, add all its graphs to the existing array
-              modelIdToGraphMetadatasMap[modelId] = [
-                ...modelIdToGraphMetadatasMap[modelId],
-                ...modelIdToGraphMetadata[modelId],
-              ];
-            }
+
+      // eslint-disable-next-line
+      Object.keys(modelIdToGraphMetadata)
+        .filter((modelId) => supportedGraphModels.has(modelId))
+        .forEach((modelId) => {
+          // if we don't have the modelId in the map, add it and all its graphs
+          if (!modelIdToGraphMetadatasMap[modelId]) {
+            modelIdToGraphMetadatasMap[modelId] = modelIdToGraphMetadata[modelId];
+          } else {
+            // if we already have the modelId in the map, add all its graphs to the existing array
+            modelIdToGraphMetadatasMap[modelId] = [
+              ...modelIdToGraphMetadatasMap[modelId],
+              ...modelIdToGraphMetadata[modelId],
+            ];
           }
         });
-      }
     } catch (error) {
       console.error(`Failed to fetch metadata from ${baseUrl}:`, error);
     }
   }
-  if (!modelIdToGraphMetadatasMap) {
-    return <div>No metadata found</div>;
-  }
 
-  const userIdsToLookUpArray = Array.from(userIdsToLookUp);
-  const userNames = await getUserNames(userIdsToLookUpArray);
-  // fill the userName field for each graph
-  Object.keys(modelIdToGraphMetadatasMap).forEach((modelId) => {
-    modelIdToGraphMetadatasMap[modelId].forEach((graph) => {
-      // eslint-disable-next-line
-      graph.userName = userNames.find((user) => user.id === graph.userId)?.name;
-    });
+  // now look up graphmetadatas in our database
+  const graphMetadatas = await prisma.graphMetadata.findMany({
+    where: {
+      modelId: {
+        in: Object.keys(modelIdToGraphMetadatasMap),
+      },
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  // add those graphmetadatas to the modelIdToGraphMetadatasMap too
+  graphMetadatas.forEach((graphMetadata) => {
+    // if the modelId is not in the map, add it
+    if (!modelIdToGraphMetadatasMap[graphMetadata.modelId]) {
+      modelIdToGraphMetadatasMap[graphMetadata.modelId] = [];
+    }
+    modelIdToGraphMetadatasMap[graphMetadata.modelId].push(graphMetadata);
   });
 
   const metadataGraph = searchParams.model

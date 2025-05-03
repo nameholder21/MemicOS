@@ -1,4 +1,5 @@
 // eslint-disable-next-line import/no-cycle
+import { prisma } from '@/lib/db';
 import CustomPrismaAdapterForNextAuth from '@/lib/db/custom-prisma-adapter';
 import { sendLoginEmail, sendWelcomeEmail } from '@/lib/email/email';
 import {
@@ -9,7 +10,6 @@ import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
 } from '@/lib/env';
-import prisma from '@/lib/prisma';
 import { User, UserSecretType } from '@prisma/client';
 import crypto from 'crypto';
 import type { NextAuthOptions } from 'next-auth/index';
