@@ -172,8 +172,13 @@ export const GET = withOptionalUser(async (request: RequestOptionalUser) => {
         for (const [index, explanationsPath] of explanationsPaths.entries()) {
           enqueueProgress(controller, index / explanationsPaths.length, `(3 of 4) Importing Explanations...`);
           console.log('Importing explanations from', explanationsPath);
+          const startTime = new Date();
           const explanationsJsonlString = await downloadAndDecompressFile(explanationsPath);
           await importJsonlString('Explanation', explanationsJsonlString);
+
+          const endTime = new Date();
+          const duration = (endTime.getTime() - startTime.getTime()) / 1000; // in seconds
+          console.log(`Duration: ${duration} seconds`);
         }
 
         /* ACTIVATIONS */
@@ -181,8 +186,13 @@ export const GET = withOptionalUser(async (request: RequestOptionalUser) => {
         for (const [index, activationsPath] of activationsPaths.entries()) {
           enqueueProgress(controller, index / activationsPaths.length, `(4 of 4) Importing Activations...`);
           console.log('Importing activations from', activationsPath);
+          const startTime = new Date();
           const activationsJsonlString = await downloadAndDecompressFile(activationsPath);
           await importJsonlString('Activation', activationsJsonlString);
+
+          const endTime = new Date();
+          const duration = (endTime.getTime() - startTime.getTime()) / 1000; // in seconds
+          console.log(`Duration: ${duration} seconds`);
         }
 
         controller.enqueue(encoder.encode('event: complete\ndata: {}\n\n'));
