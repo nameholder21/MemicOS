@@ -15,6 +15,12 @@ import {
 
 export const MAX_EXPLANATION_SEARCH_RESULTS = 20;
 
+// TODO: make these environment variables. these are beefy settings based on our prod hardware
+export const EF_SEARCH = 1000;
+export const ITERATIVE_SCAN = 'relaxed_order';
+export const SCAN_MEM_MULTIPLIER = 3;
+export const SCAN_TUPLES = 40000;
+
 export type ExplanationSearchResult = {
   modelId: string;
   layer: string;
@@ -25,6 +31,13 @@ export type ExplanationSearchResult = {
   maxActApprox: number;
   frac_nonzero: number;
   neuron: NeuronWithPartialRelations | undefined;
+};
+
+export const setHnswParams = async (tx: Prisma.TransactionClient) => {
+  await tx.$executeRaw`SET LOCAL hnsw.ef_search = ${Prisma.raw(EF_SEARCH.toString())};`;
+  await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = ${Prisma.raw(ITERATIVE_SCAN)};`;
+  await tx.$executeRaw`SET LOCAL hnsw.max_scan_tuples = ${Prisma.raw(SCAN_TUPLES.toString())};`;
+  await tx.$executeRaw`SET LOCAL hnsw.scan_mem_multiplier = ${Prisma.raw(SCAN_MEM_MULTIPLIER.toString())};`;
 };
 
 export const searchExplanationsAllVec = async (
@@ -44,8 +57,7 @@ export const searchExplanationsAllVec = async (
   }
 
   let results = (await prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
-    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+    await setHnswParams(tx);
 
     return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
@@ -92,8 +104,7 @@ export const searchExplanationsVec = async (
   }
 
   return (await prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
-    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+    await setHnswParams(tx);
 
     return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",  
@@ -117,8 +128,7 @@ export const searchExplanationsReleaseVec = async (
   await assertUserCanAccessRelease(releaseName, user);
 
   return (await prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
-    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+    await setHnswParams(tx);
 
     return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
@@ -161,8 +171,7 @@ export const searchExplanationsModelVec = async (
   }
 
   let results = (await prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`SET LOCAL hnsw.ef_search = 250;`;
-    await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = 'relaxed_order';`;
+    await setHnswParams(tx);
 
     return tx.$queryRaw`
     SELECT "modelId", "layer", "index", description, "explanationModelName", "typeName",
