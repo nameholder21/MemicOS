@@ -34,6 +34,7 @@ export default function FeatureDashboard({
   embedTest = true,
   defaultTestText,
   embedExplanation = true,
+  forceMiniStats = false,
 }: {
   initialNeuron?: NeuronWithPartialRelations | undefined;
   embed?: boolean;
@@ -41,6 +42,7 @@ export default function FeatureDashboard({
   embedTest?: boolean;
   defaultTestText?: string;
   embedExplanation?: boolean;
+  forceMiniStats?: boolean;
 }) {
   const [currentNeuron, setCurrentNeuron] = useState<NeuronWithPartialRelations | undefined>(initialNeuron);
   const { getReleaseForSourceSet } = useGlobalContext();
@@ -143,7 +145,7 @@ export default function FeatureDashboard({
         (!neuronHasVectorInDatabase(currentNeuron) ||
           (neuronHasVectorInDatabase(currentNeuron) &&
             !shouldHideBreadcrumbsAndSelectorForNeuronVector(currentNeuron))) && (
-          <div className="fixed left-0 right-0 top-12 z-20 mb-0 flex justify-center gap-y-2 border-b bg-white px-2  pb-2 pt-1 shadow-[rgba(0,0,0,0.2)_0px_4px_3px_-3px] sm:static sm:top-16 sm:z-0 sm:mb-2 sm:flex-row sm:gap-y-0 sm:border-b-0 sm:border-t-0 sm:bg-transparent sm:px-2 sm:pb-0 sm:pt-3 sm:shadow-[0]">
+          <div className="fixed left-0 right-0 top-12 z-20 mb-0 flex justify-center gap-y-2 border-b bg-white px-2 pb-2 pt-1 shadow-[rgba(0,0,0,0.2)_0px_4px_3px_-3px] sm:static sm:top-16 sm:z-0 sm:mb-2 sm:flex-row sm:gap-y-0 sm:border-b-0 sm:border-t-0 sm:bg-transparent sm:px-2 sm:pb-0 sm:pt-3 sm:shadow-[0]">
             <div className="flex w-full flex-1 select-none flex-row justify-center gap-x-3 overflow-hidden px-0 pb-1 text-center font-sans text-xs font-bold leading-none text-slate-700 sm:gap-x-5 sm:px-0 sm:pt-0 sm:text-base">
               <FeatureSelector
                 showNextPrev
@@ -177,7 +179,9 @@ export default function FeatureDashboard({
       <div
         className={`relative ${
           embed || neuronHasVectorInDatabase(currentNeuron) ? 'sm:pt-2' : 'mt-16 sm:pt-0'
-        } flex h-full flex-col pt-2 sm:mt-0 sm:flex-row sm:gap-x-2 sm:gap-y-0 sm:px-2`}
+        } flex h-full flex-col sm:mt-0 sm:flex-row sm:gap-x-2 sm:gap-y-0 ${
+          forceMiniStats ? 'sm:px-0' : 'pt-2 sm:px-2'
+        }`}
       >
         {/* === LEFT PANE */}
         <div
@@ -226,10 +230,10 @@ export default function FeatureDashboard({
         {/* === RIGHT PANE */}
         <div
           className={`flex flex-col overflow-y-scroll px-0 ${
-            embed ? 'flex-1' : 'sm:basis-1/2 lg:basis-2/3 '
+            embed ? 'flex-1' : 'sm:basis-1/2 lg:basis-2/3'
           } sm:overflow-auto sm:px-0`}
         >
-          {embed && !currentNeuron?.hasVector && (
+          {embed && !currentNeuron?.hasVector && !forceMiniStats && (
             <div
               className={`mb-2 flex w-full flex-row items-center sm:mb-2 ${
                 embedExplanation ? 'justify-between gap-x-2 pl-2' : 'justify-center'
@@ -244,7 +248,7 @@ export default function FeatureDashboard({
                 </div>
               )}
               <a
-                className=" mr-1.5 flex shrink-0 flex-row items-center gap-x-1 whitespace-nowrap rounded-md bg-slate-200 px-[8px] py-[6px] text-[9px] font-medium leading-none text-slate-700 hover:bg-sky-200 hover:text-sky-700 sm:mr-0 sm:px-2.5 sm:py-1.5 sm:text-[11px]"
+                className="mr-1.5 flex shrink-0 flex-row items-center gap-x-1 whitespace-nowrap rounded-md bg-slate-200 px-[8px] py-[6px] text-[9px] font-medium leading-none text-slate-700 hover:bg-sky-200 hover:text-sky-700 sm:mr-0 sm:px-2.5 sm:py-1.5 sm:text-[11px]"
                 href={`/${currentNeuron?.modelId}/${currentNeuron?.layer}/${currentNeuron?.index}`}
                 target="_blank"
                 rel="noreferrer"
@@ -259,25 +263,30 @@ export default function FeatureDashboard({
             </div>
           )}
           <div
-            className="relative mb-5 flex h-full w-full flex-1 cursor-default flex-col overflow-hidden bg-white px-0 pt-0 shadow sm:overflow-visible sm:rounded-lg"
+            className={`relative ${forceMiniStats ? 'mb-0' : 'mb-5'} flex h-full w-full flex-1 cursor-default flex-col overflow-hidden bg-white px-0 pt-0 shadow sm:overflow-visible sm:rounded-lg`}
             id="activationScrollDiv"
           >
             <div className="flex-1 overflow-y-scroll border border-slate-200 sm:rounded-lg">
               {currentNeuron?.pos_str && currentNeuron?.pos_str?.length > 0 && embedPlots && (
                 <div className="border-b px-2.5 pb-1.5 pt-1.5 sm:px-4 sm:pb-2 sm:pt-2">
-                  <FeatureStats currentNeuron={currentNeuron} embed={embed} embedPlots={embedPlots} />
+                  <FeatureStats
+                    currentNeuron={currentNeuron}
+                    embed={embed}
+                    embedPlots={embedPlots}
+                    forceMiniStats={forceMiniStats}
+                  />
                 </div>
               )}
               <ActivationsList
                 feature={currentNeuron}
-                defaultRange={currentNeuron?.sourceSet?.defaultRange}
-                defaultShowLineBreaks={currentNeuron?.sourceSet?.defaultShowBreaks}
+                defaultRange={forceMiniStats ? 0 : currentNeuron?.sourceSet?.defaultRange}
+                defaultShowLineBreaks={forceMiniStats ? false : currentNeuron?.sourceSet?.defaultShowBreaks}
                 showCopy={allowTest()}
                 showTest={allowTest()}
                 defaultActivationTestText={defaultTestText}
                 showControls={!embed}
-                overrideLeading="leading-tight sm:leading-tight"
-                overrideTextSize={embed ? 'text-[10px] sm:text-[12px]' : undefined}
+                overrideLeading={forceMiniStats ? 'leading-none sm:leading-none' : 'leading-tight sm:leading-tight'}
+                overrideTextSize={embed ? (forceMiniStats ? 'text-[10px]' : 'text-[10px] sm:text-[12px]') : undefined}
                 embed={embed}
                 activations={currentNeuron?.activations}
                 activationTestTextCallback={(activation) => {
@@ -290,7 +299,7 @@ export default function FeatureDashboard({
 
         {/* === DEAD FEATURE */}
         {currentNeuron?.maxActApprox === 0 && !hideDeadWarning && !currentNeuron?.hasVector && (
-          <div className="absolute left-0 top-0  flex h-full w-full flex-col items-center bg-slate-50 pt-12">
+          <div className="absolute left-0 top-0 flex h-full w-full flex-col items-center bg-slate-50 pt-12">
             <div className="font-bold text-slate-900">This feature has no known activations.</div>
             <button
               type="button"

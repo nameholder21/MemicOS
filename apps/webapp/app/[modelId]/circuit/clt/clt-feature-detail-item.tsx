@@ -1,13 +1,13 @@
 import ActivationItem, { CENTER_ME_CLASSNAME } from '@/components/activation-item';
 import { useEffect, useRef } from 'react';
-import { CLTFeatureExample } from './clt-utils';
+import { AnthropicFeatureExample } from './clt-utils';
 
 export default function CLTFeatureDetailItem({
   example,
   overallMaxActivationValue,
   itemKey,
 }: {
-  example: CLTFeatureExample | undefined;
+  example: AnthropicFeatureExample | undefined;
   overallMaxActivationValue: number;
   itemKey: number | string; // Use the type you use for keys
 }) {
