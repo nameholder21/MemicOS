@@ -34,7 +34,7 @@ function FeatureList({
             key={`${node.featureId}-${idx}`}
             className={`flex cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
               node.featureId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
-            } ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'text-white' : ''}`}
+            } ${(node[linkProp]?.pctInput ?? 0) > 0.25 || (node[linkProp]?.pctInput ?? 0) < -0.25 ? 'text-white' : ''}`}
             style={{ backgroundColor: node[linkProp]?.tmpColor }}
             onMouseEnter={() => {
               if (!isEditingLabel) {
@@ -48,12 +48,12 @@ function FeatureList({
               updateVisStateField('clickedId', node.nodeId);
             }}
           >
-            <svg width={10} height={10} className="mr-0 inline-block">
+            <svg width={10} height={14} className="mr-0 inline-block">
               <g>
                 <g
-                  className={`default-icon block fill-none ${(node[linkProp]?.pctInput ?? 0) > 0.25 ? 'stroke-white' : 'stroke-slate-800'} ${node.nodeId && visState.pinnedIds?.includes(node.nodeId) ? 'stroke-[1.7]' : 'stroke-[0.7]'}`}
+                  className={`default-icon block fill-none ${(node[linkProp]?.pctInput ?? 0) > 0.25 || (node[linkProp]?.pctInput ?? 0) < -0.25 ? 'stroke-white' : 'stroke-slate-800'} ${node.nodeId && visState.pinnedIds?.includes(node.nodeId) ? 'stroke-[1.7]' : 'stroke-[0.7]'}`}
                 >
-                  <text fontSize={15} textAnchor="middle" dominantBaseline="central" dx={5} dy={4}>
+                  <text fontSize={15} textAnchor="middle" dominantBaseline="central" dx={5} dy={5}>
                     {featureTypeToText(node.feature_type)}
                   </text>
                 </g>
@@ -62,20 +62,13 @@ function FeatureList({
             <div className="flex-1 text-left leading-snug">{getOverrideClerpForNode(node)}</div>
             {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
               (node[linkProp]?.tmpClickedCtxOffset > 0 ? (
-                <div
-                  className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
-                >
-                  →
-                </div>
+                <div>→</div>
               ) : node[linkProp]?.tmpClickedCtxOffset < 0 ? (
-                <div
-                  className={`${node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined && node[linkProp]?.pctInput > 0.25 ? 'text-white' : 'text-slate-600'}`}
-                >
-                  ←
-                </div>
+                <div>←</div>
               ) : (
                 ''
               ))}
+            <div className="font-mono">{node.layer !== 'E' ? `L${node.layer}` : ''}</div>
             <div className="font-mono">
               {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
                 ? node[linkProp]?.pctInput > 0

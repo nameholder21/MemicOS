@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
 const USER_GRAPHS_DIR = 'user-graphs';
-const MAX_GRAPH_SIZE_MEGABYTES = 100;
+const MAX_GRAPH_SIZE_MEGABYTES = 200;
 const MAX_PUT_REQUESTS_PER_DAY = 100;
 const signedPutRequestSchema = object({
   filename: string().required(),
