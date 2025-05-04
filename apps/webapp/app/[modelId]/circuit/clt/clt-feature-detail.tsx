@@ -3,12 +3,21 @@ import { Button } from '@/components/shadcn/button';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
+import FeatureDashboard from '../../[layer]/[index]/feature-dashboard';
 import CLTFeatureDetailItem from './clt-feature-detail-item';
-import { CLTGraphNode, nodeHasFeatureDetail } from './clt-utils';
+import NpFeatureLink from './clt-np-feature-link';
+import { CLTGraphNode, nodeTypeHasFeatureDetail } from './clt-utils';
 
 export default function CLTFeatureDetail() {
-  const { visState, selectedGraph, isEditingLabel, setIsEditingLabel, updateVisStateField, getOverrideClerpForNode } =
-    useCircuitCLT();
+  const {
+    visState,
+    selectedGraph,
+    isEditingLabel,
+    setIsEditingLabel,
+    updateVisStateField,
+    getOriginalClerpForNode,
+    getOverrideClerpForNode,
+  } = useCircuitCLT();
   const [node, setNode] = useState<CLTGraphNode | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
   const activationContainerRef = useRef<HTMLDivElement>(null);
@@ -47,6 +56,12 @@ export default function CLTFeatureDetail() {
   // Separate useEffect for scrolling when 'feature' changes
   useEffect(() => {
     groupRef.current?.scrollToIndex(0);
+    // // prefer NP if available
+    // if (node?.featureDetailNP) {
+    //   setNpOrAnthropic('np');
+    // } else {
+    //   setNpOrAnthropic('anthropic');
+    // }
   }, [node]);
 
   const groupCounts = useMemo(() => {
@@ -85,35 +100,44 @@ export default function CLTFeatureDetail() {
 
     return (
       <>
-        <div className="mb-2 flex flex-row items-center justify-between gap-x-1.5 pt-1 text-sm font-medium text-slate-600">
+        <div className="flex flex-row items-center justify-between gap-x-1.5 pl-3 pt-2 text-sm font-medium text-slate-600">
           <div className="flex flex-1 flex-row items-center gap-x-2">
-            <div className="">F#{node.feature}</div>
-            <Circle className="h-3.5 w-3.5 text-[#f0f]" />
+            <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             {isEditingLabel ? (
-              <input
-                type="text"
-                placeholder="Custom feature label"
-                value={tempLabel}
-                onChange={(e) => {
-                  setTempLabel(e.target.value);
-                }}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.code === 'Enter' || e.key === 'Enter') {
-                    saveLabelToVisState();
-                    setIsEditingLabel(false);
-                    e.preventDefault();
-                  }
-                }}
-                className="flex-1 rounded border border-slate-300 px-2 py-0 text-sm placeholder:text-slate-300"
-              />
+              <div className="flex flex-1 flex-col items-start justify-start gap-y-1">
+                <input
+                  type="text"
+                  placeholder="Custom feature label"
+                  value={tempLabel}
+                  onChange={(e) => {
+                    setTempLabel(e.target.value);
+                  }}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.code === 'Enter' || e.key === 'Enter') {
+                      saveLabelToVisState();
+                      setIsEditingLabel(false);
+                      e.preventDefault();
+                    }
+                  }}
+                  className="w-full flex-1 rounded border border-slate-300 px-2 py-0 text-xs placeholder:text-slate-300"
+                />
+                {getOriginalClerpForNode(node) && (
+                  <div className="text-xs">
+                    <span className="rounded bg-slate-200 px-1 py-0.5 text-[8px] font-bold text-slate-600">
+                      ORIGINAL
+                    </span>{' '}
+                    {getOriginalClerpForNode(node)}
+                  </div>
+                )}
+              </div>
             ) : (
-              <div>{getOverrideClerpForNode(node)}</div>
+              <div className="text-xs">{getOverrideClerpForNode(node)}</div>
             )}
           </div>
           <div className="flex flex-row gap-x-1">
-            {nodeHasFeatureDetail(node) && (
+            {nodeTypeHasFeatureDetail(node) && (
               <Button
                 variant="outline"
                 size="xs"
@@ -139,6 +163,23 @@ export default function CLTFeatureDetail() {
                 size="xs"
                 className="w-18"
                 onClick={() => {
+                  updateVisStateField(
+                    'clerps',
+                    (visState.clerps || []).filter((e) => e[0] !== node?.featureId),
+                  );
+                  setTempLabel('');
+                  setIsEditingLabel(false);
+                }}
+              >
+                Original
+              </Button>
+            )}
+            {isEditingLabel && (
+              <Button
+                variant="outline"
+                size="xs"
+                className="w-18"
+                onClick={() => {
                   setTempLabel(node?.ppClerp || '');
                   setIsEditingLabel(false);
                 }}
@@ -147,60 +188,82 @@ export default function CLTFeatureDetail() {
               </Button>
             )}
           </div>
+          {!(node.feature_type === 'embedding' || node.feature_type === 'logit') && (
+            <NpFeatureLink selectedGraph={selectedGraph} node={node} />
+          )}
         </div>
-        {node.featureDetail && (
-          <>
-            <div className="mb-1.5 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
-            <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Top:</div>
-              {node.featureDetail?.top_logits.map((logit, idx) => (
-                <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
-                  {logit}
-                </span>
-              ))}
-            </div>
-            <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-              <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Bottom:</div>
-              {node?.featureDetail?.bottom_logits.map((logit, idx) => (
-                <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
-                  {logit}
-                </span>
-              ))}
-            </div>
-            <div
-              ref={activationContainerRef}
-              className="flex max-h-[300px] w-full flex-col overflow-y-scroll overscroll-none"
-            >
-              <GroupedVirtuoso
-                ref={groupRef}
-                className="min-h-[300px] w-full"
-                groupCounts={groupCounts}
-                // eslint-disable-next-line react/no-unstable-nested-components
-                groupContent={(index) => (
-                  <div className="h-8 border-b bg-slate-50 pb-1 pt-2 text-sm font-bold text-slate-600">
-                    {node?.featureDetail?.examples_quantiles[index].quantile_name}
-                  </div>
-                )}
-                // eslint-disable-next-line react/no-unstable-nested-components
-                itemContent={(index, groupIndex) => {
-                  const example =
-                    node?.featureDetail?.examples_quantiles[groupIndex]?.examples[getIndexInGroup(index, groupIndex)];
+        {node.featureDetailNP ? (
+          <div className="ml-3 flex max-h-[394px] overflow-y-scroll rounded-b-md border-b border-slate-200">
+            <FeatureDashboard
+              forceMiniStats
+              key={node.featureDetailNP.index}
+              initialNeuron={node.featureDetailNP}
+              embed
+            />
+          </div>
+        ) : (
+          node.featureDetail && (
+            <div className="pl-4 pt-1">
+              <div className="mb-1.5 mt-2 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
+              <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+                <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Top:</div>
+                {node.featureDetail?.top_logits.map((logit, idx) => (
+                  <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
+                    {logit}
+                  </span>
+                ))}
+              </div>
+              <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+                <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Bottom:</div>
+                {node?.featureDetail?.bottom_logits.map((logit, idx) => (
+                  <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
+                    {logit}
+                  </span>
+                ))}
+              </div>
+              <div
+                ref={activationContainerRef}
+                className="flex max-h-[310px] w-full flex-col overflow-y-scroll overscroll-none"
+              >
+                <GroupedVirtuoso
+                  ref={groupRef}
+                  className="min-h-[310px] w-full"
+                  groupCounts={groupCounts}
+                  // eslint-disable-next-line react/no-unstable-nested-components
+                  groupContent={(index) => (
+                    <div className="h-8 border-b bg-slate-50 pb-1 pt-2 text-sm font-bold text-slate-600">
+                      {node?.featureDetail?.examples_quantiles[index].quantile_name}
+                    </div>
+                  )}
+                  // eslint-disable-next-line react/no-unstable-nested-components
+                  itemContent={(index, groupIndex) => {
+                    const example =
+                      node?.featureDetail?.examples_quantiles[groupIndex]?.examples[getIndexInGroup(index, groupIndex)];
 
-                  return (
-                    <CLTFeatureDetailItem
-                      example={example}
-                      overallMaxActivationValue={overallMaxActivationValue}
-                      itemKey={index}
-                    />
-                  );
-                }}
-              />
+                    return (
+                      <CLTFeatureDetailItem
+                        example={example}
+                        overallMaxActivationValue={overallMaxActivationValue}
+                        itemKey={index}
+                      />
+                    );
+                  }}
+                />
+              </div>
             </div>
-          </>
+          )
         )}
       </>
     );
-  }, [node, overallMaxActivationValue, isEditingLabel, tempLabel, visState.clerps]);
+  }, [
+    node,
+    overallMaxActivationValue,
+    isEditingLabel,
+    tempLabel,
+    visState.clerps,
+    visState.clickedId,
+    visState.hoveredId,
+  ]);
 
-  return <div className="flex min-h-[400px] w-full flex-1 flex-col gap-y-1">{memoizedFeatureDetail}</div>;
+  return <div className="flex min-h-[410px] w-full flex-1 flex-col">{memoizedFeatureDetail}</div>;
 }

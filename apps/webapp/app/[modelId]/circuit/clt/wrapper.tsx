@@ -39,11 +39,11 @@ export default function CLTWrapper() {
                 <CLTLinkGraph />
                 <CLTNodeConnections />
               </div>
-              <div className="flex w-full flex-row gap-x-4">
+              <div className="flex w-full flex-row gap-x-0">
                 <div className="w-[53%] min-w-[53%] max-w-[53%]">
                   <CLTSubgraph />
                 </div>
-                <div className="w-[45%] min-w-[45%] overflow-hidden">
+                <div className="flex-1 overflow-hidden">
                   <CLTFeatureDetail />
                 </div>
               </div>

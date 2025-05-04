@@ -29,12 +29,14 @@ export default function FeatureStats({
   smallText = false,
   embed = false,
   embedPlots = true,
+  forceMiniStats = false,
 }: {
   currentNeuron: NeuronWithPartialRelations;
   vertical?: boolean;
   smallText?: boolean;
   embed?: boolean;
   embedPlots?: boolean;
+  forceMiniStats?: boolean;
 }) {
   const { getSourceSet, globalModels } = useGlobalContext();
   const [maxLogit, setMaxLogit] = useState<number | undefined>();
@@ -257,7 +259,10 @@ export default function FeatureStats({
                   {currentNeuron?.neg_str.map((s, i) => (
                     <div
                       className={`flex-row justify-between gap-x-1 ${
-                        ((embed && !embedPlots) || (windowSize.width && windowSize.width < 640) || vertical) &&
+                        ((embed && !embedPlots) ||
+                          (windowSize.width && windowSize.width < 640) ||
+                          vertical ||
+                          forceMiniStats) &&
                         i >= MAX_EMBED_TOP_LOGITS
                           ? 'hidden'
                           : 'flex'
@@ -310,7 +315,10 @@ export default function FeatureStats({
                   {currentNeuron?.pos_str.map((s, i) => (
                     <div
                       className={`flex-row justify-between gap-x-1 ${
-                        ((embed && !embedPlots) || (windowSize.width && windowSize.width < 640) || vertical) &&
+                        ((embed && !embedPlots) ||
+                          (windowSize.width && windowSize.width < 640) ||
+                          vertical ||
+                          forceMiniStats) &&
                         i >= MAX_EMBED_TOP_LOGITS
                           ? 'hidden'
                           : 'flex'
@@ -338,7 +346,7 @@ export default function FeatureStats({
           </div>
         </div>
 
-        <div className={`flex-1 flex-col sm:min-h-[204px] ${(embed && !embedPlots) || vertical ? 'hidden' : 'flex'}`}>
+        <div className={`flex-1 flex-col ${(embed && !embedPlots) || vertical ? 'hidden' : 'flex'}`}>
           <div
             className={`mb-0 flex flex-row items-center gap-x-1 font-sans font-medium uppercase text-slate-500 ${
               smallText ? 'text-[9.5px]' : 'text-[10px] sm:text-[11px]'
@@ -383,14 +391,14 @@ export default function FeatureStats({
                   },
                 ]}
                 layout={{
-                  height: windowSize.width && windowSize.width < 640 ? 35 : 70,
+                  height: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 35 : 70,
                   xaxis: {
                     gridcolor: 'lightgrey',
                     zerolinecolor: 'lightgrey',
                     fixedrange: true,
                     // tickvals: width < 640 ? [Math.max(...currentNeuron?.freq_hist_data_bar_values)] : undefined
                     tickfont: {
-                      size: (windowSize.width && windowSize.width < 640) || vertical ? 7 : 10,
+                      size: (windowSize.width && windowSize.width < 640) || vertical || forceMiniStats ? 7 : 10,
                     },
                   },
                   yaxis: {
@@ -399,7 +407,7 @@ export default function FeatureStats({
                     // tickvals: width < 640 ? [Math.max(...currentNeuron?.freq_hist_data_bar_values)] : undefined
                     fixedrange: true,
                     tickfont: {
-                      size: windowSize.width && windowSize.width < 640 ? 7 : 10,
+                      size: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 7 : 10,
                     },
                   },
                   barmode: 'relative',
@@ -410,7 +418,7 @@ export default function FeatureStats({
                     r: 0,
                     b: 0,
                     t: 0,
-                    pad: windowSize.width && windowSize.width < 640 ? 1 : 4,
+                    pad: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 1 : 4,
                   },
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',
@@ -421,12 +429,16 @@ export default function FeatureStats({
                   editable: false,
                   scrollZoom: false,
                 }}
-                className="mb-3 ml-3.5 mr-0 mt-[1px] h-[35px] min-h-[35px] flex-1 sm:ml-7 sm:h-[70px] sm:min-h-[70px]"
+                className={`mb-3 ml-3.5 mr-0 mt-[1px] h-[35px] min-h-[35px] flex-1 ${
+                  forceMiniStats ? '' : 'sm:mb-4 sm:ml-7 sm:h-16 sm:min-h-16'
+                }`}
               />
             )}
             {currentNeuron?.logits_hist_data_bar_values.length > 0 && (
               <Plot
-                className="mb-3 ml-3.5 mr-0 h-[35px] min-h-[35px] flex-1 sm:ml-7 sm:mt-1 sm:h-[70px] sm:min-h-[70px]"
+                className={`mb-3 ml-3.5 mr-0 h-[35px] min-h-[35px] flex-1 ${
+                  forceMiniStats ? '' : 'sm:ml-7 sm:mt-1 sm:h-[70px] sm:min-h-[70px]'
+                }`}
                 data={[
                   {
                     x: currentNeuron?.logits_hist_data_bar_values.filter((value) => value >= 0),
@@ -450,14 +462,14 @@ export default function FeatureStats({
                   },
                 ]}
                 layout={{
-                  height: windowSize.width && windowSize.width < 640 ? 35 : 70,
+                  height: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 35 : 70,
                   xaxis: {
                     gridcolor: 'lightgrey',
                     zerolinecolor: 'lightgrey',
                     // tickvals: [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5],
                     fixedrange: true,
                     tickfont: {
-                      size: windowSize.width && windowSize.width < 640 ? 7 : 10,
+                      size: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 7 : 10,
                     },
                   },
                   yaxis: {
@@ -466,7 +478,7 @@ export default function FeatureStats({
                     zerolinecolor: 'lightgrey',
                     fixedrange: true,
                     tickfont: {
-                      size: windowSize.width && windowSize.width < 640 ? 7 : 10,
+                      size: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 7 : 10,
                     },
                   },
                   barmode: 'relative',
@@ -477,7 +489,7 @@ export default function FeatureStats({
                     r: 0,
                     b: 0,
                     t: 0,
-                    pad: windowSize.width && windowSize.width < 640 ? 1 : 4,
+                    pad: (windowSize.width && windowSize.width < 640) || forceMiniStats ? 1 : 4,
                   },
                   paper_bgcolor: 'rgba(0,0,0,0)',
                   plot_bgcolor: 'rgba(0,0,0,0)',

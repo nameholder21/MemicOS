@@ -1,6 +1,7 @@
 import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import NpFeatureLink from './clt-np-feature-link';
 import { CLTGraphNode, CltVisState, featureTypeToText } from './clt-utils';
 
 function FeatureList({
@@ -23,8 +24,8 @@ function FeatureList({
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[320px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 pb-1 text-slate-800">
-      <div className="sticky top-0 pb-1 text-sm font-medium text-slate-600">{title}</div>
+    <div className="flex max-h-[332px] flex-1 flex-col gap-y-0.5 overflow-y-scroll px-1 pb-1 text-slate-800">
+      <div className="sticky top-0 pb-1 text-xs font-medium text-slate-600">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
         .filter((node) => node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined)
@@ -100,8 +101,8 @@ export default function CLTNodeConnections() {
 
   return (
     <div className="node-connections relative mt-2 min-h-[320px] flex-1">
-      <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2 px-1">
-        <div className="text-sm font-bold text-slate-600">Node Connections</div>
+      <div className="mb-2 mt-1 flex w-full flex-row items-center justify-start gap-x-2 px-1">
+        <div className="text-xs font-bold text-slate-600">Node Connections</div>
         {/* <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
           <div className="flex flex-col">
             TODO: https://transformer-circuits.pub/2025/attribution-graphs/methods.html
@@ -110,13 +111,14 @@ export default function CLTNodeConnections() {
       </div>
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
-          <div className="flex flex-row items-center gap-x-2 px-1 text-sm font-medium text-slate-600">
+          <div className="flex flex-row items-center gap-x-2 px-1 text-xs font-medium text-slate-600">
             <div className="">F#{clickedNode?.feature}</div>
-            <Circle className="h-3.5 w-3.5 text-[#f0f]" />
-            <div>{clickedNode?.ppClerp}</div>
+            <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
+            <div>{getOverrideClerpForNode(clickedNode)}</div>
+            <NpFeatureLink selectedGraph={selectedGraph} node={clickedNode} />
           </div>
         ) : (
-          <div className="px-1 text-sm font-medium text-slate-500">Click a feature on the left for details</div>
+          <div className="px-1 text-sm font-medium text-slate-500">Click a node on the left to see connections.</div>
         )}
         {clickedNode && (
           <div className="mt-2 flex w-full flex-row gap-x-0">

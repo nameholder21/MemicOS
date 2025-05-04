@@ -1,10 +1,64 @@
 import { DEFAULT_CREATOR_USER_ID, NEXT_PUBLIC_URL } from '@/lib/env';
-import { GraphMetadata, GraphMetadataWithPartialRelations } from '@/prisma/generated/zod';
+import { GraphMetadata, GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import cuid from 'cuid';
 import d3 from './d3-jetpack';
 
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
+
+// ============ MemicOS Specific =============
+
+// TODO: make this a DB column
+// models not in this list can only get FeatureDetails from the bucket
+export const MODEL_HAS_MEMICOS_DASHBOARDS = new Set(['gemma-2-2b']);
+
+// TODO: this should be by model and source, not just model
+// we use this to figure out the scheme for the feature IDs - how many digits is the layer vs feature id
+export const MODEL_DIGITS_IN_FEATURE_ID = {
+  'gemma-2-2b': Number(16384).toString().length,
+  'llama-3-131k-relu': Number(131072).toString().length,
+};
+
+export const MODEL_TO_SOURCESET_ID = {
+  'gemma-2-2b': 'gemmascope-transcoder-16k',
+  'llama-3-131k-relu': 'skip-transcoder-mntss',
+};
+
+export const ANT_MODEL_ID_TO_MEMICOS_MODEL_ID = {
+  'gemma-2-2b': 'gemma-2-2b',
+  'llama-3-131k-relu': 'llama-3.2-1b',
+};
+
+// ============ End of MemicOS Specific =============
+
+export function getLayerFromAnthropicFeatureId(modelId: keyof typeof MODEL_DIGITS_IN_FEATURE_ID, featureId: number) {
+  // remove dash and everything after it
+  const layer = featureId.toString().replace(/-.*$/, '');
+  // the layer is the number before the last digitsInNumFeatures digits
+  const layerStr = layer.slice(0, -MODEL_DIGITS_IN_FEATURE_ID[modelId]);
+  if (layerStr.length === 0) {
+    return 0;
+  }
+  return parseInt(layerStr, 10);
+}
+
+export function getIndexFromAnthropicFeatureId(modelId: keyof typeof MODEL_DIGITS_IN_FEATURE_ID, featureId: number) {
+  // remove dash and everything before it
+  const index = featureId.toString().replace(/-.*$/, '');
+  // the index is the last digitsInNumFeatures digits
+  const indexStr = index.slice(-MODEL_DIGITS_IN_FEATURE_ID[modelId]);
+  if (indexStr.length === 0) {
+    return 0;
+  }
+  return parseInt(indexStr, 10);
+}
+
+export function convertAnthropicFeatureIdToMemicOSSourceSet(
+  modelId: keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+  featureId: number,
+) {
+  return `${getLayerFromAnthropicFeatureId(modelId, featureId)}-${MODEL_TO_SOURCESET_ID[modelId]}`;
+}
 
 export const GRAPH_BASE_URL_TO_NAME = {
   'https://transformer-circuits.pub/2025/attribution-graphs': 'Ameisen et al.',
@@ -47,7 +101,7 @@ export type ModelToGraphMetadatasMap = {
   [modelId: string]: GraphMetadataWithPartialRelations[];
 };
 
-export function nodeHasFeatureDetail(node: CLTGraphNode): boolean {
+export function nodeTypeHasFeatureDetail(node: CLTGraphNode): boolean {
   return (
     node.feature_type !== 'embedding' &&
     node.feature_type !== 'mlp reconstruction error' &&
@@ -186,7 +240,8 @@ export type CLTGraphNode = {
   clerp: string;
 
   // feature details
-  featureDetail?: CLTFeature;
+  featureDetail?: AnthropicFeatureDetail;
+  featureDetailNP?: NeuronWithPartialRelations;
 
   // following ones are added after formatData
   active_feature_idx?: number;
@@ -588,7 +643,7 @@ export function featureTypeToText(type: string): string {
   return '●';
 }
 
-export type CLTFeatureExample = {
+export type AnthropicFeatureExample = {
   'ha-haiku35_resampled'?: boolean;
   is_repeated_datapoint: boolean;
   train_token_ind: number;
@@ -596,14 +651,14 @@ export type CLTFeatureExample = {
   tokens_acts_list: number[];
 };
 
-export type CLTFeatureExampleQuantile = {
-  examples: CLTFeatureExample[];
+export type AnthropicFeatureExampleQuantile = {
+  examples: AnthropicFeatureExample[];
   quantile_name: string;
 };
 
-export type CLTFeature = {
+export type AnthropicFeatureDetail = {
   bottom_logits: string[];
   top_logits: string[];
   index: number;
-  examples_quantiles: CLTFeatureExampleQuantile[];
+  examples_quantiles: AnthropicFeatureExampleQuantile[];
 };

@@ -1,24 +1,30 @@
 'use client';
 
 import {
-  CLTFeature,
+  ANT_MODEL_ID_TO_MEMICOS_MODEL_ID,
+  AnthropicFeatureDetail,
   CLTGraph,
   CLTGraphNode,
   CltVisState,
   FilterGraphType,
+  MODEL_DIGITS_IN_FEATURE_ID,
+  MODEL_HAS_MEMICOS_DASHBOARDS,
   ModelToGraphMetadatasMap,
+  convertAnthropicFeatureIdToMemicOSSourceSet,
   formatCLTGraphData,
+  getIndexFromAnthropicFeatureId,
   isHideLayer,
   modelIdToModelDisplayName,
-  nodeHasFeatureDetail,
+  nodeTypeHasFeatureDetail,
 } from '@/app/[modelId]/circuit/clt/clt-utils';
-import { GraphMetadataWithPartialRelations } from '@/prisma/generated/zod';
+import { GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import { GraphMetadata } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-const FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
+const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
+const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 80;
 
 // Define the context type
 type CircuitCLTContextType = {
@@ -55,6 +61,9 @@ type CircuitCLTContextType = {
 
   // getOverrideClerpForNode
   getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
+
+  // getOriginalClerpForNode
+  getOriginalClerpForNode: (node: CLTGraphNode) => string | undefined;
 
   // Graph filtering setting
   filterGraphsSetting: FilterGraphType[];
@@ -153,8 +162,11 @@ export function CircuitCLTProvider({
     clerps: initialClerps || [],
   });
 
+  const getOriginalClerpForNode = (node: CLTGraphNode) =>
+    node.featureDetailNP ? node.featureDetailNP.explanations?.[0]?.description : node.ppClerp;
+
   const getOverrideClerpForNode = (node: CLTGraphNode) => {
-    const defaultClerp = node.ppClerp;
+    const defaultClerp = getOriginalClerpForNode(node);
     if (visState.clerps && visState.clerps.length > 0) {
       const overrideClerp = visState.clerps.find((e) => e[0] === node.featureId);
       return overrideClerp ? overrideClerp[1] : defaultClerp;
@@ -339,14 +351,18 @@ export function CircuitCLTProvider({
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
   }, []);
 
-  async function fetchFeatureDetail(modelId: string, feature: number, baseUrl: string): Promise<CLTFeature | null> {
+  async function fetchAnthropicFeatureDetail(
+    modelId: string,
+    feature: number,
+    baseUrl: string,
+  ): Promise<AnthropicFeatureDetail | null> {
     const response = await fetch(`${baseUrl}/features/${modelId}/${feature}.json`);
     if (!response.ok) {
       console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
       return null;
     }
     const data = await response.json();
-    return data as CLTFeature;
+    return data as AnthropicFeatureDetail;
   }
 
   const getAnthropicBaseUrlFromGraphUrl = (url: string) => url.split('/graph_data/')[0];
@@ -366,21 +382,88 @@ export function CircuitCLTProvider({
     const data = (await response.json()) as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
 
-    const featureDetails = await fetchInBatches(
-      formattedData.nodes,
-      (d) => {
-        if (nodeHasFeatureDetail(d)) {
-          return fetchFeatureDetail(selectedModelId, d.feature, getAnthropicBaseUrlFromGraphUrl(graph.url));
-        }
-        return Promise.resolve(null);
-      },
-      FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
-    );
+    // if memicos has dashboards, fetch them from our side
+    if (MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedModelId)) {
+      const model =
+        ANT_MODEL_ID_TO_MEMICOS_MODEL_ID[selectedModelId as keyof typeof ANT_MODEL_ID_TO_MEMICOS_MODEL_ID];
 
-    formattedData.nodes.forEach((d, i) => {
-      // eslint-disable-next-line no-param-reassign
-      d.featureDetail = featureDetails[i] || undefined;
-    });
+      // make an array of features to call /api/features
+      const features = formattedData.nodes.map((d) => ({
+        modelId: model,
+        layer: convertAnthropicFeatureIdToMemicOSSourceSet(
+          selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+          d.feature,
+        ),
+        index: getIndexFromAnthropicFeatureId(selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID, d.feature),
+      }));
+
+      console.log('number of features:', features.length);
+
+      // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE
+      const batches = [];
+      for (let i = 0; i < features.length; i += MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE) {
+        batches.push(features.slice(i, i + MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE));
+      }
+
+      // call /api/features in batches
+      const batchesOfDetails = await Promise.all(
+        batches.map(async (batch) => {
+          const resp = await fetch('/api/features', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(batch),
+          });
+          const da = (await resp.json()) as NeuronWithPartialRelations[];
+          console.log(`fetched feature details: ${da.length}`);
+          return da;
+        }),
+      );
+
+      // put the details in the nodes
+      const featureDetails = batchesOfDetails.flat(1);
+      formattedData.nodes.forEach((d) => {
+        // eslint-disable-next-line no-param-reassign
+        const feature = featureDetails.find(
+          (f) =>
+            f &&
+            'index' in f &&
+            f.index ===
+              getIndexFromAnthropicFeatureId(
+                selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+                d.feature,
+              ).toString() &&
+            'layer' in f &&
+            f.layer ===
+              convertAnthropicFeatureIdToMemicOSSourceSet(
+                selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+                d.feature,
+              ),
+        );
+        if (feature) {
+          // eslint-disable-next-line no-param-reassign
+          d.featureDetailNP = feature as NeuronWithPartialRelations;
+        }
+      });
+    } else {
+      // otherwise get the feature from the bucket
+      const featureDetails = await fetchInBatches(
+        formattedData.nodes,
+        (d) => {
+          if (nodeTypeHasFeatureDetail(d)) {
+            return fetchAnthropicFeatureDetail(selectedModelId, d.feature, getAnthropicBaseUrlFromGraphUrl(graph.url));
+          }
+          return Promise.resolve(null);
+        },
+        ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+      );
+
+      formattedData.nodes.forEach((d, i) => {
+        // eslint-disable-next-line no-param-reassign
+        d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
+      });
+    }
 
     setIsLoadingGraphData(false);
     return formattedData;
@@ -427,6 +510,7 @@ export function CircuitCLTProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      getOriginalClerpForNode,
       filterGraphsSetting,
       setFilterGraphsSetting,
       shouldShowGraphToCurrentUser,
@@ -446,6 +530,7 @@ export function CircuitCLTProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      getOriginalClerpForNode,
       filterGraphsSetting,
       shouldShowGraphToCurrentUser,
     ],
