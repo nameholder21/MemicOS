@@ -9,6 +9,41 @@ const saveToDbSchema = object({
   putRequestId: string().required(),
 });
 
+/**
+ * @swagger
+ * /api/graph/save-to-db:
+ *   post:
+ *     summary: Upload Graph 2/2 - Save Graph Metadata to Database
+ *     description: Saves metadata about an uploaded graph file to the database after it has been uploaded to S3.
+ *     tags:
+ *       - Circuit Graphs
+ *     security:
+ *       - apiKey: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - putRequestId
+ *             properties:
+ *               putRequestId:
+ *                 type: string
+ *                 description: ID of the previously created put request record
+ *     responses:
+ *       200:
+ *         description: Successfully saved graph metadata to database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   description: URL to access the saved graph
+ */
+
 export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
   const bodyJson = await request.json();
   if (!bodyJson) {

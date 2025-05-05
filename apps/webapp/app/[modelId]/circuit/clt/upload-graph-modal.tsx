@@ -180,7 +180,6 @@ export default function UploadGraphModal() {
 
       const baseUrl = `${window.location.protocol}//${window.location.host}`;
       const graphUri = makeGraphPublicAccessGraphUri(graphData.metadata.scan, graphData.metadata.slug);
-      alert(`${baseUrl}${graphUri}`);
       window.location.href = `${baseUrl}${graphUri}`;
     }
   };
