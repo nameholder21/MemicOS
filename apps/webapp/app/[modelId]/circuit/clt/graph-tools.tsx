@@ -150,11 +150,11 @@ export default function GraphTools() {
                   e.stopPropagation();
                 }
               }}
-              className="relative inline-flex h-12 max-w-full items-center justify-between gap-1 overflow-hidden rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
+              className="relative inline-flex h-12 max-w-full items-center justify-between gap-1 overflow-x-hidden rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
             >
               {selectedMetadataGraph !== null ? (
                 <Select.Value asChild>
-                  <div className="flex w-full flex-col items-start justify-start gap-y-0.5 overflow-hidden">
+                  <div className="flex w-full flex-col items-start justify-start gap-y-0.5 overflow-y-visible">
                     <div className="truncate text-xs font-medium text-slate-600">
                       {selectedMetadataGraph.prompt.replaceAll('\n', ' ').trim()}
                     </div>

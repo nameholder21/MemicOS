@@ -378,6 +378,14 @@ export function CircuitCLTProvider({
     if (!graph) {
       throw new Error(`Graph not found for ${graphSlug}`);
     }
+
+    // First, get the file size using a HEAD request
+    const headResponse = await fetch(graph.url, { method: 'HEAD' });
+    const contentLength = headResponse.headers.get('content-length');
+    const fileSizeInMB = contentLength ? (parseInt(contentLength, 10) / (1024 * 1024)).toFixed(2) : 'unknown';
+
+    setLoadingGraphLabel(`Loading Graph (${fileSizeInMB} MB)... `);
+
     const response = await fetch(graph.url);
 
     if (!response.ok) {
@@ -415,6 +423,7 @@ export function CircuitCLTProvider({
       const batchesOfDetails = [];
       let featuresLoadedCount = 0;
       for (const batch of batches) {
+        setLoadingGraphLabel(`Loading Nodes... ${featuresLoadedCount}/${features.length}`);
         const resp = await fetch('/api/features', {
           method: 'POST',
           headers: {
@@ -425,11 +434,7 @@ export function CircuitCLTProvider({
         const da = (await resp.json()) as NeuronWithPartialRelations[];
         featuresLoadedCount += da.length;
         batchesOfDetails.push(da);
-
-        setLoadingGraphLabel(`Loading Nodes... ${featuresLoadedCount}/${features.length}`);
       }
-
-      setLoadingGraphLabel('Loading Nodes... ');
 
       // put the details in the nodes
       const featureDetails = batchesOfDetails.flat(1);
