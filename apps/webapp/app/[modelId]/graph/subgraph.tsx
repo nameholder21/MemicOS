@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 
-import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Check, HelpCircleIcon, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './clt-utils';
 import d3 from './d3-jetpack';
+import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
 
 const NODE_WIDTH = 75;
 const NODE_HEIGHT = 25;
@@ -70,10 +70,10 @@ interface SubgraphLink extends CLTGraphLink {
   targetOffsetX?: number;
 }
 
-export default function CLTSubgraph() {
+export default function Subgraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
   const memberNodeSelRef = useRef<d3.Selection<HTMLDivElement, CLTGraphNode, HTMLDivElement, ForceNode> | null>(null);

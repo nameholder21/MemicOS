@@ -1,14 +1,14 @@
-import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import FeatureDashboard from '../../[layer]/[index]/feature-dashboard';
-import CLTFeatureDetailItem from './clt-feature-detail-item';
-import NpFeatureLink from './clt-np-feature-link';
-import { CLTGraphNode, nodeTypeHasFeatureDetail } from './clt-utils';
+import FeatureDashboard from '../[layer]/[index]/feature-dashboard';
+import GraphFeatureDetailItem from './feature-detail-item';
+import GraphFeatureLink from './np-feature-link';
+import { CLTGraphNode, nodeTypeHasFeatureDetail } from './utils';
 
-export default function CLTFeatureDetail() {
+export default function GraphFeatureDetail() {
   const {
     visState,
     selectedGraph,
@@ -17,7 +17,7 @@ export default function CLTFeatureDetail() {
     updateVisStateField,
     getOriginalClerpForNode,
     getOverrideClerpForNode,
-  } = useCircuitCLT();
+  } = useGraphContext();
   const [node, setNode] = useState<CLTGraphNode | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
   const activationContainerRef = useRef<HTMLDivElement>(null);
@@ -195,7 +195,7 @@ export default function CLTFeatureDetail() {
             )}
           </div>
           {!(node.feature_type === 'embedding' || node.feature_type === 'logit') && (
-            <NpFeatureLink selectedGraph={selectedGraph} node={node} />
+            <GraphFeatureLink selectedGraph={selectedGraph} node={node} />
           )}
         </div>
         {node.featureDetailNP ? (
@@ -247,7 +247,7 @@ export default function CLTFeatureDetail() {
                       node?.featureDetail?.examples_quantiles[groupIndex]?.examples[getIndexInGroup(index, groupIndex)];
 
                     return (
-                      <CLTFeatureDetailItem
+                      <GraphFeatureDetailItem
                         example={example}
                         overallMaxActivationValue={overallMaxActivationValue}
                         itemKey={index}

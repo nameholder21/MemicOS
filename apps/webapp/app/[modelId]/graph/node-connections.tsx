@@ -1,8 +1,8 @@
-import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import NpFeatureLink from './clt-np-feature-link';
-import { CLTGraphNode, CltVisState, featureTypeToText } from './clt-utils';
+import GraphFeatureLink from './np-feature-link';
+import { CLTGraphNode, CltVisState, featureTypeToText } from './utils';
 
 function FeatureList({
   title,
@@ -89,8 +89,8 @@ function FeatureList({
   );
 }
 
-export default function CLTNodeConnections() {
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
+export default function GraphNodeConnections() {
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
 
   const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -125,7 +125,7 @@ export default function CLTNodeConnections() {
             {!clickedNode?.featureDetailNP && <div className="">F#{clickedNode?.feature}</div>}
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             <div className="flex-1 leading-tight">{getOverrideClerpForNode(clickedNode)}</div>
-            <NpFeatureLink selectedGraph={selectedGraph} node={clickedNode} />
+            <GraphFeatureLink selectedGraph={selectedGraph} node={clickedNode} />
           </div>
         ) : (
           <div className="flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">

@@ -8,9 +8,15 @@ import {
   getIndexFromAnthropicFeatureId,
   getLayerFromAnthropicFeatureId,
   MODEL_HAS_MEMICOS_DASHBOARDS,
-} from './clt-utils';
+} from './utils';
 
-export default function NpFeatureLink({ selectedGraph, node }: { selectedGraph: CLTGraph | null; node: CLTGraphNode }) {
+export default function GraphFeatureLink({
+  selectedGraph,
+  node,
+}: {
+  selectedGraph: CLTGraph | null;
+  node: CLTGraphNode;
+}) {
   const { setFeatureModalFeature, setFeatureModalOpen } = useGlobalContext();
 
   if (!selectedGraph) {

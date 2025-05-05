@@ -16,7 +16,7 @@ import {
   isHideLayer,
   modelIdToModelDisplayName,
   nodeTypeHasFeatureDetail,
-} from '@/app/[modelId]/circuit/clt/clt-utils';
+} from '@/app/[modelId]/graph/utils';
 import { GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import { GraphMetadata } from '@prisma/client';
 import { useSession } from 'next-auth/react';
@@ -27,7 +27,7 @@ const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 128;
 
 // Define the context type
-type CircuitCLTContextType = {
+type GraphContextType = {
   modelIdToMetadataMap: ModelToGraphMetadatasMap;
   selectedModelId: string;
   selectedMetadataGraph: GraphMetadataWithPartialRelations | null;
@@ -76,7 +76,7 @@ type CircuitCLTContextType = {
 };
 
 // Create the context with a default value
-const CircuitCLTContext = createContext<CircuitCLTContextType | undefined>(undefined);
+const GraphContext = createContext<GraphContextType | undefined>(undefined);
 
 export function getGraphUrl(graphSlug: string, baseUrl: string): string {
   const url = `${baseUrl}/graph_data/${graphSlug}.json`;
@@ -95,7 +95,7 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
 }
 
 // Provider component
-export function CircuitCLTProvider({
+export function GraphProvider({
   children,
   initialModelIdToMetadataGraphsMap = {},
   initialModel,
@@ -230,7 +230,6 @@ export function CircuitCLTProvider({
   useEffect(() => {
     if (selectedGraph) {
       const newParams = {
-        model: selectedModelId,
         slug: selectedMetadataGraph?.slug || null,
         pinnedIds: visState.pinnedIds.join(','),
         clickedId: visState.clickedId || null,
@@ -494,7 +493,6 @@ export function CircuitCLTProvider({
       });
     } else {
       updateUrlParams({
-        model: selectedModelId,
         slug: null,
       });
       setSelectedGraph(null);
@@ -555,14 +553,14 @@ export function CircuitCLTProvider({
     ],
   );
 
-  return <CircuitCLTContext.Provider value={contextValue}>{children}</CircuitCLTContext.Provider>;
+  return <GraphContext.Provider value={contextValue}>{children}</GraphContext.Provider>;
 }
 
 // Custom hook to use the context
-export function useCircuitCLT() {
-  const context = useContext(CircuitCLTContext);
+export function useGraphContext() {
+  const context = useContext(GraphContext);
   if (context === undefined) {
-    throw new Error('useCircuitCLT must be used within a CircuitCLTProvider');
+    throw new Error('useGraphContext must be used within a GraphProvider');
   }
   return context;
 }

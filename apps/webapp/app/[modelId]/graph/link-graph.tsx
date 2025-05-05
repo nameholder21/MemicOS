@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
 
-import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import { useCallback, useEffect, useRef } from 'react';
+import d3 from './d3-jetpack';
 import {
   CLTGraph,
   CLTGraphLink,
@@ -12,8 +13,7 @@ import {
   hideTooltip,
   isHideLayer,
   showTooltip,
-} from './clt-utils';
-import d3 from './d3-jetpack';
+} from './utils';
 
 const HEIGHT = 360;
 
@@ -111,13 +111,13 @@ function combineLinks(
     })) as CLTGraphLink[];
 }
 
-export default function CLTLinkGraph() {
+export default function LinkGraph() {
   const screenSize = useScreenSize();
   const svgRef = useRef<SVGSVGElement>(null);
   const middleRef = useRef<SVGSVGElement>(null);
   const bottomRef = useRef<SVGSVGElement>(null);
   const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([null, null, null, null]);
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useCircuitCLT();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
   const isEditingLabelRef = useRef(isEditingLabel);
 
   function colorNodes() {

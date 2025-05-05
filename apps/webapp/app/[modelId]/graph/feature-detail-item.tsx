@@ -1,8 +1,8 @@
 import ActivationItem, { CENTER_ME_CLASSNAME } from '@/components/activation-item';
 import { useEffect, useRef } from 'react';
-import { AnthropicFeatureExample } from './clt-utils';
+import { AnthropicFeatureExample } from './utils';
 
-export default function CLTFeatureDetailItem({
+export default function GraphFeatureDetailItem({
   example,
   overallMaxActivationValue,
   itemKey,
