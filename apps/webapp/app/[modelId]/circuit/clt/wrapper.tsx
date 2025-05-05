@@ -38,11 +38,11 @@ export default function CLTWrapper() {
             </div>
           ) : selectedMetadataGraph ? (
             <>
-              <div className="flex w-full flex-row gap-x-0">
+              <div className="flex w-full flex-row">
                 <CLTLinkGraph />
                 <CLTNodeConnections />
               </div>
-              <div className="flex w-full flex-row gap-x-0">
+              <div className="flex w-full flex-row">
                 <div className="w-[53%] min-w-[53%] max-w-[53%]">
                   <CLTSubgraph />
                 </div>

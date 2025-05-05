@@ -96,7 +96,13 @@ export default function CLTFeatureDetail() {
 
   // Memoize the feature detail content to prevent unnecessary re-rendering
   const memoizedFeatureDetail = useMemo(() => {
-    if (!node) return null;
+    if (!node)
+      return (
+        <div className="flex h-[100%] min-h-[410px] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
+          <div className="mb-2 text-lg font-bold">Feature Details</div>
+          <div className="">Hover over a node in the graph to see its details and edit its label.</div>
+        </div>
+      );
 
     return (
       <>
@@ -193,7 +199,7 @@ export default function CLTFeatureDetail() {
           )}
         </div>
         {node.featureDetailNP ? (
-          <div className="ml-3 flex max-h-[394px] overflow-y-scroll rounded-b-md border-b border-slate-200">
+          <div className="ml-3 flex max-h-[394px] overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
             <FeatureDashboard
               forceMiniStats
               key={node.featureDetailNP.index}
