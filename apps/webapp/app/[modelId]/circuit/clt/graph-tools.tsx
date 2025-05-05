@@ -31,19 +31,19 @@ export default function GraphTools() {
       {/* <div className="pb-1 text-[9px] font-medium uppercase text-slate-400">Select a Model and Prompt</div> */}
       <div className="flex w-full flex-row gap-x-2">
         <div className="flex flex-col">
-          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Filter</div>
+          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Filter Graphs</div>
           <ToggleGroup.Root
             type="multiple"
             value={filterGraphsSetting}
             onValueChange={(value) => {
               if (value) setFilterGraphsSetting(value as FilterGraphType[]);
             }}
-            className="flex h-12 rounded border border-slate-300 bg-white"
+            className="flex h-12 rounded border border-sky-600 bg-slate-50"
           >
             <ToggleGroup.Item
               value={FilterGraphType.Featured}
               aria-label="Only shows your graphs and featured graphs."
-              className="rounded-l border-r border-slate-300 px-2.5 text-xs leading-none text-slate-500 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
+              className="w-[86px] rounded-l border-r border-sky-600 px-2.5 text-xs leading-none text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
             >
               Featured
             </ToggleGroup.Item>
@@ -51,14 +51,14 @@ export default function GraphTools() {
             <ToggleGroup.Item
               value={FilterGraphType.Mine}
               aria-label="Shows only your uploaded graphs."
-              className="border-r border-slate-300 px-2.5 text-xs text-slate-500 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
+              className="w-[86px] border-r border-sky-600 px-2.5 text-xs text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
             >
               Mine
             </ToggleGroup.Item>
             <ToggleGroup.Item
               aria-label="Shows all graphs, including other user uploaded graphs."
               value={FilterGraphType.Community}
-              className="rounded-r border-slate-300 px-2.5 text-xs text-slate-500 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
+              className="w-[86px] rounded-r border-sky-600 px-2.5 text-xs text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
             >
               Community
             </ToggleGroup.Item>

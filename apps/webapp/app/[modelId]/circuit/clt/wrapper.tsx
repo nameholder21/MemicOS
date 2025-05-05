@@ -9,7 +9,7 @@ import CLTSubgraph from './clt-subgraph';
 import GraphTools from './graph-tools';
 
 export default function CLTWrapper() {
-  const { isLoadingGraphData, selectedMetadataGraph } = useCircuitCLT();
+  const { isLoadingGraphData, selectedMetadataGraph, loadingGraphLabel } = useCircuitCLT();
   return (
     <div className="mt-1 flex w-full flex-col justify-center px-4 text-slate-700">
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
@@ -30,8 +30,9 @@ export default function CLTWrapper() {
           {/* <Card className="mb-5 mt-2 w-full bg-white">
           <CardContent className="py-6 pt-3"> */}
           {isLoadingGraphData ? (
-            <div className="flex h-full min-h-[800px] w-full items-center justify-center">
+            <div className="flex h-full min-h-[800px] w-full flex-col items-center justify-center gap-y-3">
               <LoadingSquare className="h-6 w-6" />
+              <div className="text-sm text-slate-400">{loadingGraphLabel}</div>
             </div>
           ) : selectedMetadataGraph ? (
             <>
