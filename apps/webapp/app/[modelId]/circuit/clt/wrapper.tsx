@@ -32,7 +32,9 @@ export default function CLTWrapper() {
           {isLoadingGraphData ? (
             <div className="flex h-full min-h-[800px] w-full flex-col items-center justify-center gap-y-3">
               <LoadingSquare className="h-6 w-6" />
-              <div className="text-sm text-slate-400">{loadingGraphLabel}</div>
+              <div className="text-sm text-slate-400">
+                {loadingGraphLabel.length > 0 ? loadingGraphLabel : 'Loading...'}
+              </div>
             </div>
           ) : selectedMetadataGraph ? (
             <>

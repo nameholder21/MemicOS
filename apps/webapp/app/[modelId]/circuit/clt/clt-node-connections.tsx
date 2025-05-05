@@ -45,8 +45,14 @@ function FeatureList({
             onMouseLeave={() => {
               updateVisStateField('hoveredId', null);
             }}
-            onClick={() => {
-              updateVisStateField('clickedId', node.nodeId);
+            onClick={(e) => {
+              if (e.ctrlKey || e.metaKey) {
+                // If control or command key is pressed, add to pinnedIds
+                updateVisStateField('pinnedIds', [...(visState.pinnedIds || []), node.nodeId]);
+              } else {
+                // Otherwise just set as clicked
+                updateVisStateField('clickedId', node.nodeId);
+              }
             }}
           >
             <svg width={10} height={14} className="mr-0 inline-block">
