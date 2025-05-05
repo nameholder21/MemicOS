@@ -36,7 +36,7 @@ export default function CLTWrapper() {
             </div>
           ) : selectedMetadataGraph ? (
             <>
-              <div className="flex w-full flex-row gap-x-2">
+              <div className="flex w-full flex-row gap-x-0">
                 <CLTLinkGraph />
                 <CLTNodeConnections />
               </div>
