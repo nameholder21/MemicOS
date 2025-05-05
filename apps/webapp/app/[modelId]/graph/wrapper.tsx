@@ -1,15 +1,15 @@
 'use client';
 
-import { useCircuitCLT } from '@/components/provider/circuit-clt-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { LoadingSquare } from '@/components/svg/loading-square';
-import CLTFeatureDetail from './clt-feature-detail';
-import CLTLinkGraph from './clt-link-graph';
-import CLTNodeConnections from './clt-node-connections';
-import CLTSubgraph from './clt-subgraph';
-import GraphTools from './graph-tools';
+import GraphFeatureDetail from './feature-detail';
+import GraphToolbar from './graph-toolbar';
+import LinkGraph from './link-graph';
+import GraphNodeConnections from './node-connections';
+import Subgraph from './subgraph';
 
-export default function CLTWrapper() {
-  const { isLoadingGraphData, selectedMetadataGraph, loadingGraphLabel } = useCircuitCLT();
+export default function GraphWrapper() {
+  const { isLoadingGraphData, selectedMetadataGraph, loadingGraphLabel } = useGraphContext();
   return (
     <div className="mt-1 flex w-full flex-col justify-center px-4 text-slate-700">
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
@@ -23,7 +23,7 @@ export default function CLTWrapper() {
           {/* <div className="mb-0 w-full text-center text-[11px] text-red-500">
             This is a work in progress and not linked to from public MemicOS pages.
           </div> */}
-          <GraphTools />
+          <GraphToolbar />
         </div>
 
         <div className="mb-2 w-full">
@@ -39,15 +39,15 @@ export default function CLTWrapper() {
           ) : selectedMetadataGraph ? (
             <>
               <div className="flex w-full flex-row">
-                <CLTLinkGraph />
-                <CLTNodeConnections />
+                <LinkGraph />
+                <GraphNodeConnections />
               </div>
               <div className="flex w-full flex-row">
                 <div className="w-[53%] min-w-[53%] max-w-[53%]">
-                  <CLTSubgraph />
+                  <Subgraph />
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <CLTFeatureDetail />
+                  <GraphFeatureDetail />
                 </div>
               </div>
             </>

@@ -1,32 +1,32 @@
-import { CircuitCLTProvider } from '@/components/provider/circuit-clt-provider';
+import { GraphProvider } from '@/components/provider/graph-provider';
 import { prisma } from '@/lib/db';
 import {
   getGraphMetadatasFromBucket,
   GRAPH_BASE_URL_TO_NAME,
   ModelToGraphMetadatasMap,
   supportedGraphModels,
-} from './clt-utils';
-import CLTWrapper from './wrapper';
+} from './utils';
+import GraphWrapper from './wrapper';
 
 export default async function Page({
-  // params,
+  params,
   searchParams,
 }: {
-  // params: {};
+  params: { modelId: string };
   searchParams: {
     clickedId?: string;
     logitDiff?: string;
-    model?: string;
+    // model?: string;
     slug?: string;
     pinnedIds?: string;
     supernodes?: string;
     clerps?: string;
   };
 }) {
-  // TODO: update this to use modelid from url
-  // const { modelId } = params;
-  // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
+  const { modelId } = params;
 
+  // TODO: checks for model existence (current not used bc we have anthropic models)
+  // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
   // if (!model) {
   //   notFound();
   // }
@@ -42,17 +42,14 @@ export default async function Page({
 
       // eslint-disable-next-line
       Object.keys(modelIdToGraphMetadata)
-        .filter((modelId) => supportedGraphModels.has(modelId))
-        .forEach((modelId) => {
+        .filter((m) => supportedGraphModels.has(m))
+        .forEach((m) => {
           // if we don't have the modelId in the map, add it and all its graphs
-          if (!modelIdToGraphMetadatasMap[modelId]) {
-            modelIdToGraphMetadatasMap[modelId] = modelIdToGraphMetadata[modelId];
+          if (!modelIdToGraphMetadatasMap[m]) {
+            modelIdToGraphMetadatasMap[m] = modelIdToGraphMetadata[m];
           } else {
             // if we already have the modelId in the map, add all its graphs to the existing array
-            modelIdToGraphMetadatasMap[modelId] = [
-              ...modelIdToGraphMetadatasMap[modelId],
-              ...modelIdToGraphMetadata[modelId],
-            ];
+            modelIdToGraphMetadatasMap[m] = [...modelIdToGraphMetadatasMap[m], ...modelIdToGraphMetadata[m]];
           }
         });
     } catch (error) {
@@ -89,9 +86,7 @@ export default async function Page({
     }
   });
 
-  const metadataGraph = searchParams.model
-    ? modelIdToGraphMetadatasMap[searchParams.model]?.find((graph) => graph.slug === searchParams.slug)
-    : undefined;
+  const metadataGraph = modelIdToGraphMetadatasMap[modelId]?.find((graph) => graph.slug === searchParams.slug);
 
   let parsedSupernodes: string[][] | undefined;
   try {
@@ -108,16 +103,16 @@ export default async function Page({
   }
 
   return (
-    <CircuitCLTProvider
+    <GraphProvider
       initialModelIdToMetadataGraphsMap={modelIdToGraphMetadatasMap}
-      initialModel={searchParams.model}
+      initialModel={modelId}
       initialMetadataGraph={metadataGraph}
       initialPinnedIds={searchParams.pinnedIds}
       initialClickedId={searchParams.clickedId}
       initialSupernodes={parsedSupernodes}
       initialClerps={parsedClerps}
     >
-      <CLTWrapper />
-    </CircuitCLTProvider>
+      <GraphWrapper />
+    </GraphProvider>
   );
 }

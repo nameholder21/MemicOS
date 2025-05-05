@@ -1,4 +1,4 @@
-import { NP_GRAPH_BUCKET } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { MAX_GRAPH_UPLOAD_SIZE_BYTES, NP_GRAPH_BUCKET } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
@@ -9,14 +9,10 @@ import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
 const USER_GRAPHS_DIR = 'user-graphs';
-const MAX_GRAPH_SIZE_MEGABYTES = 200;
 const MAX_PUT_REQUESTS_PER_DAY = 100;
 const signedPutRequestSchema = object({
   filename: string().required(),
-  contentLength: number()
-    .required()
-    .min(1024)
-    .max(MAX_GRAPH_SIZE_MEGABYTES * 1024 * 1024),
+  contentLength: number().required().min(1024).max(MAX_GRAPH_UPLOAD_SIZE_BYTES),
 });
 
 /**

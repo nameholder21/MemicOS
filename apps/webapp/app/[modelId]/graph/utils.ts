@@ -6,6 +6,8 @@ import d3 from './d3-jetpack';
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
+export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 200 * 1024 * 1024;
+
 // ============ MemicOS Specific =============
 
 // TODO: make this a DB column
@@ -75,7 +77,7 @@ export function getGraphBaseUrlToName(url: string) {
 }
 
 export function makeGraphPublicAccessGraphUri(modelId: string, slug: string) {
-  return `/beta/circuit/clt?model=${modelId}&slug=${slug}`;
+  return `/${modelId}/graph?model=${modelId}&slug=${slug}`;
 }
 
 export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {

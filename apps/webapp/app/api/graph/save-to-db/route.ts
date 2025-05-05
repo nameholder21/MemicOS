@@ -1,4 +1,4 @@
-import { CLTGraph, makeGraphPublicAccessGraphUrl } from '@/app/[modelId]/circuit/clt/clt-utils';
+import { CLTGraph, makeGraphPublicAccessGraphUrl } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
