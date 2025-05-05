@@ -23,8 +23,8 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 30;
-const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 80;
+const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
+const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 128;
 
 // Define the context type
 type CircuitCLTContextType = {
@@ -69,6 +69,10 @@ type CircuitCLTContextType = {
   filterGraphsSetting: FilterGraphType[];
   setFilterGraphsSetting: (setting: FilterGraphType[]) => void;
   shouldShowGraphToCurrentUser: (graph: GraphMetadata) => boolean;
+
+  // Loading graph label
+  loadingGraphLabel: string;
+  setLoadingGraphLabel: (label: string) => void;
 };
 
 // Create the context with a default value
@@ -137,6 +141,7 @@ export function CircuitCLTProvider({
     FilterGraphType.Community,
     FilterGraphType.Mine,
   ]);
+  const [loadingGraphLabel, setLoadingGraphLabel] = useState<string>('');
 
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
@@ -388,38 +393,43 @@ export function CircuitCLTProvider({
         ANT_MODEL_ID_TO_MEMICOS_MODEL_ID[selectedModelId as keyof typeof ANT_MODEL_ID_TO_MEMICOS_MODEL_ID];
 
       // make an array of features to call /api/features
-      const features = formattedData.nodes.map((d) => ({
-        modelId: model,
-        layer: convertAnthropicFeatureIdToMemicOSSourceSet(
-          selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
-          d.feature,
-        ),
-        index: getIndexFromAnthropicFeatureId(selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID, d.feature),
-      }));
+      const features = formattedData.nodes
+        .filter((d) => nodeTypeHasFeatureDetail(d))
+        .map((d) => ({
+          modelId: model,
+          layer: convertAnthropicFeatureIdToMemicOSSourceSet(
+            selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+            d.feature,
+          ),
+          index: getIndexFromAnthropicFeatureId(selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID, d.feature),
+        }));
 
       console.log('number of features:', features.length);
-
       // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE
       const batches = [];
       for (let i = 0; i < features.length; i += MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE) {
         batches.push(features.slice(i, i + MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE));
       }
 
-      // call /api/features in batches
-      const batchesOfDetails = await Promise.all(
-        batches.map(async (batch) => {
-          const resp = await fetch('/api/features', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(batch),
-          });
-          const da = (await resp.json()) as NeuronWithPartialRelations[];
-          console.log(`fetched feature details: ${da.length}`);
-          return da;
-        }),
-      );
+      // call /api/features in batches, sequentially
+      const batchesOfDetails = [];
+      let featuresLoadedCount = 0;
+      for (const batch of batches) {
+        const resp = await fetch('/api/features', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(batch),
+        });
+        const da = (await resp.json()) as NeuronWithPartialRelations[];
+        featuresLoadedCount += da.length;
+        batchesOfDetails.push(da);
+
+        setLoadingGraphLabel(`Loading Nodes... ${featuresLoadedCount}/${features.length}`);
+      }
+
+      setLoadingGraphLabel('Loading Nodes... ');
 
       // put the details in the nodes
       const featureDetails = batchesOfDetails.flat(1);
@@ -514,6 +524,8 @@ export function CircuitCLTProvider({
       filterGraphsSetting,
       setFilterGraphsSetting,
       shouldShowGraphToCurrentUser,
+      loadingGraphLabel,
+      setLoadingGraphLabel,
     }),
     [
       modelIdToMetadataMap,
@@ -533,6 +545,8 @@ export function CircuitCLTProvider({
       getOriginalClerpForNode,
       filterGraphsSetting,
       shouldShowGraphToCurrentUser,
+      loadingGraphLabel,
+      setLoadingGraphLabel,
     ],
   );
 
