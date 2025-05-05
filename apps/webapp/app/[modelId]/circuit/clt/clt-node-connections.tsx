@@ -100,7 +100,7 @@ export default function CLTNodeConnections() {
   }, [visState.clickedId, selectedGraph]);
 
   return (
-    <div className="node-connections relative mt-2 min-h-[320px] flex-1">
+    <div className="node-connections relative mt-2 min-h-[320px] max-w-[420px] flex-1">
       <div className="mb-2 mt-1 flex w-full flex-row items-center justify-start gap-x-2 px-1">
         <div className="text-xs font-bold text-slate-600">Node Connections</div>
         {/* <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
