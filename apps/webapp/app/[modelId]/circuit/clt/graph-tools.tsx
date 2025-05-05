@@ -132,7 +132,7 @@ export default function GraphTools() {
           </Select.Root>
         </div>
 
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Graph</div>
           <Select.Root
             value={selectedMetadataGraph?.slug}
@@ -150,12 +150,12 @@ export default function GraphTools() {
                   e.stopPropagation();
                 }
               }}
-              className="relative inline-flex h-12 w-full flex-1 items-center justify-between gap-1 overflow-hidden whitespace-pre rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
+              className="relative inline-flex h-12 max-w-full items-center justify-between gap-1 overflow-hidden rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
             >
               {selectedMetadataGraph !== null ? (
                 <Select.Value asChild>
-                  <div className="flex w-full flex-1 flex-col items-start justify-start gap-y-0.5">
-                    <div className="text-xs font-medium text-slate-600">
+                  <div className="flex w-full flex-col items-start justify-start gap-y-0.5 overflow-hidden">
+                    <div className="truncate text-xs font-medium text-slate-600">
                       {selectedMetadataGraph.prompt.replaceAll('\n', ' ').trim()}
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">

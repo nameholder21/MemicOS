@@ -5,5 +5,11 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": ["javascript", "javascriptreact", "html", "typescriptreact"]
+  "eslint.validate": ["javascript", "javascriptreact", "html", "typescriptreact"],
+  "workbench.editor.customLabels.patterns": {
+    "**/app/**/page.tsx": "(${dirname})/page.${extname}",
+    "**/app/**/route.tsx": "(${dirname})/route.${extname}",
+    "**/app/**/layout.tsx": "(${dirname})/layout.${extname}",
+    "**/app/**/index.tsx": "(${dirname})/index.${extname}"
+  }
 }
