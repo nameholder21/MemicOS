@@ -19,6 +19,54 @@ const signedPutRequestSchema = object({
     .max(MAX_GRAPH_SIZE_MEGABYTES * 1024 * 1024),
 });
 
+/**
+ * @swagger
+ * /api/graph/signed-put:
+ *   post:
+ *     summary: Upload Graph 1/2 - Get Pre-Signed URL
+ *     description: Creates a pre-signed URL that allows authenticated users to upload graph files directly to S3. Both this and the second step are necessary for your graph to be saved correctly. Use the returned URL with a PUT request, like this `curl -X PUT -T my-graph.json [returned-url]`. Don't lose your putRequestId, you'll need it for the second part.
+ *     tags:
+ *       - Circuit Graphs
+ *     security:
+ *       - apiKey: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - filename
+ *               - contentLength
+ *             properties:
+ *               filename:
+ *                 type: string
+ *                 description: Name of the file to be uploaded
+ *               contentLength:
+ *                 type: number
+ *                 description: Size of the file in bytes
+ *                 minimum: 1024
+ *                 maximum: 209715200
+ *               contentType:
+ *                 type: string
+ *                 description: MIME type of the file (optional)
+ *                 default: application/json
+ *     responses:
+ *       200:
+ *         description: Successfully generated signed URL
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   description: Pre-signed URL for uploading to S3
+ *                 putRequestId:
+ *                   type: string
+ *                   description: ID of the created put request record
+ */
+
 export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
   const bodyJson = await request.json();
   if (!bodyJson) {
