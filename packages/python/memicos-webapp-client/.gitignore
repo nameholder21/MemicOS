@@ -19,3 +19,5 @@
 /poetry.toml
 
 .env
+
+local-test.py

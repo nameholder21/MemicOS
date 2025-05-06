@@ -15,12 +15,14 @@ class NPGraphMetadata:
     title_prefix: str
     json_url: str  # URL to the actual graph JSON file
     url: str | None = None  # URL to the graph on MemicOS
+    url_embed: str | None = None  # URL to the embedded graph on MemicOS
 
     def __post_init__(self):
         if not self.url:
             USE_LOCALHOST = os.getenv("USE_LOCALHOST", False)
-            BASE_URL = "https://memicos.org/api" if not USE_LOCALHOST else "http://localhost:3000/api"
+            BASE_URL = "https://memicos.org" if not USE_LOCALHOST else "http://localhost:3000"
             self.url = f"{BASE_URL}/{self.model_id}/graph?slug={self.slug}"
+            self.url_embed = f"{self.url}&embed=true"
 
     def __eq__(self, other: "NPGraphMetadata") -> bool:
         return (
