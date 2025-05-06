@@ -462,7 +462,7 @@ export default function LinkGraph() {
     // Get byStream from data or create a default with 19 items
     const byStreamLength = data.byStream?.length || 19;
     const numLayers = cltModelToNumLayers[data.metadata.scan as keyof typeof cltModelToNumLayers];
-    const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 1;
+    const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 2;
 
     // Create an array of numbers for the y-axis
     c.y = d3.scaleBand(d3.range(yNumTicks), [c.height, 0]);
@@ -473,7 +473,7 @@ export default function LinkGraph() {
       .tickValues(d3.range(yNumTicks))
       .tickFormat((i) =>
         // if (i % 2 !== 0) return '';
-        i === numLayers ? 'Lgt' : i === 0 ? 'Emb' : `L${i}`,
+        i === yNumTicks - 1 ? 'Lgt' : i === 0 ? 'Emb' : `L${i - 1}`,
       );
 
     // Background elements
@@ -567,8 +567,11 @@ export default function LinkGraph() {
     nodes.forEach((d) => {
       if (d.ctx_idx === undefined || d.streamIdx === undefined) return;
 
+      const effectiveStreamIdx =
+        d.feature_type === 'embedding' || isHideLayer(data.metadata.scan) ? d.streamIdx : d.streamIdx + 1;
+
       const xPos = c.x(d.ctx_idx) + (d.xOffset || 0);
-      const yBand = c.y(d.streamIdx);
+      const yBand = c.y(effectiveStreamIdx);
       if (yBand === undefined) return;
 
       // eslint-disable-next-line
