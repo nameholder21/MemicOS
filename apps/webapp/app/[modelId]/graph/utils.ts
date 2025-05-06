@@ -81,7 +81,7 @@ export function makeGraphPublicAccessGraphUri(modelId: string, slug: string) {
 }
 
 export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {
-  return `${NEXT_PUBLIC_URL}/${makeGraphPublicAccessGraphUri(modelId, slug)}`;
+  return `${NEXT_PUBLIC_URL}${makeGraphPublicAccessGraphUri(modelId, slug)}`;
 }
 
 export type AnthropicGraphMetadata = {

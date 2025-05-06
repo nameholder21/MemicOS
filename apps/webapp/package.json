@@ -26,6 +26,7 @@
     "start:localhost": "env-cmd -f .env.localhost next start",
     "start:remote": "env-cmd -f .env.remote next start",
     "start:demo": "env-cmd -f .env.demo next start",
+    "start:prod": "env-cmd -f .env.prod next start",
     "start": "next start",
     "test:vitest": "vitest",
     "test:playwright": "playwright test",
