@@ -31,7 +31,10 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       features.push(new NeuronIdentifier(feature.modelId, feature.layer, feature.index.toString()));
     });
 
+    const startTime = Date.now();
     let featuresResponse = await getNeurons(features, request.user, featuresRequest[0].maxActsToReturn);
+    const endTime = Date.now();
+    console.log(`Time taken to get neurons: ${endTime - startTime}ms`);
 
     // retain the original order of the features
     featuresResponse = featuresResponse.sort((a, b) => {
