@@ -1,5 +1,6 @@
-import { useGraphContext } from '@/components/provider/graph-provider';
+import { GRAPH_PREFETCH_ACTIVATIONS_COUNT, useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
+import { ActivationWithPartialRelations } from '@/prisma/generated/zod';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
@@ -56,12 +57,43 @@ export default function GraphFeatureDetail() {
   // Separate useEffect for scrolling when 'feature' changes
   useEffect(() => {
     groupRef.current?.scrollToIndex(0);
-    // // prefer NP if available
-    // if (node?.featureDetailNP) {
-    //   setNpOrAnthropic('np');
-    // } else {
-    //   setNpOrAnthropic('anthropic');
-    // }
+    console.log('node set with activations:', node?.featureDetailNP?.activations?.length);
+    // load the rest of the activations on demand
+    if (
+      node?.featureDetailNP &&
+      node?.featureDetailNP.activations &&
+      node?.featureDetailNP.activations.length <= GRAPH_PREFETCH_ACTIVATIONS_COUNT
+    ) {
+      fetch(`/api/activation/get`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          modelId: node.featureDetailNP.modelId,
+          source: node.featureDetailNP.layer,
+          index: node.featureDetailNP.index,
+        }),
+      })
+        .then((response) => response.json())
+        .then((acts: ActivationWithPartialRelations[]) => {
+          // fillInActivationsForNode(node, acts);
+          if (node?.featureDetailNP) {
+            // Create a new node object with updated activations to trigger re-render
+            setNode((prevNode) => {
+              if (!prevNode || !prevNode.featureDetailNP) return prevNode;
+              return {
+                ...prevNode,
+                featureDetailNP: {
+                  ...prevNode.featureDetailNP,
+                  activations: acts,
+                },
+              };
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(`error submitting getting rest of feature: ${error}`);
+        });
+    }
   }, [node]);
 
   const groupCounts = useMemo(() => {
@@ -202,7 +234,7 @@ export default function GraphFeatureDetail() {
           <div className="ml-3 flex max-h-[394px] overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
             <FeatureDashboard
               forceMiniStats
-              key={node.featureDetailNP.index}
+              key={`${node.featureDetailNP.index}-${node.featureDetailNP.activations?.length || 0}`}
               initialNeuron={node.featureDetailNP}
               embed
             />
@@ -263,6 +295,7 @@ export default function GraphFeatureDetail() {
     );
   }, [
     node,
+    node?.featureDetailNP?.activations,
     overallMaxActivationValue,
     isEditingLabel,
     tempLabel,

@@ -24,7 +24,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
-const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 128;
+const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
+export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 10;
 
 // Define the context type
 type GraphContextType = {
@@ -400,6 +401,7 @@ export function GraphProvider({
         ANT_MODEL_ID_TO_MEMICOS_MODEL_ID[selectedModelId as keyof typeof ANT_MODEL_ID_TO_MEMICOS_MODEL_ID];
 
       // make an array of features to call /api/features
+      // for memicos fetches we only get the first 10 and then load more on demand
       const features = formattedData.nodes
         .filter((d) => nodeTypeHasFeatureDetail(d))
         .map((d) => ({
@@ -409,6 +411,7 @@ export function GraphProvider({
             d.feature,
           ),
           index: getIndexFromAnthropicFeatureId(selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID, d.feature),
+          maxActsToReturn: GRAPH_PREFETCH_ACTIVATIONS_COUNT,
         }));
 
       console.log('number of features:', features.length);
@@ -420,9 +423,8 @@ export function GraphProvider({
 
       // call /api/features in batches, sequentially
       const batchesOfDetails = [];
-      let featuresLoadedCount = 0;
+      setLoadingGraphLabel(`Loading ${features.length} Nodes... `);
       for (const batch of batches) {
-        setLoadingGraphLabel(`Loading Nodes... ${featuresLoadedCount}/${features.length}`);
         const resp = await fetch('/api/features', {
           method: 'POST',
           headers: {
@@ -431,7 +433,6 @@ export function GraphProvider({
           body: JSON.stringify(batch),
         });
         const da = (await resp.json()) as NeuronWithPartialRelations[];
-        featuresLoadedCount += da.length;
         batchesOfDetails.push(da);
       }
 
