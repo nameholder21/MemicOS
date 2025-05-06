@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "memicos"
-version = "1.0.12"
+version = "1.0.13"
 description = "MemicOS (Official)"
 authors = ["johnny <johnny@memicos.org>"]
 readme = "README.md"
