@@ -2,17 +2,18 @@ import EditProfileForm from '@/components/edit-profile-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/shadcn/card';
 import { getUserById } from '@/lib/db/user';
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import { authOptions } from '../api/auth/[...nextauth]/authOptions';
 
 export default async function Account() {
   const session = await getServerSession(authOptions);
   if (!session) {
-    throw new Error('Not Allowed');
+    redirect('/signin');
   }
   const user = await getUserById(session.user.id);
 
   return (
-    <div className="mb-10 mt-6 w-full max-w-lg px-5 xl:px-0 ">
+    <div className="mb-10 mt-6 w-full max-w-lg px-5 xl:px-0">
       <Card className="bg-white">
         <CardHeader>
           <CardTitle>Account</CardTitle>
