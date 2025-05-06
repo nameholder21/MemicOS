@@ -5,7 +5,7 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check, HelpCircleIcon, XIcon } from 'lucide-react';
+import { Check, HelpCircleIcon, Trash2, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
@@ -73,7 +73,14 @@ interface SubgraphLink extends CLTGraphLink {
 export default function Subgraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
+  const {
+    visState,
+    selectedGraph,
+    updateVisStateField,
+    isEditingLabel,
+    getOverrideClerpForNode,
+    resetSelectedGraphToDefaultVisState,
+  } = useGraphContext();
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
   const memberNodeSelRef = useRef<d3.Selection<HTMLDivElement, CLTGraphNode, HTMLDivElement, ForceNode> | null>(null);
@@ -1090,6 +1097,22 @@ export default function Subgraph() {
                 <span>Show Help</span>
               </>
             )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            title="Reset Graph to Defaults"
+            aria-label="Reset Graph to Defaults"
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-0.5 top-0.5 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
+            onClick={() => {
+              // eslint-disable-next-line
+              if (confirm('Are you sure you want to reset the graph to its default state?')) {
+                resetSelectedGraphToDefaultVisState();
+              }
+            }}
+            disabled={visState.pinnedIds.length === 0}
+          >
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
         <div className="hidden w-full flex-row items-center justify-center gap-x-3">
