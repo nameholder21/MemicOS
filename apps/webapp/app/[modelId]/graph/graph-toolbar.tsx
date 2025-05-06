@@ -5,18 +5,20 @@ import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, RotateCcw, UploadCloud } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, ExternalLinkIcon, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
+import { useSearchParams } from 'next/navigation';
 import UploadGraphModal from './upload-graph-modal';
 
 export default function GraphToolbar() {
   const session = useSession();
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
   const { setSignInModalOpen } = useGlobalContext();
   const router = useRouter();
   const {
     modelIdToMetadataMap,
-    resetSelectedGraphToDefaultVisState,
     selectedModelId,
     selectedMetadataGraph,
     setSelectedMetadataGraph,
@@ -26,9 +28,39 @@ export default function GraphToolbar() {
     shouldShowGraphToCurrentUser,
   } = useGraphContext();
 
+  if (isEmbed) {
+    return (
+      <div className="flex w-full flex-col pt-1">
+        <div className="flex w-full flex-row items-center justify-between gap-x-2 text-sm">
+          <div className="flex flex-row items-center justify-center gap-x-2 text-xs text-slate-700">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('embed');
+                window.open(url.toString(), '_blank');
+              }}
+              className="h-7 gap-x-2 px-2.5 py-0 font-mono text-xs font-medium leading-snug text-sky-700 hover:border-sky-500 hover:bg-sky-100 hover:text-sky-800"
+            >
+              <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                {modelIdToModelDisplayName.get(selectedModelId)}
+              </span>
+              <span className="px-1">{selectedMetadataGraph?.slug}</span>
+              <ExternalLinkIcon className="h-3.5 w-3.5" />
+            </Button>
+            <div
+              title={selectedMetadataGraph?.prompt}
+              className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              {selectedMetadataGraph?.prompt}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex w-full flex-col pt-2">
-      {/* <div className="pb-1 text-[9px] font-medium uppercase text-slate-400">Select a Model and Prompt</div> */}
       <div className="flex w-full flex-row gap-x-2">
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Model</div>
@@ -271,22 +303,6 @@ export default function GraphToolbar() {
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Tools</div>
           <div className="flex flex-row gap-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              title="Reset Graph to Defaults"
-              aria-label="Reset Graph to Defaults"
-              className="flex h-12 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-slate-300 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-50"
-              onClick={() => {
-                // eslint-disable-next-line
-                if (confirm('Are you sure you want to reset the graph to its default state?')) {
-                  resetSelectedGraphToDefaultVisState();
-                }
-              }}
-              disabled={selectedMetadataGraph === null}
-            >
-              <RotateCcw className="h-4 w-4" />
-            </Button>
             <Button
               variant="outline"
               size="sm"
