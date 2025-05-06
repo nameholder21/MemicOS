@@ -73,6 +73,11 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
 
   try {
     const body = await signedPutRequestSchema.validate(bodyJson);
+
+    if (!body.filename.endsWith('.json')) {
+      return NextResponse.json({ error: 'Invalid file extension - must be .json' }, { status: 400 });
+    }
+
     const userId = user.id;
 
     const headersList = headers();
