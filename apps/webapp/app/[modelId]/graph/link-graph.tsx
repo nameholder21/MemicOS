@@ -334,7 +334,7 @@ export default function LinkGraph() {
     d3.select(svgRef.current).selectAll('*').remove();
 
     const data = selectedGraph as CLTGraphExtended;
-    const { nodes, links } = data;
+    const { nodes } = data;
 
     // Set up the base SVG container
     const svgContainer = d3.select(svgRef.current);
@@ -687,27 +687,27 @@ export default function LinkGraph() {
     }
 
     // Draw all links with low opacity
-    if (allCtx.allLinks) {
-      drawLinks(links, allCtx.allLinks, 0, 'rgba(0,0,0,.05)');
-    }
+    // if (allCtx.allLinks) {
+    //   // drawLinks(links, allCtx.allLinks, 0, 'rgba(0,0,0,.05)');
+    // }
 
     // Draw links for pinned nodes
     if (allCtx.pinnedLinks) {
-      drawLinks(filterLinks(visState.pinnedIds), allCtx.pinnedLinks);
+      drawLinks(visState.clickedId ? [] : filterLinks(visState.pinnedIds), allCtx.pinnedLinks);
     }
 
     // Draw links for clicked node
     // ensure that clickedId exists in the nodes array
-    if (visState.clickedId && nodes.some((d) => d.nodeId === visState.clickedId)) {
-      drawLinks([], allCtx.pinnedLinks || null);
-    } else {
-      // Filter links connected to clicked node
-      const clickedLinks = nodes
-        .filter((d) => d.tmpClickedLink)
-        .map((d) => d.tmpClickedLink)
-        .filter(Boolean) as CLTGraphLink[];
-      drawLinks(clickedLinks, allCtx.clickedLinks || null, 1);
-    }
+    // if (visState.clickedId && nodes.some((d) => d.nodeId === visState.clickedId)) {
+    //   drawLinks([], allCtx.pinnedLinks || null);
+    // } else {
+    // Filter links connected to clicked node
+    const clickedLinks = nodes
+      .filter((d) => d.tmpClickedLink)
+      .map((d) => d.tmpClickedLink)
+      .filter(Boolean) as CLTGraphLink[];
+    drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05, '#475569');
+    // }
 
     // Highlight pinned nodes
     nodeSel.classed('pinned', (d) => Boolean(d.nodeId && visState.pinnedIds.includes(d.nodeId)));
