@@ -117,7 +117,7 @@ export default function LinkGraph() {
   const middleRef = useRef<SVGSVGElement>(null);
   const bottomRef = useRef<SVGSVGElement>(null);
   const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([null, null, null, null]);
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
+  const { visState, selectedGraph, updateVisStateField, isEditingLabel, makeTooltipText } = useGraphContext();
   const isEditingLabelRef = useRef(isEditingLabel);
 
   function colorNodes() {
@@ -542,6 +542,10 @@ export default function LinkGraph() {
 
     const overallS = Math.max(20, d3.min(ctxCounts, (d) => d.minS || 20) || 20);
 
+    // console.log('overallS', overallS, 'ctxCounts', ctxCounts);
+    // console.log('num nodes', nodes.length);
+    // console.log('all nodes ids', nodes.map((d) => d.nodeId).sort());
+
     // Apply to nodes - mutating the nodes array to add position data
     const nestByResult = d3.nestBy(nodes, (d) => [d.ctx_idx, d.streamIdx || 0].join('-'));
     nestByResult.forEach((ctxLayer) => {
@@ -554,14 +558,16 @@ export default function LinkGraph() {
       // Sorting by logitPct stacks all the links
       const sortedLayer = d3.sort(ctxLayer, (d) => -(d.logitPct || 0));
       sortedLayer.forEach((d, i) => {
+        // if (d.feature_type === 'embedding') {
+        //   console.log('in sortedlayer', d.nodeId, d.ppClerp, ctxWidth, padR, i, s, ctxLayer.length);
+        // }
         // These mutations are kept from the original code but marked explicitly
-        const xOffset = d.feature_type === 'logit' ? ctxWidth - (padR / 2 + i * s) : ctxWidth - (padR / 2 + i * s);
-        // eslint-disable-next-line
-        d.xOffset = xOffset;
+        d.xOffset = d.feature_type === 'logit' ? ctxWidth - (padR / 2 + i * s) : ctxWidth - (padR / 2 + i * s);
         // eslint-disable-next-line
         d.yOffset = 0;
       });
     });
+    // console.log('nestByResult length', nestByResult.length);
 
     // Calculate positions for all nodes
     nodes.forEach((d) => {
@@ -571,6 +577,11 @@ export default function LinkGraph() {
         d.feature_type === 'embedding' || isHideLayer(data.metadata.scan) ? d.streamIdx : d.streamIdx + 1;
 
       const xPos = c.x(d.ctx_idx) + (d.xOffset || 0);
+
+      // if (d.feature_type === 'embedding') {
+      //   console.log(d.nodeId, d.ppClerp);
+      //   console.log(xPos, d.xOffset, d.ctx_idx, d.streamIdx);
+      // }
       const yBand = c.y(effectiveStreamIdx);
       if (yBand === undefined) return;
 
@@ -700,17 +711,14 @@ export default function LinkGraph() {
     }
 
     // Draw links for clicked node
-    // ensure that clickedId exists in the nodes array
-    // if (visState.clickedId && nodes.some((d) => d.nodeId === visState.clickedId)) {
-    //   drawLinks([], allCtx.pinnedLinks || null);
-    // } else {
-    // Filter links connected to clicked node
     const clickedLinks = nodes
       .filter((d) => d.tmpClickedLink)
       .map((d) => d.tmpClickedLink)
       .filter(Boolean) as CLTGraphLink[];
-    drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05, '#475569');
-    // }
+
+    drawLinks(clickedLinks, allCtx.bgLinks || null, 0.05, '#000');
+
+    drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05);
 
     // Highlight pinned nodes
     nodeSel.classed('pinned', (d) => Boolean(d.nodeId && visState.pinnedIds.includes(d.nodeId)));
@@ -762,7 +770,7 @@ export default function LinkGraph() {
           // console.log('Setting hover state:', currentHoveredFeatureId);
           updateVisStateField('hoveredId', closestNode.featureId || null);
           updateVisStateField('hoveredCtxIdx', closestNode.ctx_idx);
-          showTooltip(event, closestNode, getOverrideClerpForNode(closestNode));
+          showTooltip(event, closestNode, makeTooltipText(closestNode));
           // Visual feedback for hover - direct DOM update without requiring a state update
           hoverSel.style('display', (d) => (d.featureId === currentHoveredFeatureId ? '' : 'none'));
         }
