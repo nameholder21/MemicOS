@@ -25,7 +25,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, 
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
-export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 10;
+export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
 
 // Define the context type
 type GraphContextType = {
@@ -62,6 +62,9 @@ type GraphContextType = {
 
   // getOverrideClerpForNode
   getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
+
+  // makeTooltipText
+  makeTooltipText: (node: CLTGraphNode) => string;
 
   // getOriginalClerpForNode
   getOriginalClerpForNode: (node: CLTGraphNode) => string | undefined;
@@ -179,6 +182,9 @@ export function GraphProvider({
     }
     return defaultClerp;
   };
+
+  const makeTooltipText = (node: CLTGraphNode) =>
+    `${getOverrideClerpForNode(node)} | ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : 'Layer '}${node.layer}`;
 
   const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {
     if (session.data?.user?.id === graph.userId) {
@@ -525,6 +531,7 @@ export function GraphProvider({
       setIsEditingLabel,
       getOverrideClerpForNode,
       getOriginalClerpForNode,
+      makeTooltipText,
       filterGraphsSetting,
       setFilterGraphsSetting,
       shouldShowGraphToCurrentUser,
@@ -547,6 +554,7 @@ export function GraphProvider({
       setIsEditingLabel,
       getOverrideClerpForNode,
       getOriginalClerpForNode,
+      makeTooltipText,
       filterGraphsSetting,
       shouldShowGraphToCurrentUser,
       loadingGraphLabel,

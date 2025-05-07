@@ -79,6 +79,7 @@ export default function Subgraph() {
     updateVisStateField,
     isEditingLabel,
     getOverrideClerpForNode,
+    makeTooltipText,
     resetSelectedGraphToDefaultVisState,
   } = useGraphContext();
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
@@ -94,6 +95,8 @@ export default function Subgraph() {
   const activeGroupingRef = useRef(visState.subgraph?.activeGrouping);
   // Ref to hold the latest isEditingLabel state for event handlers
   const isEditingLabelRef = useRef(isEditingLabel);
+
+  const lastClickedIdRef = useRef(visState.clickedId);
 
   const screenSize = useScreenSize();
 
@@ -125,6 +128,11 @@ export default function Subgraph() {
   useEffect(() => {
     isEditingLabelRef.current = isEditingLabel;
   }, [isEditingLabel]);
+
+  // Effect to keep the lastClickedIdRef updated
+  useEffect(() => {
+    lastClickedIdRef.current = visState.clickedId;
+  }, [visState.clickedId]);
 
   // Handler for keydown event to enable grouping mode
   useEffect(() => {
@@ -632,7 +640,7 @@ export default function Subgraph() {
         if (!ev.metaKey && !ev.ctrlKey && !activeGroupingRef.current?.isActive && !isEditingLabelRef.current) {
           updateVisStateField('hoveredId', d.node.featureId || null);
           updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
-          showTooltip(ev, d.node, getOverrideClerpForNode(d.node));
+          showTooltip(ev, d.node, makeTooltipText(d.node));
         }
       })
       .on('mouseleave', (ev: MouseEvent) => {
@@ -688,9 +696,12 @@ export default function Subgraph() {
           updateVisStateField('pinnedIds', newPinnedIds);
         } else {
           // Set as clicked node
-          const newClickedId = visState.clickedId === d.node.nodeId ? null : d.node.nodeId;
-          updateVisStateField('clickedId', newClickedId || null);
-          updateVisStateField('clickedCtxIdx', newClickedId ? d.node.ctx_idx : null);
+          const newClickedId = lastClickedIdRef.current === d.node.nodeId ? null : d.node.nodeId;
+          if (newClickedId !== lastClickedIdRef.current) {
+            updateVisStateField('clickedId', newClickedId || null);
+            updateVisStateField('clickedCtxIdx', newClickedId ? d.node.ctx_idx : null);
+            lastClickedIdRef.current = newClickedId || null;
+          }
         }
       })
       // @ts-ignore
@@ -724,7 +735,7 @@ export default function Subgraph() {
         if (activeGroupingRef.current?.isActive || ev.metaKey || ev.ctrlKey || isEditingLabelRef.current) return;
         updateVisStateField('hoveredId', d.featureId || null);
         updateVisStateField('hoveredCtxIdx', d.ctx_idx);
-        showTooltip(ev, d, getOverrideClerpForNode(d));
+        showTooltip(ev, d, makeTooltipText(d));
         ev.stopPropagation();
       })
       .on('mouseleave', (ev: MouseEvent) => {
@@ -755,9 +766,12 @@ export default function Subgraph() {
           updateVisStateField('pinnedIds', newPinnedIds);
         } else {
           // Set as clicked node
-          const newClickedId = visState.clickedId === d.nodeId ? null : d.nodeId;
-          updateVisStateField('clickedId', newClickedId || null);
-          updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
+          const newClickedId = lastClickedIdRef.current === d.nodeId ? null : d.nodeId;
+          if (newClickedId !== lastClickedIdRef.current) {
+            updateVisStateField('clickedId', newClickedId || null);
+            updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
+            lastClickedIdRef.current = newClickedId || null;
+          }
         }
       })
       .attr('title', (d: CLTGraphNode) => getOverrideClerpForNode(d) || '');

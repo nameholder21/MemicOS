@@ -198,6 +198,13 @@ export const supportedGraphModels = new Set([
   'llama-3-131k-relu',
 ]);
 
+export const anthropicModels = [
+  'jackl-circuits-runs-1-4-sofa-v3_0',
+  'jackl-circuits-runs-1-1-druid-cp_0',
+  'jackl-circuits-runs-12-19-valet-m_0',
+  'jackl-circuits-runs-1-12-rune-cp3_0',
+];
+
 export const scanSlugToName = {
   h35: 'jackl-circuits-runs-1-4-sofa-v3_0',
   '18l': 'jackl-circuits-runs-1-1-druid-cp_0',
@@ -406,7 +413,9 @@ export function formatCLTGraphData(data: CLTGraph, logitDiff: string | null): CL
   if (!maxLayer) throw new Error('No layer found');
   nodes.forEach((d, i) => {
     // To make hover state work across prompts, drop ctx from node id
-    d.featureId = `${d.layer}_${d.feature}`;
+
+    // we assume we want each occurrence of a feature to be a unique node, so we append ctx_idx to the featureId
+    d.featureId = `${d.layer}_${d.feature}_${d.ctx_idx}`;
 
     d.active_feature_idx = d.feature;
     d.nodeIndex = i;
@@ -444,7 +453,12 @@ export function formatCLTGraphData(data: CLTGraph, logitDiff: string | null): CL
     // TODO: switch to featureIndex in graphgen
     d.featureIndex = d.feature;
 
-    d.nodeId = d.jsNodeId;
+    // anthropic model subgraphs use jsNodeId as the nodeId
+    if (anthropicModels.includes(data.metadata.scan)) {
+      d.nodeId = d.jsNodeId;
+    } else {
+      d.nodeId = d.node_id;
+    }
     if (d.feature_type === 'logit' && d.clerp) d.logitPct = +d.clerp.split('(p=')[1].split(')')[0];
     idToNode[d.nodeId] = d;
     pyNodeIdToNode[d.node_id] = d;

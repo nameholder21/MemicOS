@@ -24,7 +24,7 @@ function FeatureList({
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none pb-1 pl-1 text-slate-800">
+    <div className="flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none px-1 pb-1 text-slate-800">
       <div className="sticky top-0 bg-white pb-0.5 text-[10px] font-medium uppercase text-slate-500">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
@@ -75,13 +75,15 @@ function FeatureList({
               ) : (
                 ''
               ))}
-            <div className="font-mono">{node.layer !== 'E' ? `L${node.layer}` : ''}</div>
-            <div className="font-mono">
-              {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
-                ? node[linkProp]?.pctInput > 0
-                  ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
-                  : node[linkProp]?.pctInput?.toFixed(3)
-                : ''}
+            <div className="flex flex-col items-center justify-center">
+              <div className="font-mono">
+                {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
+                  ? node[linkProp]?.pctInput > 0
+                    ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
+                    : node[linkProp]?.pctInput?.toFixed(3)
+                  : ''}
+              </div>
+              <div className="font-mono">{node.layer !== 'E' ? `L${node.layer}` : ''}</div>
             </div>
           </button>
         ))}
@@ -121,7 +123,7 @@ export default function GraphNodeConnections() {
       </div> */}
       <div className={`w-full flex-col text-slate-700 ${isExpanded ? 'flex' : 'hidden'}`}>
         {clickedNode ? (
-          <div className="flex flex-row items-center gap-x-2 pl-1 text-xs font-medium text-slate-600">
+          <div className="flex flex-row items-center gap-x-2 text-xs font-medium text-slate-600">
             {!clickedNode?.featureDetailNP && <div className="">F#{clickedNode?.feature}</div>}
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             <div className="flex-1 leading-tight">{getOverrideClerpForNode(clickedNode)}</div>
