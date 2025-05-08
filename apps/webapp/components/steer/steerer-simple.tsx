@@ -48,8 +48,6 @@ export default function SteererSimple({
   const [isInitialPageLoad, setInitialPageLoad] = useState(true); // track this
 
   // INFO: on pageLoad, will crash if no initial model
-  // DO NOT update the value of initialPageLoad here,
-  // as it is used to prevent another crash in savedSteerOutput
   if (isInitialPageLoad && !initialModelId) {
     initialModelId = 'gemma-2-2b-it';
     setInitialPageLoad(false)
