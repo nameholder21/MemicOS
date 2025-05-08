@@ -47,15 +47,16 @@ export default function SteererSimple({
 
   const [isInitialPageLoad, setInitialPageLoad] = useState(true); // track this
 
-  // INFO: on pageLoad, will crash if no initial model
-  if (isInitialPageLoad && !initialModelId) {
-    initialModelId = 'gemma-2-2b-it';
-    setInitialPageLoad(false)
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [modelId, setModelId] = useState(initialModelId);
   const [featurePresets, setFeaturePresets] = useState<FeaturePreset[]>([]);
+
+  // INFO: on pageLoad, will crash if no initial model
+  if (isInitialPageLoad && !initialModelId) {
+    setModelId('gemma-2-2b-it')
+    setInitialPageLoad(false)
+  }
+
 
   function loadPresets() {
     fetch('/api/steer/presets', {
