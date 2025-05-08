@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- disabling this to match existing pattern */
 // this is a radically simplified version of the steerer component
 // it's for the gemma-scope demo and the explorables demo
 // it has a lot of duplicate code with the steer component
@@ -129,7 +130,7 @@ export default function SteererSimple({
         if (response.status !== 200) {
           // INFO: DO NOT alert to user; this error only indicates that the
           // hardcoded savedSteerOutput did not exist. Messages still work!
-          console.log("Error loading saved steer output!");
+          console.error("Error loading saved steer output!");
           return null;
         }
         return response.json();
