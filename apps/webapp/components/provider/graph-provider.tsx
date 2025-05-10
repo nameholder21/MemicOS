@@ -184,7 +184,7 @@ export function GraphProvider({
   };
 
   const makeTooltipText = (node: CLTGraphNode) =>
-    `${getOverrideClerpForNode(node)} | ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : 'Layer '}${node.layer}`;
+    `${getOverrideClerpForNode(node)} | ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : `Layer ${node.layer}`}`;
 
   const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {
     if (session.data?.user?.id === graph.userId) {
