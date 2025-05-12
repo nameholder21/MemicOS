@@ -2,7 +2,7 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, CltVisState, featureTypeToText, setFullNPFeatureDetail } from './utils';
+import { CLTGraphNode, CltVisState, featureTypeToText } from './utils';
 
 function FeatureList({
   title,
@@ -92,7 +92,14 @@ function FeatureList({
 }
 
 export default function GraphNodeConnections() {
-  const { visState, selectedGraph, updateVisStateField, isEditingLabel, getOverrideClerpForNode } = useGraphContext();
+  const {
+    visState,
+    selectedGraph,
+    updateVisStateField,
+    isEditingLabel,
+    getOverrideClerpForNode,
+    setFullNPFeatureDetail,
+  } = useGraphContext();
 
   const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

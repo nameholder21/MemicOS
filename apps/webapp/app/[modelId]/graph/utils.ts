@@ -1,13 +1,6 @@
-import { GRAPH_PREFETCH_ACTIVATIONS_COUNT } from '@/components/provider/graph-provider';
 import { DEFAULT_CREATOR_USER_ID, NEXT_PUBLIC_URL } from '@/lib/env';
-import {
-  ActivationWithPartialRelations,
-  GraphMetadata,
-  GraphMetadataWithPartialRelations,
-  NeuronWithPartialRelations,
-} from '@/prisma/generated/zod';
+import { GraphMetadata, GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import cuid from 'cuid';
-import { Dispatch, SetStateAction } from 'react';
 import d3 from './d3-jetpack';
 
 // TODO: make this an env variable
@@ -685,42 +678,3 @@ export type AnthropicFeatureDetail = {
   index: number;
   examples_quantiles: AnthropicFeatureExampleQuantile[];
 };
-
-export function setFullNPFeatureDetail(setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) {
-  // load the rest of the activations on demand
-  if (
-    node?.featureDetailNP &&
-    node?.featureDetailNP.activations &&
-    node?.featureDetailNP.activations.length <= GRAPH_PREFETCH_ACTIVATIONS_COUNT
-  ) {
-    fetch(`/api/activation/get`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        modelId: node.featureDetailNP.modelId,
-        source: node.featureDetailNP.layer,
-        index: node.featureDetailNP.index,
-      }),
-    })
-      .then((response) => response.json())
-      .then((acts: ActivationWithPartialRelations[]) => {
-        if (node?.featureDetailNP) {
-          // console.log('setting full NP feature detail', acts.length);
-          // Create a new node object with updated activations to trigger re-render
-          setNode((prevNode: CLTGraphNode | null) => {
-            if (!prevNode || !prevNode.featureDetailNP) return prevNode;
-            return {
-              ...prevNode,
-              featureDetailNP: {
-                ...prevNode.featureDetailNP,
-                activations: acts,
-              },
-            };
-          });
-        }
-      })
-      .catch((error) => {
-        console.error(`error submitting getting rest of feature: ${error}`);
-      });
-  }
-}
