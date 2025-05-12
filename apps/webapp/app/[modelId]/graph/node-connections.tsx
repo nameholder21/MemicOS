@@ -2,7 +2,7 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, CltVisState, featureTypeToText } from './utils';
+import { CLTGraphNode, CltVisState, featureTypeToText, setFullNPFeatureDetail } from './utils';
 
 function FeatureList({
   title,
@@ -108,6 +108,12 @@ export default function GraphNodeConnections() {
       setClickedNode(null);
     }
   }, [visState.clickedId, selectedGraph]);
+
+  useEffect(() => {
+    if (clickedNode) {
+      setFullNPFeatureDetail(setClickedNode, clickedNode);
+    }
+  }, [clickedNode]);
 
   return (
     <div

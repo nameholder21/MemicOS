@@ -1,13 +1,12 @@
-import { GRAPH_PREFETCH_ACTIVATIONS_COUNT, useGraphContext } from '@/components/provider/graph-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
-import { ActivationWithPartialRelations } from '@/prisma/generated/zod';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import FeatureDashboard from '../[layer]/[index]/feature-dashboard';
 import GraphFeatureDetailItem from './feature-detail-item';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, nodeTypeHasFeatureDetail } from './utils';
+import { CLTGraphNode, nodeTypeHasFeatureDetail, setFullNPFeatureDetail } from './utils';
 
 export default function GraphFeatureDetail() {
   const {
@@ -57,42 +56,9 @@ export default function GraphFeatureDetail() {
   // Separate useEffect for scrolling when 'feature' changes
   useEffect(() => {
     groupRef.current?.scrollToIndex(0);
-    console.log('node set with activations:', node?.featureDetailNP?.activations?.length);
-    // load the rest of the activations on demand
-    if (
-      node?.featureDetailNP &&
-      node?.featureDetailNP.activations &&
-      node?.featureDetailNP.activations.length <= GRAPH_PREFETCH_ACTIVATIONS_COUNT
-    ) {
-      fetch(`/api/activation/get`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          modelId: node.featureDetailNP.modelId,
-          source: node.featureDetailNP.layer,
-          index: node.featureDetailNP.index,
-        }),
-      })
-        .then((response) => response.json())
-        .then((acts: ActivationWithPartialRelations[]) => {
-          // fillInActivationsForNode(node, acts);
-          if (node?.featureDetailNP) {
-            // Create a new node object with updated activations to trigger re-render
-            setNode((prevNode) => {
-              if (!prevNode || !prevNode.featureDetailNP) return prevNode;
-              return {
-                ...prevNode,
-                featureDetailNP: {
-                  ...prevNode.featureDetailNP,
-                  activations: acts,
-                },
-              };
-            });
-          }
-        })
-        .catch((error) => {
-          console.error(`error submitting getting rest of feature: ${error}`);
-        });
+    // console.log('node set with activations:', node?.featureDetailNP?.activations?.length);
+    if (node) {
+      setFullNPFeatureDetail(setNode, node);
     }
   }, [node]);
 
