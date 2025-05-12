@@ -6,7 +6,7 @@ import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import FeatureDashboard from '../[layer]/[index]/feature-dashboard';
 import GraphFeatureDetailItem from './feature-detail-item';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, nodeTypeHasFeatureDetail, setFullNPFeatureDetail } from './utils';
+import { CLTGraphNode, nodeTypeHasFeatureDetail } from './utils';
 
 export default function GraphFeatureDetail() {
   const {
@@ -17,6 +17,7 @@ export default function GraphFeatureDetail() {
     updateVisStateField,
     getOriginalClerpForNode,
     getOverrideClerpForNode,
+    setFullNPFeatureDetail,
   } = useGraphContext();
   const [node, setNode] = useState<CLTGraphNode | null>(null);
   const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
