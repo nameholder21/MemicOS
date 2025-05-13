@@ -27,16 +27,13 @@ from memicos_inference.inference_utils.steering import (
     stream_lock,
 )
 from memicos_inference.sae_manager import SAEManager
-from memicos_inference.shared import (
-    Model,
-    with_request_lock,
-)
+from memicos_inference.shared import Model, with_request_lock
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-TOKENS_PER_YIELD = 5
+TOKENS_PER_YIELD = 1
 
 
 @router.post("/steer/completion")
