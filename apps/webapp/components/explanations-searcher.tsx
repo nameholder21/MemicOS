@@ -119,8 +119,12 @@ export default function ExplanationsSearcher({
     if (selectedTab === SearchExplanationsType.BY_MODEL) {
       return `/search-explanations/?modelId=${modelId}&q=${encodeURIComponent(query)}${isEmbed ? '&embed=true' : ''}`;
     }
-    if (selectedTab === SearchExplanationsType.BY_SAE) {
-      return `/search-explanations/?modelId=${modelId}&saes=${JSON.stringify(selectedLayers)}&q=${encodeURIComponent(
+    if (selectedTab === SearchExplanationsType.BY_SOURCE) {
+      let urlSourcesToSet = selectedLayers;
+      if (!selectedLayers || selectedLayers.length === 0) {
+        urlSourcesToSet = getSourcesForSourceSet(modelId, sourceSet, true, false, false);
+      }
+      return `/search-explanations/?modelId=${modelId}&sources=${JSON.stringify(urlSourcesToSet)}&q=${encodeURIComponent(
         query,
       )}${isEmbed ? '&embed=true' : ''}`;
     }
@@ -183,7 +187,7 @@ export default function ExplanationsSearcher({
       alert(`Must be shorter than ${MAX_SEARCH_EXP_QUERY_LENGTH_CHARS} characters`);
       return;
     }
-    if (selectedTab === SearchExplanationsType.BY_SAE) {
+    if (selectedTab === SearchExplanationsType.BY_SOURCE) {
       if (!selectedLayers) {
         alert('Please select at least one layer to search.');
         return;
@@ -202,7 +206,7 @@ export default function ExplanationsSearcher({
       router.push(makeUrl(searchQuery) || '');
       return;
     }
-    if (selectedTab === SearchExplanationsType.BY_SAE) {
+    if (selectedTab === SearchExplanationsType.BY_SOURCE) {
       let layersToSend = selectedLayers;
       if (!layersToSend || layersToSend.length === 0) {
         layersToSend = getSourcesForSourceSet(modelId, sourceSet, true, false, false);
@@ -300,8 +304,7 @@ export default function ExplanationsSearcher({
   return (
     <div className="flex w-full flex-col items-center justify-center gap-x-1.5">
       <div
-        className={`z-10 flex w-full flex-col items-start justify-center transition-all sm:max-w-screen-lg
-        ${!isEmbed && 'sticky'} ${isSteerSearch ? 'pt-0' : 'top-12 pt-2'}`}
+        className={`z-10 flex w-full flex-col items-start justify-center transition-all sm:max-w-screen-lg ${!isEmbed && 'sticky'} ${isSteerSearch ? 'pt-0' : 'top-12 pt-2'}`}
       >
         <div className="flex w-full flex-col items-center justify-center">
           <Tabs value={selectedTab} className="min-w-[400px] max-w-[400px]">
@@ -328,11 +331,11 @@ export default function ExplanationsSearcher({
                 By Model
               </TabsTrigger>
               <TabsTrigger
-                value={SearchExplanationsType.BY_SAE}
+                value={SearchExplanationsType.BY_SOURCE}
                 className="flex-1"
-                onClick={() => setSelectedTab(SearchExplanationsType.BY_SAE)}
+                onClick={() => setSelectedTab(SearchExplanationsType.BY_SOURCE)}
               >
-                By SAEs
+                By Sources
               </TabsTrigger>
             </TabsList>
             <TabsContent value={SearchExplanationsType.BY_ALL} className="mb-4">
@@ -363,7 +366,7 @@ export default function ExplanationsSearcher({
                 </div>
               )}
             </TabsContent>
-            <TabsContent value={SearchExplanationsType.BY_SAE} className="mb-2">
+            <TabsContent value={SearchExplanationsType.BY_SOURCE} className="mb-2">
               <div className="flex w-full flex-row items-center justify-center gap-x-2 text-center font-sans text-xs font-medium uppercase leading-none text-slate-500">
                 {showModelSelector && (
                   <div className="flex flex-col font-mono">
@@ -387,7 +390,9 @@ export default function ExplanationsSearcher({
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger className="flex h-10 max-h-[40px] min-h-[40px] w-full flex-1 flex-row items-center justify-center gap-x-1 whitespace-pre rounded border border-slate-300 bg-white px-3 font-mono text-xs font-medium leading-tight text-sky-700 hover:bg-slate-50 focus:outline-none sm:pl-4 sm:pr-2">
                       {selectedLayers
-                        ? selectedLayers?.length === 0
+                        ? selectedLayers?.length === 0 ||
+                          selectedLayers?.length ===
+                            getSourcesForSourceSet(modelId, sourceSet, true, false, false).length
                           ? 'All Layers'
                           : `Layer${selectedLayers.length > 1 ? 's ' : ' '}${selectedLayers
                               .map(
@@ -467,8 +472,7 @@ export default function ExplanationsSearcher({
           >
             {({ submitForm, values, setFieldValue }) => (
               <Form
-                className={`flex w-full gap-x-1.5 gap-y-1.5 sm:max-w-screen-lg sm:flex-row
-                  ${searchState === ExplanationSearchState.LOADED ? 'flex-row' : 'flex-col'}`}
+                className={`flex w-full gap-x-1.5 gap-y-1.5 sm:max-w-screen-lg sm:flex-row ${searchState === ExplanationSearchState.LOADED ? 'flex-row' : 'flex-col'}`}
               >
                 <div className="mt-0 flex flex-1 flex-row justify-center gap-x-2">
                   <input
@@ -520,7 +524,7 @@ export default function ExplanationsSearcher({
           >
             <ToggleGroup.Item
               key="showDashboards"
-              className="flex-auto items-center rounded-l px-1 py-1 text-[10px] font-medium text-slate-500  transition-all hover:bg-slate-100 data-[state=on]:bg-white data-[state=on]:text-slate-600 sm:px-4  sm:text-[11px]"
+              className="flex-auto items-center rounded-l px-1 py-1 text-[10px] font-medium text-slate-500 transition-all hover:bg-slate-100 data-[state=on]:bg-white data-[state=on]:text-slate-600 sm:px-4 sm:text-[11px]"
               value="showDashboards"
               aria-label="showDashboards"
             >
@@ -602,7 +606,7 @@ export default function ExplanationsSearcher({
                 </div>
               }
               hasMore={hasMore}
-              className={`forceShowScrollBar relative flex flex-1 flex-col  ${
+              className={`forceShowScrollBar relative flex flex-1 flex-col ${
                 isSteerSearch ? 'mt-1 h-full max-h-[250px] overflow-y-scroll px-1 py-1' : 'bg-white'
               }`}
             >
@@ -617,16 +621,16 @@ export default function ExplanationsSearcher({
                   target="_blank"
                   rel="noreferrer"
                   key={result.index}
-                  className={`flex w-full flex-col items-center justify-center rounded-md border  bg-white px-3  sm:px-3 ${
+                  className={`flex w-full flex-col items-center justify-center rounded-md border bg-white px-3 sm:px-3 ${
                     isSteerSearch
                       ? 'mb-2 cursor-default border-slate-200 py-2'
-                      : 'group cursor-pointer border-transparent py-5  hover:border-sky-600'
+                      : 'group cursor-pointer border-transparent py-5 hover:border-sky-600'
                   }`}
                 >
                   <div className="flex w-full max-w-screen-lg flex-col items-center justify-center gap-x-2 sm:flex-row sm:gap-x-5">
                     <div
                       className={`flex flex-col items-center justify-center font-mono text-[11px] font-medium text-slate-500 ${
-                        hideResultDetails ? 'w-full' : 'basis-4/12  sm:basis-3/12'
+                        hideResultDetails ? 'w-full' : 'basis-4/12 sm:basis-3/12'
                       }`}
                     >
                       <span
@@ -666,7 +670,7 @@ export default function ExplanationsSearcher({
                               className={`flex shrink-0 flex-row items-center gap-x-1 whitespace-nowrap rounded bg-slate-100 px-[6px] py-[6px] text-[8.5px] font-medium leading-none text-slate-500 group-hover:bg-sky-100 group-hover:text-slate-600 sm:px-[8px] sm:py-[6px] sm:text-[9px] ${
                                 isSteerSearch
                                   ? 'cursor-pointer hover:bg-sky-100 hover:text-slate-600'
-                                  : 'group-hover:bg-sky-100 group-hover:text-slate-600 '
+                                  : 'group-hover:bg-sky-100 group-hover:text-slate-600'
                               }`}
                             >
                               <div className="flex flex-col gap-y-[3px]">
@@ -709,7 +713,7 @@ export default function ExplanationsSearcher({
                     <div className={`flex-1 ${hideResultDetails ? 'hidden' : 'flex'}`}>
                       {showDashboards && result.neuron && (
                         <div className="flex flex-1 flex-row items-center gap-x-3 px-0">
-                          <div className="flex  flex-1 flex-col justify-start gap-y-1">
+                          <div className="flex flex-1 flex-col justify-start gap-y-1">
                             {result.neuron &&
                               result.neuron.activations &&
                               result.neuron.activations.map((activation) => (
