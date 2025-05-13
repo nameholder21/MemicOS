@@ -55,12 +55,13 @@ GEMINI_MODEL_NAMES = ["gemini-2.0-flash"]
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # we should use this one (ai studio, simpler) but we're super rate limited
-# GEMINI_BASE_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GEMINI_BASE_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+GEMINI_VERTEX = False
 # so we use vertex instead. when we are not rate limited on AI studio, remove the following 4 properties
-GEMINI_PROJECT_ID = os.getenv("GEMINI_PROJECT_ID")
-GEMINI_LOCATION = os.getenv("GEMINI_LOCATION")
-GEMINI_BASE_API_URL = f"https://{GEMINI_LOCATION}-aiplatform.googleapis.com/v1beta1/projects/{GEMINI_PROJECT_ID}/locations/{GEMINI_LOCATION}/endpoints/openapi"
-GEMINI_VERTEX = True
+# GEMINI_PROJECT_ID = os.getenv("GEMINI_PROJECT_ID")
+# GEMINI_LOCATION = os.getenv("GEMINI_LOCATION")
+# GEMINI_BASE_API_URL = f"https://{GEMINI_LOCATION}-aiplatform.googleapis.com/v1beta1/projects/{GEMINI_PROJECT_ID}/locations/{GEMINI_LOCATION}/endpoints/openapi"
+# GEMINI_VERTEX = True
 
 # the number of parallel autointerps to do
 # this is two bottlenecks:
