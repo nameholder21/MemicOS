@@ -57,6 +57,6 @@ export default function GraphFeatureLink({
       </Button>
     </div>
   ) : (
-    <div className="">F# {node.feature}</div>
+    <div className="text-xs">F# {node.feature}</div>
   );
 }

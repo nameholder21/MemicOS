@@ -15,8 +15,6 @@ import {
   showTooltip,
 } from './utils';
 
-const HEIGHT = 360;
-
 // Extended type for custom CLTGraph properties
 interface CLTGraphExtended extends CLTGraph {
   byStream?: Array<any>;
@@ -339,8 +337,7 @@ export default function LinkGraph() {
     // Set up the base SVG container
     const svgContainer = d3.select(svgRef.current);
     const svgBBox = svgRef.current.getBoundingClientRect();
-    const { width } = svgBBox;
-    const height = HEIGHT;
+    const { width, height } = svgBBox;
 
     const middleContainer = d3.select(middleRef.current);
     const bottomContainer = d3.select(bottomRef.current);
@@ -355,7 +352,7 @@ export default function LinkGraph() {
       left: isHideLayer(data.metadata.scan) ? 0 : 30,
       right: 20,
       top: 0,
-      bottom: 0,
+      bottom: 45,
     };
 
     const svgBot = bottomContainer.append('g').attr('class', 'svg-bot');
@@ -912,7 +909,7 @@ export default function LinkGraph() {
   }, [screenSize, selectedGraph, visState.hoveredId, visState]);
 
   return (
-    <div className="link-graph relative mt-3 min-h-[415px] flex-1 select-none pt-5">
+    <div className="link-graph relative mt-3 flex-1 select-none">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
@@ -922,9 +919,9 @@ export default function LinkGraph() {
         </CustomTooltip>
       </div> */}
       <div className="tooltip tooltip-hidden" />
-      <svg className="absolute z-0 w-full" height={HEIGHT} ref={bottomRef} />
-      <svg className="absolute z-0 w-full" height={HEIGHT} ref={middleRef} />
-      <svg className="absolute z-0 w-full" height={HEIGHT} ref={svgRef} />
+      <svg className="absolute top-5 z-0 h-full w-full" ref={bottomRef} />
+      <svg className="absolute top-5 z-0 h-full w-full" ref={middleRef} />
+      <svg className="absolute top-5 z-0 h-full w-full" ref={svgRef} />
     </div>
   );
 }

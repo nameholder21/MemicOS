@@ -102,8 +102,6 @@ export default function GraphNodeConnections() {
   } = useGraphContext();
 
   const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
     if (visState.clickedId) {
@@ -123,18 +121,8 @@ export default function GraphNodeConnections() {
   }, [clickedNode]);
 
   return (
-    <div
-      className={`${isExpanded ? 'flex-1' : ''} node-connections relative mt-2 flex max-h-[420px] min-h-[420px] max-w-[420px] flex-row overflow-y-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm transition-all`}
-    >
-      {/* <div className="mb-2 mt-1 flex w-full flex-row items-center justify-start gap-x-2 pl-1">
-        <div className="text-xs font-bold text-slate-600">Node Connections</div>
-      </div> */}
-      {/* <div className="h-[100%] w-5 min-w-5 max-w-5 border-r border-slate-200">
-        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
-          <ArrowRight className="h-4 w-4 text-slate-400" />
-        </Button>
-      </div> */}
-      <div className={`w-full flex-col text-slate-700 ${isExpanded ? 'flex' : 'hidden'}`}>
+    <div className="node-connections relative mt-2 flex max-w-[420px] flex-1 flex-row overflow-y-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm transition-all">
+      <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
           <div className="flex flex-row items-center gap-x-2 text-xs font-medium text-slate-600">
             {!clickedNode?.featureDetailNP && <div className="">F#{clickedNode?.feature}</div>}

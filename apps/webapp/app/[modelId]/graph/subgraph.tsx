@@ -1047,11 +1047,9 @@ export default function Subgraph() {
     }
   }, [visState.pinnedIds]);
 
-  const SUBGRAPH_HEIGHT = 410;
-
   return (
-    <Card className="mt-2 w-full bg-white">
-      <CardContent className="px-2 py-2">
+    <Card className="h-full w-full flex-1 bg-white">
+      <CardContent className="h-full px-2 py-2">
         {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
@@ -1065,14 +1063,12 @@ export default function Subgraph() {
           </div>
         </CustomTooltip>
       </div> */}
-        <div className="subgraph relative h-[410px] w-full">
-          <svg className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} height={SUBGRAPH_HEIGHT} ref={svgRef} />
-          <div className={`absolute h-[${SUBGRAPH_HEIGHT}px] w-full`} ref={divRef} />
+        <div className="subgraph relative h-full w-full">
+          <svg className="absolute h-full w-full" ref={svgRef} />
+          <div className="absolute h-full w-full" ref={divRef} />
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
-            <div
-              className={`absolute flex bg-white/80 h-[${SUBGRAPH_HEIGHT}px] min-h-[${SUBGRAPH_HEIGHT}px] w-full flex-col items-start justify-center gap-y-1.5 px-5 text-slate-700`}
-            >
+            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 bg-white/80 px-5 text-slate-700">
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
                 <strong>· Pin or Unpin a Node</strong>
