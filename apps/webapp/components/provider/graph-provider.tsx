@@ -438,6 +438,20 @@ export function GraphProvider({
           maxActsToReturn: GRAPH_PREFETCH_ACTIVATIONS_COUNT,
         }));
 
+      // console.log(`features before dedup:${features.length}`);
+      // // deduplicate the features
+      // const uniqueFeatures = new Map<string, any>();
+      // features.forEach((feature) => {
+      //   const key = `${feature.modelId}-${feature.layer}-${feature.index}`;
+      //   if (!uniqueFeatures.has(key)) {
+      //     uniqueFeatures.set(key, feature);
+      //   }
+      // });
+
+      // console.log(`features after dedup: ${features.length}`);
+      // Convert the Map values back to an array
+      // features = Array.from(uniqueFeatures.values());
+
       console.log('number of features:', features.length);
       // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE
       const batches = [];

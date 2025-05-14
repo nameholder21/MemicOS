@@ -488,3 +488,19 @@ export const getActivationsTopKByToken = async (
   });
   return result;
 };
+
+export const tokenizeText = async (modelId: string, text: string, prependBos: boolean) => {
+  const serverHost = await getOneRandomServerHostForModel(modelId);
+
+  const transformerLensModelId = await getTransformerLensModelIdIfExists(modelId);
+
+  const result = await makeInferenceServerApiWithServerHost(serverHost).tokenizePost({
+    tokenizePostRequest: {
+      model: transformerLensModelId,
+      text,
+      prependBos,
+    },
+  });
+
+  return result;
+};
