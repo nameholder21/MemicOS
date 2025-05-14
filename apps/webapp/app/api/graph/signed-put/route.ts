@@ -1,6 +1,7 @@
 import { MAX_GRAPH_UPLOAD_SIZE_BYTES, NP_GRAPH_BUCKET } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
+import { GRAPH_S3_USER_GRAPHS_DIR } from '@/lib/utils/graph';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -8,7 +9,6 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
-const USER_GRAPHS_DIR = 'user-graphs';
 const MAX_PUT_REQUESTS_PER_DAY = 100;
 const signedPutRequestSchema = object({
   filename: string().required(),
@@ -105,7 +105,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     }
     console.log('putRequests count | user ID', putRequests.length, userId);
 
-    const key = `${USER_GRAPHS_DIR}/${userId}/${body.filename}`;
+    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${userId}/${body.filename}`;
 
     // Initialize S3 client
     const s3Client = new S3Client({

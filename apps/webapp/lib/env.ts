@@ -96,6 +96,11 @@ export const USE_LOCALHOST_AUTOINTERP = process.env.USE_LOCALHOST_AUTOINTERP ===
 export const AUTOINTERP_SERVER = process.env.AUTOINTERP_SERVER || '';
 export const AUTOINTERP_SERVER_SECRET = process.env.AUTOINTERP_SERVER_SECRET || '';
 
+// Graph Server
+export const USE_LOCALHOST_GRAPH = process.env.USE_LOCALHOST_GRAPH === 'true';
+export const GRAPH_SERVER = process.env.GRAPH_SERVER || '';
+export const GRAPH_SERVER_SECRET = process.env.GRAPH_SERVER_SECRET || '';
+
 // Deprecated - Scorer Server
 export const OLD_SCORER_SERVER = process.env.OLD_SCORER_SERVER || '';
 

@@ -5,10 +5,21 @@ import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
-import { ChevronDownIcon, ChevronUpIcon, CopyIcon, DownloadIcon, ExternalLinkIcon, UploadCloud } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  CopyIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+  Plus,
+  Trash,
+  UploadCloud,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import GenerateGraphModal from './generate-graph-modal';
 import UploadGraphModal from './upload-graph-modal';
 
 export default function GraphToolbar() {
@@ -17,6 +28,7 @@ export default function GraphToolbar() {
   const isEmbed = searchParams.get('embed') === 'true';
   const { setSignInModalOpen } = useGlobalContext();
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
   const {
     modelIdToMetadataMap,
     selectedModelId,
@@ -236,26 +248,89 @@ export default function GraphToolbar() {
                     if (filterGraphsSetting.includes(FilterGraphType.Community))
                       graphsDisplayedCount += communityGraphs.length;
 
-                    const renderGraphItem = (graph: (typeof allVisibleGraphs)[0]) => (
-                      <Select.Item
-                        key={graph.slug}
-                        value={graph.slug}
-                        className="relative flex w-full min-w-full cursor-pointer select-none items-center overflow-x-hidden py-2.5 pl-4 pr-6 text-xs outline-none hover:bg-slate-100 data-[highlighted]:bg-sky-100"
-                      >
-                        <Select.ItemText className="w-full min-w-full" asChild>
-                          <div className="flex w-full min-w-full flex-col items-start justify-start gap-y-0">
-                            <div className="flex w-full flex-row items-center justify-between">
-                              <div className="font-mono text-[12px] font-medium text-sky-700">{graph.slug}</div>
-                              <div className="text-[9px] font-normal text-slate-400">
-                                {graph.user?.name ? graph.user?.name : getGraphBaseUrlToName(graph.url)}
+                    const renderGraphItem = (graph: (typeof allVisibleGraphs)[0], isMyGraph: boolean) => (
+                      <div className="relative flex w-full flex-row items-center hover:bg-sky-100">
+                        <Select.Item
+                          key={graph.slug}
+                          value={graph.slug}
+                          className="relative flex w-full cursor-pointer select-none items-center overflow-x-hidden py-2.5 pl-4 pr-6 text-xs outline-none hover:bg-slate-100 data-[highlighted]:bg-sky-100"
+                        >
+                          <Select.ItemText className="w-full min-w-full" asChild>
+                            <div className="flex w-full min-w-full flex-col items-start justify-start gap-y-0">
+                              <div className="flex w-full flex-row items-center justify-between">
+                                <div className="font-mono text-[12px] font-medium text-sky-700">{graph.slug}</div>
+                                {!isMyGraph && (
+                                  <div className="mr-2 flex flex-row items-center gap-x-2">
+                                    <div className="text-[9px] font-normal text-slate-400">
+                                      {graph.user?.name ? graph.user?.name : getGraphBaseUrlToName(graph.url)}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="mt-1.5 w-full whitespace-pre-line pl-3 text-[11px] leading-tight text-slate-500">
+                                {graph.prompt.trim()}
                               </div>
                             </div>
-                            <div className="mt-1.5 w-full whitespace-pre-line pl-3 text-[11px] leading-tight text-slate-500">
-                              {graph.prompt.trim()}
-                            </div>
-                          </div>
-                        </Select.ItemText>
-                      </Select.Item>
+                          </Select.ItemText>
+                        </Select.Item>
+                        {isMyGraph && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-1.5 top-1.5 h-6 w-6 p-0 text-red-500 hover:bg-red-100 hover:text-red-700"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+
+                              // eslint-disable-next-line
+                              if (confirm(`Are you sure you want to delete graph "${graph.slug}"?`)) {
+                                try {
+                                  setIsDeleting(true);
+                                  const res = await fetch('/api/graph/delete', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ modelId: selectedModelId, slug: graph.slug }),
+                                  });
+                                  if (res.ok) {
+                                    // Reload to the first available graph
+                                    const remainingGraphs = allVisibleGraphs.filter((g) => g.slug !== graph.slug);
+                                    if (remainingGraphs.length > 0) {
+                                      const nextGraph = remainingGraphs.sort((a, b) => a.slug.localeCompare(b.slug))[0];
+                                      router.replace(`/${selectedModelId}/graph?slug=${nextGraph.slug}`);
+                                      setSelectedMetadataGraph(nextGraph);
+                                    } else {
+                                      // find first graph in any model
+                                      const anyModelId = Object.keys(modelIdToMetadataMap).find(
+                                        (mId) => modelIdToMetadataMap[mId]?.length > 0,
+                                      );
+                                      if (anyModelId) {
+                                        const nextGraph = modelIdToMetadataMap[anyModelId]!.sort((a, b) =>
+                                          a.slug.localeCompare(b.slug),
+                                        )[0];
+                                        router.replace(`/${anyModelId}/graph?slug=${nextGraph.slug}`);
+                                        setSelectedMetadataGraph(nextGraph);
+                                      } else {
+                                        router.replace(`${anyModelId}/graph`);
+                                      }
+                                    }
+                                    window.location.reload();
+                                  } else {
+                                    const errorData = await res.json();
+                                    alert(`Failed to delete graph: ${errorData.message || 'Unknown error'}`);
+                                  }
+                                } catch (error) {
+                                  console.error('Error deleting graph:', error);
+                                  alert('An unexpected error occurred while deleting the graph.');
+                                } finally {
+                                  setIsDeleting(false);
+                                }
+                              }
+                            }}
+                          >
+                            <Trash className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </div>
                     );
 
                     return (
@@ -265,7 +340,7 @@ export default function GraphToolbar() {
                             <Select.Label className="sticky top-0 z-10 border-b border-t border-slate-100 bg-slate-50 py-2 pl-4 pr-6 pt-2.5 text-center text-xs font-bold text-slate-500">
                               My Graphs
                             </Select.Label>
-                            {myGraphs.sort((a, b) => a.slug.localeCompare(b.slug)).map(renderGraphItem)}
+                            {myGraphs.sort((a, b) => a.slug.localeCompare(b.slug)).map((g) => renderGraphItem(g, true))}
                           </Select.Group>
                         )}
                         {filterGraphsSetting.includes(FilterGraphType.Featured) && featuredGraphs.length > 0 && (
@@ -273,7 +348,9 @@ export default function GraphToolbar() {
                             <Select.Label className="sticky top-0 z-10 border-b border-t border-slate-100 bg-slate-50 py-2 pl-4 pr-6 pt-2.5 text-center text-xs font-bold text-slate-500">
                               Featured Graphs
                             </Select.Label>
-                            {featuredGraphs.sort((a, b) => a.slug.localeCompare(b.slug)).map(renderGraphItem)}
+                            {featuredGraphs
+                              .sort((a, b) => a.slug.localeCompare(b.slug))
+                              .map((g) => renderGraphItem(g, session.data?.user?.id === g.userId))}
                           </Select.Group>
                         )}
                         {filterGraphsSetting.includes(FilterGraphType.Community) && communityGraphs.length > 0 && (
@@ -281,7 +358,9 @@ export default function GraphToolbar() {
                             <Select.Label className="sticky top-0 z-10 border-b border-t border-slate-100 bg-slate-50 py-2 pl-4 pr-6 pt-2.5 text-center text-xs font-bold text-slate-500">
                               Community-Submitted Graphs
                             </Select.Label>
-                            {communityGraphs.sort((a, b) => a.slug.localeCompare(b.slug)).map(renderGraphItem)}
+                            {communityGraphs
+                              .sort((a, b) => a.slug.localeCompare(b.slug))
+                              .map((g) => renderGraphItem(g, session.data?.user?.id === g.userId))}
                           </Select.Group>
                         )}
                         {graphsDisplayedCount === 0 && (
@@ -303,6 +382,34 @@ export default function GraphToolbar() {
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Tools</div>
           <div className="flex flex-row gap-x-2">
+            {session.data?.user ? (
+              <GenerateGraphModal />
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex h-12 items-center justify-center border-slate-300"
+                onClick={() => {
+                  setSignInModalOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
+            {session.data?.user ? (
+              <UploadGraphModal />
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex h-12 items-center justify-center border-slate-300"
+                onClick={() => {
+                  setSignInModalOpen(true);
+                }}
+              >
+                <UploadCloud className="h-4 w-4" />
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -332,24 +439,16 @@ export default function GraphToolbar() {
             >
               <CopyIcon className="h-4 w-4" />
             </Button>
-
-            {session.data?.user ? (
-              <UploadGraphModal />
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex h-12 items-center justify-center border-slate-300"
-                onClick={() => {
-                  setSignInModalOpen(true);
-                }}
-              >
-                <UploadCloud className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
       </div>
+      {isDeleting && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-slate-800/50">
+          <div className="cursor-default select-none rounded-lg bg-white p-6 text-lg font-semibold text-slate-700 shadow-xl">
+            Deleting Graph...
+          </div>
+        </div>
+      )}
     </div>
   );
 }
