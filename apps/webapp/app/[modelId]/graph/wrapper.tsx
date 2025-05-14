@@ -20,15 +20,10 @@ export default function GraphWrapper() {
       <div className="hidden w-full flex-col items-center justify-center sm:flex">
         {/* <div>{JSON.stringify(visState)}</div> */}
         <div className="flex w-full flex-col">
-          {/* <div className="mb-0 w-full text-center text-[11px] text-red-500">
-            This is a work in progress and not linked to from public MemicOS pages.
-          </div> */}
           <GraphToolbar />
         </div>
 
         <div className="mb-2 w-full">
-          {/* <Card className="mb-5 mt-2 w-full bg-white">
-          <CardContent className="py-6 pt-3"> */}
           {isLoadingGraphData ? (
             <div className="flex h-full min-h-[800px] w-full flex-col items-center justify-center gap-y-3">
               <LoadingSquare className="h-6 w-6" />
@@ -59,8 +54,6 @@ export default function GraphWrapper() {
             </div>
           )}
         </div>
-        {/* </CardContent>
-        </Card> */}
       </div>
     </div>
   );

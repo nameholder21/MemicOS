@@ -387,13 +387,15 @@ export default function GraphToolbar() {
             ) : (
               <Button
                 variant="outline"
-                size="sm"
-                className="flex h-12 items-center justify-center border-slate-300"
+                title="Generate Graph"
+                aria-label="Generate Graph"
                 onClick={() => {
                   setSignInModalOpen(true);
                 }}
+                size="sm"
+                className="flex h-12 items-center justify-center whitespace-nowrap border-emerald-500 bg-emerald-50 text-xs font-medium leading-none text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="mr-1.5 h-4 w-4" /> New Graph
               </Button>
             )}
             {session.data?.user ? (
