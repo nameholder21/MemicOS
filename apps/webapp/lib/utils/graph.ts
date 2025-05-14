@@ -4,8 +4,8 @@ import * as yup from 'yup';
 export const GRAPH_MAX_PROMPT_LENGTH_CHARS = 10000;
 export const GRAPH_BATCH_SIZE = 48;
 // this time estimate comes from testing different prompt lengths with batch size 48, and is only valid for gemma-2-2b
-export const getEstimatedTimeFromNumTokens = (numTokens: number) => 0.27 * numTokens ** 1.83 + 5;
-export const GRAPH_MAX_TOKENS = 48;
+export const getEstimatedTimeFromNumTokens = (numTokens: number) => 0.27 * numTokens ** 1.83 + 8;
+export const GRAPH_MAX_TOKENS = 32;
 export const GRAPH_GENERATION_ENABLED_MODELS = ['gemma-2-2b'];
 export const GRAPH_MODEL_MAP = { 'gemma-2-2b': 'google/gemma-2-2b' };
 
