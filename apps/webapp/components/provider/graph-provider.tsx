@@ -571,6 +571,13 @@ export function GraphProvider({
                 },
               };
             });
+            // add it to the selectedGraph
+            if (selectedGraph) {
+              const matchingNode = selectedGraph.nodes.find((n) => n.nodeId === node.nodeId);
+              if (matchingNode && matchingNode.featureDetailNP) {
+                matchingNode.featureDetailNP.activations = acts;
+              }
+            }
           }
         })
         .catch((error) => {
