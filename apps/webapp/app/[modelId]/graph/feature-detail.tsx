@@ -97,15 +97,15 @@ export default function GraphFeatureDetail() {
   const memoizedFeatureDetail = useMemo(() => {
     if (!node)
       return (
-        <div className="flex h-[100%] min-h-[410px] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
+        <div className="flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
           <div className="mb-2 text-lg font-bold">Feature Details</div>
           <div className="">Hover over a node in the graph to see its details and edit its label.</div>
         </div>
       );
 
     return (
-      <>
-        <div className="flex flex-row items-center justify-between gap-x-1.5 pl-3 pt-2 text-sm font-medium text-slate-600">
+      <div className="flex max-h-full w-full flex-col overflow-y-scroll">
+        <div className="flex flex-row items-center justify-between gap-x-1.5 pl-3 pt-1 text-sm font-medium text-slate-600">
           <div className="flex flex-1 flex-row items-center gap-x-2">
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             {isEditingLabel ? (
@@ -198,7 +198,7 @@ export default function GraphFeatureDetail() {
           )}
         </div>
         {node.featureDetailNP ? (
-          <div className="ml-3 flex max-h-[394px] overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
+          <div className="ml-3 flex flex-1 overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
             <FeatureDashboard
               forceMiniStats
               key={`${node.featureDetailNP.index}-${node.featureDetailNP.activations?.length || 0}`}
@@ -258,7 +258,7 @@ export default function GraphFeatureDetail() {
             </div>
           )
         )}
-      </>
+      </div>
     );
   }, [
     node,
@@ -271,5 +271,5 @@ export default function GraphFeatureDetail() {
     visState.hoveredId,
   ]);
 
-  return <div className="flex min-h-[410px] w-full flex-1 flex-col">{memoizedFeatureDetail}</div>;
+  return <div className="flex h-full w-full flex-1 flex-col overflow-y-scroll">{memoizedFeatureDetail}</div>;
 }
