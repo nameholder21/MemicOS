@@ -561,6 +561,8 @@ export function GraphProvider({
             // Create a new node object with updated activations to trigger re-render
             setNode((prevNode: CLTGraphNode | null) => {
               if (!prevNode || !prevNode.featureDetailNP) return prevNode;
+              // don't change node object if it's a different node now
+              if (prevNode.nodeId !== node?.nodeId) return prevNode;
               return {
                 ...prevNode,
                 featureDetailNP: {
