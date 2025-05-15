@@ -279,7 +279,7 @@ export default function FeatureDashboard({
               )}
               <ActivationsList
                 feature={currentNeuron}
-                defaultRange={forceMiniStats ? 0 : currentNeuron?.sourceSet?.defaultRange}
+                defaultRange={forceMiniStats ? 1 : currentNeuron?.sourceSet?.defaultRange}
                 defaultShowLineBreaks={forceMiniStats ? false : currentNeuron?.sourceSet?.defaultShowBreaks}
                 showCopy={allowTest()}
                 showTest={allowTest()}
