@@ -1049,7 +1049,7 @@ export default function Subgraph() {
 
   return (
     <Card className="h-full w-full flex-1 bg-white">
-      <CardContent className="h-full px-2 py-2">
+      <CardContent className="h-full px-0 py-0">
         {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
@@ -1093,7 +1093,7 @@ export default function Subgraph() {
           <Button
             variant="outline"
             size="sm"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute left-1.5 top-1 h-8 w-28 gap-x-1.5 rounded-full border-0 bg-slate-100 px-0 py-0 text-slate-600 hover:bg-slate-200'}`}
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute left-3 top-3 h-8 w-28 gap-x-1.5 rounded-full border-0 bg-slate-100 px-0 py-0 text-slate-600 hover:bg-slate-200'}`}
             onClick={() => setShowSubgraphHelp(!showSubgraphHelp)}
           >
             {showSubgraphHelp ? (
@@ -1113,7 +1113,7 @@ export default function Subgraph() {
             size="sm"
             title="Reset Graph to Defaults"
             aria-label="Reset Graph to Defaults"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-0.5 top-0.5 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
             onClick={() => {
               // eslint-disable-next-line
               if (confirm('Are you sure you want to reset the graph to its default state?')) {
