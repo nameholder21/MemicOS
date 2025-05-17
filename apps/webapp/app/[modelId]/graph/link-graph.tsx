@@ -552,7 +552,7 @@ export default function LinkGraph() {
       const sortedLayer = d3.sort(ctxLayer, (d) => -(d.logitPct || 0));
       sortedLayer.forEach((d, i) => {
         if (d.feature_type === 'embedding') {
-          d.xOffset = c.x(d.ctx_idx + 1) - c.x(d.ctx_idx) - 12;
+          d.xOffset = c.x(d.ctx_idx + 1) - c.x(d.ctx_idx) - (padR + 3.5);
         } else {
           d.xOffset = ctxWidth - (padR / 2 + i * s);
         }

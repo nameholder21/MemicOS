@@ -2,6 +2,7 @@
 
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { LoadingSquare } from '@/components/svg/loading-square';
+import { useSearchParams } from 'next/navigation';
 import GraphFeatureDetail from './feature-detail';
 import GraphToolbar from './graph-toolbar';
 import LinkGraph from './link-graph';
@@ -10,8 +11,13 @@ import Subgraph from './subgraph';
 
 export default function GraphWrapper() {
   const { isLoadingGraphData, selectedMetadataGraph, loadingGraphLabel } = useGraphContext();
+
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
   return (
-    <div className="flex h-[calc(100vh_-_75px)] max-h-[calc(100vh_-_75px)] min-h-[calc(100vh_-_75px)] w-full flex-col justify-center px-4 text-slate-700">
+    <div
+      className={`${isEmbed ? 'h-full max-h-full min-h-full' : 'h-[calc(100vh_-_75px)] max-h-[calc(100vh_-_75px)] min-h-[calc(100vh_-_75px)]'} flex w-full flex-col justify-center px-4 text-slate-700`}
+    >
       <div className="flex w-full flex-col items-center justify-center sm:hidden">
         <div className="mb-2 w-full pt-8 text-center text-sm text-red-500">
           Sorry, this page is not optimized for mobile. Please visit this link on a desktop browser.
