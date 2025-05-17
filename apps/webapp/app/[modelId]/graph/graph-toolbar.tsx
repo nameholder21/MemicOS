@@ -18,7 +18,7 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import GenerateGraphModal from './generate-graph-modal';
 import UploadGraphModal from './upload-graph-modal';
 
@@ -79,7 +79,7 @@ export default function GraphToolbar() {
           <Select.Root
             value={selectedModelId}
             onValueChange={(newVal) => {
-              router.replace(`/${newVal}/graph`);
+              window.location.href = `/${newVal}/graph`;
             }}
           >
             <Select.Trigger
@@ -196,7 +196,7 @@ export default function GraphToolbar() {
             >
               {selectedMetadataGraph !== null ? (
                 <Select.Value asChild>
-                  <div className="flex w-full flex-col items-start justify-start gap-y-1.5 overflow-y-visible">
+                  <div className="flex w-full flex-col items-start justify-start gap-y-2 overflow-y-visible">
                     <div className="flex w-full flex-row items-center justify-between">
                       <div className="font-mono text-[12px] font-medium text-sky-700">{selectedMetadataGraph.slug}</div>
                       <div className="text-[9px] font-normal text-slate-400">
@@ -209,7 +209,14 @@ export default function GraphToolbar() {
                       {/* <span className="rounded bg-slate-200 px-1 py-0.5 text-[8px] font-bold text-slate-600">
                         PROMPT
                       </span>{' '} */}
-                      {selectedMetadataGraph.prompt.replaceAll('\n', ' ').trim()}
+                      {selectedMetadataGraph.promptTokens.map((token, i) => (
+                        <span
+                          key={token + '-' + i}
+                          className="mx-0.5 rounded bg-slate-100 px-[3px] py-0.5 font-mono text-slate-700"
+                        >
+                          {token.replaceAll('\n', ' ').replaceAll(' ', '\u00A0')}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </Select.Value>
@@ -253,22 +260,31 @@ export default function GraphToolbar() {
                         <Select.Item
                           key={graph.slug}
                           value={graph.slug}
-                          className="relative flex w-full cursor-pointer select-none items-center overflow-x-hidden py-2.5 pl-4 pr-6 text-xs outline-none hover:bg-slate-100 data-[highlighted]:bg-sky-100"
+                          className="group relative flex w-full cursor-pointer select-none items-center overflow-x-hidden py-2.5 pl-4 pr-4 text-xs outline-none hover:bg-slate-100 data-[highlighted]:bg-sky-50"
                         >
                           <Select.ItemText className="w-full min-w-full" asChild>
                             <div className="flex w-full min-w-full flex-col items-start justify-start gap-y-0">
                               <div className="flex w-full flex-row items-center justify-between">
                                 <div className="font-mono text-[12px] font-medium text-sky-700">{graph.slug}</div>
                                 {!isMyGraph && (
-                                  <div className="mr-2 flex flex-row items-center gap-x-2">
+                                  <div className="mr-0 flex flex-row items-center gap-x-2">
                                     <div className="text-[9px] font-normal text-slate-400">
                                       {graph.user?.name ? graph.user?.name : getGraphBaseUrlToName(graph.url)}
                                     </div>
                                   </div>
                                 )}
                               </div>
-                              <div className="mt-1.5 w-full whitespace-pre-line pl-3 text-[11px] leading-tight text-slate-500">
-                                {graph.prompt.trim()}
+                              <div className="mt-2 w-full whitespace-pre-line pl-0 text-[10px] leading-tight text-slate-500">
+                                <div className="flex flex-wrap">
+                                  {graph.promptTokens.map((token, i) => (
+                                    <Fragment key={token + '-' + i}>
+                                      <span className="mx-[1px] mb-1 rounded bg-slate-100 px-[2px] py-0.5 font-mono text-slate-700 group-hover:bg-sky-200 group-hover:text-sky-700 group-data-[highlighted]:bg-sky-200 group-data-[highlighted]:text-sky-700">
+                                        {token.replaceAll(' ', '\u00A0')}
+                                      </span>
+                                      {(token === '⏎' || token === '⏎⏎') && <div className="w-full"></div>}
+                                    </Fragment>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </Select.ItemText>
