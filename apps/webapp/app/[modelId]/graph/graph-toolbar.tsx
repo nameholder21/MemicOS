@@ -211,7 +211,7 @@ export default function GraphToolbar() {
                       </span>{' '} */}
                       {selectedMetadataGraph.promptTokens.map((token, i) => (
                         <span
-                          key={token + '-' + i}
+                          key={`${token}-${i}`}
                           className="mx-0.5 rounded bg-slate-100 px-[3px] py-0.5 font-mono text-slate-700"
                         >
                           {token.replaceAll('\n', ' ').replaceAll(' ', '\u00A0')}
@@ -277,11 +277,11 @@ export default function GraphToolbar() {
                               <div className="mt-2 w-full whitespace-pre-line pl-0 text-[10px] leading-tight text-slate-500">
                                 <div className="flex flex-wrap">
                                   {graph.promptTokens.map((token, i) => (
-                                    <Fragment key={token + '-' + i}>
+                                    <Fragment key={`${token}-${i}`}>
                                       <span className="mx-[1px] mb-1 rounded bg-slate-100 px-[2px] py-0.5 font-mono text-slate-700 group-hover:bg-sky-200 group-hover:text-sky-700 group-data-[highlighted]:bg-sky-200 group-data-[highlighted]:text-sky-700">
                                         {token.replaceAll(' ', '\u00A0')}
                                       </span>
-                                      {(token === '⏎' || token === '⏎⏎') && <div className="w-full"></div>}
+                                      {(token === '⏎' || token === '⏎⏎') && <div className="w-full" />}
                                     </Fragment>
                                   ))}
                                 </div>
