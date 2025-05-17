@@ -9,6 +9,7 @@ import {
   FilterGraphType,
   MODEL_DIGITS_IN_FEATURE_ID,
   MODEL_HAS_MEMICOS_DASHBOARDS,
+  MODEL_HAS_S3_DASHBOARDS,
   ModelToGraphMetadatasMap,
   convertAnthropicFeatureIdToMemicOSSourceSet,
   formatCLTGraphData,
@@ -499,7 +500,7 @@ export function GraphProvider({
           d.featureDetailNP = feature as NeuronWithPartialRelations;
         }
       });
-    } else {
+    } else if (MODEL_HAS_S3_DASHBOARDS.has(selectedModelId)) {
       // otherwise get the feature from the bucket
       const featureDetails = await fetchInBatches(
         formattedData.nodes,
@@ -517,6 +518,7 @@ export function GraphProvider({
         d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
       });
     }
+    // neither memicos nor s3 dashboards
 
     setIsLoadingGraphData(false);
     return formattedData;

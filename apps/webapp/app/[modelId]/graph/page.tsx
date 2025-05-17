@@ -59,11 +59,11 @@ export default async function Page({
 
   // now look up graphmetadatas in our database
   const graphMetadatas = await prisma.graphMetadata.findMany({
-    where: {
-      modelId: {
-        in: Object.keys(modelIdToGraphMetadatasMap),
-      },
-    },
+    // where: {
+    //   modelId: {
+    //     in: Object.keys(modelIdToGraphMetadatasMap),
+    //   },
+    // },
     include: {
       user: {
         select: {
