@@ -539,10 +539,6 @@ export default function LinkGraph() {
 
     const overallS = Math.max(20, d3.min(ctxCounts, (d) => d.minS || 20) || 20);
 
-    // console.log('overallS', overallS, 'ctxCounts', ctxCounts);
-    // console.log('num nodes', nodes.length);
-    // console.log('all nodes ids', nodes.map((d) => d.nodeId).sort());
-
     // Apply to nodes - mutating the nodes array to add position data
     const nestByResult = d3.nestBy(nodes, (d) => [d.ctx_idx, d.streamIdx || 0].join('-'));
     nestByResult.forEach((ctxLayer) => {
@@ -555,16 +551,15 @@ export default function LinkGraph() {
       // Sorting by logitPct stacks all the links
       const sortedLayer = d3.sort(ctxLayer, (d) => -(d.logitPct || 0));
       sortedLayer.forEach((d, i) => {
-        // if (d.feature_type === 'embedding') {
-        //   console.log('in sortedlayer', d.nodeId, d.ppClerp, ctxWidth, padR, i, s, ctxLayer.length);
-        // }
-        // These mutations are kept from the original code but marked explicitly
-        d.xOffset = d.feature_type === 'logit' ? ctxWidth - (padR / 2 + i * s) : ctxWidth - (padR / 2 + i * s);
+        if (d.feature_type === 'embedding') {
+          d.xOffset = c.x(d.ctx_idx + 1) - c.x(d.ctx_idx) - 12;
+        } else {
+          d.xOffset = ctxWidth - (padR / 2 + i * s);
+        }
         // eslint-disable-next-line
         d.yOffset = 0;
       });
     });
-    // console.log('nestByResult length', nestByResult.length);
 
     // Calculate positions for all nodes
     nodes.forEach((d) => {
@@ -575,10 +570,6 @@ export default function LinkGraph() {
 
       const xPos = c.x(d.ctx_idx) + (d.xOffset || 0);
 
-      // if (d.feature_type === 'embedding') {
-      //   console.log(d.nodeId, d.ppClerp);
-      //   console.log(xPos, d.xOffset, d.ctx_idx, d.streamIdx);
-      // }
       const yBand = c.y(effectiveStreamIdx);
       if (yBand === undefined) return;
 
