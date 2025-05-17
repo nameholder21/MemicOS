@@ -1068,7 +1068,7 @@ export default function Subgraph() {
           <div className="absolute h-full w-full" ref={divRef} />
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
-            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 bg-white/80 px-5 text-slate-700">
+            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/80 px-5 text-slate-700">
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
                 <strong>· Pin or Unpin a Node</strong>
