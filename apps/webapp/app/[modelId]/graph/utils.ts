@@ -189,6 +189,8 @@ export type CltVisState = {
   og_sg_pos?: string;
 
   clerps: string[][];
+
+  pruningThreshold?: number;
 };
 
 export const modelIdToModelDisplayName = new Map<string, string>([
@@ -241,6 +243,11 @@ export type CLTGraphInnerMetadata = {
   scan: string;
   prompt_tokens: string[];
   prompt: string;
+
+  // dynamic pruning - mntss/hanna
+  // default value for cltVisState.pruningThreshold
+  // filters out > node.influence values
+  node_threshold?: number;
 };
 
 export type CLTGraphQParams = {
@@ -319,6 +326,9 @@ export type CLTGraphNode = {
   textHeight?: number;
   tmpClickedSgSource?: CLTGraphLink;
   tmpClickedSgTarget?: CLTGraphLink;
+
+  // added for dynamic pruning
+  influence?: number;
 };
 
 export type CLTGraphLink = {

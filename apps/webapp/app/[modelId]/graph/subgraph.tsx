@@ -1076,7 +1076,7 @@ export default function Subgraph() {
               </div>
               <div>
                 <strong>· Group Nodes into a Supernode</strong>
-                {`: Hold 'g', then click multiple nodes in this subgraph. When you release, they'll be grouped into a "supernode".`}
+                {`: Hold 'g', then click multiple nodes in this subgraph to select them. When you release 'g', they'll be grouped into a "supernode".`}
               </div>
               <div>
                 <strong>· Ungroup Supernodes</strong>

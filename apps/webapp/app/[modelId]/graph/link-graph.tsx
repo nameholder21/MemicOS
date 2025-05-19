@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
 
 import { useGraphContext } from '@/components/provider/graph-provider';
+import { Input } from '@/components/shadcn/input';
+import { Label } from '@/components/shadcn/label';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
+import * as RadixSlider from '@radix-ui/react-slider';
 import { useCallback, useEffect, useRef } from 'react';
 import d3 from './d3-jetpack';
 import {
@@ -332,7 +335,20 @@ export default function LinkGraph() {
     d3.select(svgRef.current).selectAll('*').remove();
 
     const data = selectedGraph as CLTGraphExtended;
-    const { nodes } = data;
+    let { nodes } = data;
+
+    // if metadata shows node_threshold, then we do pruning
+    if (data.metadata.node_threshold !== undefined && data.metadata.node_threshold > 0) {
+      nodes = nodes.filter(
+        (d) =>
+          d.feature_type === 'embedding' ||
+          d.feature_type === 'logit' ||
+          (d.influence !== undefined &&
+            visState.pruningThreshold !== undefined &&
+            d.influence <= visState.pruningThreshold) ||
+          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)),
+      );
+    }
 
     // Set up the base SVG container
     const svgContainer = d3.select(svgRef.current);
@@ -358,7 +374,8 @@ export default function LinkGraph() {
     const svgBot = bottomContainer.append('g').attr('class', 'svg-bot');
 
     // Create canvas elements for different link layers
-    canvasRefs.current.forEach((_, i) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    canvasRefs.current.forEach((ref, i) => {
       const canvasId = `canvas-layer-${i}`;
 
       // Check if canvas already exists
@@ -909,6 +926,38 @@ export default function LinkGraph() {
           </div>
         </CustomTooltip>
       </div> */}
+      {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
+        <div className="absolute -top-1 left-1 z-10 flex items-center space-x-2">
+          <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
+            Filter Influence
+          </Label>
+          <Input
+            id="pruningThreshold"
+            name="pruningThreshold"
+            type="number"
+            value={visState.pruningThreshold?.toFixed(2)}
+            onChange={(e) => updateVisStateField('pruningThreshold', Number(e.target.value))}
+            className="h-5 w-11 rounded border-slate-300 bg-white px-2 py-0 text-center font-mono leading-none md:text-[10px]"
+            min={0}
+            max={1}
+            step={0.01}
+          />
+          <RadixSlider.Root
+            name="pruningThreshold"
+            value={[visState.pruningThreshold || selectedGraph?.metadata.node_threshold]}
+            onValueChange={(newVal: number[]) => updateVisStateField('pruningThreshold', newVal[0])}
+            min={0}
+            max={1}
+            step={0.01}
+            className="relative flex h-4 w-24 flex-1 touch-none select-none items-center"
+          >
+            <RadixSlider.Track className="relative h-1.5 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
+              <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+            </RadixSlider.Track>
+            <RadixSlider.Thumb className="block h-4 w-4 rounded-full border-2 border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
+          </RadixSlider.Root>
+        </div>
+      )}
       <div className="tooltip tooltip-hidden" />
       <svg className="absolute top-5 z-0 h-full w-full" ref={bottomRef} />
       <svg className="absolute top-5 z-0 h-full w-full" ref={middleRef} />

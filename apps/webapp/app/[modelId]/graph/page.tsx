@@ -21,6 +21,7 @@ export default async function Page({
     pinnedIds?: string;
     supernodes?: string;
     clerps?: string;
+    pruningThreshold?: string;
   };
 }) {
   const { modelId } = params;
@@ -111,6 +112,7 @@ export default async function Page({
       initialClickedId={searchParams.clickedId}
       initialSupernodes={parsedSupernodes}
       initialClerps={parsedClerps}
+      initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}
     >
       <GraphWrapper />
     </GraphProvider>
