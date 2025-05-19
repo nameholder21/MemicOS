@@ -15,6 +15,7 @@ import {
   featureTypeToText,
   hideTooltip,
   isHideLayer,
+  MODEL_HAS_MEMICOS_DASHBOARDS,
   showTooltip,
 } from './utils';
 
@@ -346,6 +347,19 @@ export default function LinkGraph() {
           (d.influence !== undefined &&
             visState.pruningThreshold !== undefined &&
             d.influence <= visState.pruningThreshold) ||
+          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)),
+      );
+    }
+
+    // if we have memicos dashboards, then we use density threshold
+    if (MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan)) {
+      nodes = nodes.filter(
+        (d) =>
+          d.feature_type === 'embedding' ||
+          d.feature_type === 'logit' ||
+          (d.featureDetailNP?.frac_nonzero !== undefined &&
+            visState.densityThreshold !== undefined &&
+            d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
           (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)),
       );
     }
@@ -926,38 +940,74 @@ export default function LinkGraph() {
           </div>
         </CustomTooltip>
       </div> */}
-      {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
-        <div className="absolute -top-1 left-1 z-10 flex items-center space-x-2">
-          <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
-            Filter Influence
-          </Label>
-          <Input
-            id="pruningThreshold"
-            name="pruningThreshold"
-            type="number"
-            value={visState.pruningThreshold?.toFixed(2)}
-            onChange={(e) => updateVisStateField('pruningThreshold', Number(e.target.value))}
-            className="h-5 w-11 rounded border-slate-300 bg-white px-2 py-0 text-center font-mono leading-none md:text-[10px]"
-            min={0}
-            max={1}
-            step={0.01}
-          />
-          <RadixSlider.Root
-            name="pruningThreshold"
-            value={[visState.pruningThreshold || selectedGraph?.metadata.node_threshold]}
-            onValueChange={(newVal: number[]) => updateVisStateField('pruningThreshold', newVal[0])}
-            min={0}
-            max={1}
-            step={0.01}
-            className="relative flex h-4 w-24 flex-1 touch-none select-none items-center"
-          >
-            <RadixSlider.Track className="relative h-1.5 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
-              <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
-            </RadixSlider.Track>
-            <RadixSlider.Thumb className="block h-4 w-4 rounded-full border-2 border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
-          </RadixSlider.Root>
-        </div>
-      )}
+
+      <div className="absolute -top-1 left-3 z-10 flex items-center space-x-7">
+        {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
+          <div className="flex flex-row items-center">
+            <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
+              Hide Influence &gt;
+            </Label>
+            <Input
+              id="pruningThreshold"
+              name="pruningThreshold"
+              type="number"
+              value={visState.pruningThreshold?.toFixed(2)}
+              onChange={(e) => updateVisStateField('pruningThreshold', Number(e.target.value))}
+              className="mx-0.5 mr-2 h-5 w-10 rounded border-slate-300 bg-white px-1 py-0 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+              min={0}
+              max={1}
+              step={0.01}
+            />
+            <RadixSlider.Root
+              name="pruningThreshold"
+              value={[visState.pruningThreshold || selectedGraph?.metadata.node_threshold]}
+              onValueChange={(newVal: number[]) => updateVisStateField('pruningThreshold', newVal[0])}
+              min={0.2}
+              max={1}
+              step={0.01}
+              className="relative flex h-4 w-16 flex-1 touch-none select-none items-center"
+            >
+              <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
+                <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+              </RadixSlider.Track>
+              <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
+            </RadixSlider.Root>
+          </div>
+        )}
+        {selectedGraph?.metadata.scan && MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan) && (
+          <div className="flex flex-row items-center">
+            <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
+              Hide Density &gt;
+            </Label>
+            <Input
+              id="densityThreshold"
+              name="densityThreshold"
+              type="number"
+              value={`${((visState.densityThreshold !== undefined ? visState.densityThreshold : 0.99) * 100).toFixed(0)}`}
+              onChange={(e) => updateVisStateField('densityThreshold', Number(e.target.value))}
+              className="ml-0.5 h-5 w-9 rounded border-slate-300 bg-white px-1 py-0 pr-3.5 text-right font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+              min={0}
+              max={1}
+              step={0.01}
+            />
+            <div className="-ml-[11px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
+            <RadixSlider.Root
+              name="densityThreshold"
+              value={[visState.densityThreshold !== undefined ? visState.densityThreshold : 0.99]}
+              onValueChange={(newVal: number[]) => updateVisStateField('densityThreshold', newVal[0])}
+              min={0}
+              max={0.99}
+              step={0.01}
+              className="relative flex h-4 w-16 flex-1 touch-none select-none items-center"
+            >
+              <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
+                <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+              </RadixSlider.Track>
+              <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
+            </RadixSlider.Root>
+          </div>
+        )}
+      </div>
       <div className="tooltip tooltip-hidden" />
       <svg className="absolute top-5 z-0 h-full w-full" ref={bottomRef} />
       <svg className="absolute top-5 z-0 h-full w-full" ref={middleRef} />

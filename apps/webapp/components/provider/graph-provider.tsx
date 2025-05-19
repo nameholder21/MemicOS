@@ -42,6 +42,7 @@ import {
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
 export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
+const DEFAULT_DENSITY_THRESHOLD = 0.99;
 
 // Define the context type
 type GraphContextType = {
@@ -128,6 +129,7 @@ export function GraphProvider({
   initialSupernodes,
   initialClerps,
   initialPruningThreshold,
+  initialDensityThreshold,
 }: {
   children: ReactNode;
   initialModelIdToMetadataGraphsMap?: ModelToGraphMetadatasMap;
@@ -138,6 +140,7 @@ export function GraphProvider({
   initialSupernodes?: string[][];
   initialClerps?: string[][];
   initialPruningThreshold?: number;
+  initialDensityThreshold?: number;
 }) {
   const router = useRouter();
   const session = useSession();
@@ -267,6 +270,7 @@ export function GraphProvider({
             : null,
         clerps: visState.clerps && visState.clerps.length > 0 ? JSON.stringify(visState.clerps) : null,
         pruningThreshold: visState.pruningThreshold?.toString() || null,
+        densityThreshold: visState.densityThreshold?.toString() || null,
       };
       updateUrlParams(newParams);
     }
@@ -368,6 +372,14 @@ export function GraphProvider({
 
         if (initialPruningThreshold) {
           visStateToSet.pruningThreshold = initialPruningThreshold;
+        }
+
+        if (MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph.metadata.scan)) {
+          if (initialDensityThreshold !== undefined) {
+            visStateToSet.densityThreshold = initialDensityThreshold;
+          } else {
+            visStateToSet.densityThreshold = DEFAULT_DENSITY_THRESHOLD;
+          }
         }
 
         hasAppliedInitialOverrides.current = true;

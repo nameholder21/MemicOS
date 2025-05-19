@@ -191,6 +191,9 @@ export type CltVisState = {
   clerps: string[][];
 
   pruningThreshold?: number;
+
+  // only for memicos dashboards
+  densityThreshold?: number;
 };
 
 export const modelIdToModelDisplayName = new Map<string, string>([
