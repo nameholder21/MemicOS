@@ -193,6 +193,8 @@ export function GraphProvider({
     isGridsnap: false,
     supernodes: initialSupernodes || [],
     clerps: initialClerps || [],
+
+    densityThreshold: 1,
   });
 
   const getOriginalClerpForNode = (node: CLTGraphNode) =>
@@ -317,6 +319,8 @@ export function GraphProvider({
         pruningThreshold: graph.metadata.node_threshold,
       };
     }
+
+    visStateToReturn.densityThreshold = 1;
 
     return visStateToReturn;
   }
