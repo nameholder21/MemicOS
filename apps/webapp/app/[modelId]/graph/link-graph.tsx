@@ -976,8 +976,10 @@ export default function LinkGraph() {
         )}
         {selectedGraph?.metadata.scan && MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan) && (
           <div className="flex flex-row items-center">
-            <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
-              Hide Density &gt;
+            <Label htmlFor="pruningThreshold" className="mr-1 text-center text-[9px] leading-none text-slate-600">
+              Filter Nodes by
+              <br />
+              Feature Density
             </Label>
             <Input
               id="densityThreshold"
@@ -985,7 +987,7 @@ export default function LinkGraph() {
               type="number"
               value={`${((visState.densityThreshold !== undefined ? visState.densityThreshold : 0.99) * 100).toFixed(0)}`}
               onChange={(e) => updateVisStateField('densityThreshold', Number(e.target.value))}
-              className="ml-0.5 h-5 w-10 rounded border-slate-300 bg-white px-1 py-0 pr-3.5 text-right font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+              className="ml-0.5 h-5 w-10 rounded border-slate-300 bg-white px-1 py-0 pr-3 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
               min={0}
               max={1}
               step={0.01}
