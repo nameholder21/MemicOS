@@ -477,7 +477,7 @@ export default function GenerateGraphModal() {
                           value={values[field.name as keyof FormValues]}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          className="h-7 w-20 border-slate-300 md:text-xs"
+                          className="h-7 w-20 border-slate-300 text-xs"
                           min={field.min}
                           max={field.max}
                           step={field.step}

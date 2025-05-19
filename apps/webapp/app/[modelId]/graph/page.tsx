@@ -22,6 +22,7 @@ export default async function Page({
     supernodes?: string;
     clerps?: string;
     pruningThreshold?: string;
+    densityThreshold?: string;
   };
 }) {
   const { modelId } = params;
@@ -113,6 +114,7 @@ export default async function Page({
       initialSupernodes={parsedSupernodes}
       initialClerps={parsedClerps}
       initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}
+      initialDensityThreshold={searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined}
     >
       <GraphWrapper />
     </GraphProvider>
