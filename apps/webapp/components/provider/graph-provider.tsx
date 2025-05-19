@@ -127,6 +127,7 @@ export function GraphProvider({
   initialClickedId,
   initialSupernodes,
   initialClerps,
+  initialPruningThreshold,
 }: {
   children: ReactNode;
   initialModelIdToMetadataGraphsMap?: ModelToGraphMetadatasMap;
@@ -136,6 +137,7 @@ export function GraphProvider({
   initialClickedId?: string;
   initialSupernodes?: string[][];
   initialClerps?: string[][];
+  initialPruningThreshold?: number;
 }) {
   const router = useRouter();
   const session = useSession();
@@ -264,6 +266,7 @@ export function GraphProvider({
             ? JSON.stringify(visState.subgraph.supernodes)
             : null,
         clerps: visState.clerps && visState.clerps.length > 0 ? JSON.stringify(visState.clerps) : null,
+        pruningThreshold: visState.pruningThreshold?.toString() || null,
       };
       updateUrlParams(newParams);
     }
@@ -307,6 +310,7 @@ export function GraphProvider({
           graph.qParams.clickedId && graph.nodes.some((d) => d.nodeId === graph.qParams.clickedId)
             ? graph.qParams.clickedId
             : null,
+        pruningThreshold: graph.metadata.node_threshold,
       };
     }
 
@@ -360,6 +364,10 @@ export function GraphProvider({
         // override clerps
         if (initialClerps) {
           visStateToSet.clerps = initialClerps;
+        }
+
+        if (initialPruningThreshold) {
+          visStateToSet.pruningThreshold = initialPruningThreshold;
         }
 
         hasAppliedInitialOverrides.current = true;
