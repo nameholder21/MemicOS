@@ -545,6 +545,7 @@ export default function GenerateGraphModal() {
                             setError(null);
                           }
                         }}
+                        disabled={isGenerating}
                         className="flex items-center justify-center gap-x-1.5"
                         title="Reset to defaults"
                       >

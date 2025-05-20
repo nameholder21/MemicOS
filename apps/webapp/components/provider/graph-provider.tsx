@@ -43,6 +43,7 @@ const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
 export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
 const DEFAULT_DENSITY_THRESHOLD = 0.99;
+const PREFERRED_EXPLANATION_TYPE_NAME = 'np_token-act-pair-logits';
 
 // Define the context type
 type GraphContextType = {
@@ -197,8 +198,20 @@ export function GraphProvider({
     densityThreshold: 1,
   });
 
-  const getOriginalClerpForNode = (node: CLTGraphNode) =>
-    node.featureDetailNP ? node.featureDetailNP.explanations?.[0]?.description : node.ppClerp;
+  const getOriginalClerpForNode = (node: CLTGraphNode) => {
+    if (node.featureDetailNP) {
+      // if any of the explanations.typeName === PREFERRED_EXPLANATION_TYPE_NAME, then use that one
+      const explanation = node.featureDetailNP.explanations?.find(
+        (e) => e.typeName === PREFERRED_EXPLANATION_TYPE_NAME,
+      );
+      if (explanation) {
+        return explanation.description;
+      }
+      // otherwise just return the first explanation
+      return node.featureDetailNP.explanations?.[0]?.description;
+    }
+    return node.ppClerp;
+  };
 
   const getOverrideClerpForNode = (node: CLTGraphNode) => {
     const defaultClerp = getOriginalClerpForNode(node);
