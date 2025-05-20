@@ -287,7 +287,7 @@ export default function GenerateGraphModal() {
           <Plus className="mr-1.5 h-4 w-4" /> New Graph
         </Button>
       </DialogTrigger>
-      <DialogContent className="cursor-default select-none bg-white text-slate-700 sm:max-w-2xl">
+      <DialogContent className="z-[10001] cursor-default select-none bg-white text-slate-700 sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Generate New Graph</DialogTitle>
         </DialogHeader>
@@ -333,10 +333,10 @@ export default function GenerateGraphModal() {
                           <div className="flex flex-wrap gap-x-1 gap-y-[3px]">
                             {tokenizedPrompt.tokenStrings.map((t, idx) => (
                               <span
-                                key={idx}
-                                className="mx-[1px] cursor-default rounded bg-slate-200 px-1 py-[1px] font-mono text-[10px] text-slate-700"
+                                key={`${t}-${idx}`}
+                                className="mx-0 rounded bg-slate-200 px-[3px] py-[1px] font-mono text-[10px] text-slate-700"
                               >
-                                {t === '\n' ? '\\n' : t.replace(/ /g, ' ')}
+                                {t.replaceAll(' ', '\u00A0')}
                               </span>
                             ))}
                           </div>
