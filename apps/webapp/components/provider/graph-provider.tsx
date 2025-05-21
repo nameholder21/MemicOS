@@ -81,6 +81,8 @@ type GraphContextType = {
   // getOverrideClerpForNode
   getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
 
+  getNodeSupernodeAndOverrideLabel: (node: CLTGraphNode) => string;
+
   // makeTooltipText
   makeTooltipText: (node: CLTGraphNode) => string;
 
@@ -222,8 +224,24 @@ export function GraphProvider({
     return defaultClerp;
   };
 
-  const makeTooltipText = (node: CLTGraphNode) =>
-    `${getOverrideClerpForNode(node)} | ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : `Layer ${node.layer}`}`;
+  const getNodeSupernodeLabel = (node: CLTGraphNode) => {
+    // look in visState.subgraph.supernodes array to check which array item includes this nodeid
+    const supernode = visState.subgraph?.supernodes.find(
+      (sn: string[]) => node.nodeId !== undefined && sn.includes(node.nodeId),
+    );
+    if (supernode) {
+      return `[${supernode.length > 0 ? supernode[0] : ''}] `;
+    }
+    return '';
+  };
+
+  const getNodeSupernodeAndOverrideLabel = (node: CLTGraphNode) =>
+    getNodeSupernodeLabel(node) + getOverrideClerpForNode(node);
+
+  const makeTooltipText = (node: CLTGraphNode) => {
+    const label = getNodeSupernodeAndOverrideLabel(node);
+    return `${label.length === 0 ? 'Unlabeled' : getOverrideClerpForNode(node)} | ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : `Layer ${node.layer}`}`;
+  };
 
   const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {
     if (session.data?.user?.id === graph.userId) {
@@ -649,6 +667,7 @@ export function GraphProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      getNodeSupernodeAndOverrideLabel,
       getOriginalClerpForNode,
       makeTooltipText,
       filterGraphsSetting,
@@ -673,6 +692,7 @@ export function GraphProvider({
       isEditingLabel,
       setIsEditingLabel,
       getOverrideClerpForNode,
+      getNodeSupernodeAndOverrideLabel,
       getOriginalClerpForNode,
       makeTooltipText,
       filterGraphsSetting,
