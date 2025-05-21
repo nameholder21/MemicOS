@@ -17,6 +17,7 @@ export default function GraphFeatureDetail() {
     updateVisStateField,
     getOriginalClerpForNode,
     getOverrideClerpForNode,
+    getNodeSupernodeAndOverrideLabel,
     setFullNPFeatureDetail,
   } = useGraphContext();
   const [node, setNode] = useState<CLTGraphNode | null>(null);
@@ -138,7 +139,7 @@ export default function GraphFeatureDetail() {
                 )}
               </div>
             ) : (
-              <div className="text-xs">{getOverrideClerpForNode(node)}</div>
+              <div className="text-xs">{getNodeSupernodeAndOverrideLabel(node)}</div>
             )}
           </div>
           <div className="flex flex-row gap-x-1">

@@ -11,7 +11,7 @@ function FeatureList({
   visState,
   updateVisStateField,
   isEditingLabel,
-  getOverrideClerpForNode,
+  getNodeSupernodeAndOverrideLabel,
 }: {
   title: string;
   nodes: CLTGraphNode[];
@@ -19,7 +19,7 @@ function FeatureList({
   visState: any;
   updateVisStateField: (field: keyof CltVisState, value: any) => void;
   isEditingLabel: boolean;
-  getOverrideClerpForNode: (node: CLTGraphNode) => string | undefined;
+  getNodeSupernodeAndOverrideLabel: (node: CLTGraphNode) => string;
 }) {
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
@@ -66,7 +66,7 @@ function FeatureList({
                 </g>
               </g>
             </svg>
-            <div className="flex-1 text-left leading-snug">{getOverrideClerpForNode(node)}</div>
+            <div className="flex-1 text-left leading-snug">{getNodeSupernodeAndOverrideLabel(node)}</div>
             {node[linkProp]?.tmpClickedCtxOffset !== undefined &&
               (node[linkProp]?.tmpClickedCtxOffset > 0 ? (
                 <div>→</div>
@@ -97,7 +97,7 @@ export default function GraphNodeConnections() {
     selectedGraph,
     updateVisStateField,
     isEditingLabel,
-    getOverrideClerpForNode,
+    getNodeSupernodeAndOverrideLabel,
     setFullNPFeatureDetail,
   } = useGraphContext();
 
@@ -127,7 +127,7 @@ export default function GraphNodeConnections() {
           <div className="flex flex-row items-center gap-x-2 text-xs font-medium text-slate-600">
             {!clickedNode?.featureDetailNP && <div className="">F#{clickedNode?.feature}</div>}
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
-            <div className="flex-1 leading-tight">{getOverrideClerpForNode(clickedNode)}</div>
+            <div className="flex-1 leading-tight">{getNodeSupernodeAndOverrideLabel(clickedNode)}</div>
             <GraphFeatureLink selectedGraph={selectedGraph} node={clickedNode} />
           </div>
         ) : (
@@ -145,7 +145,7 @@ export default function GraphNodeConnections() {
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
-              getOverrideClerpForNode={getOverrideClerpForNode}
+              getNodeSupernodeAndOverrideLabel={getNodeSupernodeAndOverrideLabel}
             />
             <FeatureList
               title="Output Features"
@@ -154,7 +154,7 @@ export default function GraphNodeConnections() {
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
-              getOverrideClerpForNode={getOverrideClerpForNode}
+              getNodeSupernodeAndOverrideLabel={getNodeSupernodeAndOverrideLabel}
             />
           </div>
         )}
