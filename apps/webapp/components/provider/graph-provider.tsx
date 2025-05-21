@@ -43,7 +43,7 @@ const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
 export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
 const DEFAULT_DENSITY_THRESHOLD = 0.99;
-const PREFERRED_EXPLANATION_TYPE_NAME = 'np_token-act-pair-logits';
+const PREFERRED_EXPLANATION_TYPE_NAME = 'np_max-act-logits';
 
 // Define the context type
 type GraphContextType = {
