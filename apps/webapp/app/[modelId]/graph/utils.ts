@@ -25,7 +25,7 @@ export const MODEL_HAS_S3_DASHBOARDS = new Set([
 
 // if neither, then no dashboards yet for them
 
-export const MODEL_DO_NOT_FILTER_NODES = new Set(['gelu-4l-x128k64-v0']);
+export const MODEL_DO_NOT_FILTER_NODES = new Set(['gelu-4l-x128k64-v0', 'gpt2-small']);
 
 // TODO: this should be by model and source, not just model
 // we use this to figure out the scheme for the feature IDs - how many digits is the layer vs feature id
@@ -204,6 +204,7 @@ export const modelIdToModelDisplayName = new Map<string, string>([
   ['gemma-2-2b', 'Gemma 2 2B'],
   ['llama-3-131k-relu', 'Llama 3.2 1B - Relu'],
   ['gelu-4l-x128k64-v0', 'Gelu 4L'],
+  ['gpt2-small', 'GPT2-Small'],
   // ['llama-hf-3-nobos', 'Llama 3.2 1B - NoBos'],
   // ['llama-hf-3', 'Llama 3.2 1B - Other'],
 ]);
@@ -216,6 +217,7 @@ export const supportedGraphModels = new Set([
   'gemma-2-2b',
   'llama-3-131k-relu',
   'gelu-4l-x128k64-v0',
+  'gpt2-small',
 ]);
 
 export const anthropicModels = [
@@ -239,6 +241,7 @@ export const cltModelToNumLayers = {
   'gemma-2-2b': 26,
   'llama-3-131k-relu': 16,
   'gelu-4l-x128k64-v0': 4,
+  'gpt2-small': 12,
 };
 
 export type CLTGraphInnerMetadata = {
@@ -368,7 +371,7 @@ export enum FilterGraphType {
 }
 
 export function isHideLayer(scan: string) {
-  return scan === scanSlugToName.h35 || scan === scanSlugToName.moc;
+  return scan === scanSlugToName.h35 || scan === scanSlugToName.moc || scan === 'gpt2-small';
 }
 
 // ========= util-cg.js formatData equivalent =========
