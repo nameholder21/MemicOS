@@ -235,8 +235,15 @@ export function GraphProvider({
     return '';
   };
 
-  const getNodeSupernodeAndOverrideLabel = (node: CLTGraphNode) =>
-    getNodeSupernodeLabel(node) + getOverrideClerpForNode(node);
+  const getNodeSupernodeAndOverrideLabel = (node: CLTGraphNode) => {
+    const supernodeLabel = getNodeSupernodeLabel(node);
+    const overrideClerp = getOverrideClerpForNode(node);
+    // some bug where the supernode label occurs twice
+    if (supernodeLabel.length > 0 && overrideClerp !== undefined && overrideClerp?.startsWith(supernodeLabel)) {
+      return overrideClerp;
+    }
+    return supernodeLabel + overrideClerp;
+  };
 
   const makeTooltipText = (node: CLTGraphNode) => {
     const label = getNodeSupernodeAndOverrideLabel(node);
