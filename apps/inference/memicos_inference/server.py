@@ -34,9 +34,7 @@ from memicos_inference.endpoints.steer.completion import (
 from memicos_inference.endpoints.steer.completion_chat import (
     router as steer_completion_chat_router,
 )
-from memicos_inference.endpoints.tokenize import (
-    router as tokenize_router,
-)
+from memicos_inference.endpoints.tokenize import router as tokenize_router
 from memicos_inference.endpoints.util.sae_topk_by_decoder_cossim import (
     router as sae_topk_by_decoder_cossim_router,
 )
@@ -251,6 +249,7 @@ async def check_model(
             if "model" in body and (
                 body["model"] != config.MODEL_ID
                 and body["model"] != config.OVERRIDE_MODEL_ID
+                and body["model"] != config.CUSTOM_HF_MODEL_ID
             ):
                 logger.error("Unsupported model: %s", body["model"])
                 return JSONResponse(
