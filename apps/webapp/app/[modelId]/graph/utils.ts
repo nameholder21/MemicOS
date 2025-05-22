@@ -25,7 +25,7 @@ export const MODEL_HAS_S3_DASHBOARDS = new Set([
 
 // if neither, then no dashboards yet for them
 
-export const MODEL_DO_NOT_FILTER_NODES = new Set(['gelu-4l-x128k64-v0', 'gpt2-small']);
+export const MODEL_DO_NOT_FILTER_NODES = new Set(['gelu-4l-x128k64-v0']);
 
 // TODO: this should be by model and source, not just model
 // we use this to figure out the scheme for the feature IDs - how many digits is the layer vs feature id
