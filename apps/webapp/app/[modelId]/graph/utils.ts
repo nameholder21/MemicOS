@@ -98,13 +98,6 @@ export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {
 }
 
 export type AnthropicGraphMetadata = {
-  // // memicos-specific
-  // baseUrl: string | undefined;
-  // filterGraphType: FilterGraphType | undefined;
-  // userId: string | undefined;
-  // userName: string | undefined;
-
-  // // common with others
   slug: string;
   scan: string;
   prompt_tokens: string[];
@@ -335,6 +328,9 @@ export type CLTGraphNode = {
 
   // added for dynamic pruning
   influence?: number;
+
+  // for fellows graphs only
+  activation?: number;
 };
 
 export type CLTGraphLink = {
