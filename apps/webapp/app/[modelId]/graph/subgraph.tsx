@@ -1095,9 +1095,15 @@ export default function Subgraph() {
           {/* Supernode Grouping Mode Label */}
           {!showSubgraphHelp &&
             visState.subgraph?.activeGrouping.isActive &&
+            visState.subgraph?.supernodes.length === 0 &&
             (visState.pinnedIds.length > 1 ? (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-sky-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-                Grouping Mode: Click nodes below to select them, release {`'g'`} to group. Click ✕ to ungroup.
+                {visState.subgraph.activeGrouping.selectedNodeIds.size === 0 &&
+                  `Grouping Mode: Click nodes below to select them, release 'g' to group. Click ✕ to ungroup.`}
+                {visState.subgraph.activeGrouping.selectedNodeIds.size === 1 &&
+                  `Grouping Mode: Nice! One node selected. Keep holding 'g' and click another node.`}
+                {visState.subgraph.activeGrouping.selectedNodeIds.size === 2 &&
+                  `Grouping Mode: Neat! Two nodes selected. To group them, release 'g'. You can also pin and select more nodes.`}
               </div>
             ) : (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-amber-600 px-2 py-1 text-center text-[11px] font-medium text-white">
@@ -1107,10 +1113,23 @@ export default function Subgraph() {
               </div>
             ))}
 
+          {!visState.subgraph?.activeGrouping.isActive &&
+            visState.subgraph?.supernodes.length === 1 &&
+            visState.subgraph?.supernodes.every((sn) => sn[0] === 'supernode') && (
+              <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-sky-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+                {`Supernode created! Click the default 'supernode' label to rename it.`}
+              </div>
+            )}
+
           {/* Pin/Unpin Mode Label */}
-          {!showSubgraphHelp && isMetaKeyHeld && !visState.subgraph?.activeGrouping.isActive && (
+          {isMetaKeyHeld && !visState.subgraph?.activeGrouping.isActive && visState.pinnedIds.length < 3 && (
             <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-              Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.
+              {visState.pinnedIds.length === 0 &&
+                'Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.'}
+              {visState.pinnedIds.length === 1 &&
+                'Pinning Mode: Nice! One node pinned. Pin one more to start grouping.'}
+              {visState.pinnedIds.length === 2 &&
+                `Pinning Mode: Great! Two nodes pinned. Release command/control and hold 'g' to start grouping.`}
             </div>
           )}
 

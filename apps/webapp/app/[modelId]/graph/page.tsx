@@ -47,8 +47,7 @@ export default async function Page({
 
       // eslint-disable-next-line
       Object.keys(modelIdToGraphMetadata)
-        // we only care about the modelId here
-        .filter((m) => supportedGraphModels.has(m) && m.toLowerCase() === modelId)
+        .filter((m) => supportedGraphModels.has(m))
         .forEach((m) => {
           // if we don't have the modelId in the map, add it and all its graphs
           if (!modelIdToGraphMetadatasMap[m]) {
