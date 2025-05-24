@@ -242,6 +242,9 @@ export function GraphProvider({
     if (supernodeLabel.length > 0 && overrideClerp !== undefined && overrideClerp?.startsWith(supernodeLabel)) {
       return overrideClerp;
     }
+    if (supernodeLabel === overrideClerp) {
+      return supernodeLabel;
+    }
     return supernodeLabel + overrideClerp;
   };
 
