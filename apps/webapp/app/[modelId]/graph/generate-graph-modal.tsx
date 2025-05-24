@@ -189,11 +189,6 @@ export default function GenerateGraphModal() {
   }, [isGenerating, estimatedTime]);
 
   const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-    if (!session.data?.user) {
-      setSignInModalOpen(true);
-      setSubmitting(false);
-      return;
-    }
     setIsGenerating(true);
     setError(null);
     setGenerationResult(null);
@@ -206,8 +201,10 @@ export default function GenerateGraphModal() {
       });
 
       const responseData = await response.json();
-
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Users are limited to 10 graphs per hour - please try again later.');
+        }
         throw new Error(responseData.message || responseData.error || 'Failed to generate graph.');
       }
 
@@ -234,22 +231,6 @@ export default function GenerateGraphModal() {
       setSubmitting(false);
     }
   };
-
-  if (!session.data?.user && !isOpen) {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className="flex h-12 items-center justify-center border-slate-300"
-        onClick={() => {
-          setSignInModalOpen(true);
-        }}
-        title="Generate Graph (Login Required)"
-      >
-        <Plus className="h-4 w-4" />
-      </Button>
-    );
-  }
 
   const handleOpenChange = (open: boolean) => {
     if (!open && isGenerating) {
@@ -291,6 +272,22 @@ export default function GenerateGraphModal() {
         <DialogHeader>
           <DialogTitle>Generate New Graph</DialogTitle>
         </DialogHeader>
+        {!session?.data?.user && (
+          <p className="mt-4 rounded-md bg-amber-100 p-3 text-sm text-amber-700">
+            Warning:{' '}
+            {`You aren't signed in, so you'll need to manually keep track of any graphs you generate. To automatically save graphs to your account, `}
+            <span
+              onClick={() => {
+                setSignInModalOpen(true);
+                setIsOpen(false);
+              }}
+              className="cursor-pointer font-medium text-sky-800 underline"
+            >
+              sign up with one click
+            </span>
+            .
+          </p>
+        )}
         {!generationResult ? (
           <Formik
             innerRef={formikRef}
@@ -317,6 +314,7 @@ export default function GenerateGraphModal() {
                       value={values.prompt}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      disabled={isGenerating}
                       placeholder="Enter the prompt to visualize..."
                       className="mt-1 w-full resize-none rounded-md border border-slate-300 p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500"
                       maxLength={GRAPH_MAX_PROMPT_LENGTH_CHARS}
@@ -359,6 +357,7 @@ export default function GenerateGraphModal() {
                       <RadixSelect.Root
                         value={values.modelId}
                         onValueChange={(value: string) => setFieldValue('modelId', value)}
+                        disabled={isGenerating}
                       >
                         <RadixSelect.Trigger
                           id="modelId"
@@ -397,7 +396,7 @@ export default function GenerateGraphModal() {
                     </div>
                     <div className="flex-1">
                       <Label htmlFor="slug" className="text-xs text-slate-600">
-                        Slug / Identifier
+                        Name Your Graph (Slug/ID)
                       </Label>
                       <Input
                         id="slug"
@@ -408,6 +407,7 @@ export default function GenerateGraphModal() {
                           setFieldValue('slug', val);
                         }}
                         onBlur={handleBlur}
+                        disabled={isGenerating}
                         placeholder="my-graph"
                         className="mt-1 w-full border-slate-300 text-xs placeholder-slate-400"
                         maxLength={50}
@@ -423,6 +423,7 @@ export default function GenerateGraphModal() {
                         name="maxNLogits"
                         type="number"
                         value={values.maxNLogits}
+                        disabled={isGenerating}
                         onChange={handleChange}
                         onBlur={handleBlur}
                         className="mt-1 w-20 border-slate-300 text-xs"
@@ -477,6 +478,7 @@ export default function GenerateGraphModal() {
                           value={values[field.name as keyof FormValues]}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          disabled={isGenerating}
                           className="h-7 w-20 border-slate-300 text-xs"
                           min={field.min}
                           max={field.max}
@@ -488,6 +490,7 @@ export default function GenerateGraphModal() {
                           onValueChange={(newVal: number[]) => setFieldValue(field.name, newVal[0])}
                           min={field.min}
                           max={field.max}
+                          disabled={isGenerating}
                           step={field.step}
                           className="relative flex h-4 w-full flex-1 touch-none select-none items-center"
                         >

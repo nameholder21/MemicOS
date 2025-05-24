@@ -14,6 +14,7 @@ const endpointToRateLimitPerWindow = [
   { endpoint: '/api/steer', limit: 300 },
   { endpoint: '/api/search-topk-by-token', limit: 500 },
   { endpoint: '/api/search-all', limit: 1600 },
+  { endpoint: '/api/graph/generate', limit: 10 },
 ];
 
 const rateLimiters: { endpoint: string; limiter: Ratelimit }[] = [];

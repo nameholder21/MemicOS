@@ -2,17 +2,18 @@ import { CLTGraph, makeGraphPublicAccessGraphUrl, NP_GRAPH_BUCKET } from '@/app/
 import { prisma } from '@/lib/db';
 import {
   generateGraph,
+  GRAPH_ANONYMOUS_USER_ID,
   GRAPH_MAX_TOKENS,
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
 } from '@/lib/utils/graph';
 import { tokenizeText } from '@/lib/utils/inference';
-import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
+import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import * as yup from 'yup';
 
-export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
+export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
   try {
     let body = '';
     try {
@@ -50,8 +51,8 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
 
     if (existingGraphMetadata) {
       return NextResponse.json({
-        error: 'Model + Slug Name Exists',
-        message: `The model ${validatedData.modelId} already has a graph with slug/id ${validatedData.slug}. Please choose a different name.`,
+        error: 'Model + Slug/ID Exists',
+        message: `The model ${validatedData.modelId} already has a graph with slug/id ${validatedData.slug}. Please choose a different slug/ID.`,
       });
     }
 
@@ -75,8 +76,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     }
 
     // once we have the data, upload it to S3
-
-    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${request.user.id}/${validatedData.slug}.json`;
+    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${request.user?.id || GRAPH_ANONYMOUS_USER_ID}/${validatedData.slug}.json`;
 
     const s3Client = new S3Client({
       region: process.env.AWS_REGION || 'us-east-1',
@@ -102,23 +102,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
 
     const graph = data as CLTGraph;
 
-    // if exists, return error (only if it's not the same user)
-    const existingGraph = await prisma.graphMetadata.findUnique({
-      where: {
-        modelId_slug: {
-          modelId: graph.metadata.scan,
-          slug: graph.metadata.slug,
-        },
-      },
-    });
-    if (existingGraph && existingGraph.userId !== request.user.id) {
-      return NextResponse.json(
-        { error: 'This model already has this slug. Please use a different slug.' },
-        { status: 400 },
-      );
-    }
-
-    // graph is valid, save it to the database
+    // save it to the database
     await prisma.graphMetadata.upsert({
       where: {
         modelId_slug: {
@@ -127,7 +111,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
         },
       },
       update: {
-        userId: request.user.id,
+        userId: request.user?.id ? request.user?.id : null,
         modelId: graph.metadata.scan,
         slug: graph.metadata.slug,
         titlePrefix: '',
@@ -137,7 +121,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
         isFeatured: false,
       },
       create: {
-        userId: request.user.id,
+        userId: request.user?.id ? request.user?.id : null,
         modelId: graph.metadata.scan,
         slug: graph.metadata.slug,
         titlePrefix: '',
@@ -164,9 +148,8 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     if (error instanceof Error && error.message.indexOf('503') > -1) {
       return NextResponse.json(
         {
-          error: 'GPU Busy',
-          message:
-            'Someone else is currently running a graph generation and taking up the GPU. Please try again in a minute.',
+          error: 'GPUs Busy',
+          message: 'Sorry, all GPUs are currently busy. Please try again in a minute.',
         },
         { status: 503 },
       );

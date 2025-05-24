@@ -2,6 +2,7 @@ import { FilterGraphType, getGraphBaseUrlToName } from '@/app/[modelId]/graph/ut
 import { useGlobalContext } from '@/components/provider/global-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
+import { GRAPH_ANONYMOUS_USER_ID } from '@/lib/utils/graph';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
@@ -11,7 +12,6 @@ import {
   CopyIcon,
   DownloadIcon,
   ExternalLinkIcon,
-  Plus,
   Trash,
   UploadCloud,
 } from 'lucide-react';
@@ -202,7 +202,7 @@ export default function GraphToolbar() {
                       <div className="text-[9px] font-normal text-slate-400">
                         {selectedMetadataGraph.user?.name
                           ? selectedMetadataGraph.user?.name
-                          : getGraphBaseUrlToName(selectedMetadataGraph.url)}
+                          : getGraphBaseUrlToName(selectedMetadataGraph.url) || GRAPH_ANONYMOUS_USER_ID}
                       </div>
                     </div>
                     <div className="text-overflow-ellipsis whitespace-nowrap text-[10px] font-normal leading-none text-slate-500">
@@ -269,7 +269,9 @@ export default function GraphToolbar() {
                                 {!isMyGraph && (
                                   <div className="mr-0 flex flex-row items-center gap-x-2">
                                     <div className="text-[9px] font-normal text-slate-400">
-                                      {graph.user?.name ? graph.user?.name : getGraphBaseUrlToName(graph.url)}
+                                      {graph.user?.name
+                                        ? graph.user?.name
+                                        : getGraphBaseUrlToName(graph.url) || GRAPH_ANONYMOUS_USER_ID}
                                     </div>
                                   </div>
                                 )}
@@ -398,22 +400,8 @@ export default function GraphToolbar() {
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Tools</div>
           <div className="flex flex-row gap-x-2">
-            {session.data?.user ? (
-              <GenerateGraphModal />
-            ) : (
-              <Button
-                variant="outline"
-                title="Generate Graph"
-                aria-label="Generate Graph"
-                onClick={() => {
-                  setSignInModalOpen(true);
-                }}
-                size="sm"
-                className="flex h-12 items-center justify-center whitespace-nowrap border-emerald-500 bg-emerald-50 text-xs font-medium leading-none text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700"
-              >
-                <Plus className="mr-1.5 h-4 w-4" /> New Graph
-              </Button>
-            )}
+            <GenerateGraphModal />
+
             {session.data?.user ? (
               <UploadGraphModal />
             ) : (

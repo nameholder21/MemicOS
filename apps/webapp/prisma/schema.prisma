@@ -143,8 +143,8 @@ model GraphMetadata {
   // following are only ours
   isFeatured Boolean @default(false)
   url    String  // full url of where the json file is stored
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

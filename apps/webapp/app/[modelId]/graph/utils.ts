@@ -86,7 +86,7 @@ export function getGraphBaseUrlToName(url: string) {
   if (key) {
     return GRAPH_BASE_URL_TO_NAME[key as keyof typeof GRAPH_BASE_URL_TO_NAME];
   }
-  return '';
+  return null;
 }
 
 export function makeGraphPublicAccessGraphUri(modelId: string, slug: string) {
