@@ -1,15 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 
-import { prisma } from '@/lib/db';
 import { importConfigFromS3, importJsonlString } from '@/lib/db/import';
 import { IS_LOCALHOST } from '@/lib/env';
-import {
-  DATASET_BASE_PATH,
-  downloadAndDecompressFile,
-  downloadFileJsonlParsedLines,
-  getFilesInPath,
-} from '@/lib/utils/s3';
+import { DATASET_BASE_PATH, downloadAndDecompressFile, getFilesInPath } from '@/lib/utils/s3';
 import { getAuthedAdminUser, RequestAuthedAdminUser, RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 
@@ -168,7 +162,7 @@ export const GET = withOptionalUser(async (request: RequestOptionalUser) => {
         }
 
         /* EXPLANATIONS */
-        const explanationsPaths = await getFilesInPath(`${path}/explanations`, '.jsonl.gz');
+        const explanationsPaths = await getFilesInPath(`${path}/explanations/`, '.jsonl.gz');
         for (const [index, explanationsPath] of explanationsPaths.entries()) {
           enqueueProgress(controller, index / explanationsPaths.length, `(3 of 4) Importing Explanations...`);
           console.log('Importing explanations from', explanationsPath);
