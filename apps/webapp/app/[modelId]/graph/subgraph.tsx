@@ -5,7 +5,7 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check, HelpCircleIcon, Trash2, XIcon } from 'lucide-react';
+import { Check, HelpCircleIcon, Share2, Trash2, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
@@ -81,6 +81,7 @@ export default function Subgraph() {
     getOverrideClerpForNode,
     makeTooltipText,
     resetSelectedGraphToDefaultVisState,
+    setIsCopyModalOpen,
   } = useGraphContext();
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
@@ -1068,7 +1069,7 @@ export default function Subgraph() {
           <div className="absolute h-full w-full" ref={divRef} />
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
-            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/80 px-5 text-slate-700">
+            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm">
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
                 <strong>· Pin or Unpin a Node</strong>
@@ -1085,8 +1086,9 @@ export default function Subgraph() {
               <div>
                 <strong>· Label a Supernode</strong>: Click the label under a supernode to edit its name.
               </div>
-              <div>
-                <strong>· Share the Subgraph</strong>: Copy the URL, or click the Copy button in the top right toolbar.
+              <div className="flex flex-row flex-wrap items-center">
+                <strong>· Share</strong>: To share this graph, subgraph, and your custom labels, click{' '}
+                <Share2 className="mx-1 ml-2 h-4 w-4" /> Share in the top right.
               </div>
             </div>
           )}
@@ -1111,9 +1113,22 @@ export default function Subgraph() {
           <Button
             variant="outline"
             size="sm"
+            title="Copy Graph + Subgraph + Custom Labels to Clipboard"
+            aria-label="Copy Graph + Subgraph + Custom Labels to Clipboard"
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-red-100 hover:bg-slate-200 hover:text-slate-600`}
+            onClick={() => {
+              setIsCopyModalOpen(true);
+            }}
+            disabled={visState.pinnedIds.length === 0}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             title="Reset Graph to Defaults"
             aria-label="Reset Graph to Defaults"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} bottom-3 right-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
             onClick={() => {
               // eslint-disable-next-line
               if (confirm('Are you sure you want to reset the graph to its default state?')) {
