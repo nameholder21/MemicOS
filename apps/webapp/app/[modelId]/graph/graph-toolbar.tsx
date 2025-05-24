@@ -161,17 +161,17 @@ export default function GraphToolbar() {
             <ToggleGroup.Item
               value={FilterGraphType.Mine}
               aria-label="Shows only your uploaded graphs."
-              className="w-[86px] border-r border-sky-600 px-2.5 text-xs text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
+              className="w-[86px] rounded-r border-sky-600 px-2.5 text-xs text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
             >
               Mine
             </ToggleGroup.Item>
-            <ToggleGroup.Item
+            {/* <ToggleGroup.Item
               aria-label="Shows all graphs, including other user uploaded graphs."
               value={FilterGraphType.Community}
               className="w-[86px] rounded-r border-sky-600 px-2.5 text-xs text-slate-400 data-[state=on]:bg-sky-100 data-[state=on]:text-sky-700 data-[state=off]:hover:bg-slate-100"
             >
               Community
-            </ToggleGroup.Item>
+            </ToggleGroup.Item> */}
           </ToggleGroup.Root>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
@@ -369,7 +369,7 @@ export default function GraphToolbar() {
                               .map((g) => renderGraphItem(g, session.data?.user?.id === g.userId))}
                           </Select.Group>
                         )}
-                        {filterGraphsSetting.includes(FilterGraphType.Community) && communityGraphs.length > 0 && (
+                        {/* {filterGraphsSetting.includes(FilterGraphType.Community) && communityGraphs.length > 0 && (
                           <Select.Group className="divide-y divide-slate-200">
                             <Select.Label className="sticky top-0 z-10 border-b border-t border-slate-100 bg-slate-50 py-2 pl-4 pr-6 pt-2.5 text-center text-xs font-bold text-slate-500">
                               Community-Submitted Graphs
@@ -378,7 +378,7 @@ export default function GraphToolbar() {
                               .sort((a, b) => a.slug.localeCompare(b.slug))
                               .map((g) => renderGraphItem(g, session.data?.user?.id === g.userId))}
                           </Select.Group>
-                        )}
+                        )} */}
                         {graphsDisplayedCount === 0 && (
                           <div className="relative w-full cursor-default select-none px-5 py-3 text-center text-sm text-slate-400">
                             No graphs matched your filters. Include more filters on the left.
