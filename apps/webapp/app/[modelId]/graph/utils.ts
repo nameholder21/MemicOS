@@ -6,7 +6,7 @@ import d3 from './d3-jetpack';
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
-export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 200 * 1024 * 1024;
+export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 50 * 1024 * 1024;
 
 // ============ MemicOS Specific =============
 
@@ -498,23 +498,25 @@ export function formatCLTGraphData(data: CLTGraph, logitDiff: string | null): CL
 
   // delete features that occur in than 2/3 of tokens
   // TODO: more principled way of filtering them out — maybe by feature density?
-  const deletedFeatures: CLTGraphNode[][] = [];
-  const byFeatureId = d3.nestBy(nodes, (d) => d.featureId || '');
-  byFeatureId.forEach((feature) => {
-    if (feature.length > (metadata.prompt_tokens.length * 2) / 3) {
-      deletedFeatures.push(feature);
-      feature.forEach((d) => {
-        if (d.nodeId) delete idToNode[d.nodeId];
-        if (d.node_id) delete pyNodeIdToNode[d.node_id];
-      });
-    }
-  });
-  //   if (deletedFeatures.length) console.log({ deletedFeatures });
 
   // SPECIAL CASE: for eleuther graphs don't do the filtering out
   if (!MODEL_DO_NOT_FILTER_NODES.has(metadata.scan)) {
+    const deletedFeatures: CLTGraphNode[][] = [];
+    const byFeatureId = d3.nestBy(nodes, (d) => d.featureId || '');
+    byFeatureId.forEach((feature) => {
+      if (feature.length > (metadata.prompt_tokens.length * 2) / 3) {
+        deletedFeatures.push(feature);
+        feature.forEach((d) => {
+          if (d.nodeId) delete idToNode[d.nodeId];
+          if (d.node_id) delete pyNodeIdToNode[d.node_id];
+        });
+      }
+    });
+    //   if (deletedFeatures.length) console.log({ deletedFeatures });
+
     nodes = nodes.filter((d) => (d.nodeId ? idToNode[d.nodeId] : false));
   }
+
   nodes = d3.sort(nodes, (d) => +d.layer);
 
   links = links.filter((d) => pyNodeIdToNode[d.source] && pyNodeIdToNode[d.target]);
