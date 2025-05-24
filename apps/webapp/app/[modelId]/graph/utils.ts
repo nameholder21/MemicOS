@@ -90,7 +90,7 @@ export function getGraphBaseUrlToName(url: string) {
 }
 
 export function makeGraphPublicAccessGraphUri(modelId: string, slug: string) {
-  return `/${modelId}/graph?model=${modelId}&slug=${slug}`;
+  return `/${modelId}/graph?slug=${slug}`;
 }
 
 export function makeGraphPublicAccessGraphUrl(modelId: string, slug: string) {
