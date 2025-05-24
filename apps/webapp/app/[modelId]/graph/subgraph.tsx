@@ -1093,8 +1093,9 @@ export default function Subgraph() {
           <div className="absolute h-full w-full" ref={divRef} />
 
           {/* Supernode Grouping Mode Label */}
-          {!showSubgraphHelp && visState.subgraph?.activeGrouping.isActive ? (
-            visState.pinnedIds.length > 1 ? (
+          {!showSubgraphHelp &&
+            visState.subgraph?.activeGrouping.isActive &&
+            (visState.pinnedIds.length > 1 ? (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-sky-600 px-2 py-1 text-center text-[11px] font-medium text-white">
                 Grouping Mode: Click nodes below to select them, release {`'g'`} to group. Click ✕ to ungroup.
               </div>
@@ -1104,15 +1105,12 @@ export default function Subgraph() {
                 <br />
                 Pin nodes by holding command/control + clicking a node in the link graph above.
               </div>
-            )
-          ) : (
-            <></>
-          )}
+            ))}
 
           {/* Pin/Unpin Mode Label */}
           {!showSubgraphHelp && isMetaKeyHeld && !visState.subgraph?.activeGrouping.isActive && (
             <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-              Pin/Unpin Mode: Click nodes in the link graph above or in the subgraph below.
+              Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.
             </div>
           )}
 
