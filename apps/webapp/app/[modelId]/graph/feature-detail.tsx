@@ -204,6 +204,7 @@ export default function GraphFeatureDetail() {
               forceMiniStats
               key={`${node.featureDetailNP.index}-${node.featureDetailNP.activations?.length || 0}`}
               initialNeuron={node.featureDetailNP}
+              activationMarkerValue={node.activation}
               embed
             />
           </div>

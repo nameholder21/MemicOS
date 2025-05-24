@@ -35,6 +35,7 @@ export default function FeatureDashboard({
   defaultTestText,
   embedExplanation = true,
   forceMiniStats = false,
+  activationMarkerValue,
 }: {
   initialNeuron?: NeuronWithPartialRelations | undefined;
   embed?: boolean;
@@ -43,6 +44,7 @@ export default function FeatureDashboard({
   defaultTestText?: string;
   embedExplanation?: boolean;
   forceMiniStats?: boolean;
+  activationMarkerValue?: number;
 }) {
   const [currentNeuron, setCurrentNeuron] = useState<NeuronWithPartialRelations | undefined>(initialNeuron);
   const { getReleaseForSourceSet } = useGlobalContext();
@@ -273,6 +275,7 @@ export default function FeatureDashboard({
                     currentNeuron={currentNeuron}
                     embed={embed}
                     embedPlots={embedPlots}
+                    activationMarkerValue={activationMarkerValue}
                     forceMiniStats={forceMiniStats}
                   />
                 </div>
