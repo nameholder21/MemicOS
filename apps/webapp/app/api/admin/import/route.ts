@@ -1,9 +1,15 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 
+import { prisma } from '@/lib/db';
 import { importConfigFromS3, importJsonlString } from '@/lib/db/import';
 import { IS_LOCALHOST } from '@/lib/env';
-import { DATASET_BASE_PATH, downloadAndDecompressFile, getFilesInPath } from '@/lib/utils/s3';
+import {
+  DATASET_BASE_PATH,
+  downloadAndDecompressFile,
+  downloadFileJsonlParsedLines,
+  getFilesInPath,
+} from '@/lib/utils/s3';
 import { getAuthedAdminUser, RequestAuthedAdminUser, RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 
