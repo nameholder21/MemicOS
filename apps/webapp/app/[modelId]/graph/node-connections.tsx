@@ -2,12 +2,13 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, CltVisState, featureTypeToText } from './utils';
+import { CLTGraphNode, CltVisState, featureTypeToText, MODEL_HAS_MEMICOS_DASHBOARDS } from './utils';
 
 function FeatureList({
   title,
   nodes,
   linkType,
+  hasNPDashboards,
   visState,
   updateVisStateField,
   isEditingLabel,
@@ -16,6 +17,7 @@ function FeatureList({
   title: string;
   nodes: CLTGraphNode[];
   linkType: 'source' | 'target';
+  hasNPDashboards: boolean;
   visState: any;
   updateVisStateField: (field: keyof CltVisState, value: any) => void;
   isEditingLabel: boolean;
@@ -24,11 +26,38 @@ function FeatureList({
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
 
   return (
-    <div className="flex max-h-[360px] flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none px-1 pb-1 text-slate-800">
+    <div className="flex flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none px-1 pb-1 text-slate-800">
       <div className="sticky top-0 bg-white pb-0.5 text-[10px] font-medium uppercase text-slate-500">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
-        .filter((node) => node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined)
+        .filter((node) => {
+          return (
+            node[linkProp]?.pctInput !== null &&
+            node[linkProp]?.pctInput !== undefined &&
+            (node.feature_type === 'embedding' ||
+              node.feature_type === 'logit' ||
+              (node.influence !== undefined &&
+                visState.pruningThreshold !== undefined &&
+                node.influence <= visState.pruningThreshold) ||
+              (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) ||
+              (node.nodeId !== undefined && visState.clickedId === node.nodeId))
+          );
+        })
+        .filter((d) => {
+          if (!hasNPDashboards) {
+            return true;
+          } else {
+            return (
+              d.feature_type === 'embedding' ||
+              d.feature_type === 'logit' ||
+              (d.featureDetailNP?.frac_nonzero !== undefined &&
+                visState.densityThreshold !== undefined &&
+                d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
+              (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
+              (d.nodeId !== undefined && visState.clickedId === d.nodeId)
+            );
+          }
+        })
         .map((node, idx) => (
           <button
             type="button"
@@ -142,6 +171,7 @@ export default function GraphNodeConnections() {
               title="Input Features"
               nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="source"
+              hasNPDashboards={MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan || '')}
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
@@ -151,6 +181,7 @@ export default function GraphNodeConnections() {
               title="Output Features"
               nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="target"
+              hasNPDashboards={MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan || '')}
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}

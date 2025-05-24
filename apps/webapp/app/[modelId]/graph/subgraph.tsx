@@ -91,6 +91,7 @@ export default function Subgraph() {
   const sgLinksRef = useRef<SubgraphLink[]>([]);
   const [selForceNodes, setSelForceNodes] = useState<ForceNode[]>([]);
   const [nodeIdToNode, setNodeIdToNode] = useState<Record<string, CLTGraphNode>>({});
+  const [isMetaKeyHeld, setIsMetaKeyHeld] = useState(false);
 
   // Ref to hold the latest active grouping state for event handlers
   const activeGroupingRef = useRef(visState.subgraph?.activeGrouping);
@@ -238,6 +239,29 @@ export default function Subgraph() {
       document.removeEventListener('keyup', handleKeyUp);
     };
   }, [selectedGraph, visState, nodeIdToNode, updateVisStateField]);
+
+  // Handler for tracking meta/ctrl key state for pin/unpin mode
+  useEffect(() => {
+    function handleKeyDown(ev: KeyboardEvent) {
+      if (ev.key === 'Meta' || ev.key === 'Control') {
+        setIsMetaKeyHeld(true);
+      }
+    }
+
+    function handleKeyUp(ev: KeyboardEvent) {
+      if (ev.key === 'Meta' || ev.key === 'Control') {
+        setIsMetaKeyHeld(false);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   // Initialize subgraph state if not already initialized
   useEffect(() => {
@@ -1067,6 +1091,30 @@ export default function Subgraph() {
         <div className="subgraph relative h-full w-full">
           <svg className="absolute h-full w-full" ref={svgRef} />
           <div className="absolute h-full w-full" ref={divRef} />
+
+          {/* Supernode Grouping Mode Label */}
+          {!showSubgraphHelp && visState.subgraph?.activeGrouping.isActive ? (
+            visState.pinnedIds.length > 1 ? (
+              <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-sky-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+                Grouping Mode: Click nodes below to select them, release {`'g'`} to group. Click ✕ to ungroup.
+              </div>
+            ) : (
+              <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-amber-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+                Cannot activate grouping mode. You need at least two pinned nodes.
+                <br />
+                Pin nodes by holding command/control + clicking a node in the link graph above.
+              </div>
+            )
+          ) : (
+            <></>
+          )}
+
+          {/* Pin/Unpin Mode Label */}
+          {!showSubgraphHelp && isMetaKeyHeld && !visState.subgraph?.activeGrouping.isActive && (
+            <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+              Pin/Unpin Mode: Click nodes in the link graph above or in the subgraph below.
+            </div>
+          )}
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
             <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm">

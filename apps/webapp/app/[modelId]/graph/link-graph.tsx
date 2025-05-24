@@ -182,21 +182,21 @@ export default function LinkGraph() {
   }, [isEditingLabel]);
 
   // Update hoverState when hoveredId changes
-  useEffect(() => {
-    if (!selectedGraph || !visState.hoveredId || isEditingLabelRef.current) return;
+  // useEffect(() => {
+  //   if (!selectedGraph || !visState.hoveredId || isEditingLabelRef.current) return;
 
-    // Use hovered node if possible, otherwise use last occurrence of feature
-    const targetCtxIdx = visState.hoveredCtxIdx ?? 999;
-    const hoveredNodes = selectedGraph.nodes.filter((n) => n.featureId === visState.hoveredNodeId);
-    if (hoveredNodes.length > 0) {
-      // if hovered node is the same as the hoveredId, do nothing
-      if (hoveredNodes[0].nodeId === visState.hoveredNodeId) return;
+  //   // Use hovered node if possible, otherwise use last occurrence of feature
+  //   const targetCtxIdx = visState.hoveredCtxIdx ?? 999;
+  //   const hoveredNodes = selectedGraph.nodes.filter((n) => n.featureId === visState.hoveredNodeId);
+  //   if (hoveredNodes.length > 0) {
+  //     // if hovered node is the same as the hoveredId, do nothing
+  //     if (hoveredNodes[0].nodeId === visState.hoveredNodeId) return;
 
-      // Sort by closest ctx_idx to the target
-      const node = d3.sort(hoveredNodes, (d) => Math.abs((d.ctx_idx || 0) - (targetCtxIdx || 0)))[0];
-      updateVisStateField('hoveredNodeId', node?.nodeId || null);
-    }
-  }, [visState.hoveredId, visState.hoveredCtxIdx, selectedGraph, updateVisStateField]);
+  //     // Sort by closest ctx_idx to the target
+  //     const node = d3.sort(hoveredNodes, (d) => Math.abs((d.ctx_idx || 0) - (targetCtxIdx || 0)))[0];
+  //     updateVisStateField('hoveredNodeId', node?.nodeId || null);
+  //   }
+  // }, [visState.hoveredId, visState.hoveredCtxIdx, selectedGraph, updateVisStateField]);
 
   // Update clickedState when clickedId changes - equivalent to renderAll.clickedId.fns.push()
   useEffect(() => {
@@ -347,7 +347,8 @@ export default function LinkGraph() {
           (d.influence !== undefined &&
             visState.pruningThreshold !== undefined &&
             d.influence <= visState.pruningThreshold) ||
-          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)),
+          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
+          (d.nodeId !== undefined && visState.clickedId === d.nodeId),
       );
     }
 
@@ -360,7 +361,8 @@ export default function LinkGraph() {
           (d.featureDetailNP?.frac_nonzero !== undefined &&
             visState.densityThreshold !== undefined &&
             d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
-          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)),
+          (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
+          (d.nodeId !== undefined && visState.clickedId === d.nodeId),
       );
     }
 

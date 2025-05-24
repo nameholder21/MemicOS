@@ -315,6 +315,9 @@ export default function GenerateGraphModal() {
                       value={values.prompt}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                      }}
                       disabled={isGenerating}
                       placeholder="Enter the prompt to visualize..."
                       className="mt-1 w-full resize-none rounded-md border border-slate-300 p-2 text-sm shadow-sm focus:border-sky-500 focus:ring-sky-500"
@@ -406,6 +409,9 @@ export default function GenerateGraphModal() {
                         onChange={(e) => {
                           const val = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '');
                           setFieldValue('slug', val);
+                        }}
+                        onKeyDown={(e) => {
+                          e.stopPropagation();
                         }}
                         onBlur={handleBlur}
                         disabled={isGenerating}
