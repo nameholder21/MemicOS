@@ -42,6 +42,8 @@ function CopyModal() {
         alert('URL copied to clipboard!');
         break;
       }
+      default:
+        break;
     }
 
     setIsCopyModalOpen(false);
@@ -52,7 +54,7 @@ function CopyModal() {
       <DialogContent className="bg-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share Graph</DialogTitle>
-          <DialogDescription>Choose how you'd like to copy this graph for sharing</DialogDescription>
+          <DialogDescription>{`Choose how you'd like to copy this graph for sharing`}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 py-4">
           <Button
