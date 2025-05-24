@@ -100,6 +100,10 @@ type GraphContextType = {
 
   // setFullNPFeatureDetail
   setFullNPFeatureDetail: (setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => void;
+
+  // Copy modal state
+  isCopyModalOpen: boolean;
+  setIsCopyModalOpen: (isOpen: boolean) => void;
 };
 
 // Create the context with a default value
@@ -176,6 +180,7 @@ export function GraphProvider({
 
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState<boolean>(false);
 
   const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: initialPinnedIds ? initialPinnedIds.split(',') : [],
@@ -686,6 +691,8 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
+      isCopyModalOpen,
+      setIsCopyModalOpen,
     }),
     [
       modelIdToMetadataMap,
@@ -710,6 +717,8 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
+      isCopyModalOpen,
+      setIsCopyModalOpen,
     ],
   );
 

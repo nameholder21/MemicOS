@@ -50,10 +50,13 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     });
 
     if (existingGraphMetadata) {
-      return NextResponse.json({
-        error: 'Model + Slug/ID Exists',
-        message: `The model ${validatedData.modelId} already has a graph with slug/id ${validatedData.slug}. Please choose a different slug/ID.`,
-      });
+      return NextResponse.json(
+        {
+          error: 'Model + Slug/ID Exists',
+          message: `The model ${validatedData.modelId} already has a graph with slug/id ${validatedData.slug}. Please choose a different slug/ID.`,
+        },
+        { status: 400 },
+      );
     }
 
     const data = await generateGraph(

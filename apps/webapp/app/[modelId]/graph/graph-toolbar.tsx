@@ -4,13 +4,12 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
-import copy from 'copy-to-clipboard';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  CopyIcon,
   DownloadIcon,
   ExternalLinkIcon,
+  Share2,
   Trash,
   UploadCloud,
 } from 'lucide-react';
@@ -37,6 +36,7 @@ export default function GraphToolbar() {
     filterGraphsSetting,
     setFilterGraphsSetting,
     shouldShowGraphToCurrentUser,
+    setIsCopyModalOpen,
   } = useGraphContext();
 
   if (isEmbed) {
@@ -66,6 +66,19 @@ export default function GraphToolbar() {
               {selectedMetadataGraph?.prompt}
             </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            title="Share Graph, Subgraph, and Custom Labels"
+            aria-label="Share Graph Subgraph, and Custom Labels"
+            className="flex h-8 w-8 items-center justify-center whitespace-nowrap border-slate-300 px-0 text-sm text-slate-500 hover:bg-slate-50"
+            onClick={() => {
+              setIsCopyModalOpen(true);
+            }}
+            disabled={selectedMetadataGraph === null}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     );
@@ -433,16 +446,15 @@ export default function GraphToolbar() {
             <Button
               variant="outline"
               size="sm"
-              title="Copy Graph URL + State to Clipboard"
-              aria-label="Copy Graph URL + State to Clipboard"
+              title="Share Graph, Subgraph, and Custom Labels"
+              aria-label="Share Graph Subgraph, and Custom Labels"
               className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-500 hover:bg-slate-50"
               onClick={() => {
-                copy(window.location.href);
-                alert('The graph URL state has been copied to clipboard. You can paste it to share with others.');
+                setIsCopyModalOpen(true);
               }}
               disabled={selectedMetadataGraph === null}
             >
-              <CopyIcon className="h-4 w-4" />
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
