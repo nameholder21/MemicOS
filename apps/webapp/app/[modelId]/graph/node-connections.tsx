@@ -140,7 +140,7 @@ export default function GraphNodeConnections() {
           <div className="mt-2 flex w-full flex-row gap-x-0">
             <FeatureList
               title="Input Features"
-              nodes={selectedGraph?.nodes || []}
+              nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="source"
               visState={visState}
               updateVisStateField={updateVisStateField}
@@ -149,7 +149,7 @@ export default function GraphNodeConnections() {
             />
             <FeatureList
               title="Output Features"
-              nodes={selectedGraph?.nodes || []}
+              nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="target"
               visState={visState}
               updateVisStateField={updateVisStateField}

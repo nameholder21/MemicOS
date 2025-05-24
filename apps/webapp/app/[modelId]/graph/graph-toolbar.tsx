@@ -2,7 +2,6 @@ import { FilterGraphType, getGraphBaseUrlToName } from '@/app/[modelId]/graph/ut
 import { useGlobalContext } from '@/components/provider/global-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
-import { GRAPH_ANONYMOUS_USER_ID } from '@/lib/utils/graph';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import copy from 'copy-to-clipboard';
@@ -199,10 +198,10 @@ export default function GraphToolbar() {
                   <div className="flex w-full flex-col items-start justify-start gap-y-2 overflow-y-visible">
                     <div className="flex w-full flex-row items-center justify-between">
                       <div className="font-mono text-[12px] font-medium text-sky-700">{selectedMetadataGraph.slug}</div>
-                      <div className="text-[9px] font-normal text-slate-400">
+                      <div className="text-[10px] font-normal text-slate-500">
                         {selectedMetadataGraph.user?.name
                           ? selectedMetadataGraph.user?.name
-                          : getGraphBaseUrlToName(selectedMetadataGraph.url) || GRAPH_ANONYMOUS_USER_ID}
+                          : getGraphBaseUrlToName(selectedMetadataGraph.url) || 'Anonymous'}
                       </div>
                     </div>
                     <div className="text-overflow-ellipsis whitespace-nowrap text-[10px] font-normal leading-none text-slate-500">
@@ -268,10 +267,10 @@ export default function GraphToolbar() {
                                 <div className="font-mono text-[12px] font-medium text-sky-700">{graph.slug}</div>
                                 {!isMyGraph && (
                                   <div className="mr-0 flex flex-row items-center gap-x-2">
-                                    <div className="text-[9px] font-normal text-slate-400">
+                                    <div className="text-[10px] font-normal text-slate-500">
                                       {graph.user?.name
                                         ? graph.user?.name
-                                        : getGraphBaseUrlToName(graph.url) || GRAPH_ANONYMOUS_USER_ID}
+                                        : getGraphBaseUrlToName(graph.url) || 'Anonymous'}
                                     </div>
                                   </div>
                                 )}
