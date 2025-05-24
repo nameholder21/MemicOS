@@ -517,7 +517,7 @@ export const GraphMetadataSchema = z.object({
   titlePrefix: z.string(),
   isFeatured: z.boolean(),
   url: z.string(),
-  userId: z.string(),
+  userId: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
@@ -537,14 +537,14 @@ export type GraphMetadataPartial = z.infer<typeof GraphMetadataPartialSchema>
 
 export type GraphMetadataRelations = {
   model: ModelWithRelations;
-  user: UserWithRelations;
+  user?: UserWithRelations | null;
 };
 
 export type GraphMetadataWithRelations = z.infer<typeof GraphMetadataSchema> & GraphMetadataRelations
 
 export const GraphMetadataWithRelationsSchema: z.ZodType<GraphMetadataWithRelations> = GraphMetadataSchema.merge(z.object({
   model: z.lazy(() => ModelWithRelationsSchema),
-  user: z.lazy(() => UserWithRelationsSchema),
+  user: z.lazy(() => UserWithRelationsSchema).nullable(),
 }))
 
 // GRAPH METADATA PARTIAL RELATION SCHEMA
@@ -552,21 +552,21 @@ export const GraphMetadataWithRelationsSchema: z.ZodType<GraphMetadataWithRelati
 
 export type GraphMetadataPartialRelations = {
   model?: ModelPartialWithRelations;
-  user?: UserPartialWithRelations;
+  user?: UserPartialWithRelations | null;
 };
 
 export type GraphMetadataPartialWithRelations = z.infer<typeof GraphMetadataPartialSchema> & GraphMetadataPartialRelations
 
 export const GraphMetadataPartialWithRelationsSchema: z.ZodType<GraphMetadataPartialWithRelations> = GraphMetadataPartialSchema.merge(z.object({
   model: z.lazy(() => ModelPartialWithRelationsSchema),
-  user: z.lazy(() => UserPartialWithRelationsSchema),
+  user: z.lazy(() => UserPartialWithRelationsSchema).nullable(),
 })).partial()
 
 export type GraphMetadataWithPartialRelations = z.infer<typeof GraphMetadataSchema> & GraphMetadataPartialRelations
 
 export const GraphMetadataWithPartialRelationsSchema: z.ZodType<GraphMetadataWithPartialRelations> = GraphMetadataSchema.merge(z.object({
   model: z.lazy(() => ModelPartialWithRelationsSchema),
-  user: z.lazy(() => UserPartialWithRelationsSchema),
+  user: z.lazy(() => UserPartialWithRelationsSchema).nullable(),
 }).partial())
 
 /////////////////////////////////////////

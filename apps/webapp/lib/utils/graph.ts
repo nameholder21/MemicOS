@@ -25,6 +25,8 @@ export const GRAPH_EDGETHRESHOLD_MAX = 1.0;
 export const GRAPH_EDGETHRESHOLD_DEFAULT = 0.98;
 export const GRAPH_SLUG_MIN = 2;
 
+export const GRAPH_ANONYMOUS_USER_ID = 'anonymous';
+
 export const graphGenerateSchemaClient = yup.object({
   prompt: yup
     .string()

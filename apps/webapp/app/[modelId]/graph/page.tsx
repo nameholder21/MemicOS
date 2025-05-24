@@ -1,5 +1,7 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { GraphProvider } from '@/components/provider/graph-provider';
 import { prisma } from '@/lib/db';
+import { getServerSession } from 'next-auth/next';
 import {
   getGraphMetadatasFromBucket,
   GRAPH_BASE_URL_TO_NAME,
@@ -26,6 +28,7 @@ export default async function Page({
   };
 }) {
   const { modelId } = params;
+  const session = await getServerSession(authOptions);
 
   // TODO: checks for model existence (current not used bc we have anthropic models)
   // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
@@ -66,6 +69,12 @@ export default async function Page({
     //     in: Object.keys(modelIdToGraphMetadatasMap),
     //   },
     // },
+    where:
+      session && session.user && session.user.id
+        ? {
+            userId: session?.user.id,
+          }
+        : {},
     include: {
       user: {
         select: {
