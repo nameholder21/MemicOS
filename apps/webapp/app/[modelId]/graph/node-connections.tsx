@@ -30,8 +30,8 @@ function FeatureList({
       <div className="sticky top-0 bg-white pb-0.5 text-[10px] font-medium uppercase text-slate-500">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
-        .filter((node) => {
-          return (
+        .filter(
+          (node) =>
             node[linkProp]?.pctInput !== null &&
             node[linkProp]?.pctInput !== undefined &&
             (node.feature_type === 'embedding' ||
@@ -40,23 +40,21 @@ function FeatureList({
                 visState.pruningThreshold !== undefined &&
                 node.influence <= visState.pruningThreshold) ||
               (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) ||
-              (node.nodeId !== undefined && visState.clickedId === node.nodeId))
-          );
-        })
+              (node.nodeId !== undefined && visState.clickedId === node.nodeId)),
+        )
         .filter((d) => {
           if (!hasNPDashboards) {
             return true;
-          } else {
-            return (
-              d.feature_type === 'embedding' ||
-              d.feature_type === 'logit' ||
-              (d.featureDetailNP?.frac_nonzero !== undefined &&
-                visState.densityThreshold !== undefined &&
-                d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
-              (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
-              (d.nodeId !== undefined && visState.clickedId === d.nodeId)
-            );
           }
+          return (
+            d.feature_type === 'embedding' ||
+            d.feature_type === 'logit' ||
+            (d.featureDetailNP?.frac_nonzero !== undefined &&
+              visState.densityThreshold !== undefined &&
+              d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
+            (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
+            (d.nodeId !== undefined && visState.clickedId === d.nodeId)
+          );
         })
         .map((node, idx) => (
           <button
