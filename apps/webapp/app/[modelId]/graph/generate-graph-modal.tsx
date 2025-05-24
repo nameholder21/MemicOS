@@ -276,15 +276,16 @@ export default function GenerateGraphModal() {
           <p className="mt-4 rounded-md bg-amber-100 p-3 text-sm text-amber-700">
             Warning:{' '}
             {`You aren't signed in, so you'll need to manually keep track of any graphs you generate. To automatically save graphs to your account, `}
-            <span
+            <Button
+              variant="link"
               onClick={() => {
                 setSignInModalOpen(true);
                 setIsOpen(false);
               }}
-              className="cursor-pointer font-medium text-sky-800 underline"
+              className="h-auto cursor-pointer px-0 py-0 font-medium text-sky-800 underline"
             >
               sign up with one click
-            </span>
+            </Button>
             .
           </p>
         )}
