@@ -1,7 +1,9 @@
-import { CLTGraph, makeGraphPublicAccessGraphUrl } from '@/app/[modelId]/graph/utils';
+import { ATTRIBUTION_GRAPH_SCHEMA, CLTGraph, makeGraphPublicAccessGraphUrl } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
+import { NEXT_PUBLIC_URL } from '@/lib/env';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
+import Ajv from 'ajv';
 import { NextResponse } from 'next/server';
 import { object, string } from 'yup';
 
@@ -69,9 +71,24 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     const response = await fetch(cleanUrl);
     const graph = (await response.json()) as CLTGraph;
 
-    // if the graph is not valid, return an error
-    if (!graph.metadata || !graph.nodes || !graph.links) {
-      return NextResponse.json({ error: 'Invalid graph' }, { status: 400 });
+    // Validate the graph against the JSON schema
+    const ajv = new Ajv({ allErrors: true, strict: false });
+    const validate = ajv.compile(ATTRIBUTION_GRAPH_SCHEMA);
+    const isValid = validate(graph);
+
+    if (!isValid) {
+      const errors = validate.errors?.map((error) => {
+        const path = error.instancePath || 'root';
+        return `${path}: ${error.message}`;
+      }) || ['Unknown validation error'];
+
+      return NextResponse.json(
+        {
+          error: `Invalid graph format. Use the validator to check your graph json: ${NEXT_PUBLIC_URL}/graph/validator`,
+          details: errors,
+        },
+        { status: 400 },
+      );
     }
 
     // if scan or slug has weird characters, return error
