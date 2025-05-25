@@ -6,13 +6,14 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shadcn/card';
 import { Label } from '@/components/shadcn/label';
 import Ajv from 'ajv';
-import { AlertCircle, CheckCircle2, Copy, FileText } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Copy, FileText, Lightbulb } from 'lucide-react';
 import { useState } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 
 interface ValidationResult {
   isValid: boolean;
   errors: string[];
+  suggestions?: string[];
   summary?: {
     nodesCount: number;
     linksCount: number;
@@ -25,6 +26,60 @@ export default function GraphValidator() {
   const [jsonInput, setJsonInput] = useState('');
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
+
+  const findMissingOptionalFields = (parsedJson: any): string[] => {
+    const suggestions: string[] = [];
+
+    const traverseSchema = (schemaObj: any, dataObj: any, path: string = '', parentPath: string = '') => {
+      if (!schemaObj || typeof schemaObj !== 'object') return;
+
+      // Handle object properties
+      if (schemaObj.properties) {
+        const required = schemaObj.required || [];
+        const { properties } = schemaObj;
+
+        for (const [key, propSchema] of Object.entries(properties)) {
+          const currentPath = path ? `${path}.${key}` : key;
+          const isRequired = required.includes(key);
+          const isPresent = dataObj && Object.hasOwn(dataObj, key);
+
+          // Skip qParams section
+          if (currentPath === 'qParams' || currentPath.startsWith('qParams.')) {
+            // eslint-disable-next-line no-continue
+            continue;
+          }
+
+          if (!isRequired && !isPresent) {
+            // This is an optional field that's missing
+            const description = (propSchema as any)?.description || '';
+            const suggestion = description ? `${currentPath} - ${description}` : `${currentPath} - Optional field`;
+            suggestions.push(suggestion);
+          } else if (isPresent && dataObj[key] && typeof dataObj[key] === 'object') {
+            // Recursively check nested objects
+            if (Array.isArray(dataObj[key])) {
+              // Handle arrays - check the first item against the items schema
+              if ((propSchema as any)?.items && dataObj[key].length > 0) {
+                traverseSchema((propSchema as any).items, dataObj[key][0], `${currentPath}[]`, currentPath);
+              }
+            } else {
+              // Handle nested objects
+              traverseSchema(propSchema, dataObj[key], currentPath, path);
+            }
+          }
+        }
+      }
+
+      // Handle array items
+      if (schemaObj.items && schemaObj.items.properties) {
+        traverseSchema(schemaObj.items, dataObj, path, parentPath);
+      }
+    };
+
+    // Start traversal from the root schema
+    traverseSchema(ATTRIBUTION_GRAPH_SCHEMA, parsedJson);
+
+    return suggestions;
+  };
 
   const validateJson = async () => {
     setIsValidating(true);
@@ -59,9 +114,13 @@ export default function GraphValidator() {
           scan: parsedJson.metadata?.scan || 'N/A',
         };
 
+        // Find missing optional fields
+        const suggestions = findMissingOptionalFields(parsedJson);
+
         setValidationResult({
           isValid: true,
           errors: [],
+          suggestions,
           summary,
         });
       } else {
@@ -231,6 +290,29 @@ export default function GraphValidator() {
                         </div>
                       </div>
                     )}
+
+                    {validationResult.suggestions && validationResult.suggestions.length > 0 && (
+                      <div className="space-y-2 rounded-lg bg-blue-50 p-4">
+                        <h4 className="flex items-center gap-2 font-medium text-blue-900">
+                          <Lightbulb className="h-4 w-4" />
+                          Optional Fields You Could Add
+                        </h4>
+                        <p className="mb-2 text-xs text-blue-700">
+                          Not required, but provides useful info to display and can also add functionality.
+                        </p>
+                        <ul className="space-y-1 text-sm text-blue-800">
+                          {validationResult.suggestions.map((suggestion, index) => (
+                            <li
+                              key={index}
+                              className="rounded border-l-4 border-blue-300 bg-white p-2 font-mono text-xs"
+                            >
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     <div className="flex flex-col justify-start text-sm">
                       <div className="mb-2 text-xs">
                         Click this button to upload the graph. Note that only specific models/scans are supported right

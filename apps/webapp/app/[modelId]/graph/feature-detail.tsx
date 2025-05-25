@@ -211,23 +211,27 @@ export default function GraphFeatureDetail() {
         ) : (
           node.featureDetail && (
             <div className="pl-4 pt-1">
-              <div className="mb-1.5 mt-2 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
-              <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-                <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Top:</div>
-                {node.featureDetail?.top_logits.map((logit, idx) => (
-                  <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
-                    {logit}
-                  </span>
-                ))}
-              </div>
-              <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
-                <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Bottom:</div>
-                {node?.featureDetail?.bottom_logits.map((logit, idx) => (
-                  <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
-                    {logit}
-                  </span>
-                ))}
-              </div>
+              {node.featureDetail?.top_logits && node.featureDetail?.bottom_logits && (
+                <>
+                  <div className="mb-1.5 mt-2 border-b pb-1 text-sm font-bold text-slate-600">Token Predictions</div>
+                  <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+                    <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Top:</div>
+                    {node.featureDetail?.top_logits?.map((logit, idx) => (
+                      <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
+                        {logit}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex h-5 w-full items-center justify-start gap-x-1 gap-y-0.5 overflow-x-scroll font-mono text-[10px] text-slate-400">
+                    <div className="sticky left-0 mr-1 flex h-5 items-center justify-center">Bottom:</div>
+                    {node?.featureDetail?.bottom_logits?.map((logit, idx) => (
+                      <span key={idx} className="cursor-default rounded bg-slate-100 px-1 py-[1px] text-slate-700">
+                        {logit}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
               <div
                 ref={activationContainerRef}
                 className="flex max-h-[310px] w-full flex-col overflow-y-scroll overscroll-none"

@@ -465,6 +465,20 @@ export function GraphProvider({
     return data as AnthropicFeatureDetail;
   }
 
+  async function fetchGoodfireFeatureDetail(featureFilename: string): Promise<AnthropicFeatureDetail | null> {
+    const response = await fetch(
+      `https://proxy.gallows-oven-0q.workers.dev/?url=${encodeURIComponent(
+        `https://clt-frontend.goodfire.pub/features/gpt2/${featureFilename}.json`,
+      )}`,
+    );
+    if (!response.ok) {
+      console.error(`Failed to fetch feature detail for ${featureFilename}`);
+      return null;
+    }
+    const data = await response.json();
+    return data as AnthropicFeatureDetail;
+  }
+
   const getAnthropicBaseUrlFromGraphUrl = (url: string) => url.split('/graph_data/')[0];
 
   // Function to fetch graph data
@@ -487,7 +501,8 @@ export function GraphProvider({
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
     }
 
-    const data = (await response.json()) as CLTGraph;
+    const dataJson = await response.json();
+    const data = dataJson as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
 
     // if memicos has dashboards, fetch them from our side
@@ -588,7 +603,39 @@ export function GraphProvider({
         d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
       });
     }
-    // neither memicos nor s3 dashboards
+    // neither memicos nor s3 - check for feature_json_base_url
+    else if (data.metadata.memicos?.feature_json_base_url) {
+      // TODO - implement
+      console.log('feature_json_base_url:', data.metadata.memicos.feature_json_base_url);
+    }
+    // TODO: remove these special cases
+    // if the model is gpt2-small, then it's goodfire
+    else if (data.metadata.scan === 'gpt2-small') {
+      console.log('gpt2-small, using goodfire to get features');
+      // download https://clt-frontend.goodfire.pub/features/gpt2/163053.json
+      // otherwise get the feature from the bucket
+      const featureDetails = await fetchInBatches(
+        formattedData.nodes,
+        (d: CLTGraphNode) => {
+          if (nodeTypeHasFeatureDetail(d)) {
+            return fetchGoodfireFeatureDetail(d.feature.toString());
+          }
+          return Promise.resolve(null);
+        },
+        ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+      );
+
+      formattedData.nodes.forEach((d, i) => {
+        // eslint-disable-next-line no-param-reassign
+        d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
+      });
+    }
+    // if the model is gelu-4l-x128k64-v0, then it's eleuther
+    else if (data.metadata.scan === 'gelu-4l-x128k64-v0') {
+      console.log('gelu-4l-x128k64-v0, using eleuther to get features');
+      //
+    }
+    // otherwise we dont fill it in bc we don't know how
 
     setIsLoadingGraphData(false);
     return formattedData;
