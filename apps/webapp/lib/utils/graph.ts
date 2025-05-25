@@ -39,21 +39,25 @@ export const graphGenerateSchemaClient = yup.object({
     .integer('Must be an integer.')
     .min(GRAPH_MAXNLOGITS_MIN, `Must be at least ${GRAPH_MAXNLOGITS_MIN}.`)
     .max(GRAPH_MAXNLOGITS_MAX, `Must be at most ${GRAPH_MAXNLOGITS_MAX}.`)
+    .default(GRAPH_MAXNLOGITS_DEFAULT)
     .required('This field is required.'),
   desiredLogitProb: yup
     .number()
     .min(GRAPH_DESIREDLOGITPROB_MIN, `Must be at least ${GRAPH_DESIREDLOGITPROB_MIN}.`)
     .max(GRAPH_DESIREDLOGITPROB_MAX, `Must be at most ${GRAPH_DESIREDLOGITPROB_MAX}.`)
+    .default(GRAPH_DESIREDLOGITPROB_DEFAULT)
     .required('This field is required.'),
   nodeThreshold: yup
     .number()
     .min(GRAPH_NODETHRESHOLD_MIN, `Must be at least ${GRAPH_NODETHRESHOLD_MIN}.`)
     .max(GRAPH_NODETHRESHOLD_MAX, `Must be at most ${GRAPH_NODETHRESHOLD_MAX}.`)
+    .default(GRAPH_NODETHRESHOLD_DEFAULT)
     .required('This field is required.'),
   edgeThreshold: yup
     .number()
     .min(GRAPH_EDGETHRESHOLD_MIN, `Must be at least ${GRAPH_EDGETHRESHOLD_MIN}.`)
     .max(GRAPH_EDGETHRESHOLD_MAX, `Must be at most ${GRAPH_EDGETHRESHOLD_MAX}.`)
+    .default(GRAPH_EDGETHRESHOLD_DEFAULT)
     .required('This field is required.'),
   slug: yup
     .string()

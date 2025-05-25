@@ -1121,16 +1121,19 @@ export default function Subgraph() {
             )}
 
           {/* Pin/Unpin Mode Label */}
-          {isMetaKeyHeld && !visState.subgraph?.activeGrouping.isActive && visState.pinnedIds.length < 3 && (
-            <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-              {visState.pinnedIds.length === 0 &&
-                'Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.'}
-              {visState.pinnedIds.length === 1 &&
-                'Pinning Mode: Nice! One node pinned. Pin one more to start grouping.'}
-              {visState.pinnedIds.length === 2 &&
-                `Pinning Mode: Great! Two nodes pinned. Release command/control and hold 'g' to start grouping.`}
-            </div>
-          )}
+          {isMetaKeyHeld &&
+            !visState.subgraph?.activeGrouping.isActive &&
+            visState.pinnedIds.length < 3 &&
+            visState.subgraph?.supernodes.length === 0 && (
+              <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+                {visState.pinnedIds.length === 0 &&
+                  'Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.'}
+                {visState.pinnedIds.length === 1 &&
+                  'Pinning Mode: Nice! One node pinned. Pin one more to start grouping.'}
+                {visState.pinnedIds.length === 2 &&
+                  `Pinning Mode: Great! Two nodes pinned. Release command/control and hold 'g' to start grouping.`}
+              </div>
+            )}
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
             <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm">

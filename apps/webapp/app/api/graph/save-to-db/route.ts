@@ -16,7 +16,7 @@ const saveToDbSchema = object({
  *     summary: Upload Graph 2/2 - Save Graph Metadata to Database
  *     description: Saves metadata about an uploaded graph file to the database after it has been uploaded to S3.
  *     tags:
- *       - Circuit Graphs
+ *       - Attribution Graphs
  *     security:
  *       - apiKey: []
  *     requestBody:

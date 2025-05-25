@@ -22,7 +22,7 @@ const signedPutRequestSchema = object({
  *     summary: Upload Graph 1/2 - Get Pre-Signed URL
  *     description: Creates a pre-signed URL that allows authenticated users to upload graph files directly to S3. Both this and the second step are necessary for your graph to be saved correctly. Use the returned URL with a PUT request, like this `curl -X PUT -T my-graph.json [returned-url]`. Don't lose your putRequestId, you'll need it for the second part.
  *     tags:
- *       - Circuit Graphs
+ *       - Attribution Graphs
  *     security:
  *       - apiKey: []
  *     requestBody:
