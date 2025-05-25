@@ -13,6 +13,130 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 import * as yup from 'yup';
 
+/**
+ * @swagger
+ * /api/graph/generate:
+ *   post:
+ *     summary: Generate New Graph
+ *     description: Creates a new graph by analyzing the provided text prompt using the specified model. You'll get a link to access the graph visualization directly on MemicOS's UI, and the graph will be saved to S3 and metadata stored in the database.
+ *     tags:
+ *       - Attribution Graphs
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - prompt
+ *               - modelId
+ *               - slug
+ *             properties:
+ *               prompt:
+ *                 type: string
+ *                 description: The text prompt to analyze and generate a graph from. Capped at 64 max tokens.
+ *                 maxLength: 10000
+ *                 example: "abc12"
+ *               modelId:
+ *                 type: string
+ *                 description: The ID of the model to use for graph generation. Currently only gemma-2-2b is supported.
+ *                 pattern: '^[a-zA-Z0-9_-]+$'
+ *                 example: "gemma-2-2b"
+ *               slug:
+ *                 type: string
+ *                 description: A unique identifier for this graph (alphanumeric, underscores, and hyphens only)
+ *                 pattern: '^[a-zA-Z0-9_-]+$'
+ *               maxNLogits:
+ *                 type: number
+ *                 description: Maximum number of logits to consider
+ *                 minimum: 5
+ *                 maximum: 15
+ *                 default: 10
+ *               desiredLogitProb:
+ *                 type: number
+ *                 description: Desired logit probability threshold
+ *                 minimum: 0.6
+ *                 maximum: 0.99
+ *                 default: 0.95
+ *               nodeThreshold:
+ *                 type: number
+ *                 description: Threshold for including nodes in the graph
+ *                 minimum: 0.5
+ *                 maximum: 1.0
+ *                 default: 0.8
+ *               edgeThreshold:
+ *                 type: number
+ *                 description: Threshold for including edges in the graph
+ *                 minimum: 0.8
+ *                 maximum: 1.0
+ *                 default: 0.98
+ *     responses:
+ *       200:
+ *         description: Graph generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Graph saved to database"
+ *                 s3url:
+ *                   type: string
+ *                   description: The S3 URL where the graph data is stored
+ *                 url:
+ *                   type: string
+ *                   description: The public URL to access the generated graph
+ *                 numNodes:
+ *                   type: integer
+ *                   description: Number of nodes in the generated graph
+ *                 numLinks:
+ *                   type: integer
+ *                   description: Number of links in the generated graph
+ *       400:
+ *         description: Bad request - validation error, prompt too long, or duplicate slug
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   enum: ["Validation error", "Prompt Too Long", "Model + Slug/ID Exists", "Invalid scan or slug"]
+ *                 message:
+ *                   type: string
+ *                   description: Detailed error message
+ *                 details:
+ *                   type: string
+ *                   description: Additional error details (for validation errors)
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Failed to generate graph"
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *       503:
+ *         description: Service unavailable - GPUs are busy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "GPUs Busy"
+ *                 message:
+ *                   type: string
+ *                   example: "Sorry, all GPUs are currently busy. Please try again in a minute."
+ */
+
 export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
   try {
     let body = '';
@@ -146,7 +270,10 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     console.error('Error generating graph:', error);
 
     if (error instanceof yup.ValidationError) {
-      return NextResponse.json({ error: 'Validation error', details: error.message }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Validation error', details: error.message, path: error.path },
+        { status: 400 },
+      );
     }
     if (error instanceof Error && error.message.indexOf('503') > -1) {
       return NextResponse.json(
