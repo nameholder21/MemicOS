@@ -1,16 +1,15 @@
-from requests import Response
-from memicos.requests.base_request import (
-    NPRequest,
-)
-from memicos.np_graph_metadata import NPGraphMetadata
-import os
-import json
-import requests
 import gzip
+import json
+import os
 from typing import List
 
+import requests
+from memicos.np_graph_metadata import NPGraphMetadata
+from memicos.requests.base_request import NPRequest
+from requests import Response
+
 SUPPORTED_GRAPH_MODELS = ["gemma-2-2b", "llama-3.2-1b"]
-UPLOAD_FILE_SIZE_LIMIT_BYTES = 200 * 1024 * 1024  # 200MB
+UPLOAD_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024  # 100MB
 
 
 class GraphRequest(NPRequest):
@@ -39,7 +38,13 @@ class GraphRequest(NPRequest):
 
         # Check metadata contains required fields
         if "metadata" in loaded_json:
-            required_metadata = ["node_threshold", "prompt", "prompt_tokens", "scan", "slug"]
+            required_metadata = [
+                "node_threshold",
+                "prompt",
+                "prompt_tokens",
+                "scan",
+                "slug",
+            ]
             for field in required_metadata:
                 if field not in loaded_json["metadata"]:
                     raise ValueError(f"Metadata must contain '{field}' field")
@@ -72,12 +77,16 @@ class GraphRequest(NPRequest):
 
         # if either are missing, raise error
         if not url or not put_request_id:
-            raise ValueError("Failed to get url or putRequestId from response. Response: {response}")
+            raise ValueError(
+                "Failed to get url or putRequestId from response. Response: {response}"
+            )
 
         print("Upload progress - received signed put request.")
 
         # upload the file
-        response = requests.put(url, data=json_str_gzip, headers={"Content-Encoding": "gzip"})
+        response = requests.put(
+            url, data=json_str_gzip, headers={"Content-Encoding": "gzip"}
+        )
 
         # check the response is 200
         if response.status_code != 200:
@@ -92,7 +101,9 @@ class GraphRequest(NPRequest):
             json={"putRequestId": put_request_id},
         )
 
-        print(f"Upload to MemicOS complete!\nView the graph at the following URL:\n{response['url']}")
+        print(
+            f"Upload to MemicOS complete!\nView the graph at the following URL:\n{response['url']}"
+        )
 
         graph_metadata = self.get(model_id, slug)
 
@@ -121,7 +132,9 @@ class GraphRequest(NPRequest):
             raise FileNotFoundError(f"File not found at path: {filepath}")
 
         if os.path.getsize(filepath) > UPLOAD_FILE_SIZE_LIMIT_BYTES:
-            raise ValueError(f"File size exceeds the limit of {UPLOAD_FILE_SIZE_LIMIT_BYTES / 1024 / 1024} megabytes")
+            raise ValueError(
+                f"File size exceeds the limit of {UPLOAD_FILE_SIZE_LIMIT_BYTES / 1024 / 1024} megabytes"
+            )
 
         # if not json, raise error
         if not filepath.endswith(".json"):
@@ -183,3 +196,32 @@ class GraphRequest(NPRequest):
             )
             for graph in response
         ]
+
+    def generate(
+        self,
+        model_id: str,
+        prompt: str,
+        slug: str,
+        max_n_logits: int = 10,
+        desired_logit_prob: float = 0.95,
+        node_threshold: float = 0.8,
+        edge_threshold: float = 0.98,
+    ) -> NPGraphMetadata:
+        payload = {
+            "modelId": model_id,
+            "prompt": prompt,
+            "slug": slug,
+            "maxNLogits": max_n_logits,
+            "desiredLogitProb": desired_logit_prob,
+            "nodeThreshold": node_threshold,
+            "edgeThreshold": edge_threshold,
+        }
+        self.send_request(
+            method="POST",
+            uri="generate",
+            json=payload,
+        )
+
+        # now get the graph metadata
+        graph_metadata = self.get(model_id, slug)
+        return graph_metadata
