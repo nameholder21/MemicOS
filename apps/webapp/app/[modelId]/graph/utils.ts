@@ -1,3 +1,4 @@
+import ATTRIBUTION_GRAPH_SCHEMA from '@/app/api/graph/graph-schema.json';
 import { DEFAULT_CREATOR_USER_ID, NEXT_PUBLIC_URL } from '@/lib/env';
 import { GraphMetadata, GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import cuid from 'cuid';
@@ -247,6 +248,37 @@ export type CLTGraphInnerMetadata = {
   // default value for cltVisState.pruningThreshold
   // filters out > node.influence values
   node_threshold?: number;
+
+  // add the extra metadata from graph-schema.json
+  memicos?: {
+    feature_json_base_url?: string;
+    source_set?: string;
+  };
+  info?: {
+    title?: string;
+    description?: string;
+    creator_name?: string;
+    create_time_ms?: number;
+    notes?: string;
+    source_urls?: string[];
+    output_hook?: string;
+    generator?: {
+      name?: string;
+      version?: string;
+      url?: string;
+      email?: string;
+    };
+  };
+  generation_settings?: {
+    max_n_logits?: number;
+    desired_logit_prob?: number;
+    batch_size?: number;
+    max_feature_nodes?: number;
+  };
+  pruning_settings?: {
+    node_threshold?: number;
+    edge_threshold?: number;
+  };
 };
 
 export type CLTGraphQParams = {
@@ -367,7 +399,7 @@ export enum FilterGraphType {
 }
 
 export function isHideLayer(scan: string) {
-  return scan === scanSlugToName.h35 || scan === scanSlugToName.moc || scan === 'gpt2-small';
+  return scan === scanSlugToName.h35 || scan === scanSlugToName.moc;
 }
 
 // ========= util-cg.js formatData equivalent =========
@@ -617,48 +649,6 @@ export function hideTooltip() {
   d3.select('.tooltip').classed('tooltip-hidden', true);
 }
 
-// const keysToSkip = new Set([
-//   'node_id',
-//   'jsNodeId',
-//   'nodeId',
-//   'layerLocationLabel',
-//   'remoteClerp',
-//   'localClerp',
-//   'tmpClickedTargetLink',
-//   'tmpClickedLink',
-//   'tmpClickedSourceLink',
-//   'pos',
-//   'xOffset',
-//   'yOffset',
-//   'sourceLinks',
-//   'targetLinks',
-//   'url',
-//   'vis_link',
-//   'run_idx',
-//   'featureId',
-//   'active_feature_idx',
-//   'nodeIndex',
-//   'isFeature',
-//   'Distribution',
-//   'clerp',
-//   'ppClerp',
-//   'is_target_logit',
-//   'token_prob',
-//   'reverse_ctx_idx',
-//   'ctx_from_end',
-//   'feature',
-//   'logitToken',
-//   'featureIndex',
-//   'streamIdx',
-//   'nodeColor',
-//   'umap_enc_x',
-//   'umap_enc_y',
-//   'umap_dec_x',
-//   'umap_dec_y',
-//   'umap_concat_x',
-//   'umap_concat_y',
-// ]);
-
 export function showTooltip(ev: MouseEvent, d: CLTGraphNode, overrideClerp?: string) {
   const tooltipSel = d3.select('.tooltip');
   const x = ev.clientX;
@@ -719,252 +709,4 @@ export type AnthropicFeatureDetail = {
   examples_quantiles: AnthropicFeatureExampleQuantile[];
 };
 
-// Attribution Graph JSON Schema
-export const ATTRIBUTION_GRAPH_SCHEMA = {
-  $id: 'root',
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  title: 'Anthropic Attribution Graph',
-  version: '1.0.0',
-  description:
-    "JSON Schema for an attribution graph compatible with Anthropic's Attribution Graph and MemicOS's frontend.",
-  type: 'object',
-  properties: {
-    metadata: {
-      type: 'object',
-      properties: {
-        slug: {
-          type: 'string',
-          examples: ['my-neat-graph'],
-        },
-        scan: {
-          type: 'string',
-          description:
-            'Indicates what the model and coders were used. MemicOS uses this as a model ID only. For example, gemma-2-2b.',
-          examples: ['gemma-2-2b'],
-        },
-        prompt_tokens: {
-          type: 'array',
-          description: 'The prompt, tokenized.',
-          items: {
-            type: 'string',
-            examples: ['The', ' cat', ' in', ' the', ' hat'],
-          },
-        },
-        prompt: {
-          type: 'string',
-          description: 'The prompt, untokenized.',
-          examples: ['The cat in the hat'],
-        },
-        memicos: {
-          type: 'object',
-          description:
-            '[Optional] MemicOS-specific fields. Not required for the graph to work on MemicOS, but they enable additional features. If you are hosting your own feature JSONs, use feature_json_base_url. If MemicOS already has the feature dashboards, use source_set.',
-          properties: {
-            feature_json_base_url: {
-              type: 'string',
-              description:
-                'The base URL for the feature JSON files, if you want the frontend to download your features details from your server. IMPORTANT: The feature detail JSON files should be in the format [layer_number]-[feature_index].json, for example, 15-2324.json would be layer 15, index 2324. If a base url is https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at https://my-cloudfront.s3.amazonaws.com/my_model/features/15-2324.json. Remember to enable public access and CORS from all origins. Https is also required. See feature_schema.json for the format of the feature JSON files.',
-              examples: ['https://my-cloudfront.s3.amazonaws.com/my_model/features'],
-            },
-            source_set: {
-              type: 'string',
-              description:
-                'Used to determine which source set on MemicOS the coders correspond to. This allows us to fetch the correct feature details. For example, gemmascope-transcoder-16k when combined with scan/modelId, corresponds to: https://www.memicos.org/gemma-2-2b/gemmascope-transcoder-16k',
-              examples: ['gemmascope-transcoder-16k'],
-            },
-          },
-        },
-        info: {
-          type: 'object',
-          description: '[Optional] Additional information that may be displayed to the user. All fields are optional.',
-          properties: {
-            title: {
-              type: 'string',
-              description: 'The title of the graph.',
-            },
-            description: {
-              type: 'string',
-              description: 'A description of the graph. A good place to describe the purpose of this graph.',
-            },
-            creator_name: {
-              type: 'string',
-              description:
-                'The name of the person/group that triggered the generation of this specific graph. Not necessarily the creator of the graph generator.',
-            },
-            create_time_ms: {
-              type: 'number',
-              description: 'The timestamp of when the graph was created, in milliseconds since epoch.',
-            },
-            notes: {
-              type: 'string',
-              description: 'Any additional notes about the graph.',
-            },
-            source_urls: {
-              type: 'array',
-              description: 'An array of urls to the transcoders, CLTs, etc that were used to generate this graph.',
-            },
-            output_hook: {
-              type: 'string',
-              description: 'The output hook used.',
-            },
-            generator: {
-              type: 'object',
-              properties: {
-                name: {
-                  type: 'string',
-                  description: 'The name of the graph generator.',
-                },
-                version: {
-                  type: 'string',
-                  description: 'The version of the graph generator used.',
-                },
-                url: {
-                  type: 'string',
-                  description: "The URL to the graph generator - either code or the graph generator's website.",
-                },
-                email: {
-                  type: 'string',
-                  description: 'The email of the person/group that triggered the generation of this specific graph.',
-                },
-              },
-            },
-          },
-        },
-        generation_settings: {
-          type: 'object',
-          description:
-            '[Optional] Settings used to generate the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on Open Source Circuit Finding (https://github.com/safety-research/open-source-circuit-finding), but you can use whatever keys are useful for you, and add your own.',
-          properties: {
-            max_n_logits: {
-              description: 'Maximum number of logit nodes to attribute from',
-              type: 'integer',
-            },
-            desired_logit_prob: {
-              description: 'Desired logit probability: Cumulative probability threshold for top logits',
-              type: 'number',
-            },
-            batch_size: {
-              description: 'Batch size for backward passes',
-              type: 'integer',
-            },
-            max_feature_nodes: {
-              description: 'Maximum number of feature nodes',
-              type: 'integer',
-            },
-          },
-        },
-        pruning_settings: {
-          type: 'object',
-          description:
-            '[Optional] Settings used to prune the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on Open Source Circuit Finding (https://github.com/safety-research/open-source-circuit-finding), but you can use whatever keys are useful for you, and add your own.',
-          properties: {
-            node_threshold: {
-              type: 'number',
-              description: 'Keeps minimum nodes with cumulative influence ≥ threshold',
-              examples: [0.8],
-            },
-            edge_threshold: {
-              type: 'number',
-              description: 'Keeps minimum edges with cumulative influence ≥ threshold',
-              examples: [0.98],
-            },
-          },
-        },
-      },
-      required: ['slug', 'scan', 'prompt_tokens', 'prompt'],
-    },
-    qParams: {
-      type: 'object',
-      properties: {
-        pinnedIds: {
-          type: 'array',
-        },
-        supernodes: {
-          type: 'array',
-        },
-        linkType: {
-          type: 'string',
-          examples: ['both'],
-        },
-        clickedId: {
-          type: 'string',
-        },
-        sg_pos: {
-          type: 'string',
-        },
-      },
-      required: [],
-    },
-    nodes: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          node_id: {
-            type: 'string',
-            examples: ['0_253_1'],
-          },
-          feature: {
-            type: ['integer', 'null'],
-            examples: [253],
-          },
-          layer: {
-            type: ['string', 'integer'],
-            examples: ['0', 1],
-          },
-          ctx_idx: {
-            type: 'integer',
-            examples: [1],
-          },
-          feature_type: {
-            type: 'string',
-            examples: ['cross layer transcoder', 'mlp reconstruction error', 'embedding', 'logit'],
-          },
-          jsNodeId: {
-            type: 'string',
-            examples: ['0_253-0'],
-          },
-          clerp: {
-            type: 'string',
-            examples: ['my label for this feature'],
-          },
-          influence: {
-            type: ['number', 'null'],
-            description:
-              'Influence, used for dynamic graph pruning. Optional, from https://github.com/safety-research/open-source-circuit-finding',
-            examples: [0.48267510533332825],
-          },
-          activation: {
-            type: ['number', 'null'],
-            description:
-              'Activation to show in the activation histogram. Optional, from https://github.com/safety-research/open-source-circuit-finding',
-            examples: [9.449039459228516],
-          },
-        },
-        required: ['node_id', 'feature', 'layer', 'ctx_idx', 'feature_type', 'jsNodeId', 'clerp'],
-      },
-    },
-    links: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          source: {
-            type: 'string',
-            examples: ['E_2_0'],
-          },
-          target: {
-            type: 'string',
-            examples: ['0_253_1'],
-          },
-          weight: {
-            type: 'number',
-            examples: [12.964216232299805],
-          },
-        },
-        required: ['source', 'target', 'weight'],
-      },
-    },
-  },
-  required: ['metadata', 'qParams', 'nodes', 'links'],
-};
+export { ATTRIBUTION_GRAPH_SCHEMA };

@@ -502,8 +502,7 @@ export default function LinkGraph() {
       .axisLeft(c.y)
       .tickValues(d3.range(yNumTicks))
       .tickFormat((i) =>
-        // if (i % 2 !== 0) return '';
-        i === yNumTicks - 1 ? 'Lgt' : i === 0 ? 'Emb' : `L${i - 1}`,
+        i === yNumTicks - 1 ? 'Lgt' : i === 0 ? 'Emb' : `L${data.metadata.scan === 'gpt2-small' ? i : i - 1}`,
       );
 
     // Background elements
@@ -599,7 +598,9 @@ export default function LinkGraph() {
       if (d.ctx_idx === undefined || d.streamIdx === undefined) return;
 
       const effectiveStreamIdx =
-        d.feature_type === 'embedding' || isHideLayer(data.metadata.scan) ? d.streamIdx : d.streamIdx + 1;
+        d.feature_type === 'embedding' || isHideLayer(data.metadata.scan) || data.metadata.scan === 'gpt2-small'
+          ? d.streamIdx
+          : d.streamIdx + 1;
 
       const xPos = c.x(d.ctx_idx) + (d.xOffset || 0);
 
