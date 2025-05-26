@@ -669,7 +669,7 @@ export function showTooltip(ev: MouseEvent, d: CLTGraphNode, overrideClerp?: str
 
   const tooltipHtml = `<div className="text-center flex flex-col items-center justify-center">
   ${clerp}
-  ${ev.metaKey && `<div className="text-slate-400 text-center mt-1 text-[7px]" > Holding CMD/Ctrl: Click to Pin to Subgraph</div>`}
+  ${ev.metaKey ? `<div className="text-slate-400 text-center mt-1 text-[7px]" > Holding CMD/Ctrl: Click to Pin to Subgraph</div>` : ''}
 </div>`;
   // if (ev.metaKey) {
   //   tooltipHtml += `<div className="text-slate-400 text-center mt-1 text-[7px]">Holding CMD/Ctrl: Click to Pin to Subgraph</div>`;
