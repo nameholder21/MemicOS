@@ -32,11 +32,7 @@ function FeatureList({
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
         .filter((node) => {
           // no input = don't show
-          if (
-            node[linkProp]?.pctInput === null ||
-            node[linkProp]?.pctInput === undefined ||
-            node[linkProp]?.pctInput === 0
-          ) {
+          if (node[linkProp]?.pctInput === null || node[linkProp]?.pctInput === undefined) {
             return false;
           }
 
