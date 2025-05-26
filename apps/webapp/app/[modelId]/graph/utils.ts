@@ -363,6 +363,11 @@ export type CLTGraphNode = {
 
   // for fellows graphs only
   activation?: number;
+
+  // test hover links
+  tmpHoveredLink?: CLTGraphLink;
+  tmpHoveredSourceLink?: CLTGraphLink;
+  tmpHoveredTargetLink?: CLTGraphLink;
 };
 
 export type CLTGraphLink = {
@@ -383,6 +388,8 @@ export type CLTGraphLink = {
 
   tmpClickedCtxOffset?: number;
   tmpColor?: string;
+
+  tmpHoveredCtxOffset?: number;
 };
 
 export type CLTGraph = {
