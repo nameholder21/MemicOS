@@ -466,11 +466,7 @@ export function GraphProvider({
   }
 
   async function fetchGoodfireFeatureDetail(featureFilename: string): Promise<AnthropicFeatureDetail | null> {
-    const response = await fetch(
-      `https://proxy.gallows-oven-0q.workers.dev/?url=${encodeURIComponent(
-        `https://clt-frontend.goodfire.pub/features/gpt2/${featureFilename}.json`,
-      )}`,
-    );
+    const response = await fetch(`https://clt-frontend.goodfire.pub/features/gpt2/${featureFilename}.json`);
     if (!response.ok) {
       console.error(`Failed to fetch feature detail for ${featureFilename}`);
       return null;
