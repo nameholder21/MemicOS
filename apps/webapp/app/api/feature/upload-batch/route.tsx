@@ -194,7 +194,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       layer: parsedBody.source,
       index: feature.index.toString(),
       creatorId: request.user.id,
-      sourceSetName: sourceSetName,
+      sourceSetName,
       frac_nonzero: feature.density ?? -1,
       maxActApprox: 0,
       hasVector: false,
@@ -219,7 +219,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     // add all activations
     let maxActFound = 0;
     for (const activation of feature.activations) {
-      let act = {
+      const act = {
         tokens: activation.tokens,
         values: activation.values,
         index: feature.index.toString(),
@@ -229,7 +229,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
         maxValueTokenIndex: activation.values.indexOf(Math.max(...activation.values)),
         maxValue: Math.max(...activation.values),
         minValue: Math.min(...activation.values),
-        dataSource: 'User ' + user.name,
+        dataSource: `User ${user.name}`,
         dataIndex: user.id,
         binMin: activation.quantileMin,
         binMax: activation.quantileMax,
