@@ -24,6 +24,7 @@ import {
   NeuronWithPartialRelations,
 } from '@/prisma/generated/zod';
 import { GraphMetadata } from '@prisma/client';
+import debounce from 'lodash/debounce';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -293,17 +294,22 @@ export function GraphProvider({
     }
   }, [filterGraphsSetting]);
 
-  const updateUrlParams = (keysToValues: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    Object.entries(keysToValues).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-    });
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  // debounce because sometimes browsers have security restrictions for number of replace url calls per second
+  const updateUrlParams = useCallback(
+    debounce((keysToValues: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(keysToValues).forEach(([key, value]) => {
+        if (value) {
+          params.set(key, value);
+        } else {
+          params.delete(key);
+        }
+      });
+      console.log('updating url params', params.toString());
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, 1000),
+    [router, pathname, searchParams],
+  );
 
   // update qParams when visState changes
   useEffect(() => {
