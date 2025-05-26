@@ -85,7 +85,9 @@ export default function GraphToolbar() {
   }
   return (
     <div className="flex w-full flex-col pt-2">
-      <div className="flex w-full flex-row gap-x-2">
+      <div className="flex w-full flex-row items-end gap-x-2">
+        <GenerateGraphModal />
+
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Model</div>
           <Select.Root
@@ -152,7 +154,7 @@ export default function GraphToolbar() {
             </Select.Portal>
           </Select.Root>
         </div>
-        <div className="flex flex-col">
+        <div className="hidden flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Filter Graphs</div>
           <ToggleGroup.Root
             type="multiple"
@@ -412,8 +414,6 @@ export default function GraphToolbar() {
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Tools</div>
           <div className="flex flex-row gap-x-2">
-            <GenerateGraphModal />
-
             {session.data?.user ? (
               <UploadGraphModal />
             ) : (
