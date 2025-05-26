@@ -8,7 +8,7 @@ from memicos.np_graph_metadata import NPGraphMetadata
 from memicos.requests.base_request import NPRequest
 from requests import Response
 
-SUPPORTED_GRAPH_MODELS = ["gemma-2-2b", "llama-3.2-1b"]
+# SUPPORTED_GRAPH_MODELS = ["gemma-2-2b", "llama-3.2-1b"]
 UPLOAD_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024  # 100MB
 
 
@@ -48,10 +48,12 @@ class GraphRequest(NPRequest):
             for field in required_metadata:
                 if field not in loaded_json["metadata"]:
                     raise ValueError(f"Metadata must contain '{field}' field")
-        if loaded_json["metadata"]["scan"] not in SUPPORTED_GRAPH_MODELS:
-            raise ValueError(
-                f"Model {loaded_json['metadata']['scan']} is not supported. Must be one of {SUPPORTED_GRAPH_MODELS}"
-            )
+
+        # we allow any graph to be uploaded
+        # if loaded_json["metadata"]["scan"] not in SUPPORTED_GRAPH_MODELS:
+        #     raise ValueError(
+        #         f"Model {loaded_json['metadata']['scan']} is not supported. Must be one of {SUPPORTED_GRAPH_MODELS}"
+        #     )
 
         model_id = loaded_json["metadata"]["scan"]
         slug = loaded_json["metadata"]["slug"]
