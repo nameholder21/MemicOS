@@ -223,7 +223,9 @@ export default function GraphNodeConnections() {
           </div>
         )}
         {clickedNode && (
-          <div className="mt-2 flex w-full flex-row gap-x-0">
+          <div
+            className={`mt-2 flex h-full w-full flex-1 flex-row gap-x-0 ${clickedNode?.featureDetailNP ? 'pb-9' : 'pb-5'}`}
+          >
             <FeatureList
               title="Input Features"
               nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
