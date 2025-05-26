@@ -255,7 +255,7 @@ export function GraphProvider({
 
   const makeTooltipText = (node: CLTGraphNode) => {
     const label = getNodeSupernodeAndOverrideLabel(node);
-    return `${label.length === 0 ? 'Unlabeled' : getOverrideClerpForNode(node)} <br/> ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : `Layer ${node.layer}`}`;
+    return `${label.length === 0 ? 'Unlabeled' : getOverrideClerpForNode(node)} <br/> ${node.layer === 'E' ? 'Emb' : node.layer === 'Lgt' ? 'Logit' : `${node.isSuperNode ? '' : `Layer ${node.layer}`}`}`;
   };
 
   const getFilterGraphTypeForCurrentUser = (graph: GraphMetadata) => {

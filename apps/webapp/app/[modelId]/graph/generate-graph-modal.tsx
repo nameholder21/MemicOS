@@ -594,7 +594,6 @@ export default function GenerateGraphModal() {
               <strong>URL:</strong>{' '}
               <a
                 href={generationResult.url}
-                target="_blank"
                 rel="noopener noreferrer"
                 className="break-all text-sky-700 hover:underline"
               >
