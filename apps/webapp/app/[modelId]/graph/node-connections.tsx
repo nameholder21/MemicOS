@@ -70,9 +70,8 @@ function FeatureList({
             return false;
           }
           // no influence and pruning threshold. show all.
-          else {
-            return true;
-          }
+
+          return true;
         })
         .filter((d) => {
           // now filter for feature density. we only have this for memicos dashboards
@@ -109,9 +108,8 @@ function FeatureList({
             return false;
           }
           // no density threshold. show all.
-          else {
-            return true;
-          }
+
+          return true;
         })
         .map((node, idx) => (
           <button
