@@ -43,7 +43,7 @@ export default function PageSourceSet({ sourceSet }: { sourceSet: SourceSetWithP
       )}
 
       <div className="flex w-full flex-row items-center justify-center border-b border-slate-200 py-6">
-        <div className="flex w-full  max-w-screen-lg flex-row items-center justify-between">
+        <div className="flex w-full max-w-screen-lg flex-row items-center justify-between">
           <div className="flex flex-col items-start">
             {sourceSet.visibility !== Visibility.PUBLIC && (
               <div className="pb-1">{getVisibilityBadge(sourceSet.visibility)}</div>
@@ -56,7 +56,7 @@ export default function PageSourceSet({ sourceSet }: { sourceSet: SourceSetWithP
               <Link
                 prefetch={false}
                 href={`/${sourceSet?.releases?.name}`}
-                className=" text-sky-700 hover:text-sky-600 hover:underline"
+                className="text-sky-700 hover:text-sky-600 hover:underline"
               >
                 {sourceSet?.releases?.name}
               </Link>{' '}
@@ -77,18 +77,20 @@ export default function PageSourceSet({ sourceSet }: { sourceSet: SourceSetWithP
             </div>
             {sourceSet.urls && sourceSet.urls.length > 0 && (
               <div className="mt-2 flex flex-row items-center justify-center gap-x-1.5">
-                {sourceSet.urls.map((url, i) => (
-                  <a
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block cursor-pointer break-all rounded-full border-slate-200 bg-slate-200/70 px-3.5 py-1 font-sans text-[11px] text-slate-500 hover:bg-slate-300"
-                  >
-                    {new URL(url).hostname.replace('www.', '')} ↗
-                  </a>
-                ))}
+                {sourceSet.urls
+                  .filter((url) => url.length > 0)
+                  .map((url, i) => (
+                    <a
+                      // eslint-disable-next-line react/no-array-index-key
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-block cursor-pointer break-all rounded-full border-slate-200 bg-slate-200/70 px-3.5 py-1 font-sans text-[11px] text-slate-500 hover:bg-slate-300"
+                    >
+                      {new URL(url).hostname.replace('www.', '')} ↗
+                    </a>
+                  ))}
               </div>
             )}
           </div>
