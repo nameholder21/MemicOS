@@ -31,26 +31,26 @@
           "description": "The prompt, untokenized.",
           "examples": ["The cat in the hat"]
         },
+        "feature_details": {
+          "type": "object",
+          "description": "[Optional] Specify how to fetch feature details. If you are hosting your own feature JSONs (in the Anthropic feature format), use feature_json_base_url. If MemicOS has the feature dashboards for the source you are using, use memicos_source_set.",
+          "properties": {
+            "feature_json_base_url": {
+              "type": "string",
+              "description": "The base URL for the feature JSON files (Anthropic feature format), if you want the frontend to download your features details from your server. IMPORTANT: The feature detail JSON files should be in the format [layer_number]-[feature_index].json, for example, 15-2324.json would be layer 15, index 2324. If a base url is https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at https://my-cloudfront.s3.amazonaws.com/my_model/features/15-2324.json. Remember to enable public access, CORS from all origins, and https.",
+              "examples": ["https://my-cloudfront.s3.amazonaws.com/my_model/features"]
+            },
+            "memicos_source_set": {
+              "type": "string",
+              "description": "Specifies which source set on MemicOS your features correspond to. For example, a source set of gemmascope-transcoder-16k when combined with scan/modelId, corresponds to: https://www.memicos.org/gemma-2-2b/gemmascope-transcoder-16k",
+              "examples": ["gemmascope-transcoder-16k"]
+            }
+          }
+        },
         "node_threshold": {
           "type": "number",
           "description": "[Optional] Default dynamic pruning threshold. It uses nodes.influence value to determine pruning - see https://github.com/safety-research/open-source-circuit-finding",
           "examples": [0.8]
-        },
-        "memicos": {
-          "type": "object",
-          "description": "[Optional] MemicOS-specific fields for supporting showing feature details on MemicOS. Not required for the link/subgraph to work on MemicOS. If you are hosting your own feature JSONs, use feature_json_base_url. If MemicOS already has the feature dashboards for the source you are using, use source_set.",
-          "properties": {
-            "feature_json_base_url": {
-              "type": "string",
-              "description": "The base URL for the feature JSON files, if you want the frontend to download your features details from your server. IMPORTANT: The feature detail JSON files should be in the format [layer_number]-[feature_index].json, for example, 15-2324.json would be layer 15, index 2324. If a base url is https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at https://my-cloudfront.s3.amazonaws.com/my_model/features/15-2324.json. Remember to enable public access and CORS from all origins. Https is also required. See feature_schema.json for the format of the feature JSON files.",
-              "examples": ["https://my-cloudfront.s3.amazonaws.com/my_model/features"]
-            },
-            "source_set": {
-              "type": "string",
-              "description": "Used to determine which source set on MemicOS the coders correspond to. This allows us to fetch the correct feature details. For example, gemmascope-transcoder-16k when combined with scan/modelId, corresponds to: https://www.memicos.org/gemma-2-2b/gemmascope-transcoder-16k",
-              "examples": ["gemmascope-transcoder-16k"]
-            }
-          }
         },
         "info": {
           "type": "object",
