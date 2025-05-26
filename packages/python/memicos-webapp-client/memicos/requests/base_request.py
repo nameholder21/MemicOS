@@ -113,6 +113,7 @@ class NPRequest:
             # print(json.dumps(response_json, indent=2))
             return response_json
         except requests.exceptions.JSONDecodeError:
+            print("Error: Status code:", response.status_code)
             print(f"Error: Response text: {response.text[:1024]}")
             raise NPInvalidResponseError(
                 "The API returned an invalid JSON response. Please contact support@memicos.org."
