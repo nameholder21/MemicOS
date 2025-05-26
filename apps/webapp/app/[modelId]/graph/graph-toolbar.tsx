@@ -258,6 +258,12 @@ export default function GraphToolbar() {
                     const featuredGraphs = allVisibleGraphs.filter(
                       (graph) => graph.isFeatured && session.data?.user?.id !== graph.userId,
                     );
+                    const otherSelectedGraph =
+                      selectedMetadataGraph &&
+                      !myGraphs.includes(selectedMetadataGraph) &&
+                      !featuredGraphs.includes(selectedMetadataGraph)
+                        ? selectedMetadataGraph
+                        : null;
                     const communityGraphs = allVisibleGraphs.filter(
                       (graph) => !graph.isFeatured && session.data?.user?.id !== graph.userId,
                     );
@@ -367,6 +373,11 @@ export default function GraphToolbar() {
 
                     return (
                       <>
+                        {otherSelectedGraph && (
+                          <Select.Group className="divide-y divide-slate-200">
+                            {renderGraphItem(otherSelectedGraph, session.data?.user?.id === otherSelectedGraph.userId)}
+                          </Select.Group>
+                        )}
                         {filterGraphsSetting.includes(FilterGraphType.Mine) && myGraphs.length > 0 && (
                           <Select.Group className="divide-y divide-slate-200">
                             <Select.Label className="sticky top-0 z-10 border-b border-t border-slate-100 bg-slate-50 py-2 pl-4 pr-6 pt-2.5 text-center text-xs font-bold text-slate-500">

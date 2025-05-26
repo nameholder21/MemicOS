@@ -10,6 +10,49 @@ import {
 } from './utils';
 import GraphWrapper from './wrapper';
 
+// Helper function to ensure a modelId exists in the map
+function ensureModelIdInMap(map: ModelToGraphMetadatasMap, modelId: string) {
+  if (!map[modelId]) {
+    // eslint-disable-next-line
+    map[modelId] = [];
+  }
+}
+
+// Helper function to add graph metadata to the map without duplicates
+function addGraphMetadataToMap(map: ModelToGraphMetadatasMap, modelId: string, graphMetadata: any) {
+  ensureModelIdInMap(map, modelId);
+
+  // Ensure no existing graph with the same slug to avoid overriding featured graphs
+  if (!map[modelId].find((graph) => graph.slug === graphMetadata.slug)) {
+    map[modelId].push(graphMetadata);
+  }
+}
+
+// Helper function to merge graph metadata arrays into the map
+function mergeGraphMetadataArrays(map: ModelToGraphMetadatasMap, modelId: string, graphMetadataArray: any[]) {
+  if (!map[modelId]) {
+    // eslint-disable-next-line
+    map[modelId] = graphMetadataArray;
+  } else {
+    // eslint-disable-next-line
+    map[modelId] = [...map[modelId], ...graphMetadataArray];
+  }
+}
+
+// Helper function to get graph metadata with user info
+async function getGraphMetadataWithUser(where: any) {
+  return prisma.graphMetadata.findMany({
+    where,
+    include: {
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+}
+
 export default async function Page({
   params,
   searchParams,
@@ -49,55 +92,52 @@ export default async function Page({
       Object.keys(modelIdToGraphMetadata)
         .filter((m) => supportedGraphModels.has(m))
         .forEach((m) => {
-          // if we don't have the modelId in the map, add it and all its graphs
-          if (!modelIdToGraphMetadatasMap[m]) {
-            modelIdToGraphMetadatasMap[m] = modelIdToGraphMetadata[m];
-          } else {
-            // if we already have the modelId in the map, add all its graphs to the existing array
-            modelIdToGraphMetadatasMap[m] = [...modelIdToGraphMetadatasMap[m], ...modelIdToGraphMetadata[m]];
-          }
+          mergeGraphMetadataArrays(modelIdToGraphMetadatasMap, m, modelIdToGraphMetadata[m]);
         });
     } catch (error) {
       console.error(`Failed to fetch metadata from ${baseUrl}:`, error);
     }
   }
 
-  // now look up graphmetadatas in our database
-  const graphMetadatas = await prisma.graphMetadata.findMany({
-    // where: {
-    //   modelId: {
-    //     in: Object.keys(modelIdToGraphMetadatasMap),
-    //   },
-    // },
-    // where:
-    //   session && session.user && session.user.id
-    //     ? {
-    //         userId: session?.user.id,
-    //       }
-    //     : {},
-    include: {
-      user: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
+  // now look up logged in user's graphmetadatas in our database
+  const graphMetadatas =
+    session && session.user && session.user.id ? await getGraphMetadataWithUser({ userId: session.user.id }) : [];
 
   // add those graphmetadatas to the modelIdToGraphMetadatasMap too
   graphMetadatas.forEach((graphMetadata) => {
-    // if the modelId is not in the map, add it
-    if (!modelIdToGraphMetadatasMap[graphMetadata.modelId]) {
-      modelIdToGraphMetadatasMap[graphMetadata.modelId] = [];
-    }
-    // ensure that there is no existing graph with the same slug
-    // we don't want a user-uploaded graph to override a featured graph
-    if (!modelIdToGraphMetadatasMap[graphMetadata.modelId].find((graph) => graph.slug === graphMetadata.slug)) {
-      modelIdToGraphMetadatasMap[graphMetadata.modelId].push(graphMetadata);
-    }
+    addGraphMetadataToMap(modelIdToGraphMetadatasMap, graphMetadata.modelId, graphMetadata);
   });
 
-  const metadataGraph = modelIdToGraphMetadatasMap[modelId]?.find((graph) => graph.slug === searchParams.slug);
+  // set the metadata graph to show, if specified in the url. if we don't have it, look it up in the database
+  let metadataGraph;
+  if (searchParams.slug) {
+    metadataGraph = modelIdToGraphMetadatasMap[modelId]?.find((graph) => graph.slug === searchParams.slug);
+    // if it's not in our map, look it up in the database
+    if (!metadataGraph) {
+      metadataGraph = await prisma.graphMetadata.findUnique({
+        where: {
+          modelId_slug: {
+            modelId,
+            slug: searchParams.slug,
+          },
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+      // add this to our map
+      if (metadataGraph) {
+        addGraphMetadataToMap(modelIdToGraphMetadatasMap, modelId, metadataGraph);
+      } else {
+        console.error(`Graph with slug ${searchParams.slug} not found in database`);
+        metadataGraph = undefined;
+      }
+    }
+  }
 
   let parsedSupernodes: string[][] | undefined;
   try {
