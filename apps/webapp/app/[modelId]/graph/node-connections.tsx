@@ -30,31 +30,88 @@ function FeatureList({
       <div className="sticky top-0 bg-white pb-0.5 text-[10px] font-medium uppercase text-slate-500">{title}</div>
       {nodes
         ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
-        .filter(
-          (node) =>
-            node[linkProp]?.pctInput !== null &&
-            node[linkProp]?.pctInput !== undefined &&
-            (node.feature_type === 'embedding' ||
-              node.feature_type === 'logit' ||
-              (node.influence !== undefined &&
-                visState.pruningThreshold !== undefined &&
-                node.influence <= visState.pruningThreshold) ||
-              (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) ||
-              (node.nodeId !== undefined && visState.clickedId === node.nodeId)),
-        )
+        .filter((node) => {
+          // no input = don't show
+          if (
+            node[linkProp]?.pctInput === null ||
+            node[linkProp]?.pctInput === undefined ||
+            node[linkProp]?.pctInput === 0
+          ) {
+            return false;
+          }
+
+          // otherwise there is some input, but check if we should filter it out
+
+          // always show embeddings and logits
+          if (node.feature_type === 'embedding' || node.feature_type === 'logit') {
+            return true;
+          }
+
+          // always show pinned nodes
+          if (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) {
+            return true;
+          }
+
+          // always show clicked nodes
+          if (node.nodeId !== undefined && visState.clickedId === node.nodeId) {
+            return true;
+          }
+
+          // if we have influence and pruning threshold, show if influence is less than pruning threshold
+          if (
+            node.influence !== undefined &&
+            node.influence !== null &&
+            visState.pruningThreshold !== undefined &&
+            visState.pruningThreshold !== null
+          ) {
+            if (node.influence <= visState.pruningThreshold) {
+              return true;
+            }
+            return false;
+          }
+          // no influence and pruning threshold. show all.
+          else {
+            return true;
+          }
+        })
         .filter((d) => {
+          // now filter for feature density. we only have this for memicos dashboards
+          // if not np dashboard, then don't do additional filtering
           if (!hasNPDashboards) {
             return true;
           }
-          return (
-            d.feature_type === 'embedding' ||
-            d.feature_type === 'logit' ||
-            (d.featureDetailNP?.frac_nonzero !== undefined &&
-              visState.densityThreshold !== undefined &&
-              d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) ||
-            (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) ||
-            (d.nodeId !== undefined && visState.clickedId === d.nodeId)
-          );
+
+          // always show embeddings and logits
+          if (d.feature_type === 'embedding' || d.feature_type === 'logit') {
+            return true;
+          }
+
+          // always show pinned nodes
+          if (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) {
+            return true;
+          }
+
+          // always show clicked nodes
+          if (d.nodeId !== undefined && visState.clickedId === d.nodeId) {
+            return true;
+          }
+
+          // show if density threshold is met
+          if (
+            d.featureDetailNP?.frac_nonzero !== undefined &&
+            d.featureDetailNP?.frac_nonzero !== null &&
+            visState.densityThreshold !== undefined &&
+            visState.densityThreshold !== null
+          ) {
+            if (d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) {
+              return true;
+            }
+            return false;
+          }
+          // no density threshold. show all.
+          else {
+            return true;
+          }
         })
         .map((node, idx) => (
           <button
@@ -149,6 +206,8 @@ export default function GraphNodeConnections() {
 
   return (
     <div className="node-connections relative mt-2 flex max-w-[420px] flex-1 flex-row overflow-y-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm transition-all">
+      {/* <div className="absolute top-0 mx-auto h-3 w-24 rounded-b bg-[#f0f] text-[6px] text-white">Clicked Node</div> */}
+
       <div className="flex w-full flex-col text-slate-700">
         {clickedNode ? (
           <div className="flex flex-row items-center gap-x-2 text-xs font-medium text-slate-600">
