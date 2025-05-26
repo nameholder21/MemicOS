@@ -66,7 +66,11 @@
             },
             "creator_name": {
               "type": "string",
-              "description": "The name of the person/group that triggered the generation of this specific graph. Not necessarily the creator of the graph generator."
+              "description": "The name of the person/group that triggered the generation of this specific graph. Not necessarily the creator of the graph generation code."
+            },
+            "creator_url": {
+              "type": "string",
+              "description": "The url of the person/group that triggered the generation of this specific graph. Not necessarily the creator of the graph generation code."
             },
             "create_time_ms": {
               "type": "number",
