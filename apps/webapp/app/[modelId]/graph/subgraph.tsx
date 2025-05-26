@@ -5,7 +5,7 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check, HelpCircleIcon, Share2, Trash2, XIcon } from 'lucide-react';
+import { Check, Circle, HelpCircleIcon, Share2, Trash2, XIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
@@ -1094,15 +1094,18 @@ export default function Subgraph() {
 
           {/* Supernode Grouping Mode Label */}
           {visState.subgraph?.activeGrouping.isActive &&
-            visState.subgraph?.supernodes.length === 0 &&
             (visState.pinnedIds.length > 1 ? (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-sky-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-                {visState.subgraph.activeGrouping.selectedNodeIds.size === 0 &&
-                  `Grouping Mode: Click nodes below to select them, release 'g' to group. Click ✕ to ungroup.`}
-                {visState.subgraph.activeGrouping.selectedNodeIds.size === 1 &&
-                  `Grouping Mode: Nice! One node selected. Keep holding 'g' and click another node.`}
-                {visState.subgraph.activeGrouping.selectedNodeIds.size === 2 &&
-                  `Grouping Mode: Neat! Two nodes selected. To group them, release 'g'. You can also pin and select more nodes.`}
+                {visState.subgraph.activeGrouping.selectedNodeIds.size === 0 ||
+                (visState.subgraph.activeGrouping.selectedNodeIds.size > 2 && visState.subgraph?.supernodes.length > 0)
+                  ? `Grouping Mode: Click nodes below to select them, release 'g' to group. Click ✕ to ungroup.`
+                  : visState.subgraph?.supernodes.length === 0
+                    ? visState.subgraph.activeGrouping.selectedNodeIds.size === 1
+                      ? `Grouping Mode: Nice! One node selected. Keep holding 'g' and click another node.`
+                      : visState.subgraph.activeGrouping.selectedNodeIds.size === 2
+                        ? `Grouping Mode: Neat! Two nodes selected. To group them, release 'g'. You can also pin and select more nodes.`
+                        : `Grouping Mode: ${visState.subgraph.activeGrouping.selectedNodeIds.size} nodes selected. To group them, release 'g'. You can also pin and select more nodes.`
+                    : `Grouping Mode: Click nodes below to select them, release 'g' to group. Click ✕ to ungroup.`}
               </div>
             ) : (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-amber-600 px-2 py-1 text-center text-[11px] font-medium text-white">
@@ -1123,15 +1126,40 @@ export default function Subgraph() {
           {/* Pin/Unpin Mode Label */}
           {isMetaKeyHeld &&
             !visState.subgraph?.activeGrouping.isActive &&
-            visState.pinnedIds.length < 3 &&
             visState.subgraph?.supernodes.length === 0 && (
               <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
-                {visState.pinnedIds.length === 0 &&
-                  'Pinning Mode: Click a node in the link graph above or in the subgraph below to pin or unpin it.'}
-                {visState.pinnedIds.length === 1 &&
-                  'Pinning Mode: Nice! One node pinned. Pin one more to start grouping.'}
-                {visState.pinnedIds.length === 2 &&
-                  `Pinning Mode: Great! Two nodes pinned. Release command/control and hold 'g' to start grouping.`}
+                {visState.pinnedIds.length === 0 && (
+                  <>
+                    Pinning Mode: Click a <Circle className="mr-0.5 inline h-2.5 w-2.5" />
+                    node in the link graph above or in the subgraph below to pin or unpin it.
+                  </>
+                )}
+                {visState.pinnedIds.length === 1 && (
+                  <>
+                    Pinning Mode: Nice! One <Circle className="mr-0.5 inline h-2.5 w-2.5" />
+                    node pinned. Pin one more to start grouping.
+                  </>
+                )}
+                {visState.pinnedIds.length === 2 && (
+                  <>
+                    Pinning Mode: Great! Two <Circle className="mr-0.5 inline h-2.5 w-2.5" />
+                    nodes pinned. Release command/control and hold {`'g'`} to start grouping.
+                  </>
+                )}
+                {visState.pinnedIds.length > 2 && (
+                  <>
+                    Pinning Mode: {visState.pinnedIds.length} <Circle className="mr-0.5 inline h-2.5 w-2.5" />
+                    nodes pinned. Release command/control and hold {`'g'`} to start grouping.
+                  </>
+                )}
+              </div>
+            )}
+          {isMetaKeyHeld &&
+            !visState.subgraph?.activeGrouping.isActive &&
+            visState.subgraph &&
+            visState.subgraph?.supernodes.length > 0 && (
+              <div className="absolute left-1/2 top-2.5 z-10 -translate-x-1/2 transform cursor-default whitespace-pre rounded-md bg-emerald-600 px-2 py-1 text-center text-[11px] font-medium text-white">
+                Pinning Mode: Click a <Circle className="ml-0.5 inline h-2.5 w-2.5" /> node to pin or unpin it.
               </div>
             )}
 
@@ -1139,8 +1167,12 @@ export default function Subgraph() {
             <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm">
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
-                <strong>· Pin or Unpin a Node</strong>
-                {`: Hold 'Command/Ctrl', then click a node in the link graph above.`}
+                <strong>
+                  · Pin or Unpin a <Circle className="mb-1 mr-0.5 inline h-3 w-3" />
+                  Node
+                </strong>
+                {`: Hold 'Command/Ctrl'`}, then click a <Circle className="mb-1 mr-0.5 inline h-3 w-3" />
+                node in the link graph above.
               </div>
               <div>
                 <strong>· Group Nodes into a Supernode</strong>

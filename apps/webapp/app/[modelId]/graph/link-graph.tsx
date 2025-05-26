@@ -807,7 +807,7 @@ export default function LinkGraph() {
       .map((d) => d.tmpHoveredLink)
       .filter(Boolean) as CLTGraphLink[];
 
-    // drawLinks(hoveredLinks, allCtx.bgLinks || null, 0.05, '#000');
+    drawLinks(hoveredLinks, allCtx.bgLinks || null, 0.001, '#888');
 
     drawLinks(hoveredLinks, allCtx.hoveredLinks || null, 0.05);
 
