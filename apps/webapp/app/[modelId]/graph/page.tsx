@@ -69,12 +69,12 @@ export default async function Page({
     //     in: Object.keys(modelIdToGraphMetadatasMap),
     //   },
     // },
-    where:
-      session && session.user && session.user.id
-        ? {
-            userId: session?.user.id,
-          }
-        : {},
+    // where:
+    //   session && session.user && session.user.id
+    //     ? {
+    //         userId: session?.user.id,
+    //       }
+    //     : {},
     include: {
       user: {
         select: {
