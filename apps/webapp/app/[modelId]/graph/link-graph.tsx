@@ -118,7 +118,7 @@ export default function LinkGraph() {
   const svgRef = useRef<SVGSVGElement>(null);
   const middleRef = useRef<SVGSVGElement>(null);
   const bottomRef = useRef<SVGSVGElement>(null);
-  const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([null, null, null, null]);
+  const canvasRefs = useRef<Array<HTMLCanvasElement | null>>([null, null, null, null, null]);
   const { visState, selectedGraph, updateVisStateField, isEditingLabel, makeTooltipText } = useGraphContext();
   const isEditingLabelRef = useRef(isEditingLabel);
 
@@ -181,22 +181,81 @@ export default function LinkGraph() {
     isEditingLabelRef.current = isEditingLabel;
   }, [isEditingLabel]);
 
-  // Update hoverState when hoveredId changes
-  // useEffect(() => {
-  //   if (!selectedGraph || !visState.hoveredId || isEditingLabelRef.current) return;
+  // Update hoverState when hoveredId changes - for hovered links
+  useEffect(() => {
+    if (!selectedGraph) return;
+    const data = selectedGraph as CLTGraphExtended;
+    if (!data.nodes) return;
 
-  //   // Use hovered node if possible, otherwise use last occurrence of feature
-  //   const targetCtxIdx = visState.hoveredCtxIdx ?? 999;
-  //   const hoveredNodes = selectedGraph.nodes.filter((n) => n.featureId === visState.hoveredNodeId);
-  //   if (hoveredNodes.length > 0) {
-  //     // if hovered node is the same as the hoveredId, do nothing
-  //     if (hoveredNodes[0].nodeId === visState.hoveredNodeId) return;
+    // Clear existing tmpHoveredLink values if no hoveredId
+    if (!visState.hoveredId) {
+      data.nodes.forEach((d) => {
+        d.tmpHoveredLink = undefined;
+        d.tmpHoveredSourceLink = undefined;
+        d.tmpHoveredTargetLink = undefined;
+      });
+      return;
+    }
+    // Get the hovered node
+    const node: CLTGraphNode | undefined = data.nodes.find((n) => n.featureId === visState.hoveredId);
 
-  //     // Sort by closest ctx_idx to the target
-  //     const node = d3.sort(hoveredNodes, (d) => Math.abs((d.ctx_idx || 0) - (targetCtxIdx || 0)))[0];
-  //     updateVisStateField('hoveredNodeId', node?.nodeId || null);
-  //   }
-  // }, [visState.hoveredId, visState.hoveredCtxIdx, selectedGraph, updateVisStateField]);
+    // If we couldn't find a node, clear all tmpHoveredLink values
+    if (!node) {
+      data.nodes.forEach((d) => {
+        d.tmpHoveredLink = undefined;
+        d.tmpHoveredSourceLink = undefined;
+        d.tmpHoveredTargetLink = undefined;
+      });
+      return;
+    }
+
+    // Process all connected links
+    const connectedLinks = [...(node.sourceLinks || []), ...(node.targetLinks || [])].filter(Boolean);
+
+    // Map links by node ID for easier lookup
+    const nodeIdToSourceLink: Record<string, CLTGraphLink> = {};
+    const nodeIdToTargetLink: Record<string, CLTGraphLink> = {};
+    const featureIdToLink: Record<string, CLTGraphLink> = {};
+
+    connectedLinks.forEach((link) => {
+      if (link.sourceNode === node) {
+        if (link.targetNode?.nodeId) {
+          nodeIdToTargetLink[link.targetNode.nodeId] = link;
+        }
+        if (link.targetNode?.featureId) {
+          featureIdToLink[link.targetNode.featureId] = link;
+        }
+        link.tmpHoveredCtxOffset = (link.targetNode?.ctx_idx || 0) - (node.ctx_idx || 0);
+      }
+
+      if (link.targetNode === node) {
+        if (link.sourceNode?.nodeId) {
+          nodeIdToSourceLink[link.sourceNode.nodeId] = link;
+        }
+        if (link.sourceNode?.featureId) {
+          featureIdToLink[link.sourceNode.featureId] = link;
+        }
+        link.tmpHoveredCtxOffset = (link.sourceNode?.ctx_idx || 0) - (node.ctx_idx || 0);
+      }
+
+      // Set color for the link
+      link.tmpColor = link.pctInputColor;
+    });
+
+    // Update all nodes with the appropriate links
+    data.nodes.forEach((d) => {
+      d.tmpHoveredLink = nodeIdToSourceLink[d.nodeId || ''] || nodeIdToTargetLink[d.nodeId || ''];
+      d.tmpHoveredSourceLink = nodeIdToSourceLink[d.nodeId || ''];
+      d.tmpHoveredTargetLink = nodeIdToTargetLink[d.nodeId || ''];
+    });
+
+    // Update features with links if they exist
+    if (data.features) {
+      data.features.forEach((d) => {
+        d.tmpHoveredLink = featureIdToLink[d.featureId];
+      });
+    }
+  }, [visState.hoveredId, selectedGraph, updateVisStateField]);
 
   // Update clickedState when clickedId changes - equivalent to renderAll.clickedId.fns.push()
   useEffect(() => {
@@ -428,6 +487,7 @@ export default function LinkGraph() {
       pinnedLinks: canvasRefs.current[1]?.getContext('2d'),
       bgLinks: canvasRefs.current[2]?.getContext('2d'),
       clickedLinks: canvasRefs.current[3]?.getContext('2d'),
+      hoveredLinks: canvasRefs.current[4]?.getContext('2d'),
     };
 
     // Transform all contexts to account for margins
@@ -731,7 +791,6 @@ export default function LinkGraph() {
     if (allCtx.pinnedLinks) {
       drawLinks(visState.clickedId ? [] : filterLinks(visState.pinnedIds), allCtx.pinnedLinks);
     }
-
     // Draw links for clicked node
     const clickedLinks = nodes
       .filter((d) => d.tmpClickedLink)
@@ -741,6 +800,16 @@ export default function LinkGraph() {
     drawLinks(clickedLinks, allCtx.bgLinks || null, 0.05, '#000');
 
     drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05);
+
+    // test: try trying links for hovered node
+    const hoveredLinks = nodes
+      .filter((d) => d.tmpHoveredLink)
+      .map((d) => d.tmpHoveredLink)
+      .filter(Boolean) as CLTGraphLink[];
+
+    // drawLinks(hoveredLinks, allCtx.bgLinks || null, 0.05, '#000');
+
+    drawLinks(hoveredLinks, allCtx.hoveredLinks || null, 0.05);
 
     // Highlight pinned nodes
     nodeSel.classed('pinned', (d) => Boolean(d.nodeId && visState.pinnedIds.includes(d.nodeId)));
