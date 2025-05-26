@@ -1,7 +1,6 @@
 import { getSourceSet } from '@/lib/db/source';
-import { RequestOptionalUser } from '@/lib/with-user';
+import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 
-import { withOptionalUser } from '@/lib/with-user';
 import { NextResponse } from 'next/server';
 
 export const GET = withOptionalUser(
