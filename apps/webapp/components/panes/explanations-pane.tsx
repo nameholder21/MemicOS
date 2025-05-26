@@ -181,7 +181,7 @@ export default function ExplanationsPane({
                           );
                         }
                         // CASE: human explanation and we have the user info
-                        else if (explanation.triggeredByUser?.name) {
+                        if (explanation.triggeredByUser?.name) {
                           return (
                             <button
                               type="button"
@@ -205,13 +205,12 @@ export default function ExplanationsPane({
                               )}
                             </button>
                           );
-                        } else {
-                          return (
-                            <div className="font-sans text-[10px] font-medium text-slate-300">
-                              Explanation Uploaded by User
-                            </div>
-                          );
                         }
+                        return (
+                          <div className="font-sans text-[10px] font-medium text-slate-300">
+                            Explanation Uploaded by User
+                          </div>
+                        );
                       })()}
                       {/* we don't have DFA scoring yet */}
                       {!currentNeuron?.sourceSet?.showDfa && (

@@ -205,7 +205,7 @@ export const createSourceSetWithSources = async (input: SourceSet, layers: numbe
   } else {
     // make sources to create
     const sourcesToCreate = [];
-    for (let i = 0; i < layers; i++) {
+    for (let i = 0; i < layers; i += 1) {
       sourcesToCreate.push({
         // modelId: input.modelId,
         id: `${i}-${input.name}`,
