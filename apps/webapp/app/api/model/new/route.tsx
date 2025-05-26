@@ -12,10 +12,11 @@ const NewModelRequestSchema = yup.object({
     .min(2)
     .max(32, 'Model ID must be less than 32 characters')
     .matches(
-      /^[a-z][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$/,
-      'Name must contain only lowercase letters, digits, and hyphens, start with a letter or digit, not end with a hyphen, and not contain double hyphens',
+      /^[a-z][a-z0-9.-]*[a-z0-9]$|^[a-z]$/,
+      'Name must contain only lowercase letters, digits, hyphens, and periods, start with a lowercase letter, not end with a hyphen or period, and not contain double hyphens',
     )
-    .test('no-double-hyphens', 'Name cannot contain double hyphens', (value) => !value || !value.includes('--')),
+    .test('no-double-hyphens', 'Name cannot contain double hyphens', (value) => !value || !value.includes('--'))
+    .test('no-double-periods', 'Name cannot contain double periods', (value) => !value || !value.includes('..')),
   layers: yup.number().required().integer().min(1).max(127, 'Layers must be an integer less than 128'),
   displayName: yup.string().optional().min(1).max(64, 'Display name must be less than 64 characters'),
   url: yup.string().optional().nullable().url('Must be a valid URL'),
