@@ -1,4 +1,9 @@
-import { ATTRIBUTION_GRAPH_SCHEMA, CLTGraph, makeGraphPublicAccessGraphUrl } from '@/app/[modelId]/graph/utils';
+import {
+  ATTRIBUTION_GRAPH_SCHEMA,
+  CLTGraph,
+  ERROR_MODEL_DOES_NOT_EXIST,
+  makeGraphPublicAccessGraphUrl,
+} from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
 import { NEXT_PUBLIC_URL } from '@/lib/env';
@@ -99,14 +104,19 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       );
     }
 
-    // if model doesn't exist in our database, return error
+    // if model doesn't exist in our database, create it with the owner as the signed in user
     const model = await prisma.model.findUnique({
       where: {
         id: graph.metadata.scan,
       },
     });
     if (!model) {
-      return NextResponse.json({ error: 'Model not supported' }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: ERROR_MODEL_DOES_NOT_EXIST,
+        },
+        { status: 400 },
+      );
     }
 
     // if exists, return error (only if it's not the same user)

@@ -45,6 +45,8 @@ export const ANT_MODEL_ID_TO_MEMICOS_MODEL_ID = {
   'llama-3-131k-relu': 'llama-3.2-1b',
 };
 
+export const ERROR_MODEL_DOES_NOT_EXIST = 'ERR_MODEL_DOES_NOT_EXIST';
+
 // ============ End of MemicOS Specific =============
 
 export function getLayerFromAnthropicFeatureId(modelId: keyof typeof MODEL_DIGITS_IN_FEATURE_ID, featureId: number) {
@@ -250,9 +252,9 @@ export type CLTGraphInnerMetadata = {
   node_threshold?: number;
 
   // add the extra metadata from graph-schema.json
-  memicos?: {
+  feature_details?: {
     feature_json_base_url?: string;
-    source_set?: string;
+    memicos_source_set?: string;
   };
   info?: {
     title?: string;

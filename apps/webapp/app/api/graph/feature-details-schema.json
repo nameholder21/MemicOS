@@ -3,10 +3,6 @@
   "title": "Generated schema for Root",
   "type": "object",
   "properties": {
-    "layer": {
-      "description": "Optional, but recommended so that we can show layer number.",
-      "type": "integer"
-    },
     "index": {
       "type": "number"
     },
