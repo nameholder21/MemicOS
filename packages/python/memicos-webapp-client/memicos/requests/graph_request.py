@@ -1,7 +1,7 @@
 import gzip
 import json
 import os
-from typing import List
+from typing import List, Optional
 
 import requests
 from memicos.np_graph_metadata import NPGraphMetadata
@@ -15,8 +15,9 @@ UPLOAD_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024  # 100MB
 class GraphRequest(NPRequest):
     def __init__(
         self,
+        api_key: Optional[str] = None,
     ):
-        super().__init__("graph")
+        super().__init__("graph", api_key=api_key)
 
     def upload(
         self,
