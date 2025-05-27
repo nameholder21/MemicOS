@@ -130,7 +130,7 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     });
     if (existingGraph && existingGraph.userId !== userId) {
       return NextResponse.json(
-        { error: 'This model already has this slug. Please use a different slug.' },
+        { error: 'This model already has this slug, and it was created by another user. Please use a different slug.' },
         { status: 400 },
       );
     }

@@ -309,29 +309,6 @@ export default function GenerateGraphModal() {
                   debouncedTokenize={debouncedTokenize}
                 />
                 <Form className="space-y-2">
-                  <div className="flex-1">
-                    <Label htmlFor="slug" className="text-xs text-slate-600">
-                      Name Your Graph (Slug/ID)
-                    </Label>
-                    <Input
-                      id="slug"
-                      name="slug"
-                      value={values.slug}
-                      onChange={(e) => {
-                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '');
-                        setFieldValue('slug', val);
-                      }}
-                      onKeyDown={(e) => {
-                        e.stopPropagation();
-                      }}
-                      onBlur={handleBlur}
-                      disabled={isGenerating}
-                      placeholder="my-graph"
-                      className="mt-1 w-full border-slate-300 text-xs placeholder-slate-400"
-                      maxLength={50}
-                    />
-                    {errors.slug && touched.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
-                  </div>
                   <div>
                     <Label htmlFor="prompt" className="text-xs">
                       Prompt
@@ -381,6 +358,29 @@ export default function GenerateGraphModal() {
                     )}
                   </div>
 
+                  <div className="flex-1">
+                    <Label htmlFor="slug" className="text-xs text-slate-600">
+                      Name Your Graph (Slug/ID)
+                    </Label>
+                    <Input
+                      id="slug"
+                      name="slug"
+                      value={values.slug}
+                      onChange={(e) => {
+                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+                        setFieldValue('slug', val);
+                      }}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onBlur={handleBlur}
+                      disabled={isGenerating}
+                      placeholder="my-graph"
+                      className="mt-1 w-full border-slate-300 text-xs placeholder-slate-400"
+                      maxLength={50}
+                    />
+                    {errors.slug && touched.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
+                  </div>
                   <div className="flex flex-row gap-x-3">
                     <div className="flex-1">
                       <Label htmlFor="modelId" className="text-xs text-slate-600">
@@ -623,7 +623,7 @@ export default function GenerateGraphModal() {
 
                   <div className="flex items-center justify-between pt-3">
                     {isGenerating ? (
-                      countdownTime !== null && countdownTime > 0 ? (
+                      countdownTime !== null ? (
                         <div className="flex flex-row items-center justify-start gap-x-1.5 text-sm text-slate-600">
                           <LoadingSquare className="h-4 w-4" size={12} />
                           Remaining time: {formatCountdown(countdownTime)}

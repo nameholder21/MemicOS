@@ -1,6 +1,7 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { GraphProvider } from '@/components/provider/graph-provider';
 import { prisma } from '@/lib/db';
+import { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
 import {
   getGraphMetadatasFromBucket,
@@ -9,6 +10,35 @@ import {
   supportedGraphModels,
 } from './utils';
 import GraphWrapper from './wrapper';
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: { modelId: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}): Promise<Metadata> {
+  const { modelId } = params;
+  const slug = searchParams.slug as string | undefined;
+
+  const title = `${slug ? `${slug} - ` : ''}${modelId.toUpperCase()} Attribution Graph`;
+  const description = `Visualizing the biology of ${modelId.toUpperCase()} by generating attribution graphs.`;
+  let url = `/${modelId}/graph`;
+
+  if (slug) {
+    url = `/${modelId}/graph?slug=${slug}`;
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+    },
+  };
+}
 
 // Helper function to ensure a modelId exists in the map
 function ensureModelIdInMap(map: ModelToGraphMetadatasMap, modelId: string) {
