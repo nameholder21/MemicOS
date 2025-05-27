@@ -417,46 +417,99 @@ export default function GraphValidator() {
         <p className="text-gray-600">
           Validate your JSON against the Anthropic Attribution Graph schema and Feature Details schema.
         </p>
-        <div className="mt-4 text-sm leading-normal text-gray-600">
-          <p className="mb-2">To show Feature Details on MemicOS, you can either:</p>
-          <ol className="list-decimal space-y-3 pl-6">
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <h3 className="mb-2 font-medium text-amber-900">📤 Uploading Graphs to MemicOS</h3>
+          <p className="mb-2 text-sm text-amber-800">
+            To upload your own graphs to MemicOS, you need to ensure that the{' '}
+            <code className="rounded bg-white px-1 py-0.5 text-xs">scan</code> field in your graph metadata matches a
+            model that exists on MemicOS:
+          </p>
+          <ol className="list-decimal space-y-2 pl-6 text-sm text-amber-800">
             <li>
-              <strong>Host the feature JSONs yourself.</strong>
-              <br />
-              In your graph JSON, specify a{' '}
-              <code className="rounded bg-slate-200 px-1">metadata.feature_details.feature_json_base_url</code> for us
-              to look it up. This is the base URL for your feature JSON files. If a base url is
-              https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at
-              https://my-cloudfront.s3.amazonaws.com/my_model/features/1234.json. Remember to enable public access, CORS
-              from all origins, and https.
+              Check{' '}
+              <a
+                href="https://memicos.org"
+                target="_blank"
+                rel="noreferrer"
+                className="text-amber-700 underline hover:text-amber-800"
+              >
+                memicos.org
+              </a>{' '}
+              for available models
             </li>
             <li>
-              <strong>Use {`MemicOS's`} feature dashboards (or upload your own to MemicOS).</strong>
-              <br />
-              In your graph JSON, specify a{' '}
-              <code className="rounded bg-slate-200 px-1">metadata.feature_details.memicos_source_set</code> to use{' '}
-              {`MemicOS's`} feature dashboards, if it already exists on MemicOS, or if you have{' '}
+              Or use the{' '}
               <a
-                href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_features.ipynb"
+                href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/new-model.ipynb"
                 target="_blank"
                 rel="noreferrer"
-                className="text-sky-700 underline"
+                className="text-amber-700 underline hover:text-amber-800"
               >
-                uploaded them yourself
-              </a>
-              . If you choose this route, you need to ensure that in your graph json file, the node feature numbers are{' '}
-              <a
-                href="https://www.cantorsparadise.com/cantor-pairing-function-e213a8a89c2b"
-                target="_blank"
-                rel="noreferrer"
-                className="text-sky-700 underline"
-              >
-                cantor-paired
-              </a>
-              : feature = cantor(layer_num, feat_index) = (layer_num + feat_index) * (layer_num + feat_index + 1) / 2 +
-              feat_index
+                MemicOS API/library to create a new model entry
+              </a>{' '}
+              that matches your scan value
             </li>
           </ol>
+        </div>
+        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <h3 className="mb-2 font-medium text-blue-900">🔗 Feature Details Configuration</h3>
+          <div className="text-sm leading-normal text-blue-800">
+            <p className="mb-2 font-bold">To show Feature Details on MemicOS, you can either:</p>
+            <ol className="list-decimal space-y-3 pl-6">
+              <li>
+                <strong>Host the feature JSONs yourself.</strong>
+                <br />
+                In your graph JSON, specify a{' '}
+                <code className="rounded bg-white px-1 py-0.5 text-xs">
+                  metadata.feature_details.feature_json_base_url
+                </code>{' '}
+                for us to look it up. This is the base URL for your feature JSON files. If a base url is
+                https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at
+                https://my-cloudfront.s3.amazonaws.com/my_model/features/1234.json. Remember to enable public access,
+                CORS from all origins, and https.
+              </li>
+              <li>
+                <strong>
+                  Use {`MemicOS's`} feature dashboards (or{' '}
+                  <a
+                    href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_features.ipynb"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-700 underline hover:text-blue-800"
+                  >
+                    upload your own to MemicOS
+                  </a>
+                  ).
+                </strong>
+                <br />
+                In your graph JSON, specify a{' '}
+                <code className="rounded bg-white px-1 py-0.5 text-xs">
+                  metadata.feature_details.memicos_source_set
+                </code>{' '}
+                to use {`MemicOS's`} feature dashboards, if it already exists on MemicOS, or if you have{' '}
+                <a
+                  href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_features.ipynb"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-700 underline hover:text-blue-800"
+                >
+                  uploaded them yourself
+                </a>
+                . If you choose this route, you need to ensure that in your graph json file, the node feature numbers
+                are{' '}
+                <a
+                  href="https://www.cantorsparadise.com/cantor-pairing-function-e213a8a89c2b"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-700 underline hover:text-blue-800"
+                >
+                  cantor-paired
+                </a>
+                : feature = cantor(layer_num, feat_index) = (layer_num + feat_index) * (layer_num + feat_index + 1) / 2
+                + feat_index
+              </li>
+            </ol>
+          </div>
         </div>
 
         {/* Jump Links */}
