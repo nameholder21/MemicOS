@@ -5,7 +5,6 @@ import { ATTRIBUTION_GRAPH_SCHEMA } from '@/app/[modelId]/graph/utils';
 import FEATURE_DETAILS_SCHEMA from '@/app/api/graph/feature-details-schema.json';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shadcn/card';
-import { Label } from '@/components/shadcn/label';
 import Ajv from 'ajv';
 import { AlertCircle, ArrowLeft, CheckCircle2, Copy, FileText, Lightbulb } from 'lucide-react';
 import { useState } from 'react';
@@ -66,10 +65,10 @@ export default function GraphValidator() {
     const indentClass = depth > 0 ? `ml-${depth * 4}` : '';
     return (
       <div key={suggestion.path} className={`space-y-2 ${indentClass}`}>
-        <div className="rounded border-l-4 border-blue-300 bg-white p-3">
+        <div className="rounded border-l-4 border-sky-300 bg-white p-3">
           <div className="mb-1 flex items-center gap-2">
-            <code className="font-mono text-sm font-semibold text-blue-900">{suggestion.path}</code>
-            <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">{suggestion.type}</span>
+            <code className="font-mono text-sm font-semibold text-sky-900">{suggestion.path}</code>
+            <span className="rounded bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">{suggestion.type}</span>
           </div>
           <p className="text-xs text-gray-600">{suggestion.description}</p>
           {suggestion.subFields && suggestion.subFields.length > 0 && (
@@ -569,56 +568,51 @@ export default function GraphValidator() {
   };
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full max-w-screen-xl p-6">
       <div className="mb-8">
         <div className="mb-3 mt-0 flex flex-wrap gap-2">
           <Button
             variant="outline"
             size="sm"
             asChild
-            className="mb-3 border-purple-200 text-purple-700 hover:bg-purple-50"
+            className="mb-3 border-slate-200 text-slate-700 hover:bg-slate-50"
           >
             <a href="/graph" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Graphs
             </a>
           </Button>
-          <Button variant="outline" size="sm" asChild className="border-green-200 text-green-700 hover:bg-green-50">
-            <a href="#feature-validator" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Jump to Feature Detail Instructions
-            </a>
-          </Button>
         </div>
 
         <h1 className="mb-2 text-3xl font-bold">Upload Graph & Feature Details Instructions and Validators</h1>
-        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <h3 className="mb-2 font-medium text-blue-900">📤 Upload Attribution Graphs - Instructions</h3>
-          <p className="mb-2 text-sm text-blue-800">
-            To upload your own graphs to MemicOS, you need to ensure that the{' '}
-            <code className="rounded bg-white px-1 py-0.5 text-xs">scan</code> field in your graph metadata matches a
-            model that exists on MemicOS:
+        <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4 px-5">
+          <h3 className="mb-3 font-medium text-sky-900">Upload Attribution Graphs - Instructions</h3>
+          <p className="mb-2 text-sm text-sky-800">
+            To upload your own graphs to MemicOS, the model (matching the graph{`'s`}
+            <code className="rounded bg-white px-1 py-0.5 text-xs">metadata.scan</code> value) must be on MemicOS.
+            <br />
+            You can use an EXISTING model, or CREATE a new one.
           </p>
-          <ol className="list-decimal space-y-2 pl-6 text-sm text-blue-800">
+          <ol className="list-decimal space-y-2 pl-6 text-sm text-sky-800">
             <li>
-              Check{' '}
+              <strong>Existing Model:</strong> Check{' '}
               <a
                 href="https://memicos.org"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-700 underline hover:text-blue-800"
+                className="text-sky-700 underline hover:text-sky-800"
               >
                 memicos.org
               </a>{' '}
               for available models
             </li>
             <li>
-              Or use the MemicOS{' '}
+              <strong>New Model:</strong> Use the MemicOS{' '}
               <a
                 href="http://memicos.org/api-doc#tag/models/POST/api/model/new"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-700 underline hover:text-blue-800"
+                className="text-sky-700 underline hover:text-sky-800"
               >
                 API
               </a>{' '}
@@ -627,41 +621,30 @@ export default function GraphValidator() {
                 href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/new-model.ipynb"
                 target="_blank"
                 rel="noreferrer"
-                className="text-blue-700 underline hover:text-blue-800"
+                className="text-sky-700 underline hover:text-sky-800"
               >
                 library
               </a>{' '}
               to create a new model entry that matches your scan value.
             </li>
+            <li>
+              <div className="">
+                After uploading your graph, you can either connect or upload <strong>feature details</strong> for the
+                graph.
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="mt-3 border-emerald-400 bg-emerald-100 text-emerald-700 hover:bg-emerald-50"
+              >
+                <a href="#feature-validator" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Feature Detail Instructions
+                </a>
+              </Button>
+            </li>
           </ol>
-          Then, use either the{' '}
-          <a
-            href="https://www.memicos.org/api-doc#tag/attribution-graphs/POST/api/graph/signed-put"
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-700 underline hover:text-blue-800"
-          >
-            API
-          </a>
-          , the{' '}
-          <a
-            href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_graph.ipynb"
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-700 underline hover:text-blue-800"
-          >
-            library
-          </a>
-          , or the UI (
-          <a
-            href="https://memicos.org/graph"
-            target="_blank"
-            rel="noreferrer"
-            className="text-blue-700 underline hover:text-blue-800"
-          >
-            cloud button at the top right
-          </a>
-          ) to upload your graph.
         </div>
       </div>
 
@@ -682,13 +665,12 @@ export default function GraphValidator() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="json-input">JSON Data</Label>
                 <ReactTextareaAutosize
                   id="json-input"
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
                   placeholder="Paste your JSON here..."
-                  className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
                   minRows={12}
                   maxRows={12}
                 />
@@ -766,14 +748,14 @@ export default function GraphValidator() {
                           className={`space-y-2 rounded-lg p-4 ${
                             validationResult.featureDetailsInfo.type === 'missing'
                               ? 'border border-yellow-200 bg-yellow-50'
-                              : 'border border-blue-200 bg-blue-50'
+                              : 'border border-sky-200 bg-sky-50'
                           }`}
                         >
                           <h4
                             className={`font-medium ${
                               validationResult.featureDetailsInfo.type === 'missing'
                                 ? 'text-yellow-900'
-                                : 'text-blue-900'
+                                : 'text-sky-900'
                             }`}
                           >
                             {validationResult.featureDetailsInfo.type === 'missing'
@@ -784,7 +766,7 @@ export default function GraphValidator() {
                             className={`text-sm ${
                               validationResult.featureDetailsInfo.type === 'missing'
                                 ? 'text-yellow-800'
-                                : 'text-blue-800'
+                                : 'text-sky-800'
                             }`}
                           >
                             {validationResult.featureDetailsInfo.message}
@@ -816,12 +798,12 @@ export default function GraphValidator() {
                       )}
 
                       {validationResult.suggestions && validationResult.suggestions.length > 0 && (
-                        <div className="space-y-2 rounded-lg bg-blue-50 p-4">
-                          <h4 className="flex items-center gap-2 font-medium text-blue-900">
+                        <div className="space-y-2 rounded-lg bg-sky-50 p-4">
+                          <h4 className="flex items-center gap-2 font-medium text-sky-900">
                             <Lightbulb className="h-4 w-4" />
                             Suggested Optional Fields
                           </h4>
-                          <p className="mb-2 text-xs text-blue-700">
+                          <p className="mb-2 text-xs text-sky-700">
                             Not required, but provides useful info to display and can also add functionality.
                           </p>
                           <div className="space-y-1">
@@ -881,7 +863,7 @@ export default function GraphValidator() {
             <CardDescription>The JSON schema that your attribution graph must conform to</CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg bg-gray-50 p-4 text-xs">
+            <pre className="max-h-48 overflow-x-auto overflow-y-auto rounded-lg bg-gray-50 p-4 text-xs">
               {JSON.stringify(ATTRIBUTION_GRAPH_SCHEMA, null, 2)}
             </pre>
           </CardContent>
@@ -890,9 +872,9 @@ export default function GraphValidator() {
 
       {/* Feature Details Validator */}
       <div className="mb-6" id="feature-validator" style={{ scrollMarginTop: '64px' }}>
-        <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <h3 className="mb-2 font-medium text-blue-900">🔗 Upload Feature Details - Instructions</h3>
-          <div className="text-sm leading-normal text-blue-800">
+        <div className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-4">
+          <h3 className="mb-3 font-medium text-sky-900">Upload Feature Details - Instructions</h3>
+          <div className="text-sm leading-normal text-sky-800">
             <p className="mb-2 font-bold">To show Feature Details on MemicOS, you can either:</p>
             <ol className="list-decimal space-y-3 pl-6">
               <li>
@@ -914,7 +896,7 @@ export default function GraphValidator() {
                     href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_features.ipynb"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-700 underline hover:text-blue-800"
+                    className="text-sky-700 underline hover:text-sky-800"
                   >
                     upload your own to MemicOS
                   </a>
@@ -930,7 +912,7 @@ export default function GraphValidator() {
                   href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/upload_features.ipynb"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-700 underline hover:text-blue-800"
+                  className="text-sky-700 underline hover:text-sky-800"
                 >
                   uploaded them yourself
                 </a>
@@ -940,7 +922,7 @@ export default function GraphValidator() {
                   href="https://www.cantorsparadise.com/cantor-pairing-function-e213a8a89c2b"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-700 underline hover:text-blue-800"
+                  className="text-sky-700 underline hover:text-sky-800"
                 >
                   cantor-paired
                 </a>
@@ -950,7 +932,7 @@ export default function GraphValidator() {
             </ol>
           </div>
         </div>
-        <h2 className="mb-6 mt-4 text-2xl font-semibold" style={{ scrollMarginTop: '64px' }}>
+        <h2 className="mb-6 mt-6 text-2xl font-semibold" style={{ scrollMarginTop: '64px' }}>
           Feature Details Validator
         </h2>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -966,13 +948,12 @@ export default function GraphValidator() {
             <CardContent className="space-y-6">
               {/* JSON Input Section */}
               <div>
-                <Label htmlFor="feature-json-input">JSON Data</Label>
                 <ReactTextareaAutosize
                   id="feature-json-input"
                   value={featureJsonInput}
                   onChange={(e) => setFeatureJsonInput(e.target.value)}
                   placeholder="Paste your JSON here..."
-                  className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
                   minRows={12}
                   maxRows={12}
                 />
@@ -1058,12 +1039,12 @@ export default function GraphValidator() {
                       )}
 
                       {featureValidationResult.suggestions && featureValidationResult.suggestions.length > 0 && (
-                        <div className="space-y-2 rounded-lg bg-blue-50 p-4">
-                          <h4 className="flex items-center gap-2 font-medium text-blue-900">
+                        <div className="space-y-2 rounded-lg bg-sky-50 p-4">
+                          <h4 className="flex items-center gap-2 font-medium text-sky-900">
                             <Lightbulb className="h-4 w-4" />
                             Suggested Optional Fields
                           </h4>
-                          <p className="mb-2 text-xs text-blue-700">
+                          <p className="mb-2 text-xs text-sky-700">
                             Not required, but could provide additional useful information.
                           </p>
                           <div className="space-y-1">
@@ -1115,7 +1096,7 @@ export default function GraphValidator() {
             <CardDescription>The JSON schema that your feature details must conform to</CardDescription>
           </CardHeader>
           <CardContent>
-            <pre className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg bg-gray-50 p-4 text-xs">
+            <pre className="max-h-48 overflow-x-auto overflow-y-auto rounded-lg bg-gray-50 p-4 text-xs">
               {JSON.stringify(FEATURE_DETAILS_SCHEMA, null, 2)}
             </pre>
           </CardContent>

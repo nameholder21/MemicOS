@@ -445,9 +445,24 @@ export default function GraphToolbar() {
               title="Download Graph JSON"
               aria-label="Download Graph JSON"
               className="flex h-12 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-slate-300 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-50"
-              onClick={() => {
+              onClick={async () => {
                 if (selectedMetadataGraph) {
-                  window.open(selectedMetadataGraph.url, '_blank');
+                  try {
+                    const response = await fetch(selectedMetadataGraph.url);
+                    const data = await response.blob();
+                    const url = window.URL.createObjectURL(data);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${selectedMetadataGraph.slug}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                  } catch (error) {
+                    console.error('Failed to download graph:', error);
+                    // Fallback to opening in new tab
+                    window.open(selectedMetadataGraph.url, '_blank');
+                  }
                 }
               }}
               disabled={selectedMetadataGraph === null}
