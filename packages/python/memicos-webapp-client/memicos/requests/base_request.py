@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import requests
 from dotenv import load_dotenv
@@ -7,13 +8,13 @@ load_dotenv()
 
 
 class NPKeyMissingError(Exception):
-    """The environment variable 'MEMICOS_API_KEY' is not set."""
+    """No API key provided. Use context manager, global setting, parameter, or environment variable."""
 
     pass
 
 
 class NPUnauthorizedError(Exception):
-    """Unauthorized. Please check your MEMICOS_API_KEY environment variable."""
+    """Unauthorized. Check your API key configuration."""
 
     pass
 
@@ -41,21 +42,42 @@ class NPRequest:
     def __init__(
         self,
         endpoint: str,
+        api_key: Optional[str] = None,
     ):
         if not self.BASE_URL:
             raise ValueError("BASE_URL must be set in a subclass or globally.")
         self.endpoint = endpoint
-        self.api_key = self._get_api_key()
+        self.api_key = self._get_api_key(api_key)
 
     @staticmethod
-    def _get_api_key():
-        """Retrieve and validate the MEMICOS_API_KEY environment variable."""
-        api_key = os.getenv("MEMICOS_API_KEY")
-        if not api_key:
+    def _get_api_key(api_key: Optional[str] = None):
+        """Retrieve and validate the MEMICOS_API_KEY from parameter, context, or environment variable."""
+        # 1. Use explicitly passed parameter if provided
+        if api_key:
+            return api_key
+
+        # 2. Check context variable
+        try:
+            from memicos import get_api_key
+
+            context_api_key = get_api_key()
+            if context_api_key:
+                return context_api_key
+        except ImportError:
+            # Handle case where memicos module isn't fully loaded yet
+            pass
+
+        # 3. Fall back to environment variable
+        env_api_key = os.getenv("MEMICOS_API_KEY")
+        if not env_api_key:
             raise NPKeyMissingError(
-                "The environment variable 'MEMICOS_API_KEY' is not set."
+                "No API key provided. Use one of these methods:\n"
+                "1. Context manager: with memicos.api_key('key'): ...\n"
+                "2. Global setting: memicos.set_api_key('key')\n"
+                "3. Parameter: FeatureRequest(api_key='key')\n"
+                "4. Environment: set MEMICOS_API_KEY variable"
             )
-        return api_key
+        return env_api_key
 
     def get_url(
         self,
@@ -88,7 +110,11 @@ class NPRequest:
 
         if response.status_code == 401:
             raise NPUnauthorizedError(
-                "Unauthorized. Please check your MEMICOS_API_KEY environment variable."
+                "Unauthorized. Check your API key using one of these methods:\n"
+                "1. Context: with memicos.api_key('key'): ...\n"
+                "2. Global: memicos.set_api_key('key')\n"
+                "3. Parameter: Request(api_key='key')\n"
+                "4. Environment: MEMICOS_API_KEY variable"
             )
         elif response.status_code == 404:
             raise requests.exceptions.HTTPError(

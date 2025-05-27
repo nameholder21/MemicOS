@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from memicos.np_activation import Activation
 from memicos.np_explanation import Explanation
@@ -11,8 +11,9 @@ MAX_FEATURES_PER_BATCH = 128
 class FeatureRequest(NPRequest):
     def __init__(
         self,
+        api_key: Optional[str] = None,
     ):
-        super().__init__("feature")
+        super().__init__("feature", api_key=api_key)
 
     def get(self, model_id: str, source: str, index: int) -> Feature:
         result = self.send_request(method="GET", uri=f"{model_id}/{source}/{index}")
