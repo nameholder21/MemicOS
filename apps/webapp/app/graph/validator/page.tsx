@@ -16,7 +16,7 @@ interface ValidationResult {
   suggestions?: EnhancedFieldSuggestion[];
   featureDetailsInfo?: {
     type: 'missing' | 'base_url' | 'memicos_source_set';
-    message: string;
+    message: string | React.ReactNode;
     baseUrl?: string;
     sourceSet?: string;
   };
@@ -368,8 +368,16 @@ export default function GraphValidator() {
         if (!parsedJson.metadata?.feature_details) {
           featureDetailsInfo = {
             type: 'missing' as const,
-            message:
-              'Feature details will not be displayed because metadata.feature_details is not specified. See the top of this page for how to specify it.',
+            message: (
+              <>
+                Feature details will not be displayed because metadata.feature_details is not specified. See the{' '}
+                <a href="#upload-feature-details" className="text-sky-600 underline hover:text-sky-800">
+                  Upload Feature Details
+                </a>{' '}
+                section for how to specify it, depending if you want to self-host feature details or host them on
+                MemicOS.
+              </>
+            ),
           };
         } else if (parsedJson.metadata.feature_details.feature_json_base_url) {
           featureDetailsInfo = {
@@ -671,8 +679,8 @@ export default function GraphValidator() {
                   onChange={(e) => setJsonInput(e.target.value)}
                   placeholder="Paste your JSON here..."
                   className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  minRows={12}
-                  maxRows={12}
+                  minRows={20}
+                  maxRows={20}
                 />
               </div>
 
@@ -954,8 +962,8 @@ export default function GraphValidator() {
                   onChange={(e) => setFeatureJsonInput(e.target.value)}
                   placeholder="Paste your JSON here..."
                   className="max-h-[400px] min-h-[200px] w-full resize-none rounded-md border p-3 font-mono text-xs focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  minRows={12}
-                  maxRows={12}
+                  minRows={20}
+                  maxRows={20}
                 />
               </div>
 
