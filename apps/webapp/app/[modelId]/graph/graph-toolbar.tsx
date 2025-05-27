@@ -4,20 +4,13 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  DownloadIcon,
-  ExternalLinkIcon,
-  Share2,
-  Trash,
-  UploadCloud,
-} from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, Share2, Trash, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useSearchParams } from 'next/navigation';
 import { Fragment, useState } from 'react';
 import GenerateGraphModal from './generate-graph-modal';
+import GraphInfoModal from './graph-info-modal';
 import UploadGraphModal from './upload-graph-modal';
 
 export default function GraphToolbar() {
@@ -31,6 +24,7 @@ export default function GraphToolbar() {
     modelIdToMetadataMap,
     selectedModelId,
     selectedMetadataGraph,
+    selectedGraph,
     setSelectedMetadataGraph,
     modelIdToModelDisplayName,
     filterGraphsSetting,
@@ -84,12 +78,12 @@ export default function GraphToolbar() {
     );
   }
   return (
-    <div className="flex w-full flex-col pt-2">
+    <div className="flex w-full flex-col pt-2.5">
       <div className="flex w-full flex-row items-end gap-x-2">
         <GenerateGraphModal />
 
         <div className="flex flex-col">
-          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Model</div>
+          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Select Model</div>
           <Select.Root
             value={selectedModelId}
             onValueChange={(newVal) => {
@@ -189,7 +183,7 @@ export default function GraphToolbar() {
           </ToggleGroup.Root>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Graph</div>
+          <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Select Graph</div>
           <Select.Root
             value={selectedMetadataGraph?.slug}
             onValueChange={(newVal) => {
@@ -425,62 +419,35 @@ export default function GraphToolbar() {
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Tools</div>
           <div className="flex flex-row gap-x-2">
+            <GraphInfoModal cltGraph={selectedGraph} selectedMetadataGraph={selectedMetadataGraph} />
             {session.data?.user ? (
               <UploadGraphModal />
             ) : (
               <Button
                 variant="outline"
                 size="sm"
-                className="flex h-12 items-center justify-center border-slate-300"
+                className="flex h-12 items-center justify-center gap-x-2 border-slate-300 text-xs"
                 onClick={() => {
                   setSignInModalOpen(true);
                 }}
               >
                 <UploadCloud className="h-4 w-4" />
+                Upload
               </Button>
             )}
             <Button
               variant="outline"
               size="sm"
-              title="Download Graph JSON"
-              aria-label="Download Graph JSON"
-              className="flex h-12 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-slate-300 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-50"
-              onClick={async () => {
-                if (selectedMetadataGraph) {
-                  try {
-                    const response = await fetch(selectedMetadataGraph.url);
-                    const data = await response.blob();
-                    const url = window.URL.createObjectURL(data);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${selectedMetadataGraph.slug}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                  } catch (error) {
-                    console.error('Failed to download graph:', error);
-                    // Fallback to opening in new tab
-                    window.open(selectedMetadataGraph.url, '_blank');
-                  }
-                }
-              }}
-              disabled={selectedMetadataGraph === null}
-            >
-              <DownloadIcon className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               title="Share Graph, Subgraph, and Custom Labels"
               aria-label="Share Graph Subgraph, and Custom Labels"
-              className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-500 hover:bg-slate-50"
+              className="flex h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50"
               onClick={() => {
                 setIsCopyModalOpen(true);
               }}
               disabled={selectedMetadataGraph === null}
             >
               <Share2 className="h-4 w-4" />
+              Share & Embed
             </Button>
           </div>
         </div>
