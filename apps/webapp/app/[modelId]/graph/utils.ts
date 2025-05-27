@@ -15,12 +15,9 @@ export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024;
 // models not in this list can only get FeatureDetails from the bucket
 export const MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR = new Set(['gemma-2-2b']);
 // TODO: remove the MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR once fellows graph gets on cantor
-export const graphModelHasNpDashboards = (graph: CLTGraph) => {
-  return (
-    MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR.has(graph.metadata.scan) ||
-    graph.metadata.feature_details?.memicos_source_set !== undefined
-  );
-};
+export const graphModelHasNpDashboards = (graph: CLTGraph) =>
+  MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR.has(graph.metadata.scan) ||
+  graph.metadata.feature_details?.memicos_source_set !== undefined;
 
 // has dashboards in the bucket
 export const MODEL_HAS_S3_DASHBOARDS = new Set([

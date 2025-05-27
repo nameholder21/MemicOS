@@ -126,16 +126,10 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
   return results;
 }
 
-function inverseCantorPairing(feature: number, layer: number): number {
+function getIndexFromCantorValue(feature: number): number {
   const w = Math.floor((Math.sqrt(8 * feature + 1) - 1) / 2);
   const t = (w * w + w) / 2;
   const y = feature - t;
-  const x = w - y;
-
-  // Given that feature = cantor(layer, index), we need to return index
-  // In cantor pairing, cantor(x, y) = (x + y) * (x + y + 1) / 2 + y
-  // where x = layer and y = index
-  // So we return y which represents the index
   return y;
 }
 
@@ -543,18 +537,15 @@ export function GraphProvider({
 
           // convert from feature id to layer and index using cantor pairing
           layerNum = parseInt(d.layer, 10);
-          index = inverseCantorPairing(d.feature, layerNum);
-          console.log('layer:', layerNum, 'index:', index);
+          index = getIndexFromCantorValue(d.feature);
           return {
             modelId: model,
-            layer: layerNum + '-' + sourceSet,
-            index: index,
+            layer: `${layerNum}-${sourceSet}`,
+            index,
             maxActsToReturn: GRAPH_PREFETCH_ACTIVATIONS_COUNT,
           };
         });
 
-      console.log('number of features:', features.length);
-      console.log(JSON.stringify(features, null, 2));
       // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE
       const batches = [];
       for (let i = 0; i < features.length; i += MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE) {
@@ -584,9 +575,9 @@ export function GraphProvider({
           (f) =>
             f &&
             'index' in f &&
-            f.index === inverseCantorPairing(d.feature, parseInt(d.layer, 10)).toString() &&
+            f.index === getIndexFromCantorValue(d.feature).toString() &&
             'layer' in f &&
-            f.layer === d.layer + '-' + sourceSet,
+            f.layer === `${d.layer}-${sourceSet}`,
         );
         if (feature) {
           // eslint-disable-next-line no-param-reassign
