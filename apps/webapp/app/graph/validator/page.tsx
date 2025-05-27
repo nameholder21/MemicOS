@@ -7,14 +7,14 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/shadcn/card';
 import { Label } from '@/components/shadcn/label';
 import Ajv from 'ajv';
-import { AlertCircle, CheckCircle2, Copy, FileText, Lightbulb } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, Copy, FileText, Lightbulb } from 'lucide-react';
 import { useState } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
 
 interface ValidationResult {
   isValid: boolean;
   errors: string[];
-  suggestions?: string[];
+  suggestions?: EnhancedFieldSuggestion[];
   featureDetailsInfo?: {
     type: 'missing' | 'base_url' | 'memicos_source_set';
     message: string;
@@ -32,7 +32,7 @@ interface ValidationResult {
 interface FeatureValidationResult {
   isValid: boolean;
   errors: string[];
-  suggestions?: string[];
+  suggestions?: EnhancedFieldSuggestion[];
   summary?: {
     layer?: number;
     index: number;
@@ -41,6 +41,13 @@ interface FeatureValidationResult {
     topLogitsCount: number;
     bottomLogitsCount: number;
   };
+}
+
+interface EnhancedFieldSuggestion {
+  path: string;
+  type: string;
+  description: string;
+  subFields?: EnhancedFieldSuggestion[];
 }
 
 export default function GraphValidator() {
@@ -54,12 +61,95 @@ export default function GraphValidator() {
   const [featureValidationResult, setFeatureValidationResult] = useState<FeatureValidationResult | null>(null);
   const [isValidatingFeature, setIsValidatingFeature] = useState(false);
 
-  const findMissingOptionalFields = (parsedJson: any): string[] => {
-    const suggestions: string[] = [];
+  // Component to render field suggestions
+  const renderFieldSuggestion = (suggestion: EnhancedFieldSuggestion, depth: number = 0) => {
+    const indentClass = depth > 0 ? `ml-${depth * 4}` : '';
+    return (
+      <div key={suggestion.path} className={`space-y-2 ${indentClass}`}>
+        <div className="rounded border-l-4 border-blue-300 bg-white p-3">
+          <div className="mb-1 flex items-center gap-2">
+            <code className="font-mono text-sm font-semibold text-blue-900">{suggestion.path}</code>
+            <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">{suggestion.type}</span>
+          </div>
+          <p className="text-xs text-gray-600">{suggestion.description}</p>
+          {suggestion.subFields && suggestion.subFields.length > 0 && (
+            <div className="mt-2">
+              <p className="mb-1 text-xs font-medium text-gray-700">Sub-fields:</p>
+              <div className="space-y-1">
+                {suggestion.subFields.map((subField) => (
+                  <div key={subField.path} className="ml-3 rounded bg-gray-50 p-2">
+                    <div className="mb-1 flex items-center gap-2">
+                      <code className="font-mono text-xs text-gray-800">{subField.path}</code>
+                      <span className="rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-600">{subField.type}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{subField.description}</p>
+                    {subField.subFields && subField.subFields.length > 0 && (
+                      <div className="ml-2 mt-1">
+                        {subField.subFields.map((nestedField) => (
+                          <div key={nestedField.path} className="mt-1 text-xs text-gray-400">
+                            <code>{nestedField.path}</code> ({nestedField.type})
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const findMissingOptionalFields = (parsedJson: any): EnhancedFieldSuggestion[] => {
+    const suggestions: EnhancedFieldSuggestion[] = [];
 
     // Check if feature_details configuration already exists
     const hasFeatureJsonBaseUrl = parsedJson.metadata?.feature_details?.feature_json_base_url;
     const hasMemicOSSourceSet = parsedJson.metadata?.feature_details?.memicos_source_set;
+
+    const getTypeString = (schemaObj: any): string => {
+      if (schemaObj.type) {
+        if (schemaObj.type === 'array' && schemaObj.items) {
+          return `array<${getTypeString(schemaObj.items)}>`;
+        }
+        return schemaObj.type;
+      }
+      if (schemaObj.properties) {
+        return 'object';
+      }
+      if (schemaObj.oneOf || schemaObj.anyOf) {
+        return 'union';
+      }
+      return 'unknown';
+    };
+
+    const getSubFields = (
+      schemaObj: any,
+      maxDepth: number = 2,
+      currentDepth: number = 0,
+    ): EnhancedFieldSuggestion[] => {
+      if (currentDepth >= maxDepth || !schemaObj.properties) return [];
+
+      const subFields: EnhancedFieldSuggestion[] = [];
+      const required = schemaObj.required || [];
+
+      for (const [key, propSchema] of Object.entries(schemaObj.properties)) {
+        const isRequired = required.includes(key);
+        if (!isRequired) {
+          const subField: EnhancedFieldSuggestion = {
+            path: key,
+            type: getTypeString(propSchema as any),
+            description: (propSchema as any)?.description || 'No description available',
+            subFields: getSubFields(propSchema as any, maxDepth, currentDepth + 1),
+          };
+          subFields.push(subField);
+        }
+      }
+
+      return subFields;
+    };
 
     const traverseSchema = (schemaObj: any, dataObj: any, path: string = '', parentPath: string = '') => {
       if (!schemaObj || typeof schemaObj !== 'object') return;
@@ -90,10 +180,28 @@ export default function GraphValidator() {
             continue;
           }
 
+          // Skip specific fields that should not be suggested
+          if (
+            currentPath === 'nodes[].influence' ||
+            currentPath === 'nodes[].activation' ||
+            currentPath === 'metadata.node_threshold'
+          ) {
+            // eslint-disable-next-line no-continue
+            continue;
+          }
+
           if (!isRequired && !isPresent) {
             // This is an optional field that's missing
-            const description = (propSchema as any)?.description || '';
-            const suggestion = description ? `${currentPath} - ${description}` : `${currentPath} - Optional field`;
+            const description = (propSchema as any)?.description || 'No description available';
+            const type = getTypeString(propSchema as any);
+            const subFields = getSubFields(propSchema as any);
+
+            const suggestion: EnhancedFieldSuggestion = {
+              path: currentPath,
+              type,
+              description,
+              subFields: subFields.length > 0 ? subFields : undefined,
+            };
             suggestions.push(suggestion);
           } else if (isPresent && dataObj[key] && typeof dataObj[key] === 'object') {
             // Recursively check nested objects
@@ -122,8 +230,50 @@ export default function GraphValidator() {
     return suggestions;
   };
 
-  const findMissingOptionalFieldsFeature = (parsedJson: any): string[] => {
-    const suggestions: string[] = [];
+  const findMissingOptionalFieldsFeature = (parsedJson: any): EnhancedFieldSuggestion[] => {
+    const suggestions: EnhancedFieldSuggestion[] = [];
+
+    const getTypeString = (schemaObj: any): string => {
+      if (schemaObj.type) {
+        if (schemaObj.type === 'array' && schemaObj.items) {
+          return `array<${getTypeString(schemaObj.items)}>`;
+        }
+        return schemaObj.type;
+      }
+      if (schemaObj.properties) {
+        return 'object';
+      }
+      if (schemaObj.oneOf || schemaObj.anyOf) {
+        return 'union';
+      }
+      return 'unknown';
+    };
+
+    const getSubFields = (
+      schemaObj: any,
+      maxDepth: number = 2,
+      currentDepth: number = 0,
+    ): EnhancedFieldSuggestion[] => {
+      if (currentDepth >= maxDepth || !schemaObj.properties) return [];
+
+      const subFields: EnhancedFieldSuggestion[] = [];
+      const required = schemaObj.required || [];
+
+      for (const [key, propSchema] of Object.entries(schemaObj.properties)) {
+        const isRequired = required.includes(key);
+        if (!isRequired) {
+          const subField: EnhancedFieldSuggestion = {
+            path: key,
+            type: getTypeString(propSchema as any),
+            description: (propSchema as any)?.description || 'No description available',
+            subFields: getSubFields(propSchema as any, maxDepth, currentDepth + 1),
+          };
+          subFields.push(subField);
+        }
+      }
+
+      return subFields;
+    };
 
     const traverseSchema = (schemaObj: any, dataObj: any, path: string = '') => {
       if (!schemaObj || typeof schemaObj !== 'object') return;
@@ -140,8 +290,16 @@ export default function GraphValidator() {
 
           if (!isRequired && !isPresent) {
             // This is an optional field that's missing
-            const description = (propSchema as any)?.description || '';
-            const suggestion = description ? `${currentPath} - ${description}` : `${currentPath} - Optional field`;
+            const description = (propSchema as any)?.description || 'No description available';
+            const type = getTypeString(propSchema as any);
+            const subFields = getSubFields(propSchema as any);
+
+            const suggestion: EnhancedFieldSuggestion = {
+              path: currentPath,
+              type,
+              description,
+              subFields: subFields.length > 0 ? subFields : undefined,
+            };
             suggestions.push(suggestion);
           } else if (isPresent && dataObj[key] && typeof dataObj[key] === 'object') {
             // Recursively check nested objects
@@ -217,7 +375,7 @@ export default function GraphValidator() {
         } else if (parsedJson.metadata.feature_details.feature_json_base_url) {
           featureDetailsInfo = {
             type: 'base_url' as const,
-            message: `Features will be expected at: ${parsedJson.metadata.feature_details.feature_json_base_url}/[feature].json`,
+            message: `Features will be expected at:`,
             baseUrl: parsedJson.metadata.feature_details.feature_json_base_url,
           };
         } else if (parsedJson.metadata.feature_details.memicos_source_set) {
@@ -413,6 +571,17 @@ export default function GraphValidator() {
   return (
     <div className="w-full p-6">
       <div className="mb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+          className="mb-3 border-purple-200 text-purple-700 hover:bg-purple-50"
+        >
+          <a href="/graph" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Graphs
+          </a>
+        </Button>
         <h1 className="mb-2 text-3xl font-bold">Graph & Feature Validators</h1>
         <p className="text-gray-600">
           Validate your JSON against the Anthropic Attribution Graph schema and Feature Details schema.
@@ -438,16 +607,25 @@ export default function GraphValidator() {
               for available models
             </li>
             <li>
-              Or use the{' '}
+              Or use the MemicOS{' '}
+              <a
+                href="http://memicos.org/api-doc#tag/models/POST/api/model/new"
+                target="_blank"
+                rel="noreferrer"
+                className="text-amber-700 underline hover:text-amber-800"
+              >
+                API
+              </a>{' '}
+              or{' '}
               <a
                 href="https://github.com/hijohnnylin/memicos/blob/main/packages/python/memicos-webapp-client/memicos/examples/new-model.ipynb"
                 target="_blank"
                 rel="noreferrer"
                 className="text-amber-700 underline hover:text-amber-800"
               >
-                MemicOS API/library to create a new model entry
+                library
               </a>{' '}
-              that matches your scan value
+              to create a new model entry that matches your scan value.
             </li>
           </ol>
         </div>
@@ -688,16 +866,9 @@ export default function GraphValidator() {
                           <p className="mb-2 text-xs text-blue-700">
                             Not required, but provides useful info to display and can also add functionality.
                           </p>
-                          <ul className="space-y-1 text-sm text-blue-800">
-                            {validationResult.suggestions.map((suggestion, index) => (
-                              <li
-                                key={index}
-                                className="rounded border-l-4 border-blue-300 bg-white p-2 font-mono text-xs"
-                              >
-                                {suggestion}
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="space-y-1">
+                            {validationResult.suggestions.map((suggestion) => renderFieldSuggestion(suggestion))}
+                          </div>
                         </div>
                       )}
 
@@ -833,7 +1004,7 @@ export default function GraphValidator() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-green-700">
                         <CheckCircle2 className="h-5 w-5" />
-                        <span className="font-medium">Valid JSON Schema!</span>
+                        <span className="font-medium">Valid Feature Details JSON!</span>
                       </div>
 
                       {featureValidationResult.summary && (
@@ -877,16 +1048,9 @@ export default function GraphValidator() {
                           <p className="mb-2 text-xs text-blue-700">
                             Not required, but could provide additional useful information.
                           </p>
-                          <ul className="space-y-1 text-sm text-blue-800">
-                            {featureValidationResult.suggestions.map((suggestion, index) => (
-                              <li
-                                key={index}
-                                className="rounded border-l-4 border-blue-300 bg-white p-2 font-mono text-xs"
-                              >
-                                {suggestion}
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="space-y-1">
+                            {featureValidationResult.suggestions.map((suggestion) => renderFieldSuggestion(suggestion))}
+                          </div>
                         </div>
                       )}
                     </div>

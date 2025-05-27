@@ -568,7 +568,6 @@ export default function GenerateGraphModal() {
                           isGenerating ||
                           !dirty ||
                           Object.keys(errors).length > 0 ||
-                          isTokenizing ||
                           (tokenizedPrompt !== null && tokenizedPrompt.tokens.length > GRAPH_MAX_TOKENS)
                         }
                         className="w-full sm:w-auto"

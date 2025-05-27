@@ -471,8 +471,11 @@ export function GraphProvider({
     return data as AnthropicFeatureDetail;
   }
 
-  async function fetchGoodfireFeatureDetail(featureFilename: string): Promise<AnthropicFeatureDetail | null> {
-    const response = await fetch(`https://clt-frontend.goodfire.pub/features/gpt2/${featureFilename}.json`);
+  async function fetchFeatureDetailFromBaseURL(
+    baseUrl: string,
+    featureFilename: string,
+  ): Promise<AnthropicFeatureDetail | null> {
+    const response = await fetch(`${baseUrl}/${featureFilename}.json`);
     if (!response.ok) {
       console.error(`Failed to fetch feature detail for ${featureFilename}`);
       return null;
@@ -606,9 +609,29 @@ export function GraphProvider({
       });
     }
     // neither memicos nor s3 - check for feature_json_base_url
-    else if (data.metadata.memicos?.feature_json_base_url) {
-      // TODO - implement
-      console.log('feature_json_base_url:', data.metadata.memicos.feature_json_base_url);
+    else if (data.metadata.feature_details?.feature_json_base_url) {
+      console.log('feature_json_base_url:', data.metadata.feature_details.feature_json_base_url);
+      const featureDetails = await fetchInBatches(
+        formattedData.nodes,
+        (d: CLTGraphNode) => {
+          if (nodeTypeHasFeatureDetail(d)) {
+            if (!data.metadata.feature_details?.feature_json_base_url) {
+              return Promise.resolve(null);
+            }
+            return fetchFeatureDetailFromBaseURL(
+              data.metadata.feature_details.feature_json_base_url,
+              d.feature.toString(),
+            );
+          }
+          return Promise.resolve(null);
+        },
+        ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+      );
+
+      formattedData.nodes.forEach((d, i) => {
+        // eslint-disable-next-line no-param-reassign
+        d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
+      });
     }
     // TODO: remove these special cases
     // if the model is gpt2-small, then it's goodfire
@@ -620,7 +643,10 @@ export function GraphProvider({
         formattedData.nodes,
         (d: CLTGraphNode) => {
           if (nodeTypeHasFeatureDetail(d)) {
-            return fetchGoodfireFeatureDetail(d.feature.toString());
+            return fetchFeatureDetailFromBaseURL(
+              'https://clt-frontend.goodfire.pub/features/gpt2',
+              d.feature.toString(),
+            );
           }
           return Promise.resolve(null);
         },
