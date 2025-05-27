@@ -37,7 +37,7 @@
           "properties": {
             "feature_json_base_url": {
               "type": "string",
-              "description": "The base URL for the feature JSON files (Anthropic feature format), if you want the frontend to download your features details from your server. IMPORTANT: The feature detail JSON files should be in the format [layer_number]-[feature_index].json, for example, 15-2324.json would be layer 15, index 2324. If a base url is https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at https://my-cloudfront.s3.amazonaws.com/my_model/features/15-2324.json. Remember to enable public access, CORS from all origins, and https.",
+              "description": "The base URL for the feature JSON files (Anthropic feature format), if you want the frontend to download your features details from your server. If a base url is https://my-cloudfront.s3.amazonaws.com/my_model/features, then the feature JSON would be at https://my-cloudfront.s3.amazonaws.com/my_model/features/781859.json. Remember to enable public access, CORS from all origins, and https.",
               "examples": ["https://my-cloudfront.s3.amazonaws.com/my_model/features"]
             },
             "memicos_source_set": {
