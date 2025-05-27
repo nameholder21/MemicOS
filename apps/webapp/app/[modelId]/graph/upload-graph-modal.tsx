@@ -208,12 +208,13 @@ export default function UploadGraphModal() {
       <Button
         variant="outline"
         size="sm"
-        className="flex h-12 items-center justify-center border-slate-300"
+        className="flex h-12 items-center justify-center gap-x-2 border-slate-300"
         onClick={() => {
           setSignInModalOpen(true);
         }}
       >
         <UploadCloud className="h-4 w-4" />
+        Upload
       </Button>
     );
   }
@@ -239,9 +240,9 @@ export default function UploadGraphModal() {
           title="Upload Graph"
           aria-label="Upload Graph"
           size="sm"
-          className="flex h-12 items-center justify-center whitespace-nowrap border-slate-300 text-sm text-slate-500 hover:bg-slate-50"
+          className="flex h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50"
         >
-          <UploadCloud className="h-4 w-4" />
+          <UploadCloud className="h-4 w-4" /> Upload
         </Button>
       </DialogTrigger>
       <DialogContent className="cursor-default select-none bg-white sm:max-w-md">
