@@ -240,7 +240,7 @@ export default function UploadGraphModal() {
           // Initial upload state
           <div className="mt-1 flex flex-col gap-4">
             <p className="text-sm text-slate-600">
-              Upload a JSON attribution graph. Check that {`it's`} valid by using the{' '}
+              Upload a JSON attribution graph. For complete instructions and to check compatibility, use the{' '}
               <a
                 href="/graph/validator"
                 target="_blank"
@@ -249,7 +249,7 @@ export default function UploadGraphModal() {
               >
                 graph JSON validator
               </a>
-              . Note that only specific models/scans are supported right now. You can also use{' '}
+              . You can also use{' '}
               <a
                 href="https://www.memicos.org/api-doc#tag/circuit-graphs/POST/api/graph/signed-put"
                 target="_blank"
