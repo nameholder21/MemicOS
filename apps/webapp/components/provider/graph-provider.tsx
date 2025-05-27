@@ -8,8 +8,8 @@ import {
   CltVisState,
   FilterGraphType,
   MODEL_DIGITS_IN_FEATURE_ID,
-  MODEL_HAS_MEMICOS_DASHBOARDS,
   MODEL_HAS_S3_DASHBOARDS,
+  MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR,
   ModelToGraphMetadatasMap,
   convertAnthropicFeatureIdToMemicOSSourceSet,
   formatCLTGraphData,
@@ -124,6 +124,19 @@ async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T
     results.push(...batchResults);
   }
   return results;
+}
+
+function inverseCantorPairing(feature: number, layer: number): number {
+  const w = Math.floor((Math.sqrt(8 * feature + 1) - 1) / 2);
+  const t = (w * w + w) / 2;
+  const y = feature - t;
+  const x = w - y;
+
+  // Given that feature = cantor(layer, index), we need to return index
+  // In cantor pairing, cantor(x, y) = (x + y) * (x + y + 1) / 2 + y
+  // where x = layer and y = index
+  // So we return y which represents the index
+  return y;
 }
 
 // Provider component
@@ -430,12 +443,10 @@ export function GraphProvider({
           visStateToSet.pruningThreshold = initialPruningThreshold;
         }
 
-        if (MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph.metadata.scan)) {
-          if (initialDensityThreshold !== undefined) {
-            visStateToSet.densityThreshold = initialDensityThreshold;
-          } else {
-            visStateToSet.densityThreshold = DEFAULT_DENSITY_THRESHOLD;
-          }
+        if (initialDensityThreshold !== undefined) {
+          visStateToSet.densityThreshold = initialDensityThreshold;
+        } else {
+          visStateToSet.densityThreshold = DEFAULT_DENSITY_THRESHOLD;
         }
 
         hasAppliedInitialOverrides.current = true;
@@ -509,9 +520,82 @@ export function GraphProvider({
     const dataJson = await response.json();
     const data = dataJson as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
+    // if it specifies source_set, then it's cantor
+    if (data.metadata.feature_details?.memicos_source_set) {
+      let model = '';
 
-    // if memicos has dashboards, fetch them from our side
-    if (MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedModelId)) {
+      model = data.metadata.scan;
+
+      let sourceSet = '';
+      if (data.metadata.feature_details?.memicos_source_set) {
+        sourceSet = data.metadata.feature_details?.memicos_source_set;
+      } else {
+        throw new Error('Invalid source state: neither memicos nor fellows');
+      }
+
+      // make an array of features to call /api/features
+      // for memicos fetches we only get the first 10 and then load more on demand
+      const features = formattedData.nodes
+        .filter((d) => nodeTypeHasFeatureDetail(d))
+        .map((d) => {
+          let layerNum = -1;
+          let index = -1;
+
+          // convert from feature id to layer and index using cantor pairing
+          layerNum = parseInt(d.layer, 10);
+          index = inverseCantorPairing(d.feature, layerNum);
+          console.log('layer:', layerNum, 'index:', index);
+          return {
+            modelId: model,
+            layer: layerNum + '-' + sourceSet,
+            index: index,
+            maxActsToReturn: GRAPH_PREFETCH_ACTIVATIONS_COUNT,
+          };
+        });
+
+      console.log('number of features:', features.length);
+      console.log(JSON.stringify(features, null, 2));
+      // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE
+      const batches = [];
+      for (let i = 0; i < features.length; i += MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE) {
+        batches.push(features.slice(i, i + MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE));
+      }
+
+      // call /api/features in batches, sequentially
+      const batchesOfDetails = [];
+      setLoadingGraphLabel(`Loading ${features.length} Nodes... `);
+      for (const batch of batches) {
+        const resp = await fetch('/api/features', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(batch),
+        });
+        const da = (await resp.json()) as NeuronWithPartialRelations[];
+        batchesOfDetails.push(da);
+      }
+
+      // put the details in the nodes
+      const featureDetails = batchesOfDetails.flat(1);
+      formattedData.nodes.forEach((d) => {
+        // eslint-disable-next-line no-param-reassign
+        const feature = featureDetails.find(
+          (f) =>
+            f &&
+            'index' in f &&
+            f.index === inverseCantorPairing(d.feature, parseInt(d.layer, 10)).toString() &&
+            'layer' in f &&
+            f.layer === d.layer + '-' + sourceSet,
+        );
+        if (feature) {
+          // eslint-disable-next-line no-param-reassign
+          d.featureDetailNP = feature as NeuronWithPartialRelations;
+        }
+      });
+    }
+    // TODO: remove this exception once fellows graph gets on cantor
+    else if (MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR.has(selectedModelId)) {
       const model =
         ANT_MODEL_ID_TO_MEMICOS_MODEL_ID[selectedModelId as keyof typeof ANT_MODEL_ID_TO_MEMICOS_MODEL_ID];
 
@@ -528,20 +612,6 @@ export function GraphProvider({
           index: getIndexFromAnthropicFeatureId(selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID, d.feature),
           maxActsToReturn: GRAPH_PREFETCH_ACTIVATIONS_COUNT,
         }));
-
-      // console.log(`features before dedup:${features.length}`);
-      // // deduplicate the features
-      // const uniqueFeatures = new Map<string, any>();
-      // features.forEach((feature) => {
-      //   const key = `${feature.modelId}-${feature.layer}-${feature.index}`;
-      //   if (!uniqueFeatures.has(key)) {
-      //     uniqueFeatures.set(key, feature);
-      //   }
-      // });
-
-      // console.log(`features after dedup: ${features.length}`);
-      // Convert the Map values back to an array
-      // features = Array.from(uniqueFeatures.values());
 
       console.log('number of features:', features.length);
       // split the features into batches of MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE

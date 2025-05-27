@@ -13,7 +13,14 @@ export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024;
 
 // TODO: make this a DB column
 // models not in this list can only get FeatureDetails from the bucket
-export const MODEL_HAS_MEMICOS_DASHBOARDS = new Set(['gemma-2-2b']);
+export const MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR = new Set(['gemma-2-2b']);
+// TODO: remove the MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR once fellows graph gets on cantor
+export const graphModelHasNpDashboards = (graph: CLTGraph) => {
+  return (
+    MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR.has(graph.metadata.scan) ||
+    graph.metadata.feature_details?.memicos_source_set !== undefined
+  );
+};
 
 // has dashboards in the bucket
 export const MODEL_HAS_S3_DASHBOARDS = new Set([
@@ -719,3 +726,77 @@ export type AnthropicFeatureDetail = {
 };
 
 export { ATTRIBUTION_GRAPH_SCHEMA };
+
+// filtering utils for influence and density
+
+export function shouldShowNodeForInfluenceThreshold(node: CLTGraphNode, visState: CltVisState): boolean {
+  // always show embeddings and logits
+  if (node.feature_type === 'embedding' || node.feature_type === 'logit') {
+    return true;
+  }
+
+  // always show pinned nodes
+  if (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) {
+    return true;
+  }
+
+  // always show clicked nodes
+  if (node.nodeId !== undefined && visState.clickedId === node.nodeId) {
+    return true;
+  }
+
+  // if we have influence and pruning threshold, show if influence is less than pruning threshold
+  if (
+    node.influence !== undefined &&
+    node.influence !== null &&
+    visState.pruningThreshold !== undefined &&
+    visState.pruningThreshold !== null
+  ) {
+    if (node.influence <= visState.pruningThreshold) {
+      return true;
+    }
+    return false;
+  }
+  // no influence and pruning threshold. show all.
+  return true;
+}
+
+export function shouldShowNodeForDensityThreshold(
+  isNPDashboard: boolean,
+  d: CLTGraphNode,
+  visState: CltVisState,
+): boolean {
+  if (!isNPDashboard) {
+    return true;
+  }
+
+  // always show embeddings and logits
+  if (d.feature_type === 'embedding' || d.feature_type === 'logit') {
+    return true;
+  }
+
+  // always show pinned nodes
+  if (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) {
+    return true;
+  }
+
+  // always show clicked nodes
+  if (d.nodeId !== undefined && visState.clickedId === d.nodeId) {
+    return true;
+  }
+
+  // show if density threshold is met
+  if (
+    d.featureDetailNP?.frac_nonzero !== undefined &&
+    d.featureDetailNP?.frac_nonzero !== null &&
+    visState.densityThreshold !== undefined &&
+    visState.densityThreshold !== null
+  ) {
+    if (d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) {
+      return true;
+    }
+    return false;
+  }
+  // no density threshold. show all.
+  return true;
+}

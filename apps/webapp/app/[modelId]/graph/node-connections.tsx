@@ -2,7 +2,14 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, CltVisState, featureTypeToText, MODEL_HAS_MEMICOS_DASHBOARDS } from './utils';
+import {
+  CLTGraphNode,
+  CltVisState,
+  featureTypeToText,
+  graphModelHasNpDashboards,
+  shouldShowNodeForDensityThreshold,
+  shouldShowNodeForInfluenceThreshold,
+} from './utils';
 
 function FeatureList({
   title,
@@ -32,76 +39,11 @@ function FeatureList({
         return false;
       }
 
-      // otherwise there is some input, but check if we should filter it out
-
-      // always show embeddings and logits
-      if (node.feature_type === 'embedding' || node.feature_type === 'logit') {
-        return true;
-      }
-
-      // always show pinned nodes
-      if (node.nodeId !== undefined && visState.pinnedIds.includes(node.nodeId)) {
-        return true;
-      }
-
-      // always show clicked nodes
-      if (node.nodeId !== undefined && visState.clickedId === node.nodeId) {
-        return true;
-      }
-
-      // if we have influence and pruning threshold, show if influence is less than pruning threshold
-      if (
-        node.influence !== undefined &&
-        node.influence !== null &&
-        visState.pruningThreshold !== undefined &&
-        visState.pruningThreshold !== null
-      ) {
-        if (node.influence <= visState.pruningThreshold) {
-          return true;
-        }
-        return false;
-      }
-      // no influence and pruning threshold. show all.
-
-      return true;
-    })
-    .filter((d) => {
-      // now filter for feature density. we only have this for memicos dashboards
-      // if not np dashboard, then don't do additional filtering
-      if (!hasNPDashboards) {
-        return true;
-      }
-
-      // always show embeddings and logits
-      if (d.feature_type === 'embedding' || d.feature_type === 'logit') {
-        return true;
-      }
-
-      // always show pinned nodes
-      if (d.nodeId !== undefined && visState.pinnedIds.includes(d.nodeId)) {
-        return true;
-      }
-
-      // always show clicked nodes
-      if (d.nodeId !== undefined && visState.clickedId === d.nodeId) {
-        return true;
-      }
-
-      // show if density threshold is met
-      if (
-        d.featureDetailNP?.frac_nonzero !== undefined &&
-        d.featureDetailNP?.frac_nonzero !== null &&
-        visState.densityThreshold !== undefined &&
-        visState.densityThreshold !== null
-      ) {
-        if (d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) {
-          return true;
-        }
-        return false;
-      }
-      // no density threshold. show all.
-
-      return true;
+      // otherwise there is some input, but check if we should check both influence and density filters
+      return (
+        shouldShowNodeForInfluenceThreshold(node, visState) &&
+        shouldShowNodeForDensityThreshold(hasNPDashboards, node, visState)
+      );
     });
   return (
     <div className="flex flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none px-1 pb-1 text-slate-800">
@@ -225,7 +167,7 @@ export default function GraphNodeConnections() {
               title="Input Features"
               nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="source"
-              hasNPDashboards={MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan || '')}
+              hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
@@ -235,7 +177,7 @@ export default function GraphNodeConnections() {
               title="Output Features"
               nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
               linkType="target"
-              hasNPDashboards={MODEL_HAS_MEMICOS_DASHBOARDS.has(selectedGraph?.metadata.scan || '')}
+              hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
               updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
