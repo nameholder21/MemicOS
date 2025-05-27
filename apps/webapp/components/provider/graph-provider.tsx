@@ -41,7 +41,7 @@ import {
 } from 'react';
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
-const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 1024;
+const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 2048;
 export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
 const DEFAULT_DENSITY_THRESHOLD = 0.99;
 const PREFERRED_EXPLANATION_TYPE_NAME = 'np_max-act-logits';
@@ -115,11 +115,19 @@ export function getGraphUrl(graphSlug: string, baseUrl: string): string {
   return url;
 }
 
-async function fetchInBatches<T>(items: any[], fetchFn: (item: any) => Promise<T>, batchSize: number): Promise<T[]> {
+async function fetchInBatches<T>(
+  items: any[],
+  fetchFn: (item: any, signal?: AbortSignal) => Promise<T>,
+  batchSize: number,
+  abortSignal?: AbortSignal,
+): Promise<T[]> {
   const results: T[] = [];
   for (let i = 0; i < items.length; i += batchSize) {
+    if (abortSignal?.aborted) {
+      throw new Error('Request cancelled in fetchInBatches');
+    }
     const batchItems = items.slice(i, i + batchSize);
-    const batchPromises = batchItems.map(fetchFn);
+    const batchPromises = batchItems.map((item) => fetchFn(item, abortSignal));
     const batchResults = await Promise.all(batchPromises);
     results.push(...batchResults);
   }
@@ -189,6 +197,9 @@ export function GraphProvider({
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
   const [isCopyModalOpen, setIsCopyModalOpen] = useState<boolean>(false);
+
+  // Ref for the current AbortController
+  const currentAbortController = useRef<AbortController | null>(null);
 
   const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: initialPinnedIds ? initialPinnedIds.split(',') : [],
@@ -466,52 +477,85 @@ export function GraphProvider({
     modelId: string,
     feature: number,
     baseUrl: string,
+    abortSignal?: AbortSignal,
   ): Promise<AnthropicFeatureDetail | null> {
-    const response = await fetch(`${baseUrl}/features/${modelId}/${feature}.json`);
-    if (!response.ok) {
-      console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
+    try {
+      const response = await fetch(`${baseUrl}/features/${modelId}/${feature}.json`, { signal: abortSignal });
+      if (abortSignal?.aborted) {
+        throw new Error('Request cancelled in fetchAnthropicFeatureDetail');
+      }
+      if (!response.ok) {
+        console.error(`Failed to fetch feature detail for ${modelId}/${feature}`);
+        return null;
+      }
+      const data = await response.json();
+      return data as AnthropicFeatureDetail;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Fetch aborted in fetchAnthropicFeatureDetail');
+        throw error;
+      }
+      console.error(`Error in fetchAnthropicFeatureDetail for ${modelId}/${feature}:`, error);
       return null;
     }
-    const data = await response.json();
-    return data as AnthropicFeatureDetail;
   }
 
   async function fetchFeatureDetailFromBaseURL(
     baseUrl: string,
     featureFilename: string,
+    abortSignal?: AbortSignal,
   ): Promise<AnthropicFeatureDetail | null> {
-    const response = await fetch(`${baseUrl}/${featureFilename}.json`);
-    if (!response.ok) {
-      console.error(`Failed to fetch feature detail for ${featureFilename}`);
+    try {
+      const response = await fetch(`${baseUrl}/${featureFilename}.json`, { signal: abortSignal });
+      if (abortSignal?.aborted) {
+        throw new Error('Request cancelled in fetchFeatureDetailFromBaseURL');
+      }
+      if (!response.ok) {
+        console.error(`Failed to fetch feature detail for ${featureFilename}`);
+        return null;
+      }
+      const data = await response.json();
+      return data as AnthropicFeatureDetail;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Fetch aborted in fetchFeatureDetailFromBaseURL');
+        throw error;
+      }
+      console.error(`Error in fetchFeatureDetailFromBaseURL for ${featureFilename}:`, error);
       return null;
     }
-    const data = await response.json();
-    return data as AnthropicFeatureDetail;
   }
 
   const getAnthropicBaseUrlFromGraphUrl = (url: string) => url.split('/graph_data/')[0];
 
   // Function to fetch graph data
-  async function getGraph(graphSlug: string): Promise<CLTGraph> {
+  async function getGraph(graphSlug: string, abortSignal?: AbortSignal): Promise<CLTGraph> {
     const graph = modelIdToMetadataMap[selectedModelId]?.find((g) => g.slug === graphSlug);
     if (!graph) {
       throw new Error(`Graph not found for ${graphSlug}`);
     }
 
     // First, get the file size using a HEAD request
-    const headResponse = await fetch(graph.url, { method: 'HEAD' });
+    const headResponse = await fetch(graph.url, { method: 'HEAD', signal: abortSignal });
     const contentLength = headResponse.headers.get('content-length');
     const fileSizeInMB = contentLength ? (parseInt(contentLength, 10) / (1024 * 1024)).toFixed(2) : 'unknown';
 
     setLoadingGraphLabel(`Loading Graph (${fileSizeInMB} MB)... `);
 
-    const response = await fetch(graph.url);
+    if (abortSignal?.aborted) {
+      throw new Error('Request cancelled before main graph fetch');
+    }
+
+    const response = await fetch(graph.url, { signal: abortSignal });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
     }
 
     const dataJson = await response.json();
+    if (abortSignal?.aborted) {
+      throw new Error('Request cancelled after main graph JSON parsing');
+    }
     const data = dataJson as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
     // if it specifies source_set, then it's cantor
@@ -562,7 +606,11 @@ export function GraphProvider({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(batch),
+          signal: abortSignal,
         });
+        if (abortSignal?.aborted) {
+          throw new Error('Request cancelled after /api/features batch fetch');
+        }
         const da = (await resp.json()) as NeuronWithPartialRelations[];
         batchesOfDetails.push(da);
       }
@@ -621,7 +669,13 @@ export function GraphProvider({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(batch),
+          signal: abortSignal,
         });
+        if (abortSignal?.aborted) {
+          throw new Error(
+            'Request cancelled after /api/features batch fetch (MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR)',
+          );
+        }
         const da = (await resp.json()) as NeuronWithPartialRelations[];
         batchesOfDetails.push(da);
       }
@@ -655,13 +709,19 @@ export function GraphProvider({
       // otherwise get the feature from the bucket
       const featureDetails = await fetchInBatches(
         formattedData.nodes,
-        (d) => {
+        (d, signal?: AbortSignal) => {
           if (nodeTypeHasFeatureDetail(d)) {
-            return fetchAnthropicFeatureDetail(selectedModelId, d.feature, getAnthropicBaseUrlFromGraphUrl(graph.url));
+            return fetchAnthropicFeatureDetail(
+              selectedModelId,
+              d.feature,
+              getAnthropicBaseUrlFromGraphUrl(graph.url),
+              signal,
+            );
           }
           return Promise.resolve(null);
         },
         ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+        abortSignal,
       );
 
       formattedData.nodes.forEach((d, i) => {
@@ -674,7 +734,7 @@ export function GraphProvider({
       console.log('feature_json_base_url:', data.metadata.feature_details.feature_json_base_url);
       const featureDetails = await fetchInBatches(
         formattedData.nodes,
-        (d: CLTGraphNode) => {
+        (d: CLTGraphNode, signal?: AbortSignal) => {
           if (nodeTypeHasFeatureDetail(d)) {
             if (!data.metadata.feature_details?.feature_json_base_url) {
               return Promise.resolve(null);
@@ -682,11 +742,13 @@ export function GraphProvider({
             return fetchFeatureDetailFromBaseURL(
               data.metadata.feature_details.feature_json_base_url,
               d.feature.toString(),
+              signal,
             );
           }
           return Promise.resolve(null);
         },
         ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+        abortSignal,
       );
 
       formattedData.nodes.forEach((d, i) => {
@@ -702,16 +764,18 @@ export function GraphProvider({
       // otherwise get the feature from the bucket
       const featureDetails = await fetchInBatches(
         formattedData.nodes,
-        (d: CLTGraphNode) => {
+        (d: CLTGraphNode, signal?: AbortSignal) => {
           if (nodeTypeHasFeatureDetail(d)) {
             return fetchFeatureDetailFromBaseURL(
               'https://clt-frontend.goodfire.pub/features/gpt2',
               d.feature.toString(),
+              signal,
             );
           }
           return Promise.resolve(null);
         },
         ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+        abortSignal,
       );
 
       formattedData.nodes.forEach((d, i) => {
@@ -732,19 +796,57 @@ export function GraphProvider({
 
   // Fetch graph data when selected metadata graph changes
   useEffect(() => {
+    // Cancel previous request if it exists
+    if (currentAbortController.current) {
+      currentAbortController.current.abort();
+      console.log('Previous graph load cancelled');
+    }
+
     if (selectedMetadataGraph) {
       console.log('selectedMetadataGraph:', selectedMetadataGraph.slug);
       setIsLoadingGraphData(true);
-      getGraph(selectedMetadataGraph.slug).then((g) => {
-        setSelectedGraph(g);
-      });
+
+      // Create new abort controller for this request
+      const abortController = new AbortController();
+      currentAbortController.current = abortController;
+
+      getGraph(selectedMetadataGraph.slug, abortController.signal)
+        .then((g) => {
+          // Only update state if this request wasn't cancelled
+          if (!abortController.signal.aborted) {
+            setSelectedGraph(g);
+          } else {
+            console.log(`Graph load for ${selectedMetadataGraph.slug} was aborted, not setting selected graph.`);
+          }
+        })
+        .catch((error) => {
+          // Only handle error if not cancelled
+          if (!abortController.signal.aborted) {
+            console.error('Error loading graph:', error);
+            // Potentially reset loading state or show error message
+            setIsLoadingGraphData(false); // Ensure loading state is reset on error too
+            setSelectedGraph(null); // Clear graph if loading failed
+          } else {
+            console.log(`Error caught for aborted graph load (${selectedMetadataGraph.slug}):`, error.message);
+          }
+        });
     } else {
       updateUrlParams({
         slug: null,
       });
       setSelectedGraph(null);
+      setIsLoadingGraphData(false); // No graph selected, not loading
     }
-  }, [selectedMetadataGraph]);
+
+    // Cleanup function to abort on unmount or before next run
+    return () => {
+      if (currentAbortController.current) {
+        currentAbortController.current.abort();
+        console.log('Graph load cancelled on cleanup');
+        currentAbortController.current = null; // Clear the ref
+      }
+    };
+  }, [selectedMetadataGraph]); // Keep other dependencies if any, but selectedMetadataGraph is key
 
   const setFullNPFeatureDetail = (setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => {
     // load the rest of the activations on demand

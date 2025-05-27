@@ -236,7 +236,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     graph.metadata = {
       ...graph.metadata,
       info: {
-        creator_name: `${request.user?.name || 'Anonymous'} via MemicOS`,
+        creator_name: `${request.user?.name || 'Anonymous'} (OSCF)`,
         creator_url: 'https://memicos.org',
         // TODO: other sources when they become available
         source_urls: SCAN_TO_SOURCE_URLS[data.metadata.scan as keyof typeof SCAN_TO_SOURCE_URLS] || [],
