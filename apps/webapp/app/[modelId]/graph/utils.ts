@@ -261,19 +261,17 @@ export type CLTGraphInnerMetadata = {
     memicos_source_set?: string;
   };
   info?: {
-    title?: string;
     description?: string;
     creator_name?: string;
-    create_time_ms?: number;
-    notes?: string;
+    creator_url?: string;
     source_urls?: string[];
-    output_hook?: string;
     generator?: {
       name?: string;
       version?: string;
       url?: string;
       email?: string;
     };
+    create_time_ms?: number;
   };
   generation_settings?: {
     max_n_logits?: number;
