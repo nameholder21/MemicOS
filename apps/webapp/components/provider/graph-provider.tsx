@@ -11,6 +11,7 @@ import {
   MODEL_HAS_S3_DASHBOARDS,
   MODEL_WITH_NP_DASHBOARDS_NOT_YET_CANTOR,
   ModelToGraphMetadatasMap,
+  cltModelToNumLayers,
   convertAnthropicFeatureIdToMemicOSSourceSet,
   formatCLTGraphData,
   getIndexFromAnthropicFeatureId,
@@ -39,6 +40,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useGlobalContext } from './global-provider';
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 2048;
@@ -169,6 +171,8 @@ export function GraphProvider({
   const session = useSession();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { globalModels } = useGlobalContext();
 
   const [modelIdToMetadataMap, setModelIdToMetadataMap] = useState<ModelToGraphMetadatasMap>(
     initialModelIdToMetadataGraphsMap,
@@ -552,12 +556,26 @@ export function GraphProvider({
       throw new Error(`Failed to fetch graph data for ${graphSlug}`);
     }
 
+    // check if we have this model in cltModelToNumLayers
+    // if selectedModelId is not in cltModelToNumLayers, then we need to get the num_layers from the graph
+    let numLayers = 0;
+    if (selectedModelId in cltModelToNumLayers) {
+      numLayers = cltModelToNumLayers[selectedModelId as keyof typeof cltModelToNumLayers];
+    } else {
+      const model = globalModels[selectedModelId];
+      if (model) {
+        numLayers = model.layers;
+      }
+    }
+
     const dataJson = await response.json();
     if (abortSignal?.aborted) {
       throw new Error('Request cancelled after main graph JSON parsing');
     }
     const data = dataJson as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
+
+    formattedData.metadata.num_layers = numLayers;
     // if it specifies source_set, then it's cantor
     if (data.metadata.feature_details?.memicos_source_set) {
       let model = '';

@@ -11,7 +11,6 @@ import {
   CLTGraph,
   CLTGraphLink,
   CLTGraphNode,
-  cltModelToNumLayers,
   featureTypeToText,
   graphModelHasNpDashboards,
   hideTooltip,
@@ -535,7 +534,7 @@ export default function LinkGraph() {
 
     // Get byStream from data or create a default with 19 items
     const byStreamLength = data.byStream?.length || 19;
-    const numLayers = cltModelToNumLayers[data.metadata.scan as keyof typeof cltModelToNumLayers];
+    const numLayers = data.metadata.num_layers || 0;
     const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 2;
 
     // Create an array of numbers for the y-axis
@@ -785,15 +784,20 @@ export default function LinkGraph() {
 
     drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05);
 
-    // test: try trying links for hovered node
-    const hoveredLinks = nodes
-      .filter((d) => d.tmpHoveredLink)
-      .map((d) => d.tmpHoveredLink)
-      .filter(Boolean) as CLTGraphLink[];
+    // if hovered node is same as clicked node, don't draw hovered links
+    if (visState.clickedId !== visState.hoveredId) {
+      // TODO: clickedId uses nodeId, hoveredId uses featureId - map them to find repeats
+      // console.log('drawing hovered links: ', visState.hoveredId, visState.clickedId);
+      // test: try trying links for hovered node
+      const hoveredLinks = nodes
+        .filter((d) => d.tmpHoveredLink)
+        .map((d) => d.tmpHoveredLink)
+        .filter(Boolean) as CLTGraphLink[];
 
-    drawLinks(hoveredLinks, allCtx.bgLinks || null, 0.001, '#888');
+      drawLinks(hoveredLinks, allCtx.bgLinks || null, 0.05, '#888');
 
-    drawLinks(hoveredLinks, allCtx.hoveredLinks || null, 0.05);
+      drawLinks(hoveredLinks, allCtx.hoveredLinks || null, 0.05);
+    }
 
     // Highlight pinned nodes
     nodeSel.classed('pinned', (d) => Boolean(d.nodeId && visState.pinnedIds.includes(d.nodeId)));
