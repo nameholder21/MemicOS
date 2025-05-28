@@ -14,7 +14,7 @@ import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
 const NODE_WIDTH = 75;
 const NODE_HEIGHT = 25;
 const MINIMUM_SUBGRAPH_LINK_STROKE_WIDTH = 1;
-const MINIMUM_SUBGRAPH_LINK_LUMINANCE_THRESHOLD = 0.9;
+const MAX_SUBGRAPH_LINK_LUMINANCE = 0.9;
 
 // Custom force container function to keep nodes within bounds
 function forceContainer(bbox: [[number, number], [number, number]]) {
@@ -528,7 +528,7 @@ export default function Subgraph() {
         const b = parseInt(rgbMatch[3], 10);
         // Calculate relative luminance
         const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-        return luminance > MINIMUM_SUBGRAPH_LINK_LUMINANCE_THRESHOLD ? '#ddd' : d.color;
+        return luminance > MAX_SUBGRAPH_LINK_LUMINANCE ? '#ddd' : d.color;
       })
       .attr('opacity', 0.8)
       .attr('stroke-linecap', 'round');

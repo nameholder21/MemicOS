@@ -17,6 +17,8 @@ import {
   showTooltip,
 } from './utils';
 
+const MAX_LUMINANCE_LINK_GRAPH = 0.9;
+const MINIMUM_LINK_GRAPH_STROKE_WIDTH = 0.5;
 // Extended type for context count object
 interface ContextCount {
   ctx_idx: number;
@@ -304,12 +306,22 @@ export default function LinkGraph() {
     return filteredLinks;
   }
 
+  function calculateLuminance(color: string) {
+    const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    if (!rgbMatch) return 1;
+    const r = parseInt(rgbMatch[1], 10);
+    const g = parseInt(rgbMatch[2], 10);
+    const b = parseInt(rgbMatch[3], 10);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  }
+
   // Utility function to draw links
   function drawLinks(
     linkArray: CLTGraphLink[],
     ctx: CanvasRenderingContext2D | null,
     strokeWidthOffset = 0,
     colorOverride?: string,
+    maxLuminance?: number,
   ) {
     if (!ctx) return;
     if (cRef.current) {
@@ -327,8 +339,15 @@ export default function LinkGraph() {
       ctx.beginPath();
       ctx.moveTo(d.sourceNode.pos[0], d.sourceNode.pos[1]);
       ctx.lineTo(d.targetNode.pos[0], d.targetNode.pos[1]);
-      ctx.strokeStyle = colorOverride || d.color || '#000';
-      ctx.lineWidth = (d.strokeWidth || 1) + strokeWidthOffset;
+
+      let colorToUse = d.color || 'rgb(0, 0, 0, 1)';
+      if (maxLuminance !== undefined && !colorOverride) {
+        if (calculateLuminance(colorToUse) > maxLuminance) {
+          colorToUse = '#ddd';
+        }
+      }
+      ctx.strokeStyle = colorOverride || colorToUse;
+      ctx.lineWidth = Math.max(MINIMUM_LINK_GRAPH_STROKE_WIDTH, (d.strokeWidth || 1) + strokeWidthOffset);
       ctx.stroke();
     });
   }
@@ -424,7 +443,7 @@ export default function LinkGraph() {
       if (!clickedId && visState.pinnedIds.length > 0) {
         // Filter links based on visState for pinned nodes
         const pinnedLinks = filterLinks(visState.pinnedIds, data);
-        drawLinks(pinnedLinks, pinnedCtx);
+        drawLinks(pinnedLinks, pinnedCtx, 0, undefined, MAX_LUMINANCE_LINK_GRAPH);
       }
     },
     [selectedGraph, visState.pinnedIds, visState.linkType, visState],
@@ -978,7 +997,13 @@ export default function LinkGraph() {
 
     // // Draw links for pinned nodes
     if (allCtx.pinnedLinks) {
-      drawLinks(clickedIdRef.current ? [] : filterLinks(visState.pinnedIds, data), allCtx.pinnedLinks);
+      drawLinks(
+        clickedIdRef.current ? [] : filterLinks(visState.pinnedIds, data),
+        allCtx.pinnedLinks,
+        0,
+        undefined,
+        MAX_LUMINANCE_LINK_GRAPH,
+      );
     }
 
     // Highlight pinned nodes
@@ -1082,7 +1107,7 @@ export default function LinkGraph() {
 
             // Redraw pinned links
             if (allCtx.pinnedLinks) {
-              drawLinks(filterLinks(newPinnedIds, data), allCtx.pinnedLinks);
+              drawLinks(filterLinks(newPinnedIds, data), allCtx.pinnedLinks, 0, undefined, MAX_LUMINANCE_LINK_GRAPH);
             }
           } else {
             // Set as clicked node
@@ -1199,9 +1224,7 @@ export default function LinkGraph() {
         </CustomTooltip>
       </div> */}
 
-      <div className="absolute -top-1 left-3 z-10 flex items-center space-x-7">
-        <GraphControls selectedGraph={selectedGraph} visState={visState} updateVisStateField={updateVisStateField} />
-      </div>
+      <GraphControls selectedGraph={selectedGraph} visState={visState} updateVisStateField={updateVisStateField} />
       <div className="tooltip tooltip-hidden" />
       <svg className="absolute top-5 z-0 h-full w-full" ref={bottomRef} />
       <svg className="absolute top-5 z-0 h-full w-full" ref={middleRef} />
