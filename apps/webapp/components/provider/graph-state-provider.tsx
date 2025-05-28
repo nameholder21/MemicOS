@@ -3,7 +3,7 @@
 import { CLTGraphNode } from '@/app/[modelId]/graph/utils';
 import debounce from 'lodash/debounce';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ReactNode, createContext, useCallback, useContext, useMemo, useRef } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 // Define the graph state context type
 type GraphStateContextType = {
@@ -46,6 +46,14 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
   // Store callbacks for clicked changes
   const clickedCallbacksRef = useRef<Set<(clickedId: string | null) => void>>(new Set());
 
+  // Initialize clickedIdRef from URL on mount
+  useEffect(() => {
+    const initialClickedId = searchParams.get('clickedId');
+    if (initialClickedId && clickedIdRef.current === null) {
+      clickedIdRef.current = initialClickedId;
+    }
+  }, []); // Empty dependency array to run only on mount
+
   // debounce because sometimes browsers have security restrictions for number of replace url calls per second
   const updateUrlParams = useCallback(
     debounce((keysToValues: Record<string, string | null>) => {
@@ -73,6 +81,11 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
 
   const registerClickedCallback = useCallback((callback: (clickedId: string | null) => void) => {
     clickedCallbacksRef.current.add(callback);
+
+    // If there's already a clickedId (from URL initialization), notify this new callback immediately
+    if (clickedIdRef.current) {
+      callback(clickedIdRef.current);
+    }
 
     // Return cleanup function
     return () => {
@@ -134,7 +147,6 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
         if (onClickedChange) {
           onClickedChange(newClickedId);
         }
-
         // Notify all registered callbacks for bidirectional updates
         clickedCallbacksRef.current.forEach((callback) => callback(newClickedId));
       }
