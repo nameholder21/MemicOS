@@ -269,7 +269,7 @@ export default function LinkGraph() {
   function filterLinks(featureIds: string[], data: CLTGraphExtended) {
     if (!selectedGraph) return [];
     const filteredLinks: CLTGraphLink[] = [];
-    const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+    const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedIdRef.current);
 
     featureIds.forEach((nodeId) => {
       filteredNodes
@@ -376,7 +376,7 @@ export default function LinkGraph() {
       allLinksCtx.clearRect(-margin.left, -margin.top, width, height);
 
       // pruning/filtering
-      const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+      const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedIdRef.current);
       const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
       // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
@@ -594,7 +594,7 @@ export default function LinkGraph() {
 
       if (clickedId) {
         // pruning/filtering
-        const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+        const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedId);
         const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
         // Get clicked links and filter them by ensuring both source and target nodes pass filtering
@@ -680,7 +680,7 @@ export default function LinkGraph() {
     d3.select(svgRef.current).selectAll('*').remove();
 
     const data = selectedGraph as CLTGraphExtended;
-    const nodes = filterNodes(data, data.nodes, selectedGraph, visState);
+    const nodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedIdRef.current);
 
     // Set up the base SVG container
     const svgContainer = d3.select(svgRef.current);
@@ -1170,6 +1170,16 @@ export default function LinkGraph() {
 
     // Initial display of hovered nodes
     // NOTE: Hover circle display is now handled in a separate useEffect for performance
+
+    // Restore clicked state after graph reinitialization
+    if (clickedIdRef.current) {
+      // Find the clicked node
+      const clickedNode = nodes.find((n) => n.nodeId === clickedIdRef.current || n.featureId === clickedIdRef.current);
+      if (clickedNode) {
+        // Restore clicked links data and visuals
+        onClickedChange(clickedIdRef.current);
+      }
+    }
   }, [
     screenSize,
     selectedGraph,
@@ -1226,7 +1236,7 @@ export default function LinkGraph() {
         )}
         {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
           <div className="flex flex-row items-center">
-            <Label htmlFor="pruningThreshold" className="mr-1 text-center text-[9px] leading-none text-slate-600">
+            <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-none text-slate-600">
               Filter Nodes by
               <br />
               Feature Density
@@ -1236,11 +1246,11 @@ export default function LinkGraph() {
               name="densityThreshold"
               type="number"
               value={`${((visState.densityThreshold !== undefined ? visState.densityThreshold : 0.99) * 100).toFixed(0)}`}
-              onChange={(e) => updateVisStateField('densityThreshold', Number(e.target.value))}
+              onChange={(e) => updateVisStateField('densityThreshold', Number(e.target.value) / 100)}
               className="ml-0.5 h-5 w-10 rounded border-slate-300 bg-white px-1 py-0 pr-3 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
               min={0}
-              max={1}
-              step={0.01}
+              max={100}
+              step={1}
             />
             <div className="-ml-[11px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
             <RadixSlider.Root

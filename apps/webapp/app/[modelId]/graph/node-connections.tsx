@@ -48,8 +48,8 @@ function FeatureList({
 
       // otherwise there is some input, but check if we should check both influence and density filters
       return (
-        shouldShowNodeForInfluenceThreshold(node, visState) &&
-        shouldShowNodeForDensityThreshold(hasNPDashboards, node, visState)
+        shouldShowNodeForInfluenceThreshold(node, visState, null) &&
+        shouldShowNodeForDensityThreshold(hasNPDashboards, node, visState, null)
       );
     });
 

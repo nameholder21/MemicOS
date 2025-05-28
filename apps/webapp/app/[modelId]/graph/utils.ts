@@ -723,7 +723,11 @@ export { ATTRIBUTION_GRAPH_SCHEMA };
 
 // filtering utils for influence and density
 
-export function shouldShowNodeForInfluenceThreshold(node: CLTGraphNode, visState: CltVisState): boolean {
+export function shouldShowNodeForInfluenceThreshold(
+  node: CLTGraphNode,
+  visState: CltVisState,
+  clickedId: string | null,
+): boolean {
   // always show embeddings and logits
   if (node.feature_type === 'embedding' || node.feature_type === 'logit') {
     return true;
@@ -735,7 +739,7 @@ export function shouldShowNodeForInfluenceThreshold(node: CLTGraphNode, visState
   }
 
   // always show clicked nodes
-  if (node.nodeId !== undefined) {
+  if (clickedId !== null && node.nodeId === clickedId) {
     return true;
   }
 
@@ -759,6 +763,7 @@ export function shouldShowNodeForDensityThreshold(
   isNPDashboard: boolean,
   d: CLTGraphNode,
   visState: CltVisState,
+  clickedId: string | null,
 ): boolean {
   if (!isNPDashboard) {
     return true;
@@ -774,8 +779,7 @@ export function shouldShowNodeForDensityThreshold(
     return true;
   }
 
-  // always show clicked nodes
-  if (d.nodeId !== undefined) {
+  if (clickedId !== null && d.nodeId === clickedId) {
     return true;
   }
 
@@ -786,10 +790,8 @@ export function shouldShowNodeForDensityThreshold(
     visState.densityThreshold !== undefined &&
     visState.densityThreshold !== null
   ) {
-    if (d.featureDetailNP?.frac_nonzero <= visState.densityThreshold) {
-      return true;
-    }
-    return false;
+    const shouldShow = d.featureDetailNP?.frac_nonzero <= visState.densityThreshold;
+    return shouldShow;
   }
   // no density threshold. show all.
   return true;
@@ -806,11 +808,14 @@ export function filterNodes(
   nodes: CLTGraphNode[],
   selectedGraph: CLTGraph,
   visState: CltVisState,
+  clickedId: string | null,
 ) {
   if (data.metadata.node_threshold !== undefined && data.metadata.node_threshold > 0) {
-    nodes = nodes.filter((d) => shouldShowNodeForInfluenceThreshold(d, visState));
+    nodes = nodes.filter((d) => shouldShowNodeForInfluenceThreshold(d, visState, clickedId));
   }
   // if we have memicos dashboards, then we use density threshold
-  nodes = nodes.filter((d) => shouldShowNodeForDensityThreshold(graphModelHasNpDashboards(selectedGraph), d, visState));
+  nodes = nodes.filter((d) =>
+    shouldShowNodeForDensityThreshold(graphModelHasNpDashboards(selectedGraph), d, visState, clickedId),
+  );
   return nodes;
 }
