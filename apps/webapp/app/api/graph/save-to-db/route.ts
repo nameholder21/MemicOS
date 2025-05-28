@@ -97,9 +97,11 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     }
 
     // if scan or slug has weird characters, return error
-    if (/[^a-zA-Z0-9_-]/.test(graph.metadata.scan) || /[^a-zA-Z0-9_-]/.test(graph.metadata.slug)) {
+    if (/[^a-zA-Z0-9_.-]/.test(graph.metadata.scan) || /[^a-zA-Z0-9_.-]/.test(graph.metadata.slug)) {
       return NextResponse.json(
-        { error: 'Invalid scan or slug. They must be alphanumeric and contain only underscores and hyphens.' },
+        {
+          error: 'Invalid scan or slug. They must be alphanumeric and contain only underscores, hyphens, and periods.',
+        },
         { status: 400 },
       );
     }
