@@ -120,7 +120,6 @@ export default function LinkGraph() {
     updateHoverState,
     clearHoverState,
     clickedIdRef,
-    clickedCtxIdxRef,
     updateClickedState,
     clearClickedState,
     registerHoverCallback,
@@ -267,6 +266,47 @@ export default function LinkGraph() {
     [selectedGraph],
   );
 
+  function filterLinks(featureIds: string[], data: CLTGraphExtended) {
+    if (!selectedGraph) return [];
+    const filteredLinks: CLTGraphLink[] = [];
+    const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+
+    featureIds.forEach((nodeId) => {
+      filteredNodes
+        .filter((n) => n.nodeId === nodeId)
+        .forEach((node) => {
+          if (visState.linkType === 'input' || visState.linkType === 'either') {
+            if (node.sourceLinks) {
+              Array.prototype.push.apply(filteredLinks, node.sourceLinks);
+            }
+          }
+          if (visState.linkType === 'output' || visState.linkType === 'either') {
+            if (node.targetLinks) {
+              Array.prototype.push.apply(filteredLinks, node.targetLinks);
+            }
+          }
+          if (visState.linkType === 'both') {
+            if (node.sourceLinks) {
+              filteredLinks.push(
+                ...node.sourceLinks.filter(
+                  (link) => link.sourceNode && visState.pinnedIds.includes(link.sourceNode.nodeId || ''),
+                ),
+              );
+            }
+            if (node.targetLinks) {
+              filteredLinks.push(
+                ...node.targetLinks.filter(
+                  (link) => link.targetNode && visState.pinnedIds.includes(link.targetNode.nodeId || ''),
+                ),
+              );
+            }
+          }
+        });
+    });
+
+    return filteredLinks;
+  }
+
   // Utility function to draw links
   function drawLinks(
     linkArray: CLTGraphLink[],
@@ -335,33 +375,62 @@ export default function LinkGraph() {
       hoveredCtx.clearRect(-margin.left, -margin.top, width, height);
       allLinksCtx.clearRect(-margin.left, -margin.top, width, height);
 
-      // Only draw hover links if hoveredId is different from clickedId
-      if (clickedIdRef.current !== hoveredId && hoveredId) {
-        // pruning/filtering
-        const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
-        const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
+      // pruning/filtering
+      const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+      const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
-        // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
-        const hoveredLinks = filteredNodes
-          .filter((d) => d.tmpHoveredLink)
-          .map((d) => d.tmpHoveredLink)
-          .filter((link): link is CLTGraphLink => {
-            if (!link) return false;
-            // Only include links where both source and target nodes pass the filtering criteria
-            const sourceNodeId = link.sourceNode?.nodeId;
-            const targetNodeId = link.targetNode?.nodeId;
-            // @ts-ignore
-            return (
-              sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId)
-            );
-          });
+      // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
+      const hoveredLinks = filteredNodes
+        .filter((d) => d.tmpHoveredLink)
+        .map((d) => d.tmpHoveredLink)
+        .filter((link): link is CLTGraphLink => {
+          if (!link) return false;
+          // Only include links where both source and target nodes pass the filtering criteria
+          const sourceNodeId = link.sourceNode?.nodeId;
+          const targetNodeId = link.targetNode?.nodeId;
+          // @ts-ignore
+          return sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId);
+        });
 
-        // Draw background and main hover links
-        drawLinks(hoveredLinks, allLinksCtx, 0.05, '#aaa');
-        drawLinks(hoveredLinks, hoveredCtx, 0.05);
-      }
+      // Draw background and main hover links
+      drawLinks(hoveredLinks, allLinksCtx, 0.05, '#aaa');
+      drawLinks(hoveredLinks, hoveredCtx, 0.05);
     },
     [selectedGraph, clickedIdRef.current, visState],
+  );
+
+  // Function to update pinned visuals
+  const updatePinnedVisuals = useCallback(
+    (clickedId: string | null) => {
+      if (!selectedGraph || !svgRef.current) return;
+
+      const data = selectedGraph as CLTGraphExtended;
+      if (!data.nodes) return;
+
+      // Get canvas context for pinned links
+      const pinnedCtx = canvasRefs.current[4]?.getContext('2d');
+      if (!pinnedCtx) return;
+
+      // Clear previous pinned links
+      const svgBBox = svgRef.current.getBoundingClientRect();
+      const { width, height } = svgBBox;
+      const margin = {
+        left: isHideLayer(data.metadata.scan) ? 0 : 30,
+        right: 20,
+        top: 0,
+        bottom: 45,
+      };
+
+      pinnedCtx.clearRect(-margin.left, -margin.top, width, height);
+
+      // Only draw pinned links if there's no clicked node
+      if (!clickedId && visState.pinnedIds.length > 0) {
+        // Filter links based on visState for pinned nodes
+        const pinnedLinks = filterLinks(visState.pinnedIds, data);
+        drawLinks(pinnedLinks, pinnedCtx);
+      }
+    },
+    [selectedGraph, visState.pinnedIds, visState.linkType, visState],
   );
 
   // Function to update clicked links data
@@ -557,8 +626,9 @@ export default function LinkGraph() {
     (clickedId: string | null) => {
       updateClickedLinksData(clickedId);
       updateClickedVisuals(clickedId);
+      updatePinnedVisuals(clickedId);
     },
-    [updateClickedLinksData, updateClickedVisuals],
+    [updateClickedLinksData, updateClickedVisuals, updatePinnedVisuals],
   );
 
   // Combined hover update function
@@ -569,15 +639,6 @@ export default function LinkGraph() {
     },
     [updateHoverLinksData, updateHoverVisuals],
   );
-
-  // Effect to sync external clicked state changes with our ref
-  useEffect(() => {
-    if (visState.clickedId !== clickedIdRef.current) {
-      clickedIdRef.current = visState.clickedId;
-      clickedCtxIdxRef.current = visState.clickedCtxIdx;
-      onClickedChange(visState.clickedId);
-    }
-  }, [visState.clickedId, visState.clickedCtxIdx, onClickedChange]);
 
   // Register for hover change notifications from other components
   useEffect(() => {
@@ -917,49 +978,9 @@ export default function LinkGraph() {
       .style('display', 'none')
       .style('pointer-events', 'none');
 
-    // Filter links based on visState
-    function filterLinks(featureIds: string[]) {
-      const filteredLinks: CLTGraphLink[] = [];
-
-      featureIds.forEach((nodeId) => {
-        nodes
-          .filter((n) => n.nodeId === nodeId)
-          .forEach((node) => {
-            if (visState.linkType === 'input' || visState.linkType === 'either') {
-              if (node.sourceLinks) {
-                Array.prototype.push.apply(filteredLinks, node.sourceLinks);
-              }
-            }
-            if (visState.linkType === 'output' || visState.linkType === 'either') {
-              if (node.targetLinks) {
-                Array.prototype.push.apply(filteredLinks, node.targetLinks);
-              }
-            }
-            if (visState.linkType === 'both') {
-              if (node.sourceLinks) {
-                filteredLinks.push(
-                  ...node.sourceLinks.filter(
-                    (link) => link.sourceNode && visState.pinnedIds.includes(link.sourceNode.nodeId || ''),
-                  ),
-                );
-              }
-              if (node.targetLinks) {
-                filteredLinks.push(
-                  ...node.targetLinks.filter(
-                    (link) => link.targetNode && visState.pinnedIds.includes(link.targetNode.nodeId || ''),
-                  ),
-                );
-              }
-            }
-          });
-      });
-
-      return filteredLinks;
-    }
-
-    // Draw links for pinned nodes
+    // // Draw links for pinned nodes
     if (allCtx.pinnedLinks) {
-      drawLinks(clickedIdRef.current ? [] : filterLinks(visState.pinnedIds), allCtx.pinnedLinks);
+      drawLinks(clickedIdRef.current ? [] : filterLinks(visState.pinnedIds, data), allCtx.pinnedLinks);
     }
 
     // Highlight pinned nodes
@@ -1063,7 +1084,7 @@ export default function LinkGraph() {
 
             // Redraw pinned links
             if (allCtx.pinnedLinks) {
-              drawLinks(filterLinks(newPinnedIds), allCtx.pinnedLinks);
+              drawLinks(filterLinks(newPinnedIds, data), allCtx.pinnedLinks);
             }
           } else {
             // Set as clicked node
