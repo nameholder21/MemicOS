@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { useGraphContext } from '@/components/provider/graph-provider';
+import { useGraphStateContext } from '@/components/provider/graph-state-provider';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
@@ -83,6 +84,17 @@ export default function Subgraph() {
     resetSelectedGraphToDefaultVisState,
     setIsCopyModalOpen,
   } = useGraphContext();
+
+  // Use the new graph state context
+  const {
+    updateHoverState,
+    clearHoverState,
+    clickedIdRef,
+    updateClickedState,
+    registerHoverCallback,
+    registerClickedCallback,
+  } = useGraphStateContext();
+
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
   const memberNodeSelRef = useRef<d3.Selection<HTMLDivElement, CLTGraphNode, HTMLDivElement, ForceNode> | null>(null);
@@ -93,12 +105,30 @@ export default function Subgraph() {
   const [nodeIdToNode, setNodeIdToNode] = useState<Record<string, CLTGraphNode>>({});
   const [isMetaKeyHeld, setIsMetaKeyHeld] = useState(false);
 
+  // State to track current hover/click values for triggering effects
+  const [currentHoveredId, setCurrentHoveredId] = useState<string | null>(null);
+  const [currentClickedId, setCurrentClickedId] = useState<string | null>(null);
+
+  // Register callbacks to be notified when hover/click state changes
+  useEffect(() => {
+    const unregisterHover = registerHoverCallback((hoveredId) => {
+      setCurrentHoveredId(hoveredId);
+    });
+
+    const unregisterClicked = registerClickedCallback((clickedId) => {
+      setCurrentClickedId(clickedId);
+    });
+
+    return () => {
+      unregisterHover();
+      unregisterClicked();
+    };
+  }, [registerHoverCallback, registerClickedCallback]);
+
   // Ref to hold the latest active grouping state for event handlers
   const activeGroupingRef = useRef(visState.subgraph?.activeGrouping);
   // Ref to hold the latest isEditingLabel state for event handlers
   const isEditingLabelRef = useRef(isEditingLabel);
-
-  const lastClickedIdRef = useRef(visState.clickedId);
 
   const screenSize = useScreenSize();
 
@@ -130,138 +160,6 @@ export default function Subgraph() {
   useEffect(() => {
     isEditingLabelRef.current = isEditingLabel;
   }, [isEditingLabel]);
-
-  // Effect to keep the lastClickedIdRef updated
-  useEffect(() => {
-    lastClickedIdRef.current = visState.clickedId;
-  }, [visState.clickedId]);
-
-  // Handler for keydown event to enable grouping mode
-  useEffect(() => {
-    if (!selectedGraph) return;
-
-    function handleKeyDown(ev: KeyboardEvent) {
-      if (ev.repeat) return;
-      if (!visState.isEditMode || ev.key !== 'g') return;
-
-      if (visState.subgraph) {
-        updateVisStateField('subgraph', {
-          ...visState.subgraph,
-          activeGrouping: {
-            ...visState.subgraph.activeGrouping,
-            isActive: true,
-          },
-        });
-      }
-
-      const subgraphEl = document.querySelector('.subgraph');
-      if (subgraphEl) {
-        subgraphEl.classList.add('is-grouping');
-      }
-    }
-
-    function handleKeyUp(ev: KeyboardEvent) {
-      if (!visState.isEditMode || ev.key !== 'g') return;
-      if (!visState.subgraph) return;
-
-      if (visState.subgraph.activeGrouping.selectedNodeIds.size > 1) {
-        const allSelectedIds: string[] = [];
-        let prevSupernodeLabel = '';
-        const supernodesToRemove: string[][] = [];
-
-        visState.subgraph.activeGrouping.selectedNodeIds.forEach((id) => {
-          const node = nodeIdToNode[id];
-          if (!node?.memberNodeIds) {
-            allSelectedIds.push(id);
-            return;
-          }
-
-          prevSupernodeLabel = node.ppClerp || '';
-
-          // find the supernode to remove
-          // eslint-disable-next-line
-          const supernodeToRemove = visState.subgraph?.supernodes.find(([_, ...nodeIds]) =>
-            nodeIds.every((d) => node.memberNodeIds?.includes(d)),
-          );
-
-          if (supernodeToRemove) {
-            supernodesToRemove.push(supernodeToRemove);
-          }
-
-          // Add its member nodes to selection
-          node.memberNodeIds.forEach((memberId) => allSelectedIds.push(memberId));
-        });
-
-        // Find a label for the new supernode
-        const label =
-          prevSupernodeLabel || allSelectedIds.map((id) => nodeIdToNode[id]?.ppClerp).find((d) => d) || 'supernode';
-
-        // remove the supernodes to remove
-        let newSupernodes = visState.subgraph?.supernodes.filter(
-          // eslint-disable-next-line
-          ([_, ...nodeIds]) => !supernodesToRemove.some((d) => nodeIds.every((e) => d.includes(e))),
-        );
-
-        if (visState.subgraph) {
-          newSupernodes = [...(newSupernodes || []), [label, ...new Set(allSelectedIds)]];
-          updateVisStateField('subgraph', {
-            ...visState.subgraph,
-            supernodes: newSupernodes,
-            activeGrouping: {
-              isActive: false,
-              selectedNodeIds: new Set(),
-            },
-          });
-        }
-      } else {
-        // reset grouping state
-        updateVisStateField('subgraph', {
-          ...visState.subgraph,
-          activeGrouping: {
-            isActive: false,
-            selectedNodeIds: new Set(),
-          },
-        });
-      }
-
-      const subgraphEl = document.querySelector('.subgraph');
-      if (subgraphEl) {
-        subgraphEl.classList.remove('is-grouping');
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    // eslint-disable-next-line
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [selectedGraph, visState, nodeIdToNode, updateVisStateField]);
-
-  // Handler for tracking meta/ctrl key state for pin/unpin mode
-  useEffect(() => {
-    function handleKeyDown(ev: KeyboardEvent) {
-      if (ev.key === 'Meta' || ev.key === 'Control') {
-        setIsMetaKeyHeld(true);
-      }
-    }
-
-    function handleKeyUp(ev: KeyboardEvent) {
-      if (ev.key === 'Meta' || ev.key === 'Control') {
-        setIsMetaKeyHeld(false);
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
 
   // Initialize subgraph state if not already initialized
   useEffect(() => {
@@ -663,15 +561,13 @@ export default function Subgraph() {
       .on('mouseover', (ev: MouseEvent, d: ForceNode) => {
         if (ev.buttons === 1) return; // Ignore if dragging/clicking
         if (!ev.metaKey && !ev.ctrlKey && !activeGroupingRef.current?.isActive && !isEditingLabelRef.current) {
-          updateVisStateField('hoveredId', d.node.featureId || null);
-          updateVisStateField('hoveredCtxIdx', d.node.ctx_idx);
+          updateHoverState(d.node);
           showTooltip(ev, d.node, makeTooltipText(d.node));
         }
       })
       .on('mouseleave', (ev: MouseEvent) => {
         if (ev.buttons === 1) return; // Ignore if dragging/clicking
-        updateVisStateField('hoveredId', null);
-        updateVisStateField('hoveredCtxIdx', null);
+        clearHoverState();
         hideTooltip();
       })
       .on('click', (ev: MouseEvent, d: ForceNode) => {
@@ -721,11 +617,10 @@ export default function Subgraph() {
           updateVisStateField('pinnedIds', newPinnedIds);
         } else {
           // Set as clicked node
-          const newClickedId = lastClickedIdRef.current === d.node.nodeId ? null : d.node.nodeId;
-          if (newClickedId !== lastClickedIdRef.current) {
-            updateVisStateField('clickedId', newClickedId || null);
-            updateVisStateField('clickedCtxIdx', newClickedId ? d.node.ctx_idx : null);
-            lastClickedIdRef.current = newClickedId || null;
+          const newClickedId = clickedIdRef.current === d.node.nodeId ? null : d.node.nodeId;
+          if (newClickedId !== clickedIdRef.current) {
+            const clickedNode = newClickedId ? d.node : null;
+            updateClickedState(clickedNode);
           }
         }
       })
@@ -758,15 +653,13 @@ export default function Subgraph() {
       .on('mouseover', (ev: MouseEvent, d: CLTGraphNode) => {
         if (ev.buttons === 1) return; // Ignore if dragging
         if (activeGroupingRef.current?.isActive || ev.metaKey || ev.ctrlKey || isEditingLabelRef.current) return;
-        updateVisStateField('hoveredId', d.featureId || null);
-        updateVisStateField('hoveredCtxIdx', d.ctx_idx);
+        updateHoverState(d);
         showTooltip(ev, d, makeTooltipText(d));
         ev.stopPropagation();
       })
       .on('mouseleave', (ev: MouseEvent) => {
         if (ev.buttons === 1) return; // Ignore if dragging out
-        updateVisStateField('hoveredId', null);
-        updateVisStateField('hoveredCtxIdx', null);
+        clearHoverState();
         hideTooltip();
       })
       .on('click', (ev: MouseEvent, d: CLTGraphNode) => {
@@ -791,11 +684,10 @@ export default function Subgraph() {
           updateVisStateField('pinnedIds', newPinnedIds);
         } else {
           // Set as clicked node
-          const newClickedId = lastClickedIdRef.current === d.nodeId ? null : d.nodeId;
-          if (newClickedId !== lastClickedIdRef.current) {
-            updateVisStateField('clickedId', newClickedId || null);
-            updateVisStateField('clickedCtxIdx', newClickedId ? d.ctx_idx : null);
-            lastClickedIdRef.current = newClickedId || null;
+          const newClickedId = clickedIdRef.current === d.nodeId ? null : d.nodeId;
+          if (newClickedId !== clickedIdRef.current) {
+            const clickedNode = newClickedId ? d : null;
+            updateClickedState(clickedNode);
           }
         }
       })
@@ -986,8 +878,8 @@ export default function Subgraph() {
 
     // Apply classes based on interaction state
     nodeSel
-      .classed('clicked', (d: ForceNode) => d.node.nodeId === visState.clickedId)
-      .classed('hovered', (d: ForceNode) => d.node.featureId === visState.hoveredId)
+      .classed('clicked', (d: ForceNode) => d.node.nodeId === currentClickedId)
+      .classed('hovered', (d: ForceNode) => d.node.featureId === currentHoveredId)
       .classed(
         'grouping-selected', // This class should now be applied correctly
         (d: ForceNode) => visState.subgraph?.activeGrouping.selectedNodeIds.has(d.node.nodeId || '') || false,
@@ -1006,7 +898,7 @@ export default function Subgraph() {
     });
 
     // Calculate and apply new clicked link highlighting state
-    if (visState.clickedId && nodeIdToNode[visState.clickedId]) {
+    if (currentClickedId && nodeIdToNode[currentClickedId]) {
       currentSgLinks.forEach((link) => {
         // Resolve source/target, potentially using nodeIdToNode map if needed
         const sourceForceNode = typeof link.source === 'object' ? link.source : null;
@@ -1017,7 +909,7 @@ export default function Subgraph() {
         const targetNode = nodeIdToNode[targetNodeId];
 
         if (link.ogLinks && sourceNode && targetNode) {
-          if (sourceNodeId === visState.clickedId) {
+          if (sourceNodeId === currentClickedId) {
             // Highlight target member nodes
             link.ogLinks.forEach((ogLink) => {
               if (ogLink.targetNode && nodeIdToNode[ogLink.targetNode.nodeId || '']) {
@@ -1029,7 +921,7 @@ export default function Subgraph() {
             if (nodeIdToNode[targetNodeId]) {
               nodeIdToNode[targetNodeId].tmpClickedSgTarget = link;
             }
-          } else if (targetNodeId === visState.clickedId) {
+          } else if (targetNodeId === currentClickedId) {
             // Highlight source member nodes
             link.ogLinks.forEach((ogLink) => {
               if (ogLink.sourceNode && nodeIdToNode[ogLink.sourceNode.nodeId || '']) {
@@ -1048,15 +940,15 @@ export default function Subgraph() {
 
     // Apply styles based on the potentially updated tmpClickedLink property
     memberNodeSel
-      .classed('clicked', (d: CLTGraphNode) => d.nodeId === visState.clickedId)
-      .classed('hovered', (d: CLTGraphNode) => d.featureId === visState.hoveredId)
+      .classed('clicked', (d: CLTGraphNode) => d.nodeId === currentClickedId)
+      .classed('hovered', (d: CLTGraphNode) => d.featureId === currentHoveredId)
       .style('background', (d: CLTGraphNode) => d?.tmpClickedLink?.pctInputColor || '#fff')
       .style('color', (d: CLTGraphNode) => bgColorToTextColor(d?.tmpClickedLink?.pctInputColor) || 'black');
 
     // NOTE: This effect intentionally avoids restarting the simulation or changing layout.
   }, [
-    visState.clickedId,
-    visState.hoveredId,
+    currentClickedId,
+    currentHoveredId,
     visState.subgraph?.activeGrouping.selectedNodeIds,
     bgColorToTextColor,
     nodeIdToNode,
@@ -1071,6 +963,133 @@ export default function Subgraph() {
       setShowSubgraphHelp(false);
     }
   }, [visState.pinnedIds]);
+
+  // Handler for keydown event to enable grouping mode
+  useEffect(() => {
+    if (!selectedGraph) return;
+
+    function handleKeyDown(ev: KeyboardEvent) {
+      if (ev.repeat) return;
+      if (!visState.isEditMode || ev.key !== 'g') return;
+
+      if (visState.subgraph) {
+        updateVisStateField('subgraph', {
+          ...visState.subgraph,
+          activeGrouping: {
+            ...visState.subgraph.activeGrouping,
+            isActive: true,
+          },
+        });
+      }
+
+      const subgraphEl = document.querySelector('.subgraph');
+      if (subgraphEl) {
+        subgraphEl.classList.add('is-grouping');
+      }
+    }
+
+    function handleKeyUp(ev: KeyboardEvent) {
+      if (!visState.isEditMode || ev.key !== 'g') return;
+      if (!visState.subgraph) return;
+
+      if (visState.subgraph.activeGrouping.selectedNodeIds.size > 1) {
+        const allSelectedIds: string[] = [];
+        let prevSupernodeLabel = '';
+        const supernodesToRemove: string[][] = [];
+
+        visState.subgraph.activeGrouping.selectedNodeIds.forEach((id) => {
+          const node = nodeIdToNode[id];
+          if (!node?.memberNodeIds) {
+            allSelectedIds.push(id);
+            return;
+          }
+
+          prevSupernodeLabel = node.ppClerp || '';
+
+          // find the supernode to remove
+          // eslint-disable-next-line
+          const supernodeToRemove = visState.subgraph?.supernodes.find(([_, ...nodeIds]) =>
+            nodeIds.every((d) => node.memberNodeIds?.includes(d)),
+          );
+
+          if (supernodeToRemove) {
+            supernodesToRemove.push(supernodeToRemove);
+          }
+
+          // Add its member nodes to selection
+          node.memberNodeIds.forEach((memberId) => allSelectedIds.push(memberId));
+        });
+
+        // Find a label for the new supernode
+        const label =
+          prevSupernodeLabel || allSelectedIds.map((id) => nodeIdToNode[id]?.ppClerp).find((d) => d) || 'supernode';
+
+        // remove the supernodes to remove
+        let newSupernodes = visState.subgraph?.supernodes.filter(
+          // eslint-disable-next-line
+          ([_, ...nodeIds]) => !supernodesToRemove.some((d) => nodeIds.every((e) => d.includes(e))),
+        );
+
+        if (visState.subgraph) {
+          newSupernodes = [...(newSupernodes || []), [label, ...new Set(allSelectedIds)]];
+          updateVisStateField('subgraph', {
+            ...visState.subgraph,
+            supernodes: newSupernodes,
+            activeGrouping: {
+              isActive: false,
+              selectedNodeIds: new Set(),
+            },
+          });
+        }
+      } else {
+        // reset grouping state
+        updateVisStateField('subgraph', {
+          ...visState.subgraph,
+          activeGrouping: {
+            isActive: false,
+            selectedNodeIds: new Set(),
+          },
+        });
+      }
+
+      const subgraphEl = document.querySelector('.subgraph');
+      if (subgraphEl) {
+        subgraphEl.classList.remove('is-grouping');
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    // eslint-disable-next-line
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [selectedGraph, visState, nodeIdToNode, updateVisStateField]);
+
+  // Handler for tracking meta/ctrl key state for pin/unpin mode
+  useEffect(() => {
+    function handleKeyDown(ev: KeyboardEvent) {
+      if (ev.key === 'Meta' || ev.key === 'Control') {
+        setIsMetaKeyHeld(true);
+      }
+    }
+
+    function handleKeyUp(ev: KeyboardEvent) {
+      if (ev.key === 'Meta' || ev.key === 'Control') {
+        setIsMetaKeyHeld(false);
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   return (
     <Card className="h-full w-full flex-1 bg-white">

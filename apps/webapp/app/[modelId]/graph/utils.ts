@@ -170,7 +170,6 @@ export type CltSubgraphState = {
 export type CltVisState = {
   pinnedIds: string[];
   hiddenIds: string[];
-  hoveredId: string | null;
   hoveredNodeId: string | null;
   hoveredCtxIdx: number | null;
   clickedId: string | null;
@@ -795,4 +794,24 @@ export function shouldShowNodeForDensityThreshold(
   }
   // no density threshold. show all.
   return true;
+}
+
+// Extended type for custom CLTGraph properties
+export interface CLTGraphExtended extends CLTGraph {
+  byStream?: Array<any>;
+  features?: Array<any>;
+}
+
+export function filterNodes(
+  data: CLTGraphExtended,
+  nodes: CLTGraphNode[],
+  selectedGraph: CLTGraph,
+  visState: CltVisState,
+) {
+  if (data.metadata.node_threshold !== undefined && data.metadata.node_threshold > 0) {
+    nodes = nodes.filter((d) => shouldShowNodeForInfluenceThreshold(d, visState));
+  }
+  // if we have memicos dashboards, then we use density threshold
+  nodes = nodes.filter((d) => shouldShowNodeForDensityThreshold(graphModelHasNpDashboards(selectedGraph), d, visState));
+  return nodes;
 }

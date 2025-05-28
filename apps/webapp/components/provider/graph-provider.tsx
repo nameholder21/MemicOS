@@ -41,6 +41,7 @@ import {
   useState,
 } from 'react';
 import { useGlobalContext } from './global-provider';
+import { useGraphStateContext } from './graph-state-provider';
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 2048;
@@ -173,6 +174,7 @@ export function GraphProvider({
   const searchParams = useSearchParams();
 
   const { globalModels } = useGlobalContext();
+  const { clickedIdRef } = useGraphStateContext();
 
   const [modelIdToMetadataMap, setModelIdToMetadataMap] = useState<ModelToGraphMetadatasMap>(
     initialModelIdToMetadataGraphsMap,
@@ -208,7 +210,6 @@ export function GraphProvider({
   const [visState, setVisStateInternal] = useState<CltVisState>({
     pinnedIds: initialPinnedIds ? initialPinnedIds.split(',') : [],
     hiddenIds: [],
-    hoveredId: null,
     hoveredNodeId: null,
     hoveredCtxIdx: null,
     clickedId: initialClickedId || null,
@@ -336,10 +337,13 @@ export function GraphProvider({
   // update qParams when visState changes
   useEffect(() => {
     if (selectedGraph) {
+      // Prioritize clickedId from graph state provider, fallback to visState
+      const effectiveClickedId = clickedIdRef.current || visState.clickedId;
+
       const newParams = {
         slug: selectedMetadataGraph?.slug || null,
         pinnedIds: visState.pinnedIds.join(','),
-        clickedId: visState.clickedId || null,
+        clickedId: effectiveClickedId || null,
         supernodes:
           visState.subgraph && visState.subgraph.supernodes.length > 0
             ? JSON.stringify(visState.subgraph.supernodes)
@@ -350,7 +354,7 @@ export function GraphProvider({
       };
       updateUrlParams(newParams);
     }
-  }, [visState]);
+  }, [visState, clickedIdRef.current]);
 
   // TODO: this does not seem to be used - but in the original it had it in the url params
   const [logitDiff, setLogitDiff] = useState<string | null>(null);
@@ -358,7 +362,6 @@ export function GraphProvider({
   const blankVisState = {
     pinnedIds: [],
     hiddenIds: [],
-    hoveredId: null,
     hoveredNodeId: null,
     hoveredCtxIdx: null,
     clickedId: null,
@@ -866,53 +869,57 @@ export function GraphProvider({
     };
   }, [selectedMetadataGraph]); // Keep other dependencies if any, but selectedMetadataGraph is key
 
-  const setFullNPFeatureDetail = (setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => {
-    // load the rest of the activations on demand
-    if (
-      node?.featureDetailNP &&
-      node?.featureDetailNP.activations &&
-      node?.featureDetailNP.activations.length <= GRAPH_PREFETCH_ACTIVATIONS_COUNT
-    ) {
-      fetch(`/api/activation/get`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          modelId: node.featureDetailNP.modelId,
-          source: node.featureDetailNP.layer,
-          index: node.featureDetailNP.index,
-        }),
-      })
-        .then((response) => response.json())
-        .then((acts: ActivationWithPartialRelations[]) => {
-          if (node?.featureDetailNP) {
-            // console.log('setting full NP feature detail', acts.length);
-            // Create a new node object with updated activations to trigger re-render
-            setNode((prevNode: CLTGraphNode | null) => {
-              if (!prevNode || !prevNode.featureDetailNP) return prevNode;
-              // don't change node object if it's a different node now
-              if (prevNode.nodeId !== node?.nodeId) return prevNode;
-              return {
-                ...prevNode,
-                featureDetailNP: {
-                  ...prevNode.featureDetailNP,
-                  activations: acts,
-                },
-              };
-            });
-            // add it to the selectedGraph
-            if (selectedGraph) {
-              const matchingNode = selectedGraph.nodes.find((n) => n.nodeId === node.nodeId);
-              if (matchingNode && matchingNode.featureDetailNP) {
-                matchingNode.featureDetailNP.activations = acts;
+  const setFullNPFeatureDetail = useMemo(
+    () =>
+      debounce((setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => {
+        // load the rest of the activations on demand
+        if (
+          node?.featureDetailNP &&
+          node?.featureDetailNP.activations &&
+          node?.featureDetailNP.activations.length <= GRAPH_PREFETCH_ACTIVATIONS_COUNT
+        ) {
+          fetch(`/api/activation/get`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              modelId: node.featureDetailNP.modelId,
+              source: node.featureDetailNP.layer,
+              index: node.featureDetailNP.index,
+            }),
+          })
+            .then((response) => response.json())
+            .then((acts: ActivationWithPartialRelations[]) => {
+              if (node?.featureDetailNP) {
+                // console.log('setting full NP feature detail', acts.length);
+                // Create a new node object with updated activations to trigger re-render
+                setNode((prevNode: CLTGraphNode | null) => {
+                  if (!prevNode || !prevNode.featureDetailNP) return prevNode;
+                  // don't change node object if it's a different node now
+                  if (prevNode.nodeId !== node?.nodeId) return prevNode;
+                  return {
+                    ...prevNode,
+                    featureDetailNP: {
+                      ...prevNode.featureDetailNP,
+                      activations: acts,
+                    },
+                  };
+                });
+                // add it to the selectedGraph
+                if (selectedGraph) {
+                  const matchingNode = selectedGraph.nodes.find((n) => n.nodeId === node.nodeId);
+                  if (matchingNode && matchingNode.featureDetailNP) {
+                    matchingNode.featureDetailNP.activations = acts;
+                  }
+                }
               }
-            }
-          }
-        })
-        .catch((error) => {
-          console.error(`error submitting getting rest of feature: ${error}`);
-        });
-    }
-  };
+            })
+            .catch((error) => {
+              console.error(`error submitting getting rest of feature: ${error}`);
+            });
+        }
+      }, 250),
+    [selectedGraph],
+  );
 
   // Provide the context value
   const contextValue = useMemo(
