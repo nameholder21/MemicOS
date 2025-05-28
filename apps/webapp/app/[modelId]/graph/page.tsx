@@ -20,7 +20,7 @@ export async function generateMetadata({
   const slug = searchParams.slug as string | undefined;
 
   const title = `${slug ? `${slug} - ` : ''}${modelId.toUpperCase()} Attribution Graph`;
-  const description = `Visualizing the biology of ${modelId.toUpperCase()} by generating attribution graphs.`;
+  const description = ``;
   let url = `/${modelId}/graph`;
 
   if (slug) {

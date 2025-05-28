@@ -1,3 +1,4 @@
+import CustomTooltip from '@/components/custom-tooltip';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import * as RadixSlider from '@radix-ui/react-slider';
@@ -54,95 +55,108 @@ export default function GraphControls({
   }, [selectedGraph?.metadata.node_threshold, visState.pruningThreshold]);
 
   return (
-    <div className="absolute -top-1.5 left-3 z-10 flex items-center space-x-7">
+    <div className="absolute -top-2 left-4 z-10 flex items-center space-x-2.5">
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
-        <div className="flex flex-row items-center">
-          <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
-            Show Nodes Summing
-            <br />
-            to Influence
-          </Label>
-          <div className="z-10 -mr-[28px] ml-2.5 font-mono text-[10px] leading-none text-slate-400">{`<0.`}</div>
-          <Input
-            id="pruningThreshold"
-            name="pruningThreshold"
-            type="number"
-            value={Math.round(localPruningThreshold * 100)
-              .toString()
-              .padStart(2, '0')}
-            onChange={(e) => {
-              const newValue = Number(e.target.value) / 100;
-              setLocalPruningThreshold(newValue);
-              debouncedUpdatePruningThreshold(newValue);
-            }}
-            className="mx-0.5 mr-2 h-5 w-11 rounded border-slate-300 bg-white px-1 py-0 text-right font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
-            min={0}
-            max={99}
-            step={1}
-          />
-          <RadixSlider.Root
-            name="pruningThreshold"
-            value={[localPruningThreshold]}
-            onValueChange={(newVal) => {
-              setLocalPruningThreshold(newVal[0]);
-              debouncedUpdatePruningThreshold(newVal[0]);
-            }}
-            min={0.2}
-            max={0.99}
-            step={0.01}
-            className="relative flex h-4 w-20 min-w-20 flex-1 touch-none select-none items-center"
-          >
-            <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
-              <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
-            </RadixSlider.Track>
-            <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
-          </RadixSlider.Root>
-        </div>
+        <CustomTooltip
+          trigger={
+            <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
+              <Label
+                htmlFor="densityThreshold"
+                className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600"
+              >
+                Show Nodes Accounting for
+              </Label>
+              <Input
+                id="pruningThreshold"
+                name="pruningThreshold"
+                type="number"
+                value={Math.round(localPruningThreshold * 100)
+                  .toString()
+                  .padStart(2, '0')}
+                onChange={(e) => {
+                  const newValue = Number(e.target.value) / 100;
+                  setLocalPruningThreshold(newValue);
+                  debouncedUpdatePruningThreshold(newValue);
+                }}
+                className="mx-0.5 mr-2 h-[18px] w-9 rounded border-slate-300 bg-white px-2 py-0 text-left font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+                min={0}
+                max={99}
+                step={1}
+              />
+              <div className="-ml-[20px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
+              <div className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600">
+                of the Influence
+              </div>
+              <RadixSlider.Root
+                name="pruningThreshold"
+                value={[localPruningThreshold]}
+                onValueChange={(newVal) => {
+                  setLocalPruningThreshold(newVal[0]);
+                  debouncedUpdatePruningThreshold(newVal[0]);
+                }}
+                min={0.2}
+                max={0.99}
+                step={0.01}
+                className="relative flex h-4 w-14 min-w-14 flex-1 touch-none select-none items-center"
+              >
+                <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-300">
+                  <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+                </RadixSlider.Track>
+                <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
+              </RadixSlider.Root>
+            </div>
+          }
+        >
+          <div className="pb-1 font-bold">How This Works</div>
+          {`Each node has an influence score, and then we sort nodes by influence and do a cumulative sum. So if the influences are [.1, .6, .3] then we end up with values [.6, .9, 1]. When we choose a %, we're keeping the most important nodes such that the sum of influence reaches X.`}
+        </CustomTooltip>
       )}
       {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
-        <div className="flex flex-row items-center">
-          <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
-            Show Nodes with
-            <br />
-            Feature Density
-          </Label>
-          <div className="z-10 -mr-[16px] ml-3 font-mono text-[10px] leading-none text-slate-400">{`<`}</div>
+        <div className="flex flex-row items-center rounded bg-slate-200 px-2 py-0.5">
+          <div className="flex flex-row items-center">
+            <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
+              Show Nodes with
+              <br />
+              Feature Density
+            </Label>
+            <div className="z-10 -mr-[16px] ml-3 font-mono text-[10px] leading-none text-slate-400">{`<`}</div>
 
-          <Input
-            id="densityThreshold"
-            name="densityThreshold"
-            type="number"
-            value={`${(localDensityThreshold * 100).toFixed(0)}`}
-            onChange={(e) => {
-              const newValue = Number(e.target.value) / 100;
-              setLocalDensityThreshold(newValue);
-              debouncedUpdateDensityThreshold(newValue);
-            }}
-            className="ml-0.5 h-5 w-11 rounded border-slate-300 bg-white px-1 py-0 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
-            min={0}
-            max={100}
-            step={1}
-          />
-          <div className="-ml-[11px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
-          <RadixSlider.Root
-            name="densityThreshold"
-            value={[Math.log10(localDensityThreshold * 100 + 1)]}
-            onValueChange={(newVal) => {
-              const logValue = newVal[0];
-              const linearValue = (Math.pow(10, logValue) - 1) / 100;
-              setLocalDensityThreshold(linearValue);
-              debouncedUpdateDensityThreshold(linearValue);
-            }}
-            min={0}
-            max={Math.log10(101)}
-            step={0.01}
-            className="relative flex h-4 w-20 min-w-20 flex-1 touch-none select-none items-center"
-          >
-            <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
-              <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
-            </RadixSlider.Track>
-            <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
-          </RadixSlider.Root>
+            <Input
+              id="densityThreshold"
+              name="densityThreshold"
+              type="number"
+              value={`${(localDensityThreshold * 100).toFixed(0)}`}
+              onChange={(e) => {
+                const newValue = Number(e.target.value) / 100;
+                setLocalDensityThreshold(newValue);
+                debouncedUpdateDensityThreshold(newValue);
+              }}
+              className="ml-0.5 h-[18px] w-11 rounded border-slate-300 bg-white px-1 py-0 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+              min={0}
+              max={100}
+              step={1}
+            />
+            <div className="-ml-[11px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
+            <RadixSlider.Root
+              name="densityThreshold"
+              value={[Math.log10(localDensityThreshold * 100 + 1)]}
+              onValueChange={(newVal) => {
+                const logValue = newVal[0];
+                const linearValue = (10 ** logValue - 1) / 100;
+                setLocalDensityThreshold(linearValue);
+                debouncedUpdateDensityThreshold(linearValue);
+              }}
+              min={0}
+              max={Math.log10(101)}
+              step={0.01}
+              className="relative flex h-4 w-14 min-w-14 flex-1 touch-none select-none items-center"
+            >
+              <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-300">
+                <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+              </RadixSlider.Track>
+              <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
+            </RadixSlider.Root>
+          </div>
         </div>
       )}
     </div>
