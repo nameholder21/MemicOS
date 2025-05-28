@@ -45,7 +45,7 @@ import { useGraphStateContext } from './graph-state-provider';
 
 const ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 32;
 const MEMICOS_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE = 2048;
-export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 5;
+export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 3;
 const DEFAULT_DENSITY_THRESHOLD = 0.99;
 const PREFERRED_EXPLANATION_TYPE_NAME = 'np_max-act-logits';
 
@@ -386,8 +386,10 @@ export function GraphProvider({
       visStateToReturn = {
         ...visStateToReturn,
         ...graph.qParams,
-        pruningThreshold: graph.metadata.node_threshold,
       };
+    }
+    if (graph.metadata.node_threshold) {
+      visStateToReturn.pruningThreshold = graph.metadata.node_threshold;
     }
 
     visStateToReturn.densityThreshold = 1;
