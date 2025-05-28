@@ -9,7 +9,7 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
-const MAX_PUT_REQUESTS_PER_DAY = 100;
+const MAX_PUT_REQUESTS_PER_DAY = 3000;
 const signedPutRequestSchema = object({
   filename: string().required(),
   contentLength: number().required().min(1024).max(MAX_GRAPH_UPLOAD_SIZE_BYTES),
