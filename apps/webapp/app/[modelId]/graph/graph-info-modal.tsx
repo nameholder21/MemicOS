@@ -87,13 +87,13 @@ export default function GraphInfoModal({ cltGraph, selectedMetadataGraph }: Grap
 
           {/* Prompt Information */}
           <div className="space-y-3">
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div>
                 <span className="text-[11px] font-medium uppercase text-slate-400">Prompt</span>
-                <p className="rounded bg-slate-200 p-2 text-xs text-slate-800">{metadata.prompt}</p>
+                <p className="rounded py-1.5 pb-0.5 text-xs text-slate-800">{metadata.prompt}</p>
               </div>
               <div>
-                <div className="mt-2 flex flex-wrap gap-1">
+                <div className="mt-1 flex flex-wrap gap-1">
                   {metadata.prompt_tokens.map((token, i) => (
                     <span
                       key={`${token}-${i}`}
@@ -161,64 +161,66 @@ export default function GraphInfoModal({ cltGraph, selectedMetadataGraph }: Grap
           )}
 
           {/* Generation Settings */}
-          <div className="flex w-full flex-row pt-3">
-            {metadata.generation_settings && (
-              <div className="flex-1 space-y-1.5">
-                <h3 className="mb-0 text-center text-xs font-medium uppercase leading-none text-slate-400">
-                  Generation Settings
-                </h3>
-                <div className="grid grid-cols-2 gap-y-1 text-sm">
-                  {metadata.generation_settings.max_n_logits && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Max N Logits</span>
-                      <p className="text-slate-800">{metadata.generation_settings.max_n_logits}</p>
-                    </div>
-                  )}
-                  {metadata.generation_settings.desired_logit_prob && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Desired Logit Prob</span>
-                      <p className="text-slate-800">{metadata.generation_settings.desired_logit_prob}</p>
-                    </div>
-                  )}
-                  {metadata.generation_settings.batch_size && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Batch Size</span>
-                      <p className="text-slate-800">{metadata.generation_settings.batch_size}</p>
-                    </div>
-                  )}
-                  {metadata.generation_settings.max_feature_nodes && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Max Feature Nodes</span>
-                      <p className="text-slate-800">{metadata.generation_settings.max_feature_nodes}</p>
-                    </div>
-                  )}
+          {(metadata.generation_settings || metadata.pruning_settings) && (
+            <div className="flex w-full flex-row pt-3">
+              {metadata.generation_settings && (
+                <div className="flex-1 space-y-1.5">
+                  <h3 className="mb-0 text-center text-xs font-medium uppercase leading-none text-slate-400">
+                    Generation Settings
+                  </h3>
+                  <div className="grid grid-cols-2 gap-y-1 text-sm">
+                    {metadata.generation_settings.max_n_logits && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Max N Logits</span>
+                        <p className="text-slate-800">{metadata.generation_settings.max_n_logits}</p>
+                      </div>
+                    )}
+                    {metadata.generation_settings.desired_logit_prob && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Desired Logit Prob</span>
+                        <p className="text-slate-800">{metadata.generation_settings.desired_logit_prob}</p>
+                      </div>
+                    )}
+                    {metadata.generation_settings.batch_size && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Batch Size</span>
+                        <p className="text-slate-800">{metadata.generation_settings.batch_size}</p>
+                      </div>
+                    )}
+                    {metadata.generation_settings.max_feature_nodes && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Max Feature Nodes</span>
+                        <p className="text-slate-800">{metadata.generation_settings.max_feature_nodes}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Pruning Settings */}
-            {metadata.pruning_settings && (
-              <div className="flex-1 space-y-1.5">
-                <h3 className="mb-0 text-center text-xs font-medium uppercase leading-none text-slate-400">
-                  Pruning Settings
-                </h3>
-                <div className="grid grid-cols-2 gap-y-1 text-sm">
-                  {metadata.pruning_settings.node_threshold && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Node Threshold</span>
-                      <p className="text-slate-800">{metadata.pruning_settings.node_threshold}</p>
-                    </div>
-                  )}
-                  {metadata.pruning_settings.edge_threshold && (
-                    <div>
-                      <span className="text-[11px] font-medium uppercase text-slate-400">Edge Threshold</span>
-                      <p className="text-slate-800">{metadata.pruning_settings.edge_threshold}</p>
-                    </div>
-                  )}
+              {/* Pruning Settings */}
+              {metadata.pruning_settings && (
+                <div className="flex-1 space-y-1.5">
+                  <h3 className="mb-0 text-center text-xs font-medium uppercase leading-none text-slate-400">
+                    Pruning Settings
+                  </h3>
+                  <div className="grid grid-cols-2 gap-y-1 text-sm">
+                    {metadata.pruning_settings.node_threshold && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Node Threshold</span>
+                        <p className="text-slate-800">{metadata.pruning_settings.node_threshold}</p>
+                      </div>
+                    )}
+                    {metadata.pruning_settings.edge_threshold && (
+                      <div>
+                        <span className="text-[11px] font-medium uppercase text-slate-400">Edge Threshold</span>
+                        <p className="text-slate-800">{metadata.pruning_settings.edge_threshold}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Feature Details */}
           {metadata.feature_details && (
@@ -246,16 +248,16 @@ export default function GraphInfoModal({ cltGraph, selectedMetadataGraph }: Grap
           {/* Generator Information */}
           {metadata.info?.generator && (
             <div className="space-y-1 pt-1">
-              <h3 className="text-center text-xs font-medium uppercase text-slate-400">Generator Used</h3>
-              <div className="grid grid-cols-1 items-center justify-center gap-0 text-sm">
+              <h3 className="text-left text-xs font-medium uppercase text-slate-400">Generator Used</h3>
+              <div className="grid grid-cols-1 items-center justify-start gap-0 text-sm">
                 {metadata.info.generator.name && (
                   <div>
-                    <p className="text-center text-slate-800">{metadata.info.generator.name}</p>
+                    <p className="text-left text-slate-800">{metadata.info.generator.name}</p>
                   </div>
                 )}
                 {metadata.info.generator.version && (
                   <div className="mt-0.5">
-                    <p className="text-center font-mono text-xs text-slate-800">{metadata.info.generator.version}</p>
+                    <p className="text-left font-mono text-xs text-slate-800">{metadata.info.generator.version}</p>
                   </div>
                 )}
                 {metadata.info.generator.url && (
@@ -264,7 +266,7 @@ export default function GraphInfoModal({ cltGraph, selectedMetadataGraph }: Grap
                       href={metadata.info.generator.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="break-all text-center text-[11px] text-sky-600 hover:underline"
+                      className="break-all text-left text-[11px] text-sky-600 hover:underline"
                     >
                       {metadata.info.generator.url}
                     </a>

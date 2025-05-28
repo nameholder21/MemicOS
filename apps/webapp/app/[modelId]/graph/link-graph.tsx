@@ -809,7 +809,7 @@ export default function LinkGraph() {
 
     // Get byStream from data or create a default with 19 items
     const byStreamLength = data.byStream?.length || 19;
-    const numLayers = data.metadata.num_layers || 0;
+    const numLayers = data.metadata.memicos_internal_model?.layers || 0;
     const yNumTicks = isHideLayer(data.metadata.scan) ? byStreamLength : numLayers + 2;
 
     // Create an array of numbers for the y-axis
@@ -820,6 +820,7 @@ export default function LinkGraph() {
       .axisLeft(c.y)
       .tickValues(d3.range(yNumTicks))
       .tickFormat((i) =>
+        // TODO: remove gpt2-small special case
         i === yNumTicks - 1 ? 'Lgt' : i === 0 ? 'Emb' : `L${data.metadata.scan === 'gpt2-small' ? i : i - 1}`,
       );
 

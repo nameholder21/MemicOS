@@ -7,7 +7,7 @@ import d3 from './d3-jetpack';
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
-export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024;
+export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 1000 * 1024 * 1024;
 
 // ============ MemicOS Specific =============
 
@@ -27,6 +27,8 @@ export const MODEL_HAS_S3_DASHBOARDS = new Set([
   'jackl-circuits-runs-12-19-valet-m_0',
   'jackl-circuits-runs-1-12-rune-cp3_0',
 ]);
+
+export const ANT_MODELS_TO_LOAD = new Set(['jackl-circuits-runs-1-4-sofa-v3_0']);
 
 // if neither, then no dashboards yet for them
 
@@ -199,23 +201,7 @@ export const modelIdToModelDisplayName = new Map<string, string>([
   ['jackl-circuits-runs-1-1-druid-cp_0', '18L'],
   ['jackl-circuits-runs-12-19-valet-m_0', 'Model Organism'],
   ['jackl-circuits-runs-1-12-rune-cp3_0', '18L PLTs'],
-  ['gemma-2-2b', 'Gemma 2 2B'],
   ['llama-3-131k-relu', 'Llama 3.2 1B - Relu'],
-  ['gelu-4l-x128k64-v0', 'Gelu 4L'],
-  ['gpt2-small', 'GPT2-Small'],
-  // ['llama-hf-3-nobos', 'Llama 3.2 1B - NoBos'],
-  // ['llama-hf-3', 'Llama 3.2 1B - Other'],
-]);
-
-export const supportedGraphModels = new Set([
-  'jackl-circuits-runs-1-4-sofa-v3_0',
-  'jackl-circuits-runs-1-1-druid-cp_0',
-  'jackl-circuits-runs-12-19-valet-m_0',
-  'jackl-circuits-runs-1-12-rune-cp3_0',
-  'gemma-2-2b',
-  'llama-3-131k-relu',
-  'gelu-4l-x128k64-v0',
-  'gpt2-small',
 ]);
 
 export const anthropicModels = [
@@ -225,21 +211,12 @@ export const anthropicModels = [
   'jackl-circuits-runs-1-12-rune-cp3_0',
 ];
 
-export const scanSlugToName = {
-  h35: 'jackl-circuits-runs-1-4-sofa-v3_0',
-  '18l': 'jackl-circuits-runs-1-1-druid-cp_0',
-  moc: 'jackl-circuits-runs-12-19-valet-m_0',
-};
-
 export const cltModelToNumLayers = {
   'jackl-circuits-runs-1-4-sofa-v3_0': 18,
   'jackl-circuits-runs-1-1-druid-cp_0': 18,
   'jackl-circuits-runs-12-19-valet-m_0': 16,
   'jackl-circuits-runs-1-12-rune-cp3_0': 18,
-  'gemma-2-2b': 26,
   'llama-3-131k-relu': 16,
-  'gelu-4l-x128k64-v0': 4,
-  'gpt2-small': 12,
 };
 
 export type CLTGraphInnerMetadata = {
@@ -282,8 +259,13 @@ export type CLTGraphInnerMetadata = {
     edge_threshold?: number;
   };
 
-  // we add the number of layers to the metadata
-  num_layers?: number;
+  // we add these ourselves
+  // subset of our DB Model
+  memicos_internal_model?: {
+    id: string;
+    displayName: string;
+    layers: number;
+  };
 };
 
 export type CLTGraphQParams = {
@@ -411,7 +393,7 @@ export enum FilterGraphType {
 }
 
 export function isHideLayer(scan: string) {
-  return scan === scanSlugToName.h35 || scan === scanSlugToName.moc;
+  return scan === 'jackl-circuits-runs-1-4-sofa-v3_0';
 }
 
 // ========= util-cg.js formatData equivalent =========

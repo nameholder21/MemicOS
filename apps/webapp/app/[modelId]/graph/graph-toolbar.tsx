@@ -1,4 +1,9 @@
-import { CLTGraph, FilterGraphType, getGraphBaseUrlToName } from '@/app/[modelId]/graph/utils';
+import {
+  CLTGraph,
+  FilterGraphType,
+  getGraphBaseUrlToName,
+  modelIdToModelDisplayName,
+} from '@/app/[modelId]/graph/utils';
 import { useGlobalContext } from '@/components/provider/global-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
@@ -26,12 +31,12 @@ export default function GraphToolbar() {
     selectedMetadataGraph,
     selectedGraph,
     setSelectedMetadataGraph,
-    modelIdToModelDisplayName,
     filterGraphsSetting,
     setFilterGraphsSetting,
     shouldShowGraphToCurrentUser,
     setIsCopyModalOpen,
   } = useGraphContext();
+  const { globalModels } = useGlobalContext();
 
   if (isEmbed) {
     return (
@@ -48,7 +53,7 @@ export default function GraphToolbar() {
               className="h-7 gap-x-2 px-2.5 py-0 font-mono text-xs font-medium leading-snug text-sky-700 hover:border-sky-500 hover:bg-sky-100 hover:text-sky-800"
             >
               <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
-                {modelIdToModelDisplayName.get(selectedModelId)}
+                {modelIdToModelDisplayName.get(selectedModelId) || globalModels[selectedModelId]?.displayName}
               </span>
               <span className="px-1">{selectedMetadataGraph?.slug}</span>
               <ExternalLinkIcon className="h-3.5 w-3.5" />
@@ -114,16 +119,21 @@ export default function GraphToolbar() {
               className="inline-flex h-12 w-52 max-w-52 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
             >
               <Select.Value>
-                {modelIdToModelDisplayName.get(selectedModelId) ? (
-                  <div className="flex flex-col items-start justify-start gap-y-0.5 text-left">
-                    <div className="text-xs font-medium text-slate-600">
-                      {modelIdToModelDisplayName.get(selectedModelId)}
-                    </div>
-                    <div className="text-[9px] font-normal text-slate-400">{selectedModelId}</div>
+                <div className="flex flex-col items-start justify-start gap-y-0.5 text-left">
+                  <div className="text-xs font-medium text-slate-600">
+                    {modelIdToModelDisplayName.get(selectedModelId) ||
+                      globalModels[selectedModelId]?.displayName ||
+                      selectedModelId}
                   </div>
-                ) : (
-                  <div className="text-slate-400">Select a model</div>
-                )}
+                  {globalModels[selectedModelId]?.owner && (
+                    <div className="w-full text-[9px] font-normal text-slate-400">
+                      {globalModels[selectedModelId]?.owner}
+                    </div>
+                  )}
+                  {selectedModelId === 'jackl-circuits-runs-1-4-sofa-v3_0' && (
+                    <div className="w-full text-[9px] font-normal text-slate-400">Anthropic</div>
+                  )}
+                </div>
               </Select.Value>
               <Select.Icon>
                 <ChevronDownIcon className="w-5 text-slate-500" />
@@ -134,7 +144,7 @@ export default function GraphToolbar() {
                 position="popper"
                 align="center"
                 sideOffset={3}
-                className="z-[99999] max-h-[400px] overflow-hidden rounded-md border bg-white shadow-lg"
+                className="z-[99999] max-h-[400px] min-w-52 overflow-hidden rounded-md border bg-white shadow-lg"
               >
                 <Select.ScrollUpButton className="flex h-7 cursor-pointer items-center justify-center bg-white text-slate-700 hover:bg-slate-100">
                   <ChevronUpIcon className="w-5 text-slate-500" />
@@ -148,8 +158,17 @@ export default function GraphToolbar() {
                     >
                       <Select.ItemText className="w-full">
                         <div className="flex w-full flex-col items-start justify-start gap-y-0">
-                          <div className="w-full truncate text-left">{modelIdToModelDisplayName.get(modelId)}</div>
-                          <div className="w-full text-[9px] font-normal text-slate-400">{modelId}</div>
+                          <div className="w-full truncate text-left">
+                            {modelIdToModelDisplayName.get(modelId) || globalModels[modelId]?.displayName || modelId}
+                          </div>
+                          {globalModels[modelId]?.owner && (
+                            <div className="w-full text-[9px] font-normal text-slate-400">
+                              {globalModels[modelId]?.owner}
+                            </div>
+                          )}
+                          {modelId === 'jackl-circuits-runs-1-4-sofa-v3_0' && (
+                            <div className="w-full text-[9px] font-normal text-slate-400">Anthropic</div>
+                          )}
                         </div>
                       </Select.ItemText>
                     </Select.Item>
@@ -452,7 +471,7 @@ export default function GraphToolbar() {
                   alert(`This graph was generated by ${makeCreatorNameFromGraph(selectedGraph)}.`);
                 }
               }}
-              className="group flex h-12 w-32 max-w-32 flex-col items-center justify-center gap-x-2 gap-y-[5px] overflow-x-clip border-slate-200 bg-slate-200 px-0 text-xs leading-none text-slate-500 transition-none hover:border-sky-200 hover:bg-sky-200"
+              className="group flex h-12 w-[160px] max-w-[160px] flex-col items-center justify-center gap-x-2 gap-y-[5px] overflow-x-clip border-slate-200 bg-slate-200 px-0 text-xs leading-none text-slate-500 transition-none hover:border-sky-200 hover:bg-sky-200"
             >
               <div className="text-[8px] font-semibold leading-none text-slate-400 group-hover:text-sky-600">
                 GENERATED BY
