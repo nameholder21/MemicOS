@@ -1,8 +1,9 @@
 import { useGraphContext } from '@/components/provider/graph-provider';
+import { useGraphStateContext } from '@/components/provider/graph-state-provider';
 import { Button } from '@/components/shadcn/button';
 import { Circle } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
+import { GroupedVirtuoso } from 'react-virtuoso';
 import FeatureDashboard from '../[layer]/[index]/feature-dashboard';
 import GraphFeatureDetailItem from './feature-detail-item';
 import GraphFeatureLink from './np-feature-link';
@@ -12,48 +13,69 @@ export default function GraphFeatureDetail() {
   const {
     visState,
     selectedGraph,
+    updateVisStateField,
     isEditingLabel,
     setIsEditingLabel,
-    updateVisStateField,
-    getOriginalClerpForNode,
     getOverrideClerpForNode,
     getNodeSupernodeAndOverrideLabel,
+    getOriginalClerpForNode,
     setFullNPFeatureDetail,
   } = useGraphContext();
+
+  const { hoveredIdRef, clickedIdRef, registerHoverCallback, registerClickedCallback } = useGraphStateContext();
+
   const [node, setNode] = useState<CLTGraphNode | null>(null);
-  const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(0);
+  const [overallMaxActivationValue, setOverallMaxActivationValue] = useState<number>(1);
+  const [tempLabel, setTempLabel] = useState('');
   const activationContainerRef = useRef<HTMLDivElement>(null);
-  const groupRef = useRef<GroupedVirtuosoHandle>(null);
-  const [tempLabel, setTempLabel] = useState(node?.ppClerp || '');
+  const groupRef = useRef<any>(null);
 
+  // Track current displayed node to avoid unnecessary updates
+  const currentDisplayedNodeRef = useRef<string | null>(null);
+
+  // Register for both hover and clicked changes and update node display
   useEffect(() => {
-    setIsEditingLabel(false);
-    const clickedNode = visState.clickedId
-      ? selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId) || null
-      : null;
+    const updateDisplayedNode = () => {
+      // Determine which node to show: hovered node takes priority over clicked
+      const nodeIdToShow = hoveredIdRef.current || clickedIdRef.current;
 
-    let maxActValue = Math.max(
-      ...(clickedNode?.featureDetail?.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list) || []),
-    );
+      // Only update if the node actually changed
+      if (currentDisplayedNodeRef.current === nodeIdToShow) return;
 
-    if (visState.hoveredId) {
-      const hoveredNode = selectedGraph?.nodes.find((e) => e.featureId === visState.hoveredId);
-      if (hoveredNode && hoveredNode.feature) {
-        setNode(hoveredNode);
-        if (hoveredNode.featureDetail) {
-          maxActValue = Math.max(
-            ...hoveredNode.featureDetail.examples_quantiles[0].examples.flatMap((e) => e.tokens_acts_list),
+      currentDisplayedNodeRef.current = nodeIdToShow;
+
+      if (nodeIdToShow && selectedGraph) {
+        const targetNode = selectedGraph.nodes.find((e) => e.nodeId === nodeIdToShow || e.featureId === nodeIdToShow);
+        if (targetNode) {
+          // Get the max activation value across all nodes for scaling
+          const maxActValue = Math.max(
+            1,
+            ...selectedGraph.nodes.map((n) => (n.activation !== undefined ? n.activation : 0)),
           );
+          setNode(targetNode);
+          setOverallMaxActivationValue(maxActValue);
         }
       } else {
-        setNode(clickedNode);
+        setNode(null);
       }
-    } else {
-      setNode(clickedNode);
-    }
+    };
 
-    setOverallMaxActivationValue(maxActValue);
-  }, [visState.hoveredId, visState.clickedId, selectedGraph]);
+    const unregisterHover = registerHoverCallback(() => {
+      updateDisplayedNode();
+    });
+
+    const unregisterClicked = registerClickedCallback(() => {
+      updateDisplayedNode();
+    });
+
+    // Initial call to set the current state
+    updateDisplayedNode();
+
+    return () => {
+      unregisterHover();
+      unregisterClicked();
+    };
+  }, [registerHoverCallback, registerClickedCallback, selectedGraph, clickedIdRef, hoveredIdRef]);
 
   // Separate useEffect for scrolling when 'feature' changes
   useEffect(() => {
@@ -266,16 +288,7 @@ export default function GraphFeatureDetail() {
         )}
       </div>
     );
-  }, [
-    node,
-    node?.featureDetailNP?.activations,
-    overallMaxActivationValue,
-    isEditingLabel,
-    tempLabel,
-    visState.clerps,
-    visState.clickedId,
-    visState.hoveredId,
-  ]);
+  }, [node, node?.featureDetailNP?.activations, overallMaxActivationValue, isEditingLabel, tempLabel, visState.clerps]);
 
   return <div className="flex h-full w-full flex-1 flex-col overflow-y-scroll">{memoizedFeatureDetail}</div>;
 }

@@ -1,10 +1,11 @@
 import { useGraphContext } from '@/components/provider/graph-provider';
+import { useGraphStateContext } from '@/components/provider/graph-state-provider';
 import { Circle } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 import GraphFeatureLink from './np-feature-link';
 import {
   CLTGraphNode,
-  CltVisState,
   featureTypeToText,
   graphModelHasNpDashboards,
   shouldShowNodeForDensityThreshold,
@@ -17,18 +18,24 @@ function FeatureList({
   linkType,
   hasNPDashboards,
   visState,
-  updateVisStateField,
   isEditingLabel,
   getNodeSupernodeAndOverrideLabel,
+  hoveredId,
+  onHoverNode,
+  onClearHover,
+  onClickNode,
 }: {
   title: string;
   nodes: CLTGraphNode[];
   linkType: 'source' | 'target';
   hasNPDashboards: boolean;
   visState: any;
-  updateVisStateField: (field: keyof CltVisState, value: any) => void;
   isEditingLabel: boolean;
   getNodeSupernodeAndOverrideLabel: (node: CLTGraphNode) => string;
+  hoveredId: string | null;
+  onHoverNode: (node: CLTGraphNode) => void;
+  onClearHover: () => void;
+  onClickNode: (node: CLTGraphNode, addToPinned: boolean) => void;
 }) {
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
   const filteredNodes = nodes
@@ -45,35 +52,27 @@ function FeatureList({
         shouldShowNodeForDensityThreshold(hasNPDashboards, node, visState)
       );
     });
-  return (
-    <div className="flex flex-1 flex-col gap-y-0.5 overflow-y-scroll overscroll-none px-1 pb-1 text-slate-800">
-      <div className="sticky top-0 bg-white pb-0.5 text-[10px] font-medium uppercase text-slate-500">
-        {title} ({filteredNodes.length})
-      </div>
-      {filteredNodes.map((node, idx) => (
+
+  const itemContent = (index: number, node: CLTGraphNode) => (
+    <div className={`mb-0.5 ${index === 0 ? 'pt-1' : ''}`}>
+      <div className="px-1">
         <button
           type="button"
-          key={`${node.featureId}-${idx}`}
-          className={`flex cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
-            node.featureId === visState.hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
+          className={`flex w-full cursor-pointer flex-row items-center justify-between gap-x-1.5 rounded bg-slate-50 px-2 py-[3px] text-[10px] hover:bg-sky-100 ${
+            node.featureId === hoveredId ? 'z-20 outline-dotted outline-[3px] outline-[#f0f]' : ''
           } ${(node[linkProp]?.pctInput ?? 0) > 0.25 || (node[linkProp]?.pctInput ?? 0) < -0.25 ? 'text-white' : ''}`}
           style={{ backgroundColor: node[linkProp]?.tmpColor }}
           onMouseEnter={() => {
             if (!isEditingLabel) {
-              updateVisStateField('hoveredId', node.featureId);
+              onHoverNode(node);
             }
           }}
           onMouseLeave={() => {
-            updateVisStateField('hoveredId', null);
+            onClearHover();
           }}
           onClick={(e) => {
-            if (e.ctrlKey || e.metaKey) {
-              // If control or command key is pressed, add to pinnedIds
-              updateVisStateField('pinnedIds', [...(visState.pinnedIds || []), node.nodeId]);
-            } else {
-              // Otherwise just set as clicked
-              updateVisStateField('clickedId', node.nodeId);
-            }
+            const addToPinned = e.ctrlKey || e.metaKey;
+            onClickNode(node, addToPinned);
           }}
         >
           <svg width={10} height={14} className="mr-0 inline-block">
@@ -107,7 +106,22 @@ function FeatureList({
             <div className="font-mono">{node.layer !== 'E' ? `L${node.layer}` : ''}</div>
           </div>
         </button>
-      ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-1 flex-col overflow-hidden pb-1 text-slate-800">
+      <div className="sticky top-0 bg-white text-[10px] font-medium uppercase text-slate-500">
+        {title} ({filteredNodes.length})
+      </div>
+      <div className="flex-1 overflow-hidden">
+        <Virtuoso
+          style={{ height: '100%' }}
+          data={filteredNodes}
+          itemContent={(index, node) => itemContent(index, node)}
+        />
+      </div>
     </div>
   );
 }
@@ -122,18 +136,69 @@ export default function GraphNodeConnections() {
     setFullNPFeatureDetail,
   } = useGraphContext();
 
-  const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
+  const { registerHoverCallback, updateHoverState, clearHoverState, registerClickedCallback, updateClickedState } =
+    useGraphStateContext();
 
+  const [clickedNode, setClickedNode] = useState<CLTGraphNode | null>(null);
+  const [localHoveredId, setLocalHoveredId] = useState<string | null>(null);
+
+  // Register for hover change notifications from other components
   useEffect(() => {
-    if (visState.clickedId) {
-      const cNode = selectedGraph?.nodes.find((e) => e.nodeId === visState.clickedId);
-      if (cNode) {
-        setClickedNode(cNode);
+    const unregister = registerHoverCallback((hoveredId) => {
+      setLocalHoveredId(hoveredId);
+    });
+
+    return unregister; // Cleanup on unmount
+  }, [registerHoverCallback]);
+
+  // Register for clicked change notifications from other components
+  useEffect(() => {
+    const unregister = registerClickedCallback((clickedId) => {
+      if (clickedId && selectedGraph) {
+        const cNode = selectedGraph.nodes.find((e) => e.nodeId === clickedId);
+        if (cNode) {
+          setClickedNode(cNode);
+        }
+      } else {
+        setClickedNode(null);
       }
-    } else {
-      setClickedNode(null);
+    });
+
+    return unregister; // Cleanup on unmount
+  }, [registerClickedCallback, selectedGraph]);
+
+  // Handlers for triggering hover state changes (bidirectional)
+  const handleHoverNode = (node: CLTGraphNode) => {
+    updateHoverState(node);
+  };
+
+  const handleClearHover = () => {
+    clearHoverState();
+  };
+
+  // Handler for triggering clicked state changes (bidirectional)
+  const handleClickNode = (node: CLTGraphNode, addToPinned: boolean) => {
+    if (addToPinned && node.nodeId) {
+      // If control or command key is pressed, add to pinnedIds
+      updateVisStateField('pinnedIds', [...(visState.pinnedIds || []), node.nodeId]);
+    } else if (node.nodeId) {
+      // Update both the bidirectional clicked state AND visState for URL synchronization
+      updateClickedState(node);
+      updateVisStateField('clickedId', node.nodeId);
     }
-  }, [visState.clickedId, selectedGraph]);
+  };
+
+  // Sync initial clicked state and when visState.clickedId changes from URL/other sources
+  useEffect(() => {
+    if (visState.clickedId && selectedGraph) {
+      const cNode = selectedGraph.nodes.find((e) => e.nodeId === visState.clickedId);
+      if (cNode) {
+        updateClickedState(cNode); // Update bidirectional state to match visState
+      }
+    } else if (!visState.clickedId) {
+      updateClickedState(null); // Clear bidirectional state when visState is cleared
+    }
+  }, [visState.clickedId, selectedGraph, updateClickedState]);
 
   useEffect(() => {
     if (clickedNode) {
@@ -161,7 +226,7 @@ export default function GraphNodeConnections() {
         )}
         {clickedNode && (
           <div
-            className={`mt-2 flex h-full w-full flex-1 flex-row gap-x-0 ${clickedNode?.featureDetailNP ? 'pb-9' : 'pb-5'}`}
+            className={`mt-2 flex h-full w-full flex-1 flex-row gap-x-0 ${clickedNode?.featureDetailNP ? 'pb-0' : 'pb-0'}`}
           >
             <FeatureList
               title="Input Features"
@@ -169,9 +234,12 @@ export default function GraphNodeConnections() {
               linkType="source"
               hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
-              updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
               getNodeSupernodeAndOverrideLabel={getNodeSupernodeAndOverrideLabel}
+              hoveredId={localHoveredId}
+              onHoverNode={handleHoverNode}
+              onClearHover={handleClearHover}
+              onClickNode={handleClickNode}
             />
             <FeatureList
               title="Output Features"
@@ -179,9 +247,12 @@ export default function GraphNodeConnections() {
               linkType="target"
               hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
-              updateVisStateField={updateVisStateField}
               isEditingLabel={isEditingLabel}
               getNodeSupernodeAndOverrideLabel={getNodeSupernodeAndOverrideLabel}
+              hoveredId={localHoveredId}
+              onHoverNode={handleHoverNode}
+              onClearHover={handleClearHover}
+              onClickNode={handleClickNode}
             />
           </div>
         )}

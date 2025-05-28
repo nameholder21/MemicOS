@@ -1,5 +1,6 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { GraphProvider } from '@/components/provider/graph-provider';
+import { GraphStateProvider } from '@/components/provider/graph-state-provider';
 import { prisma } from '@/lib/db';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
@@ -184,18 +185,20 @@ export default async function Page({
   }
 
   return (
-    <GraphProvider
-      initialModelIdToMetadataGraphsMap={modelIdToGraphMetadatasMap}
-      initialModel={modelId}
-      initialMetadataGraph={metadataGraph}
-      initialPinnedIds={searchParams.pinnedIds}
-      initialClickedId={searchParams.clickedId}
-      initialSupernodes={parsedSupernodes}
-      initialClerps={parsedClerps}
-      initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}
-      initialDensityThreshold={searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined}
-    >
-      <GraphWrapper />
-    </GraphProvider>
+    <GraphStateProvider>
+      <GraphProvider
+        initialModelIdToMetadataGraphsMap={modelIdToGraphMetadatasMap}
+        initialModel={modelId}
+        initialMetadataGraph={metadataGraph}
+        initialPinnedIds={searchParams.pinnedIds}
+        initialClickedId={searchParams.clickedId}
+        initialSupernodes={parsedSupernodes}
+        initialClerps={parsedClerps}
+        initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}
+        initialDensityThreshold={searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined}
+      >
+        <GraphWrapper />
+      </GraphProvider>
+    </GraphStateProvider>
   );
 }
