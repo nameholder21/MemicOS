@@ -362,39 +362,39 @@ export default function LinkGraph() {
         return 'none';
       });
 
-      // Clear previous hover links
-      const svgBBox = svgRef.current.getBoundingClientRect();
-      const { width, height } = svgBBox;
-      const margin = {
-        left: isHideLayer(data.metadata.scan) ? 0 : 30,
-        right: 20,
-        top: 0,
-        bottom: 45,
-      };
+      // // Clear previous hover links
+      // const svgBBox = svgRef.current.getBoundingClientRect();
+      // const { width, height } = svgBBox;
+      // const margin = {
+      //   left: isHideLayer(data.metadata.scan) ? 0 : 30,
+      //   right: 20,
+      //   top: 0,
+      //   bottom: 45,
+      // };
 
-      hoveredCtx.clearRect(-margin.left, -margin.top, width, height);
-      allLinksCtx.clearRect(-margin.left, -margin.top, width, height);
+      // hoveredCtx.clearRect(-margin.left, -margin.top, width, height);
+      // allLinksCtx.clearRect(-margin.left, -margin.top, width, height);
 
-      // pruning/filtering
-      const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedIdRef.current);
-      const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
+      // // pruning/filtering
+      // const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState, clickedIdRef.current);
+      // const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
-      // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
-      const hoveredLinks = filteredNodes
-        .filter((d) => d.tmpHoveredLink)
-        .map((d) => d.tmpHoveredLink)
-        .filter((link): link is CLTGraphLink => {
-          if (!link) return false;
-          // Only include links where both source and target nodes pass the filtering criteria
-          const sourceNodeId = link.sourceNode?.nodeId;
-          const targetNodeId = link.targetNode?.nodeId;
-          // @ts-ignore
-          return sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId);
-        });
+      // // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
+      // const hoveredLinks = filteredNodes
+      //   .filter((d) => d.tmpHoveredLink)
+      //   .map((d) => d.tmpHoveredLink)
+      //   .filter((link): link is CLTGraphLink => {
+      //     if (!link) return false;
+      //     // Only include links where both source and target nodes pass the filtering criteria
+      //     const sourceNodeId = link.sourceNode?.nodeId;
+      //     const targetNodeId = link.targetNode?.nodeId;
+      //     // @ts-ignore
+      //     return sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId);
+      //   });
 
-      // Draw background and main hover links
-      drawLinks(hoveredLinks, allLinksCtx, 0.05, '#aaa');
-      drawLinks(hoveredLinks, hoveredCtx, 0.05);
+      // // Draw background and main hover links
+      // drawLinks(hoveredLinks, allLinksCtx, 0.05, '#aaa');
+      // drawLinks(hoveredLinks, hoveredCtx, 0.05);
     },
     [selectedGraph, clickedIdRef.current, visState],
   );
