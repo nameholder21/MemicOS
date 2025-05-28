@@ -58,8 +58,8 @@ const SCAN_TO_SOURCE_URLS = {
  *                 example: "gemma-2-2b"
  *               slug:
  *                 type: string
- *                 description: A unique identifier for this graph (alphanumeric, underscores, and hyphens only)
- *                 pattern: '^[a-zA-Z0-9_-]+$'
+ *                 description: A unique identifier for this graph (lowercase, alphanumeric, underscores, and hyphens only)
+ *                 pattern: '^[a-z0-9_-]+$'
  *               maxNLogits:
  *                 type: number
  *                 description: Maximum number of logits to consider

@@ -2,14 +2,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/authOptions';
 import { GraphProvider } from '@/components/provider/graph-provider';
 import { GraphStateProvider } from '@/components/provider/graph-state-provider';
 import { prisma } from '@/lib/db';
+import { getModelById } from '@/lib/db/model';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
-import {
-  getGraphMetadatasFromBucket,
-  GRAPH_BASE_URL_TO_NAME,
-  ModelToGraphMetadatasMap,
-  supportedGraphModels,
-} from './utils';
+import { notFound } from 'next/navigation';
+import { ANT_MODELS_TO_LOAD, getGraphMetadatasFromBucket, ModelToGraphMetadatasMap } from './utils';
 import GraphWrapper from './wrapper';
 
 export async function generateMetadata({
@@ -41,18 +38,12 @@ export async function generateMetadata({
   };
 }
 
-// Helper function to ensure a modelId exists in the map
-function ensureModelIdInMap(map: ModelToGraphMetadatasMap, modelId: string) {
+// Helper function to add graph metadata to the map without duplicates
+function addGraphMetadataToMap(map: ModelToGraphMetadatasMap, modelId: string, graphMetadata: any) {
   if (!map[modelId]) {
     // eslint-disable-next-line
     map[modelId] = [];
   }
-}
-
-// Helper function to add graph metadata to the map without duplicates
-function addGraphMetadataToMap(map: ModelToGraphMetadatasMap, modelId: string, graphMetadata: any) {
-  ensureModelIdInMap(map, modelId);
-
   // Ensure no existing graph with the same slug to avoid overriding featured graphs
   if (!map[modelId].find((graph) => graph.slug === graphMetadata.slug)) {
     map[modelId].push(graphMetadata);
@@ -84,6 +75,24 @@ async function getGraphMetadataWithUser(where: any) {
   });
 }
 
+async function getFeaturedGraphs() {
+  const featuredGraphs = await prisma.graphMetadata.findMany({
+    where: {
+      isFeatured: true,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  return featuredGraphs;
+}
+
+export const ANT_BUCKET_URL = 'https://transformer-circuits.pub/2025/attribution-graphs';
+
 export default async function Page({
   params,
   searchParams,
@@ -102,38 +111,44 @@ export default async function Page({
   const { modelId } = params;
   const session = await getServerSession(authOptions);
 
-  // TODO: checks for model existence (current not used bc we have anthropic models)
-  // const model = await getModelByIdWithSourceSets(modelId, await makeAuthedUserFromSessionOrReturnNull());
-  // if (!model) {
-  //   notFound();
-  // }
-
-  // iterate through all baseUrls/buckets, and merge all the metadata into a single map
+  // iterate through all baseUrls/buckets, and merge all the metadata we care about into a single map
   const modelIdToGraphMetadatasMap: ModelToGraphMetadatasMap = {};
 
-  // first, get all the graphmetadatas from the buckets
-  // eslint-disable-next-line
-  for (const baseUrl of Object.keys(GRAPH_BASE_URL_TO_NAME)) {
-    try {
-      const modelIdToGraphMetadata = await getGraphMetadatasFromBucket(baseUrl);
+  // we always load ant models so add it to the available models
+  for (const antModel of ANT_MODELS_TO_LOAD) {
+    modelIdToGraphMetadatasMap[antModel] = [];
+  }
 
-      // eslint-disable-next-line
-      Object.keys(modelIdToGraphMetadata)
-        .filter((m) => supportedGraphModels.has(m))
-        .forEach((m) => {
-          mergeGraphMetadataArrays(modelIdToGraphMetadatasMap, m, modelIdToGraphMetadata[m]);
-        });
-    } catch (error) {
-      console.error(`Failed to fetch metadata from ${baseUrl}:`, error);
+  // if this is an ant model, then fetch the graph metadatas from their bucket
+  if (ANT_MODELS_TO_LOAD.has(modelId)) {
+    const modelIdToGraphMetadata = await getGraphMetadatasFromBucket(ANT_BUCKET_URL);
+    // eslint-disable-next-line
+    Object.keys(modelIdToGraphMetadata)
+      .filter((m) => ANT_MODELS_TO_LOAD.has(m))
+      .forEach((m) => {
+        mergeGraphMetadataArrays(modelIdToGraphMetadatasMap, m, modelIdToGraphMetadata[m]);
+      });
+  } else {
+    // check that the model exists in our database
+    const model = await getModelById(modelId);
+    if (!model) {
+      console.error(`couldn't find model ${modelId} for graph page`);
+      notFound();
     }
   }
 
-  // now look up logged in user's graphmetadatas in our database
+  // always get the user's graphMetadatas from our database
   const graphMetadatas =
     session && session.user && session.user.id ? await getGraphMetadataWithUser({ userId: session.user.id }) : [];
 
   // add those graphmetadatas to the modelIdToGraphMetadatasMap too
   graphMetadatas.forEach((graphMetadata) => {
+    addGraphMetadataToMap(modelIdToGraphMetadatasMap, graphMetadata.modelId, graphMetadata);
+  });
+
+  // get the featured graphs, add them to the map
+  const featuredGraphs = await getFeaturedGraphs();
+  featuredGraphs.forEach((graphMetadata) => {
     addGraphMetadataToMap(modelIdToGraphMetadatasMap, graphMetadata.modelId, graphMetadata);
   });
 

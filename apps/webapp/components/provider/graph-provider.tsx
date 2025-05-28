@@ -60,7 +60,6 @@ type GraphContextType = {
   setDefaultMetadataGraph: (modelOverride?: string) => void;
   setModelIdToMetadataMap: (metadata: ModelToGraphMetadatasMap) => void;
   getGraph: (graphSlug: string) => Promise<CLTGraph>;
-  modelIdToModelDisplayName: Map<string, string>;
 
   // isLoadingGraphData
   isLoadingGraphData: boolean;
@@ -549,7 +548,7 @@ export function GraphProvider({
     }
 
     // check if we have this model in cltModelToNumLayers
-    // if selectedModelId is not in cltModelToNumLayers, then we need to get the num_layers from the graph
+    // if selectedModelId is not in cltModelToNumLayers, then we need to get the num_layers from the database
     let numLayers = 0;
     if (selectedModelId in cltModelToNumLayers) {
       numLayers = cltModelToNumLayers[selectedModelId as keyof typeof cltModelToNumLayers];
@@ -560,6 +559,13 @@ export function GraphProvider({
       }
     }
 
+    let displayName = '';
+    if (selectedModelId in modelIdToModelDisplayName) {
+      displayName = modelIdToModelDisplayName.get(selectedModelId) || '';
+    } else {
+      displayName = globalModels[selectedModelId]?.displayName || '';
+    }
+
     const dataJson = await response.json();
     if (abortSignal?.aborted) {
       throw new Error('Request cancelled after main graph JSON parsing');
@@ -567,7 +573,11 @@ export function GraphProvider({
     const data = dataJson as CLTGraph;
     const formattedData = formatCLTGraphData(data, logitDiff);
 
-    formattedData.metadata.num_layers = numLayers;
+    formattedData.metadata.memicos_internal_model = {
+      id: selectedModelId,
+      displayName,
+      layers: numLayers,
+    };
     // if it specifies source_set, then it's cantor
     if (data.metadata.feature_details?.memicos_source_set) {
       let model = '';
@@ -922,7 +932,6 @@ export function GraphProvider({
       setSelectedMetadataGraph,
       setModelIdToMetadataMap,
       getGraph,
-      modelIdToModelDisplayName,
       visState,
       setVisState,
       updateVisStateField,
