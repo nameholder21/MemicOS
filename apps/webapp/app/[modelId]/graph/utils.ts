@@ -7,7 +7,9 @@ import d3 from './d3-jetpack';
 // TODO: make this an env variable
 export const NP_GRAPH_BUCKET = 'memicos-attrib';
 
-export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 1000 * 1024 * 1024;
+export const ANT_BUCKET_URL = 'https://transformer-circuits.pub/2025/attribution-graphs';
+
+export const MAX_GRAPH_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024;
 
 // ============ MemicOS Specific =============
 
