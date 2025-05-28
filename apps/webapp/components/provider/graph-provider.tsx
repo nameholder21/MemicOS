@@ -330,7 +330,7 @@ export function GraphProvider({
       });
       console.log('updating url params', params.toString());
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, 1000),
+    }, 150),
     [router, pathname, searchParams],
   );
 

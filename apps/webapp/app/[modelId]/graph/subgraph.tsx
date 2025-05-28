@@ -13,6 +13,8 @@ import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
 
 const NODE_WIDTH = 75;
 const NODE_HEIGHT = 25;
+const MINIMUM_SUBGRAPH_LINK_STROKE_WIDTH = 1;
+const MINIMUM_SUBGRAPH_LINK_LUMINANCE_THRESHOLD = 0.9;
 
 // Custom force container function to keep nodes within bounds
 function forceContainer(bbox: [[number, number], [number, number]]) {
@@ -517,8 +519,17 @@ export default function Subgraph() {
       .appendMany('path.link-path', sgLinks)
       .attr('fill', 'none')
       .attr('marker-mid', (d) => (d.weight > 0 ? 'url(#mid-positive)' : 'url(#mid-negative)'))
-      .attr('stroke-width', (d) => Math.abs(d.weight) * 15)
-      .attr('stroke', (d) => d.color)
+      .attr('stroke-width', (d) => Math.max(MINIMUM_SUBGRAPH_LINK_STROKE_WIDTH, Math.abs(d.weight) * 15))
+      .attr('stroke', (d) => {
+        const rgbMatch = d.color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (!rgbMatch) return d.color; // fallback if not rgb format
+        const r = parseInt(rgbMatch[1], 10);
+        const g = parseInt(rgbMatch[2], 10);
+        const b = parseInt(rgbMatch[3], 10);
+        // Calculate relative luminance
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > MINIMUM_SUBGRAPH_LINK_LUMINANCE_THRESHOLD ? '#ddd' : d.color;
+      })
       .attr('opacity', 0.8)
       .attr('stroke-linecap', 'round');
 

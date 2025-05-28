@@ -305,10 +305,10 @@ export default function LinkGraph() {
       if (!data.nodes) return;
 
       // Get canvas contexts for drawing hover links
-      const hoveredCtx = canvasRefs.current[4]?.getContext('2d');
-      const bgCtx = canvasRefs.current[2]?.getContext('2d');
+      const hoveredCtx = canvasRefs.current[2]?.getContext('2d');
+      const allLinksCtx = canvasRefs.current[0]?.getContext('2d');
 
-      if (!hoveredCtx || !bgCtx) return;
+      if (!hoveredCtx || !allLinksCtx) return;
 
       // Get current graph config from the SVG
       const svgContainer = d3.select(svgRef.current);
@@ -333,7 +333,7 @@ export default function LinkGraph() {
       };
 
       hoveredCtx.clearRect(-margin.left, -margin.top, width, height);
-      bgCtx.clearRect(-margin.left, -margin.top, width, height);
+      allLinksCtx.clearRect(-margin.left, -margin.top, width, height);
 
       // Only draw hover links if hoveredId is different from clickedId
       if (clickedIdRef.current !== hoveredId && hoveredId) {
@@ -357,7 +357,7 @@ export default function LinkGraph() {
           });
 
         // Draw background and main hover links
-        drawLinks(hoveredLinks, bgCtx, 0.05, '#888');
+        drawLinks(hoveredLinks, allLinksCtx, 0.05, '#aaa');
         drawLinks(hoveredLinks, hoveredCtx, 0.05);
       }
     },
@@ -493,7 +493,7 @@ export default function LinkGraph() {
 
       // Get canvas contexts for drawing clicked links
       const clickedCtx = canvasRefs.current[3]?.getContext('2d');
-      const bgCtx = canvasRefs.current[2]?.getContext('2d');
+      const bgCtx = canvasRefs.current[1]?.getContext('2d');
 
       if (!clickedCtx || !bgCtx) return;
 
@@ -521,6 +521,7 @@ export default function LinkGraph() {
       };
 
       clickedCtx.clearRect(-margin.left, -margin.top, width, height);
+      bgCtx.clearRect(-margin.left, -margin.top, width, height);
 
       if (clickedId) {
         // pruning/filtering
@@ -544,7 +545,7 @@ export default function LinkGraph() {
           });
 
         // Draw background and main clicked links
-        drawLinks(clickedLinks, bgCtx, 0.05, '#000');
+        drawLinks(clickedLinks, bgCtx, 0.05, '#555');
         drawLinks(clickedLinks, clickedCtx, 0.05);
       }
     },
@@ -679,10 +680,10 @@ export default function LinkGraph() {
     // Setup canvas contexts
     const allCtx = {
       allLinks: canvasRefs.current[0]?.getContext('2d'),
-      pinnedLinks: canvasRefs.current[1]?.getContext('2d'),
-      bgLinks: canvasRefs.current[2]?.getContext('2d'),
+      bgLinks: canvasRefs.current[1]?.getContext('2d'),
+      hoveredLinks: canvasRefs.current[2]?.getContext('2d'),
       clickedLinks: canvasRefs.current[3]?.getContext('2d'),
-      hoveredLinks: canvasRefs.current[4]?.getContext('2d'),
+      pinnedLinks: canvasRefs.current[4]?.getContext('2d'),
     };
 
     // Transform all contexts to account for margins
@@ -956,27 +957,10 @@ export default function LinkGraph() {
       return filteredLinks;
     }
 
-    // Draw all links with low opacity
-    // if (allCtx.allLinks) {
-    //   // drawLinks(links, allCtx.allLinks, 0, 'rgba(0,0,0,.05)');
-    // }
-
     // Draw links for pinned nodes
     if (allCtx.pinnedLinks) {
       drawLinks(clickedIdRef.current ? [] : filterLinks(visState.pinnedIds), allCtx.pinnedLinks);
     }
-    // Draw links for clicked node
-    const clickedLinks = nodes
-      .filter((d) => d.tmpClickedLink)
-      .map((d) => d.tmpClickedLink)
-      .filter(Boolean) as CLTGraphLink[];
-
-    drawLinks(clickedLinks, allCtx.bgLinks || null, 0.05, '#000');
-
-    drawLinks(clickedLinks, allCtx.clickedLinks || null, 0.05);
-
-    // if hovered node is same as clicked node, don't draw hovered links
-    // NOTE: Hover link drawing is now handled in a separate useEffect for performance
 
     // Highlight pinned nodes
     nodeSel.classed('pinned', (d) => Boolean(d.nodeId && visState.pinnedIds.includes(d.nodeId)));
