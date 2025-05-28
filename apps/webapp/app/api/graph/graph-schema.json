@@ -49,7 +49,7 @@
         },
         "node_threshold": {
           "type": "number",
-          "description": "[Optional] Default dynamic pruning threshold. It uses nodes.influence value to determine pruning - see https://github.com/safety-research/open-source-circuit-finding",
+          "description": "[Optional] Default dynamic pruning threshold. It uses nodes.influence value to determine pruning - see https://github.com/safety-research/circuit-tracer",
           "examples": [0.8]
         },
         "info": {
@@ -102,7 +102,7 @@
         },
         "generation_settings": {
           "type": "object",
-          "description": "[Optional] Settings used to generate the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on Open Source Circuit Finding (https://github.com/safety-research/open-source-circuit-finding), but you can use whatever keys are useful for you, and add your own.",
+          "description": "[Optional] Settings used to generate the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on circuit-tracer (https://github.com/safety-research/circuit-tracer), but you can use whatever keys are useful for you, and add your own.",
           "properties": {
             "max_n_logits": {
               "description": "Maximum number of logit nodes to attribute from",
@@ -124,7 +124,7 @@
         },
         "pruning_settings": {
           "type": "object",
-          "description": "[Optional] Settings used to prune the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on Open Source Circuit Finding (https://github.com/safety-research/open-source-circuit-finding), but you can use whatever keys are useful for you, and add your own.",
+          "description": "[Optional] Settings used to prune the graph. These are optional and only for information purposes and may be displayed to the user, so you can track what settings were used. Based on circuit-tracer (https://github.com/safety-research/circuit-tracer), but you can use whatever keys are useful for you, and add your own.",
           "properties": {
             "node_threshold": {
               "type": "number",
@@ -202,12 +202,12 @@
           },
           "influence": {
             "type": ["number", "null"],
-            "description": "Influence, used for dynamic graph pruning. Optional, from https://github.com/safety-research/open-source-circuit-finding",
+            "description": "Influence, used for dynamic graph pruning. Optional, from https://github.com/safety-research/circuit-tracer",
             "examples": [0.48267510533332825]
           },
           "activation": {
             "type": ["number", "null"],
-            "description": "Activation to show in the activation histogram. Optional, from https://github.com/safety-research/open-source-circuit-finding",
+            "description": "Activation to show in the activation histogram. Optional, from https://github.com/safety-research/circuit-tracer",
             "examples": [9.449039459228516]
           }
         },

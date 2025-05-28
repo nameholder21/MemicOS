@@ -236,14 +236,14 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     graph.metadata = {
       ...graph.metadata,
       info: {
-        creator_name: `${request.user?.name || 'Anonymous'} (OSCF)`,
+        creator_name: `${request.user?.name || 'Anonymous'} (CT)`,
         creator_url: 'https://memicos.org',
         // TODO: other sources when they become available
         source_urls: SCAN_TO_SOURCE_URLS[data.metadata.scan as keyof typeof SCAN_TO_SOURCE_URLS] || [],
         generator: {
-          name: 'Open Source Circuit Finding by Piotrowski & Hanna',
+          name: 'circuit-tracer by Hanna & Piotrowski',
           version: '0.1.0 | 042bf4df20be61890110ed22b6024c72337719cf',
-          url: 'https://github.com/safety-research/open-source-circuit-finding',
+          url: 'https://github.com/safety-research/circuit-tracer',
         },
         create_time_ms: Date.now(),
       },

@@ -6,7 +6,13 @@ import { getModelById } from '@/lib/db/model';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { notFound } from 'next/navigation';
-import { ANT_BUCKET_URL, ANT_MODELS_TO_LOAD, getGraphMetadatasFromBucket, ModelToGraphMetadatasMap } from './utils';
+import {
+  ANT_BUCKET_URL,
+  ANT_MODELS_TO_LOAD,
+  getGraphMetadatasFromBucket,
+  modelIdToModelDisplayName,
+  ModelToGraphMetadatasMap,
+} from './utils';
 import GraphWrapper from './wrapper';
 
 export async function generateMetadata({
@@ -19,7 +25,10 @@ export async function generateMetadata({
   const { modelId } = params;
   const slug = searchParams.slug as string | undefined;
 
-  const title = `${slug ? `${slug} - ` : ''}${modelId.toUpperCase()} Attribution Graph`;
+  // use modelIdToModelDisplayName to get the model name if it's there. othewise use it directly
+  const modelName = modelIdToModelDisplayName.get(modelId) || modelId;
+
+  const title = `${slug ? `${slug} - ` : ''}${modelName} Attribution Graph`;
   const description = ``;
   let url = `/${modelId}/graph`;
 
