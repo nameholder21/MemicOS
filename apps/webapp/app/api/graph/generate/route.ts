@@ -9,6 +9,7 @@ import {
   generateGraph,
   GRAPH_ANONYMOUS_USER_ID,
   GRAPH_BATCH_SIZE,
+  GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT,
   GRAPH_MAX_TOKENS,
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
@@ -233,6 +234,10 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
 
     // data is valid - parse it as as json string to CLTGraph and add our metadata to it
     const graph = data as CLTGraph;
+    // if graph.metadata doesnt have a nodeThreshold, set it to GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT
+    if (graph.metadata.node_threshold === undefined || graph.metadata.node_threshold === null) {
+      graph.metadata.node_threshold = GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT;
+    }
     graph.metadata = {
       ...graph.metadata,
       info: {

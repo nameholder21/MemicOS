@@ -28,6 +28,8 @@ export const GRAPH_MAXFEATURENODES_MAX = 10000;
 export const GRAPH_MAXFEATURENODES_DEFAULT = 5000;
 export const GRAPH_SLUG_MIN = 2;
 
+export const GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT = 0.6;
+
 export const GRAPH_ANONYMOUS_USER_ID = 'anonymous';
 
 export const graphGenerateSchemaClient = yup.object({
