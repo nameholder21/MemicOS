@@ -32,10 +32,10 @@ function FeatureList({
 }) {
   const linkProp = linkType === 'source' ? 'tmpClickedSourceLink' : 'tmpClickedTargetLink';
   const filteredNodes = nodes
-    ?.toSorted((a, b) => (b[linkProp]?.pctInput ?? 0) - (a[linkProp]?.pctInput ?? 0))
+    ?.toSorted((a, b) => (b[linkProp]?.weight ?? 0) - (a[linkProp]?.weight ?? 0))
     .filter((node) => {
       // no input = don't show
-      if (node[linkProp]?.pctInput === null || node[linkProp]?.pctInput === undefined) {
+      if (node[linkProp]?.weight === null || node[linkProp]?.weight === undefined) {
         return false;
       }
 
@@ -98,10 +98,10 @@ function FeatureList({
             ))}
           <div className="flex flex-col items-center justify-center">
             <div className="font-mono">
-              {node[linkProp]?.pctInput !== null && node[linkProp]?.pctInput !== undefined
-                ? node[linkProp]?.pctInput > 0
-                  ? `+${node[linkProp]?.pctInput?.toFixed(3)}`
-                  : node[linkProp]?.pctInput?.toFixed(3)
+              {node[linkProp]?.weight !== null && node[linkProp]?.weight !== undefined
+                ? node[linkProp]?.weight > 0
+                  ? `+${node[linkProp]?.weight?.toFixed(2)}`
+                  : node[linkProp]?.weight?.toFixed(2)
                 : ''}
             </div>
             <div className="font-mono">{node.layer !== 'E' ? `L${node.layer}` : ''}</div>
@@ -165,7 +165,7 @@ export default function GraphNodeConnections() {
           >
             <FeatureList
               title="Input Features"
-              nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
+              nodes={selectedGraph?.nodes || []}
               linkType="source"
               hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
@@ -175,7 +175,7 @@ export default function GraphNodeConnections() {
             />
             <FeatureList
               title="Output Features"
-              nodes={selectedGraph?.nodes.filter((node) => node.feature_type !== 'mlp reconstruction error') || []}
+              nodes={selectedGraph?.nodes || []}
               linkType="target"
               hasNPDashboards={selectedGraph ? graphModelHasNpDashboards(selectedGraph) : false}
               visState={visState}
