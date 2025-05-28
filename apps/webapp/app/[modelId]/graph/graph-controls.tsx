@@ -54,13 +54,15 @@ export default function GraphControls({
   }, [selectedGraph?.metadata.node_threshold, visState.pruningThreshold]);
 
   return (
-    <div className="absolute -top-1 left-3 z-10 flex items-center space-x-7">
+    <div className="absolute -top-1.5 left-3 z-10 flex items-center space-x-7">
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
         <div className="flex flex-row items-center">
-          <Label htmlFor="pruningThreshold" className="text-[10px] text-slate-600">
-            Hide Influence
+          <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
+            Show Nodes Summing
+            <br />
+            to Influence
           </Label>
-          <div className="z-10 -mr-[28px] ml-2.5 font-mono text-[10px] leading-none text-slate-400">{`>0.`}</div>
+          <div className="z-10 -mr-[28px] ml-2.5 font-mono text-[10px] leading-none text-slate-400">{`<0.`}</div>
           <Input
             id="pruningThreshold"
             name="pruningThreshold"
@@ -88,7 +90,7 @@ export default function GraphControls({
             min={0.2}
             max={0.99}
             step={0.01}
-            className="relative flex h-4 w-24 flex-1 touch-none select-none items-center"
+            className="relative flex h-4 w-20 min-w-20 flex-1 touch-none select-none items-center"
           >
             <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
               <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
@@ -99,11 +101,13 @@ export default function GraphControls({
       )}
       {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
         <div className="flex flex-row items-center">
-          <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-none text-slate-600">
-            Filter Nodes by
+          <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
+            Show Nodes with
             <br />
             Feature Density
           </Label>
+          <div className="z-10 -mr-[16px] ml-3 font-mono text-[10px] leading-none text-slate-400">{`<`}</div>
+
           <Input
             id="densityThreshold"
             name="densityThreshold"
@@ -114,7 +118,7 @@ export default function GraphControls({
               setLocalDensityThreshold(newValue);
               debouncedUpdateDensityThreshold(newValue);
             }}
-            className="ml-0.5 h-5 w-10 rounded border-slate-300 bg-white px-1 py-0 pr-3 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+            className="ml-0.5 h-5 w-11 rounded border-slate-300 bg-white px-1 py-0 text-center font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
             min={0}
             max={100}
             step={1}
@@ -122,15 +126,17 @@ export default function GraphControls({
           <div className="-ml-[11px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
           <RadixSlider.Root
             name="densityThreshold"
-            value={[localDensityThreshold]}
+            value={[Math.log10(localDensityThreshold * 100 + 1)]}
             onValueChange={(newVal) => {
-              setLocalDensityThreshold(newVal[0]);
-              debouncedUpdateDensityThreshold(newVal[0]);
+              const logValue = newVal[0];
+              const linearValue = (Math.pow(10, logValue) - 1) / 100;
+              setLocalDensityThreshold(linearValue);
+              debouncedUpdateDensityThreshold(linearValue);
             }}
             min={0}
-            max={1.0}
+            max={Math.log10(101)}
             step={0.01}
-            className="relative flex h-4 w-24 flex-1 touch-none select-none items-center"
+            className="relative flex h-4 w-20 min-w-20 flex-1 touch-none select-none items-center"
           >
             <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-200">
               <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
