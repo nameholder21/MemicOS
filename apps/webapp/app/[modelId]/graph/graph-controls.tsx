@@ -86,7 +86,7 @@ export default function GraphControls({
               debouncedUpdatePruningThreshold(newVal[0]);
             }}
             min={0.2}
-            max={1}
+            max={0.99}
             step={0.01}
             className="relative flex h-4 w-24 flex-1 touch-none select-none items-center"
           >
