@@ -1,9 +1,8 @@
 'use client';
 
 import { CLTGraphNode } from '@/app/[modelId]/graph/utils';
-import debounce from 'lodash/debounce';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useMemo, useRef } from 'react';
 
 // Define the graph state context type
 type GraphStateContextType = {
@@ -46,17 +45,8 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
   // Store callbacks for clicked changes
   const clickedCallbacksRef = useRef<Set<(clickedId: string | null) => void>>(new Set());
 
-  // Initialize clickedIdRef from URL on mount
-  useEffect(() => {
-    const initialClickedId = searchParams.get('clickedId');
-    if (initialClickedId && clickedIdRef.current === null) {
-      clickedIdRef.current = initialClickedId;
-    }
-  }, []); // Empty dependency array to run only on mount
-
-  // debounce because sometimes browsers have security restrictions for number of replace url calls per second
   const updateUrlParams = useCallback(
-    debounce((keysToValues: Record<string, string | null>) => {
+    (keysToValues: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
       Object.entries(keysToValues).forEach(([key, value]) => {
         if (value) {
@@ -66,7 +56,7 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
         }
       });
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, 1000),
+    },
     [router, pathname, searchParams],
   );
 
@@ -81,11 +71,6 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
 
   const registerClickedCallback = useCallback((callback: (clickedId: string | null) => void) => {
     clickedCallbacksRef.current.add(callback);
-
-    // If there's already a clickedId (from URL initialization), notify this new callback immediately
-    if (clickedIdRef.current) {
-      callback(clickedIdRef.current);
-    }
 
     // Return cleanup function
     return () => {
@@ -140,8 +125,8 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
         clickedIdRef.current = newClickedId;
         clickedCtxIdxRef.current = newClickedCtxIdx;
 
-        // Update URL parameter
-        updateUrlParams({ clickedId: newClickedId });
+        // // Update URL parameter
+        // updateUrlParams({ clickedId: newClickedId });
 
         // Trigger the D3 callback for link-graph
         if (onClickedChange) {
@@ -154,26 +139,20 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
     [updateUrlParams],
   );
 
-  const clearClickedState = useCallback(
-    (onClickedChange?: (clickedId: string | null) => void) => {
-      if (clickedIdRef.current !== null) {
-        clickedIdRef.current = null;
-        clickedCtxIdxRef.current = null;
+  const clearClickedState = useCallback((onClickedChange?: (clickedId: string | null) => void) => {
+    if (clickedIdRef.current !== null) {
+      clickedIdRef.current = null;
+      clickedCtxIdxRef.current = null;
 
-        // Update URL parameter
-        updateUrlParams({ clickedId: null });
-
-        // Trigger the D3 callback for link-graph
-        if (onClickedChange) {
-          onClickedChange(null);
-        }
-
-        // Notify all registered callbacks for bidirectional updates
-        clickedCallbacksRef.current.forEach((callback) => callback(null));
+      // Trigger the D3 callback for link-graph
+      if (onClickedChange) {
+        onClickedChange(null);
       }
-    },
-    [updateUrlParams],
-  );
+
+      // Notify all registered callbacks for bidirectional updates
+      clickedCallbacksRef.current.forEach((callback) => callback(null));
+    }
+  }, []);
 
   const value = useMemo(
     () => ({

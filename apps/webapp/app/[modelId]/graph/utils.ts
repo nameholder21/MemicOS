@@ -172,7 +172,6 @@ export type CltVisState = {
   hiddenIds: string[];
   hoveredNodeId: string | null;
   hoveredCtxIdx: number | null;
-  clickedId: string | null;
   clickedCtxIdx: number | null;
   linkType: string;
   isShowAllLinks: string;
@@ -736,7 +735,7 @@ export function shouldShowNodeForInfluenceThreshold(node: CLTGraphNode, visState
   }
 
   // always show clicked nodes
-  if (node.nodeId !== undefined && visState.clickedId === node.nodeId) {
+  if (node.nodeId !== undefined) {
     return true;
   }
 
@@ -776,7 +775,7 @@ export function shouldShowNodeForDensityThreshold(
   }
 
   // always show clicked nodes
-  if (d.nodeId !== undefined && visState.clickedId === d.nodeId) {
+  if (d.nodeId !== undefined) {
     return true;
   }
 

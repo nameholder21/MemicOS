@@ -90,9 +90,7 @@ export default async function Page({
 }: {
   params: { modelId: string };
   searchParams: {
-    clickedId?: string;
     logitDiff?: string;
-    // model?: string;
     slug?: string;
     pinnedIds?: string;
     supernodes?: string;
@@ -191,7 +189,6 @@ export default async function Page({
         initialModel={modelId}
         initialMetadataGraph={metadataGraph}
         initialPinnedIds={searchParams.pinnedIds}
-        initialClickedId={searchParams.clickedId}
         initialSupernodes={parsedSupernodes}
         initialClerps={parsedClerps}
         initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}

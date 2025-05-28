@@ -151,7 +151,6 @@ export function GraphProvider({
   initialModel,
   initialMetadataGraph,
   initialPinnedIds,
-  initialClickedId,
   initialSupernodes,
   initialClerps,
   initialPruningThreshold,
@@ -162,7 +161,6 @@ export function GraphProvider({
   initialModel?: string;
   initialMetadataGraph?: GraphMetadata;
   initialPinnedIds?: string;
-  initialClickedId?: string;
   initialSupernodes?: string[][];
   initialClerps?: string[][];
   initialPruningThreshold?: number;
@@ -212,7 +210,6 @@ export function GraphProvider({
     hiddenIds: [],
     hoveredNodeId: null,
     hoveredCtxIdx: null,
-    clickedId: initialClickedId || null,
     clickedCtxIdx: null,
     linkType: 'both',
     isShowAllLinks: '',
@@ -317,10 +314,11 @@ export function GraphProvider({
     }
   }, [filterGraphsSetting]);
 
-  // debounce because sometimes browsers have security restrictions for number of replace url calls per second
   const updateUrlParams = useCallback(
-    debounce((keysToValues: Record<string, string | null>) => {
+    (keysToValues: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
+      const originalParamsString = params.toString();
+
       Object.entries(keysToValues).forEach(([key, value]) => {
         if (value) {
           params.set(key, value);
@@ -328,9 +326,12 @@ export function GraphProvider({
           params.delete(key);
         }
       });
-      console.log('updating url params', params.toString());
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, 150),
+
+      const newParamsString = params.toString();
+      if (originalParamsString !== newParamsString) {
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
     [router, pathname, searchParams],
   );
 
@@ -338,12 +339,10 @@ export function GraphProvider({
   useEffect(() => {
     if (selectedGraph) {
       // Prioritize clickedId from graph state provider, fallback to visState
-      const effectiveClickedId = clickedIdRef.current || visState.clickedId;
-
       const newParams = {
         slug: selectedMetadataGraph?.slug || null,
         pinnedIds: visState.pinnedIds.join(','),
-        clickedId: effectiveClickedId || null,
+        // clickedId: clickedIdRef.current || null,
         supernodes:
           visState.subgraph && visState.subgraph.supernodes.length > 0
             ? JSON.stringify(visState.subgraph.supernodes)
@@ -388,11 +387,6 @@ export function GraphProvider({
       visStateToReturn = {
         ...visStateToReturn,
         ...graph.qParams,
-        // if the qparams has a clickedId, only set it in the visState if it exists in the nodes array
-        clickedId:
-          graph.qParams.clickedId && graph.nodes.some((d) => d.nodeId === graph.qParams.clickedId)
-            ? graph.qParams.clickedId
-            : null,
         pruningThreshold: graph.metadata.node_threshold,
       };
     }
@@ -422,11 +416,6 @@ export function GraphProvider({
         // override pinnedIds
         if (initialPinnedIds) {
           visStateToSet.pinnedIds = initialPinnedIds.split(',');
-        }
-
-        // overwrite clickedId
-        if (initialClickedId) {
-          visStateToSet.clickedId = initialClickedId;
         }
 
         // override supernodes
