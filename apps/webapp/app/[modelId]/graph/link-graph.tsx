@@ -338,20 +338,30 @@ export default function LinkGraph() {
       // Only draw hover links if hoveredId is different from clickedId
       if (clickedIdRef.current !== hoveredId && hoveredId) {
         // pruning/filtering
-        const nodes = filterNodes(data, data.nodes, selectedGraph, visState);
+        const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+        const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
-        // Get hovered links
-        const hoveredLinks = nodes
+        // Get hovered links and filter them by ensuring both source and target nodes pass the filtering criteria
+        const hoveredLinks = filteredNodes
           .filter((d) => d.tmpHoveredLink)
           .map((d) => d.tmpHoveredLink)
-          .filter(Boolean) as CLTGraphLink[];
+          .filter((link): link is CLTGraphLink => {
+            if (!link) return false;
+            // Only include links where both source and target nodes pass the filtering criteria
+            const sourceNodeId = link.sourceNode?.nodeId;
+            const targetNodeId = link.targetNode?.nodeId;
+            // @ts-ignore
+            return (
+              sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId)
+            );
+          });
 
         // Draw background and main hover links
         drawLinks(hoveredLinks, bgCtx, 0.05, '#888');
         drawLinks(hoveredLinks, hoveredCtx, 0.05);
       }
     },
-    [selectedGraph, clickedIdRef.current],
+    [selectedGraph, clickedIdRef.current, visState],
   );
 
   // Function to update clicked links data
@@ -514,13 +524,24 @@ export default function LinkGraph() {
 
       if (clickedId) {
         // pruning/filtering
-        const nodes = filterNodes(data, data.nodes, selectedGraph, visState);
+        const filteredNodes = filterNodes(data, data.nodes, selectedGraph, visState);
+        const filteredNodeIds = new Set(filteredNodes.map((n) => n.nodeId));
 
-        // Get clicked links
-        const clickedLinks = nodes
+        // Get clicked links and filter them by ensuring both source and target nodes pass filtering
+        const clickedLinks = filteredNodes
           .filter((d) => d.tmpClickedLink)
           .map((d) => d.tmpClickedLink)
-          .filter(Boolean) as CLTGraphLink[];
+          .filter((link): link is CLTGraphLink => {
+            if (!link) return false;
+            // Only include links where both source and target nodes pass the filtering criteria
+            const sourceNodeId = link.sourceNode?.nodeId;
+            const targetNodeId = link.targetNode?.nodeId;
+
+            // @ts-ignore
+            return (
+              sourceNodeId && targetNodeId && filteredNodeIds.has(sourceNodeId) && filteredNodeIds.has(targetNodeId)
+            );
+          });
 
         // Draw background and main clicked links
         drawLinks(clickedLinks, bgCtx, 0.05, '#000');

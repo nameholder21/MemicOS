@@ -182,23 +182,9 @@ export default function GraphNodeConnections() {
       // If control or command key is pressed, add to pinnedIds
       updateVisStateField('pinnedIds', [...(visState.pinnedIds || []), node.nodeId]);
     } else if (node.nodeId) {
-      // Update both the bidirectional clicked state AND visState for URL synchronization
       updateClickedState(node);
-      updateVisStateField('clickedId', node.nodeId);
     }
   };
-
-  // Sync initial clicked state and when visState.clickedId changes from URL/other sources
-  useEffect(() => {
-    if (visState.clickedId && selectedGraph) {
-      const cNode = selectedGraph.nodes.find((e) => e.nodeId === visState.clickedId);
-      if (cNode) {
-        updateClickedState(cNode); // Update bidirectional state to match visState
-      }
-    } else if (!visState.clickedId) {
-      updateClickedState(null); // Clear bidirectional state when visState is cleared
-    }
-  }, [visState.clickedId, selectedGraph, updateClickedState]);
 
   useEffect(() => {
     if (clickedNode) {
