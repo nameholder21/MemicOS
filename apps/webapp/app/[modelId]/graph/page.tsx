@@ -6,7 +6,7 @@ import { getModelById } from '@/lib/db/model';
 import { Metadata } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { notFound } from 'next/navigation';
-import { ANT_MODELS_TO_LOAD, getGraphMetadatasFromBucket, ModelToGraphMetadatasMap } from './utils';
+import { ANT_BUCKET_URL, ANT_MODELS_TO_LOAD, getGraphMetadatasFromBucket, ModelToGraphMetadatasMap } from './utils';
 import GraphWrapper from './wrapper';
 
 export async function generateMetadata({
@@ -90,8 +90,6 @@ async function getFeaturedGraphs() {
   });
   return featuredGraphs;
 }
-
-export const ANT_BUCKET_URL = 'https://transformer-circuits.pub/2025/attribution-graphs';
 
 export default async function Page({
   params,
