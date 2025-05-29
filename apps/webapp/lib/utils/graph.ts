@@ -1,5 +1,14 @@
-import { GRAPH_SERVER, GRAPH_SERVER_SECRET, USE_LOCALHOST_GRAPH } from '@/lib/env';
+import {
+  GRAPH_RUNPOD_SECRET,
+  GRAPH_RUNPOD_SERVER,
+  GRAPH_SERVER,
+  GRAPH_SERVER_SECRET,
+  USE_LOCALHOST_GRAPH,
+} from '@/lib/env';
 import * as yup from 'yup';
+
+export const MAX_RUNPOD_JOBS_IN_QUEUE = 50;
+export const RUNPOD_BUSY_ERROR = 'RUNPOD_BUSY';
 
 export const GRAPH_MAX_PROMPT_LENGTH_CHARS = 10000;
 export const GRAPH_BATCH_SIZE = 48;
@@ -31,6 +40,8 @@ export const GRAPH_SLUG_MIN = 2;
 export const GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT = 0.6;
 
 export const GRAPH_ANONYMOUS_USER_ID = 'anonymous';
+
+export const MAX_PUT_REQUESTS_PER_DAY = 100;
 
 export const graphGenerateSchemaClient = yup.object({
   prompt: yup
@@ -105,6 +116,64 @@ export const generateGraph = async (
       edge_threshold: edgeThreshold,
       slug_identifier: slugIdentifier,
       max_feature_nodes: maxFeatureNodes,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`External API returned ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const checkRunpodQueueJobs = async () => {
+  const response = await fetch(`${GRAPH_RUNPOD_SERVER}/health`, {
+    headers: {
+      Authorization: `Bearer ${GRAPH_RUNPOD_SECRET}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`RunPod health check failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  if (data.jobs !== undefined && data.jobs.inQueue !== undefined) {
+    return data.jobs.inQueue;
+  }
+  throw new Error('RunPod health check failed: jobs not found');
+};
+
+export const generateGraphAndUploadToS3 = async (
+  prompt: string,
+  modelId: string,
+  maxNLogits: number,
+  desiredLogitProb: number,
+  nodeThreshold: number,
+  edgeThreshold: number,
+  slugIdentifier: string,
+  maxFeatureNodes: number,
+  signedUrl: string,
+) => {
+  const response = await fetch(`${GRAPH_RUNPOD_SERVER}/runsync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GRAPH_RUNPOD_SECRET}`,
+    },
+    body: JSON.stringify({
+      input: {
+        prompt,
+        model_id: GRAPH_MODEL_MAP[modelId as keyof typeof GRAPH_MODEL_MAP],
+        batch_size: GRAPH_BATCH_SIZE,
+        max_n_logits: maxNLogits,
+        desired_logit_prob: desiredLogitProb,
+        node_threshold: nodeThreshold,
+        edge_threshold: edgeThreshold,
+        slug_identifier: slugIdentifier,
+        max_feature_nodes: maxFeatureNodes,
+        signed_url: signedUrl,
+      },
     }),
   });
 

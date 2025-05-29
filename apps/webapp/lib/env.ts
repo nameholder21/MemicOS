@@ -100,6 +100,8 @@ export const AUTOINTERP_SERVER_SECRET = process.env.AUTOINTERP_SERVER_SECRET || 
 export const USE_LOCALHOST_GRAPH = process.env.USE_LOCALHOST_GRAPH === 'true';
 export const GRAPH_SERVER = process.env.GRAPH_SERVER || '';
 export const GRAPH_SERVER_SECRET = process.env.GRAPH_SERVER_SECRET || '';
+export const GRAPH_RUNPOD_SECRET = process.env.GRAPH_RUNPOD_SECRET || '';
+export const GRAPH_RUNPOD_SERVER = process.env.GRAPH_RUNPOD_SERVER || '';
 
 // Deprecated - Scorer Server
 export const OLD_SCORER_SERVER = process.env.OLD_SCORER_SERVER || '';
