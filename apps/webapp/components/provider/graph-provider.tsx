@@ -727,6 +727,30 @@ export function GraphProvider({
           d.featureDetailNP = feature as NeuronWithPartialRelations;
         }
       });
+    } else if (selectedModelId === 'llama-3.2-1b') {
+      // special case this
+      console.log('llama-3.2-1b, special case to get features');
+      const featureDetails = await fetchInBatches(
+        formattedData.nodes,
+        (d, signal?: AbortSignal) => {
+          if (nodeTypeHasFeatureDetail(d)) {
+            return fetchAnthropicFeatureDetail(
+              'llama-3-131k-relu',
+              d.feature,
+              'https://d1fk9w8oratjix.cloudfront.net',
+              signal,
+            );
+          }
+          return Promise.resolve(null);
+        },
+        ANTHROPIC_FEATURE_DETAIL_DOWNLOAD_BATCH_SIZE,
+        abortSignal,
+      );
+
+      formattedData.nodes.forEach((d, i) => {
+        // eslint-disable-next-line no-param-reassign
+        d.featureDetail = featureDetails[i] as AnthropicFeatureDetail;
+      });
     } else if (MODEL_HAS_S3_DASHBOARDS.has(selectedModelId)) {
       // otherwise get the feature from the bucket
       const featureDetails = await fetchInBatches(
