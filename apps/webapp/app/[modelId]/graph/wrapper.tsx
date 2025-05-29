@@ -177,11 +177,19 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
           </p>
           <p>
             The prompt&apos;s <strong>input tokens</strong> are the bottom nodes ({`"<bos>"`}, &quot;Fact&quot;,
-            &quot;:&quot;, &quot;The&quot;, etc), and the model&apos;s most likely responses are the{' '}
-            <strong>&quot;output&quot; nodes</strong> at the top right ({`"San"`}, &quot;Oklahoma, &quot;Dallas&quot;,
-            etc). The nodes in between correspond to ● <strong>features</strong>, which reflect concepts the model
-            represents in its internal activations. We also show <strong>◆ error nodes</strong>, which are &quot;missing
-            pieces&quot; not captured by our algorithm.
+            &quot;:&quot;, &quot;The&quot;, etc).
+          </p>
+          <p>
+            The model&apos;s most likely responses are the <strong>&quot;output&quot; nodes</strong> at the top right (
+            {`"San"`}, &quot;Oklahoma, &quot;Dallas&quot;, etc).
+          </p>
+          <p>
+            The nodes in between correspond to ● <strong>features</strong>, which reflect concepts the model represents
+            in its internal activations.
+          </p>
+          <p>
+            We also show <strong>◆ error nodes</strong>, which are &quot;missing pieces&quot; not captured by our
+            algorithm.
           </p>
         </div>
       ),
