@@ -6,11 +6,19 @@ from memicos.np_explanation import Explanation
 
 
 @dataclass
+class Logit:
+    token: str
+    value: float
+
+
+@dataclass
 class Feature:
     modelId: str
     source: str
     index: int
     density: float | None = None
+    top_logits: List[Logit] | None = None
+    bottom_logits: List[Logit] | None = None
     explanations: List[Explanation] | None = None
     activations: List[Activation] | None = None
 
