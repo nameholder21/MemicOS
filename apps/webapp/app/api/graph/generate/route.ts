@@ -9,11 +9,13 @@ import {
   checkRunpodQueueJobs,
   generateGraphAndUploadToS3,
   GRAPH_ANONYMOUS_USER_ID,
+  GRAPH_MAX_TOKENS,
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
   MAX_RUNPOD_JOBS_IN_QUEUE,
   RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
+import { tokenizeText } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -167,19 +169,24 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       throw new Error('Invalid JSON body');
     }
     const validatedData = await graphGenerateSchemaClient.validate(body);
-    // const tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
 
-    // if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
-    //   return NextResponse.json(
-    //     {
-    //       error: 'Prompt Too Long',
-    //       message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.tokens.length} tokens.`,
-    //     },
-    //     { status: 400 },
-    //   );
-    // }
+    try {
+      let tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
 
-    // console.log(`Tokens in text: ${tokenized.tokens.length} - ${tokenized.tokenStrings}`);
+      if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
+        return NextResponse.json(
+          {
+            error: 'Prompt Too Long',
+            message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.tokens.length} tokens.`,
+          },
+          { status: 400 },
+        );
+      }
+
+      console.log(`Tokens in text: ${tokenized.tokens.length} - ${tokenized.tokenStrings}`);
+    } catch (error) {
+      console.error('Error tokenizing text, continuing:', error);
+    }
 
     // if scan or slug has weird characters, return error
     if (/[^a-zA-Z0-9_-]/.test(validatedData.slug)) {

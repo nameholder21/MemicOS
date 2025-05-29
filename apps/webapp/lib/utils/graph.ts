@@ -179,9 +179,13 @@ export const generateGraphAndUploadToS3 = async (
     }),
   });
 
+  const errorJson = await response.json();
+  console.log('server errorJson from runpod', errorJson);
+  if (errorJson.error) {
+    throw new Error(errorJson.error);
+  }
+
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('RunPod API error:', errorText);
     throw new Error(`External API returned ${response.status}: ${response.statusText}`);
   }
   return response.json();
