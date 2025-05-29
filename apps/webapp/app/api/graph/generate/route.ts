@@ -171,7 +171,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     const validatedData = await graphGenerateSchemaClient.validate(body);
 
     try {
-      let tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
+      const tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
 
       if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
         return NextResponse.json(
