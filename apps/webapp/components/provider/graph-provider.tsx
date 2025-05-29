@@ -712,29 +712,31 @@ export function GraphProvider({
 
       // put the details in the nodes
       const featureDetails = batchesOfDetails.flat(1);
-      formattedData.nodes.forEach((d) => {
-        // eslint-disable-next-line no-param-reassign
-        const feature = featureDetails.find(
-          (f) =>
-            f &&
-            'index' in f &&
-            f.index ===
-              getIndexFromAnthropicFeatureId(
-                selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
-                d.feature,
-              ).toString() &&
-            'layer' in f &&
-            f.layer ===
-              convertAnthropicFeatureIdToMemicOSSourceSet(
-                selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
-                d.feature,
-              ),
-        );
-        if (feature) {
+      formattedData.nodes
+        .filter((d) => nodeTypeHasFeatureDetail(d)) // sometimes there are duplicate feature numbers from embed / logits / mlp recon error, we should always filter them out
+        .forEach((d) => {
           // eslint-disable-next-line no-param-reassign
-          d.featureDetailNP = feature as NeuronWithPartialRelations;
-        }
-      });
+          const feature = featureDetails.find(
+            (f) =>
+              f &&
+              'index' in f &&
+              f.index ===
+                getIndexFromAnthropicFeatureId(
+                  selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+                  d.feature,
+                ).toString() &&
+              'layer' in f &&
+              f.layer ===
+                convertAnthropicFeatureIdToMemicOSSourceSet(
+                  selectedModelId as keyof typeof MODEL_DIGITS_IN_FEATURE_ID,
+                  d.feature,
+                ),
+          );
+          if (feature) {
+            // eslint-disable-next-line no-param-reassign
+            d.featureDetailNP = feature as NeuronWithPartialRelations;
+          }
+        });
     } else if (selectedModelId === 'llama-3.2-1b') {
       // special case this
       console.log('llama-3.2-1b, special case to get features');
