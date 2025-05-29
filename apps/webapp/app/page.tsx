@@ -18,12 +18,11 @@ import {
   BadgeDollarSign,
   Blocks,
   BookOpenText,
-  CloudDownload,
   Computer,
   Github,
   PictureInPicture,
   Rocket,
-  Rss,
+  RocketIcon,
   School,
   Search,
   Slack,
@@ -91,22 +90,24 @@ export default function Page() {
       <div className="relative my-3 mb-0 flex max-w-screen-sm flex-1 flex-col items-center justify-center gap-x-8 gap-y-1 overflow-hidden rounded-lg border bg-white px-2 py-10 shadow-sm sm:mb-8 sm:mt-4 sm:gap-y-0 sm:px-16 sm:py-5">
         <div className="mb-2 mt-0 flex flex-col items-center justify-center text-center text-sm sm:text-base">
           <div className="px-20 py-1 text-xs font-bold text-sky-600 sm:absolute sm:-left-20 sm:top-4 sm:rotate-[-36deg] sm:bg-yellow-400 sm:text-[9px] sm:text-slate-700">
-            New: March 2025
+            New: May 2025
           </div>
-          <div className="mt-1 text-base font-bold text-slate-800 sm:text-base">MemicOS is Now Open Source</div>
+          <div className="mt-1 text-base font-bold text-slate-800 sm:text-base">Circuit Tracer, Now On MemicOS</div>
           <div className="mt-1 text-sm font-normal text-slate-700 sm:text-[13px]">
-            Check out the code and download 4TB of interpretability data.
+            Generate and share attribution graphs, based on Anthropic&apos;s{' '}
+            <a
+              href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
+              className="text-sky-600 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Circuit Tracing paper
+            </a>
+            .
           </div>
         </div>
         <div className="mb-2 mt-2 flex flex-col items-center justify-center gap-x-2.5 gap-y-2 sm:flex-row">
-          <Link
-            href="/blog/memicos-is-now-open-source"
-            className="flex w-[165px] max-w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-sky-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 hover:bg-sky-700"
-          >
-            <Rss className="h-5 w-5" />
-            <span>Learn More</span>
-          </Link>
-          <Link href="https://github.com/hijohnnylin/memicos#readme" target="_blank" rel="noreferrer">
+          <Link href="https://github.com/safety-research/circuit-tracer" target="_blank" rel="noreferrer">
             <Button
               variant="default"
               size="lg"
@@ -117,18 +118,11 @@ export default function Page() {
             </Button>
           </Link>
           <Link
-            href="https://memicos-datasets.s3.us-east-1.amazonaws.com/index.html?prefix=v1/"
-            target="_blank"
-            rel="noreferrer"
+            href="/gemma-2-2b/graph"
+            className="flex w-[165px] max-w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 hover:bg-sky-700"
           >
-            <Button
-              variant="default"
-              size="lg"
-              className="w-[165px] max-w-[165px] gap-x-2 bg-emerald-600 text-white transition-all hover:scale-105 hover:bg-emerald-800"
-            >
-              <CloudDownload className="h-5 w-5" />
-              <span>Datasets</span>
-            </Button>
+            <RocketIcon className="h-5 w-5" />
+            <span>Launch</span>
           </Link>
         </div>
       </div>
