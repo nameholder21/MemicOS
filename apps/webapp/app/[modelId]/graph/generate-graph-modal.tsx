@@ -351,14 +351,15 @@ export default function GenerateGraphModal() {
                   modelId={values.modelId}
                   debouncedTokenize={debouncedTokenize}
                 />
-                <Form className="space-y-2">
+                <Form className="space-y-0">
                   <div>
                     <Label htmlFor="prompt" className="text-xs">
                       Prompt
                     </Label>
                     <p className="mt-0.5 text-[11.5px] text-slate-500">
                       In general, you want your prompt to be missing a word at the end, because we want to analyze how
-                      the model comes up with that word. (Eg &quot;The capital of the state containing Dallas is&quot;)
+                      the model comes up with the word <strong>after</strong> your prompt. (Eg &quot;The capital of the
+                      state containing Dallas is&quot;)
                     </p>
                     <ReactTextareaAutosize
                       id="prompt"
@@ -376,13 +377,13 @@ export default function GenerateGraphModal() {
                       maxLength={GRAPH_MAX_PROMPT_LENGTH_CHARS}
                     />
                     {isTokenizing ? (
-                      <div className="mt-1.5 flex w-full flex-row items-center justify-start gap-x-0.5 text-xs text-sky-700">
+                      <div className="mt-1.5 flex w-full flex-row items-center justify-start gap-x-0.5 pb-2 text-xs text-sky-700">
                         <LoadingSquare className="mr-1 h-5 w-5" size={20} />
                         <div className="flex items-center justify-start">Tokenizing...</div>
                       </div>
                     ) : (
                       tokenizedPrompt && (
-                        <div className="mx-1 mt-1 text-xs text-slate-500">
+                        <div className="mx-1 mt-1 pb-2 text-xs text-slate-500">
                           <div className="mb-1">{tokenizedPrompt.tokens.length} Tokens</div>
                           <div className="flex flex-wrap gap-x-1 gap-y-[3px]">
                             {tokenizedPrompt.tokenStrings.map((t, idx) => (
@@ -405,7 +406,7 @@ export default function GenerateGraphModal() {
                     )}
                   </div>
 
-                  <div className="flex-1">
+                  <div className="flex-1 pb-4">
                     <Label htmlFor="slug" className="text-xs text-slate-600">
                       Name Your Graph (Slug/ID)
                     </Label>
@@ -428,9 +429,18 @@ export default function GenerateGraphModal() {
                     />
                     {errors.slug && touched.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
                   </div>
-                  <div className="flex flex-row gap-x-3">
+
+                  <div className="flex items-center pt-1">
+                    <div className="mr-3 flex-1 border-t border-slate-200" />
+                    <span className="text-[11px] text-slate-500">Advanced Settings</span>
+                    <div className="ml-3 flex-1 border-t border-slate-200" />
+                  </div>
+                  <div className="flex flex-row gap-x-3 pt-2">
                     <div className="flex-1">
-                      <Label htmlFor="modelId" className="text-xs text-slate-600">
+                      <Label
+                        htmlFor="modelId"
+                        className="h-6 w-12 border-slate-300 px-0 text-left text-slate-600 md:text-[11px]"
+                      >
                         Model
                       </Label>
                       <RadixSelect.Root
@@ -440,7 +450,7 @@ export default function GenerateGraphModal() {
                       >
                         <RadixSelect.Trigger
                           id="modelId"
-                          className="mt-1 flex w-full items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 placeholder-slate-400 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="mt-1 flex w-full items-center justify-between rounded-md border border-slate-300 bg-slate-200 px-3 py-2 text-xs text-slate-500 placeholder-slate-400 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <RadixSelect.Value placeholder="Select a model" />
                           <RadixSelect.Icon className="text-slate-500">
@@ -475,7 +485,10 @@ export default function GenerateGraphModal() {
                     </div>
 
                     <div>
-                      <Label htmlFor="maxNLogits" className="text-xs text-slate-600">
+                      <Label
+                        htmlFor="maxNLogits"
+                        className="h-6 w-12 border-slate-300 px-0 text-center text-slate-600 md:text-[11px]"
+                      >
                         Max # Logits
                       </Label>
                       <Input
@@ -486,7 +499,7 @@ export default function GenerateGraphModal() {
                         disabled={isGenerating}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        className="mt-1 w-20 border-slate-300 text-xs"
+                        className="mt-1 w-full border-slate-300 text-center text-xs md:text-xs"
                         min={GRAPH_MAXNLOGITS_MIN}
                         max={GRAPH_MAXNLOGITS_MAX}
                         step={1}
@@ -498,11 +511,16 @@ export default function GenerateGraphModal() {
                   </div>
 
                   {/* Attribution Settings Group */}
-                  <div className="space-y-0 pt-2">
-                    <h4 className="text-center text-[10px] font-bold uppercase text-slate-400">Attribution Settings</h4>
+                  <div className="space-y-0 pt-3">
+                    <div className="text-left text-[10px] font-medium uppercase leading-none text-slate-400">
+                      Attribution
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="desiredLogitProb" className="text-xs text-slate-600">
+                        <Label
+                          htmlFor="desiredLogitProb"
+                          className="h-6 w-12 border-slate-300 px-0 text-left text-slate-500 md:text-[11px]"
+                        >
                           Desired Logit Probability
                         </Label>
                         <div className="mt-0.5 flex items-center space-x-2">
@@ -514,7 +532,7 @@ export default function GenerateGraphModal() {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             disabled={isGenerating}
-                            className="h-7 w-20 border-slate-300 text-xs"
+                            className="h-6 w-12 border-slate-300 px-0 text-center text-slate-600 md:text-[11px]"
                             min={GRAPH_DESIREDLOGITPROB_MIN}
                             max={GRAPH_DESIREDLOGITPROB_MAX}
                             step={0.01}
@@ -542,7 +560,10 @@ export default function GenerateGraphModal() {
 
                       {/* Max # Nodes */}
                       <div>
-                        <Label htmlFor="maxFeatureNodes" className="text-xs text-slate-600">
+                        <Label
+                          htmlFor="maxFeatureNodes"
+                          className="h-6 w-12 border-slate-300 px-0 text-left text-slate-500 md:text-[11px]"
+                        >
                           Max # Nodes
                         </Label>
                         <div className="mt-0.5 flex items-center space-x-2">
@@ -554,7 +575,7 @@ export default function GenerateGraphModal() {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             disabled={isGenerating}
-                            className="h-7 w-20 border-slate-300 text-xs"
+                            className="h-6 w-12 border-slate-300 px-0 text-center text-slate-600 md:text-[11px]"
                             min={GRAPH_MAXFEATURENODES_MIN}
                             max={GRAPH_MAXFEATURENODES_MAX}
                             step={1}
@@ -583,12 +604,17 @@ export default function GenerateGraphModal() {
                   </div>
 
                   {/* Pruning Settings Group */}
-                  <div className="space-y-0 pt-3">
-                    <h4 className="text-center text-[10px] font-bold uppercase text-slate-400">Pruning Settings</h4>
+                  <div className="space-y-0 pb-3 pt-3">
+                    <div className="text-left text-[10px] font-medium uppercase leading-none text-slate-400">
+                      Pruning
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       {/* Node Threshold and Edge Threshold on same line */}
                       <div>
-                        <Label htmlFor="nodeThreshold" className="text-xs text-slate-600">
+                        <Label
+                          htmlFor="nodeThreshold"
+                          className="h-6 w-12 border-slate-300 px-0 text-left text-slate-500 md:text-[11px]"
+                        >
                           Node Threshold
                         </Label>
                         <div className="mt-0.5 flex items-center space-x-2">
@@ -600,7 +626,7 @@ export default function GenerateGraphModal() {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             disabled={isGenerating}
-                            className="h-7 w-20 border-slate-300 text-xs"
+                            className="h-6 w-12 border-slate-300 px-0 text-center text-slate-600 md:text-[11px]"
                             min={GRAPH_NODETHRESHOLD_MIN}
                             max={GRAPH_NODETHRESHOLD_MAX}
                             step={0.01}
@@ -626,7 +652,10 @@ export default function GenerateGraphModal() {
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="edgeThreshold" className="text-xs text-slate-600">
+                        <Label
+                          htmlFor="edgeThreshold"
+                          className="h-6 w-12 border-slate-300 px-0 text-left text-slate-500 md:text-[11px]"
+                        >
                           Edge Threshold
                         </Label>
                         <div className="mt-0.5 flex items-center space-x-2">
@@ -638,7 +667,7 @@ export default function GenerateGraphModal() {
                             onChange={handleChange}
                             onBlur={handleBlur}
                             disabled={isGenerating}
-                            className="h-7 w-20 border-slate-300 text-xs"
+                            className="h-6 w-12 border-slate-300 px-0 text-center text-slate-600 md:text-[11px]"
                             min={GRAPH_EDGETHRESHOLD_MIN}
                             max={GRAPH_EDGETHRESHOLD_MAX}
                             step={0.01}
@@ -668,10 +697,10 @@ export default function GenerateGraphModal() {
 
                   {error && <p className="mt-4 rounded-md bg-red-100 p-3 text-sm text-red-600">{error}</p>}
 
-                  <div className="flex items-center justify-between pt-3">
+                  <div className="mt-4 flex items-center justify-between border-t pt-4 text-xs">
                     {isGenerating ? (
                       countdownTime !== null ? (
-                        <div className="flex flex-row items-center justify-start gap-x-1.5 text-sm text-slate-600">
+                        <div className="flex flex-row items-center justify-start gap-x-1.5 text-sm text-slate-500">
                           <LoadingSquare className="h-4 w-4" size={12} />
                           Remaining time: {formatCountdown(countdownTime)}
                         </div>
@@ -681,7 +710,7 @@ export default function GenerateGraphModal() {
                         <div className="text-sm text-slate-600">Estimating time...</div>
                       )
                     ) : estimatedTime !== null && !generationResult ? (
-                      <div className="flex flex-row items-center justify-start gap-x-1.5 text-sm text-slate-600">
+                      <div className="flex flex-row items-center justify-start gap-x-1.5 text-xs text-slate-500">
                         Estimated generation time:{' '}
                         {estimatedTime < 60
                           ? `~${Math.round(estimatedTime)} sec`
@@ -690,7 +719,7 @@ export default function GenerateGraphModal() {
                     ) : (
                       <div /> // Empty div to maintain layout for button alignment
                     )}
-                    <div className="flex flex-row gap-x-2">
+                    <div className="flex w-full flex-row justify-end gap-x-2">
                       <Button
                         type="button"
                         variant="outline"
