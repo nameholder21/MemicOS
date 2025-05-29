@@ -175,9 +175,10 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             prompt.
           </p>
           <p>
-            In this example, we&apos;ve chosen a graph where we give the text &quot;The capital of the state containing
-            Dallas is&quot;, to see how it comes up with &quot;Austin&quot;. In general, you want your prompt to be
-            &quot;missing&quot; a word at the end, because we want to analyze how the model comes up with that word.
+            In this example, we&apos;ve chosen a graph where we give the text &quot;Fact: The capital of the state
+            containing Dallas is&quot;, to see how it comes up with &quot;Austin&quot;. In general, you want your prompt
+            to be &quot;missing&quot; a word at the end, because we want to analyze how the model comes up with that
+            word.
           </p>
         </div>
       ),
@@ -194,8 +195,9 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             Intermediate steps are represented as nodes, with edges indicating the effect of one node on another.
           </p>
           <p>
-            Here, we&apos;ve clicked on a node labeled &quot;Texas&quot; in layer 20, which highlights it with a pink
-            border and shows edges connecting to other nodes.
+            Here, we can see the prompt we entered, broken up into tokens, on the x axis of the graph. And, we&apos;ve
+            clicked on a node labeled &quot;Texas&quot; in layer 20, which highlights it with a pink border and shows
+            edges connecting to other nodes.
           </p>
           <p>
             The prompt&apos;s <strong>input tokens</strong> are the bottom nodes ({`"<bos>"`}, &quot;Fact&quot;,
