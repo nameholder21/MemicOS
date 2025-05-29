@@ -491,7 +491,6 @@ export const getActivationsTopKByToken = async (
 
 export const tokenizeText = async (modelId: string, text: string, prependBos: boolean) => {
   const serverHost = await getOneRandomServerHostForModel(modelId);
-
   const transformerLensModelId = await getTransformerLensModelIdIfExists(modelId);
 
   const result = await makeInferenceServerApiWithServerHost(serverHost).tokenizePost({
