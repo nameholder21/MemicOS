@@ -8,13 +8,12 @@ import { prisma } from '@/lib/db';
 import {
   checkRunpodQueueJobs,
   generateGraphAndUploadToS3,
-  GRAPH_MAX_TOKENS,
+  GRAPH_ANONYMOUS_USER_ID,
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
   MAX_RUNPOD_JOBS_IN_QUEUE,
   RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
-import { tokenizeText } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -168,19 +167,19 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       throw new Error('Invalid JSON body');
     }
     const validatedData = await graphGenerateSchemaClient.validate(body);
-    const tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
+    // const tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
 
-    if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
-      return NextResponse.json(
-        {
-          error: 'Prompt Too Long',
-          message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.tokens.length} tokens.`,
-        },
-        { status: 400 },
-      );
-    }
+    // if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
+    //   return NextResponse.json(
+    //     {
+    //       error: 'Prompt Too Long',
+    //       message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.tokens.length} tokens.`,
+    //     },
+    //     { status: 400 },
+    //   );
+    // }
 
-    console.log(`Tokens in text: ${tokenized.tokens.length} - ${tokenized.tokenStrings}`);
+    // console.log(`Tokens in text: ${tokenized.tokens.length} - ${tokenized.tokenStrings}`);
 
     // if scan or slug has weird characters, return error
     if (/[^a-zA-Z0-9_-]/.test(validatedData.slug)) {
@@ -210,7 +209,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     const userId = request.user?.id;
     const userName = request.user?.name;
 
-    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${userId}/${validatedData.slug}.json`;
+    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${userId || GRAPH_ANONYMOUS_USER_ID}/${validatedData.slug}.json`;
 
     // Initialize S3 client
     const s3Client = new S3Client({
@@ -255,7 +254,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       validatedData.slug,
       validatedData.maxFeatureNodes,
       signedUrl,
-      userName,
+      userName || 'Anonymous (CT)',
     );
 
     // download the file from S3
