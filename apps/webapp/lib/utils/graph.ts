@@ -154,6 +154,7 @@ export const generateGraphAndUploadToS3 = async (
   slugIdentifier: string,
   maxFeatureNodes: number,
   signedUrl: string,
+  userId: string | undefined,
 ) => {
   const response = await fetch(`${GRAPH_RUNPOD_SERVER}/runsync`, {
     method: 'POST',
@@ -173,6 +174,7 @@ export const generateGraphAndUploadToS3 = async (
         slug_identifier: slugIdentifier,
         max_feature_nodes: maxFeatureNodes,
         signed_url: signedUrl,
+        user_id: userId,
       },
     }),
   });
