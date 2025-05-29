@@ -18,6 +18,26 @@ const uploadBatchSchema = object({
       object({
         index: number().integer().required().min(0).max(10_000_000),
         density: number().optional().min(0).max(1),
+        topLogits: array()
+          .of(
+            object({
+              token: string().required(),
+              value: number().required(),
+            }),
+          )
+          .optional()
+          .nullable()
+          .max(20),
+        bottomLogits: array()
+          .of(
+            object({
+              token: string().required(),
+              value: number().required(),
+            }),
+          )
+          .optional()
+          .nullable()
+          .max(20),
         explanations: array()
           .of(
             object({
@@ -188,6 +208,9 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
     dataSource: string;
     dataIndex: string;
   }[] = [];
+
+  // if we have topLogits and bottomLogits, parse them as:
+
   for (const feature of parsedBody.features) {
     const neuron = {
       modelId: parsedBody.modelId,
@@ -198,7 +221,20 @@ export const POST = withAuthedUser(async (request: RequestAuthedUser) => {
       frac_nonzero: feature.density ?? -1,
       maxActApprox: 0,
       hasVector: false,
+      pos_str: [] as string[],
+      pos_values: [] as number[],
+      neg_str: [] as string[],
+      neg_values: [] as number[],
     };
+    // add topLogits and bottomLogits if they exist
+    if (feature.topLogits) {
+      neuron.pos_str = feature.topLogits.map((logit) => logit.token);
+      neuron.pos_values = feature.topLogits.map((logit) => logit.value);
+    }
+    if (feature.bottomLogits) {
+      neuron.neg_str = feature.bottomLogits.map((logit) => logit.token);
+      neuron.neg_values = feature.bottomLogits.map((logit) => logit.value);
+    }
 
     // add explanations if it exists
     if (feature.explanations) {
