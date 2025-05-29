@@ -23,6 +23,7 @@ export const graphModelHasNpDashboards = (graph: CLTGraph) =>
 
 // has dashboards in the bucket
 export const MODEL_HAS_S3_DASHBOARDS = new Set([
+  'llama-3.2-1b',
   'llama-3-131k-relu',
   'jackl-circuits-runs-1-4-sofa-v3_0',
   'jackl-circuits-runs-1-1-druid-cp_0',
