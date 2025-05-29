@@ -354,6 +354,16 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
       </Select.Root>
 
       <Link
+        href="/gemma-2-2b/graph"
+        className="relative flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white"
+      >
+        Circuit Tracer
+        <span className="absolute -right-2 -top-1.5 flex h-3.5 w-8 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold text-white">
+          NEW
+        </span>
+      </Link>
+
+      <Link
         href="/steer"
         prefetch={false}
         rel="noreferrer"
@@ -397,9 +407,6 @@ export default function NavBarButtons({ session }: { session: Session | null }) 
         className="relative flex cursor-pointer items-center whitespace-nowrap rounded-full px-2.5 py-1 text-[13px] transition-all hover:bg-sky-100 hover:text-sky-700 focus:outline-none data-[state=open]:bg-sky-700 data-[state=open]:text-white"
       >
         Blog/Podcast
-        <span className="absolute -right-2 -top-1.5 flex h-3.5 w-8 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold text-white">
-          NEW
-        </span>
       </Link>
 
       <Link
