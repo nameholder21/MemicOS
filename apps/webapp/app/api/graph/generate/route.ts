@@ -86,7 +86,7 @@ import * as yup from 'yup';
  *                 description: Threshold for including edges in the graph
  *                 minimum: 0.8
  *                 maximum: 1.0
- *                 default: 0.98
+ *                 default: 0.85
  *               maxFeatureNodes:
  *                 type: number
  *                 description: Maximum number of feature nodes to include in the graph
