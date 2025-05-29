@@ -28,10 +28,10 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
   const stepImages = [
     '/images/explainer.jpg', // Getting Started
     '/images/explainer-top.jpg', // Choose or Generate a Graph
-    '/images/explainer-top-left.jpg', // Link/Attribution Graph
-    '/images/explainer-top-right.jpg', // Connections
-    '/images/explainer-bottom-left.jpg', // Subgraph
-    '/images/explainer-bottom-right.jpg', // Feature Details
+    '/images/tl.jpg', // Link/Attribution Graph
+    '/images/tr.jpg', // Connections
+    '/images/bl.jpg', // Subgraph
+    '/images/br.jpg', // Feature Details
   ];
 
   // Array of alt text for each step
