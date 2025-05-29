@@ -59,7 +59,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               setIsWelcomeModalOpen(false);
               setIsGenerateGraphModalOpen(true);
             }}
-            className="w-full bg-emerald-600 text-white hover:bg-emerald-700"
+            className="w-full border border-emerald-600 bg-emerald-50 text-sm text-emerald-700 shadow-none hover:bg-emerald-100"
           >
             Generate New Graph
           </Button>
@@ -153,7 +153,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </Link>
             </li>
           </ul>
-          <p className="mt-1">
+          <p className="mt-1 text-center">
             Click <strong>Next</strong> to start the user guide →
           </p>
         </div>
@@ -341,7 +341,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     <Dialog open={isWelcomeModalOpen} onOpenChange={handleWelcomeClose}>
       <DialogContent className="w-screen-xl max-w-screen-2xl bg-white text-slate-700">
         <DialogHeader>
-          <DialogTitle className="flex w-full flex-row items-center justify-center gap-x-2 text-2xl font-bold">
+          <DialogTitle className="flex w-full flex-row items-center justify-center gap-x-2 pb-0 text-2xl font-bold leading-none">
             <span className="inline-block select-none whitespace-nowrap bg-gradient-to-r from-emerald-700 to-sky-600 bg-clip-text text-transparent">
               Welcome to Circuit Tracer - User Guide
             </span>
@@ -367,9 +367,9 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                 <img
                   src={stepImages[currentStep]}
                   alt={stepImageAlts[currentStep]}
-                  className="max-h-[590px] min-h-[590px] max-w-full rounded rounded-lg border-slate-200 object-contain"
+                  className="max-h-[570px] min-h-[570px] max-w-full rounded rounded-lg border-slate-200 object-contain"
                 />
-                <div className="mt-5 flex w-full flex-row justify-between border-slate-200">
+                <div className="mt-5 flex w-full flex-row justify-between border-t border-slate-200">
                   <div className="flex flex-col justify-start text-left">
                     <h3 className="mb-2 mt-4 text-sm font-medium text-slate-600">Resources for Learning More</h3>
                     <ul className="space-y-1 text-sm">
@@ -424,7 +424,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </div>
               <div className="mt-4 flex w-1/3 flex-col">
                 {/* Step indicators */}
-                <div className="mb-4 flex flex-wrap justify-center gap-2">
+                <div className="mb-4 flex flex-wrap justify-center gap-1">
                   {steps.map((step, index) => (
                     <button
                       key={index}
