@@ -180,6 +180,8 @@ export const generateGraphAndUploadToS3 = async (
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('RunPod API error:', errorText);
     throw new Error(`External API returned ${response.status}: ${response.statusText}`);
   }
   return response.json();

@@ -122,6 +122,7 @@ export default function GenerateGraphModal() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedTokenize = useCallback(
     _.debounce(async (modelId: string, prompt: string) => {
+      return;
       if (!prompt.trim() || !modelId) {
         setTokenizedPrompt(null);
         setEstimatedTime(null);
