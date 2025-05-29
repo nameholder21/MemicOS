@@ -321,8 +321,7 @@ export default function GenerateGraphModal() {
         </DialogHeader>
 
         {!session?.data?.user && (
-          <p className="mt-4 rounded-md bg-amber-100 p-3 text-sm text-amber-700">
-            Warning:{' '}
+          <p className="mt-1 rounded-md bg-amber-100 p-3 text-xs text-amber-700">
             {`You aren't signed in, so you'll need to manually keep track of any graphs you generate. To automatically save graphs to your account, `}
             <Button
               variant="link"
@@ -330,7 +329,7 @@ export default function GenerateGraphModal() {
                 setSignInModalOpen(true);
                 setIsGenerateGraphModalOpen(false);
               }}
-              className="h-auto cursor-pointer px-0 py-0 font-medium text-sky-800 underline"
+              className="h-auto cursor-pointer px-0 py-0 text-xs font-medium text-amber-800 underline md:text-xs"
             >
               sign up with one click
             </Button>
