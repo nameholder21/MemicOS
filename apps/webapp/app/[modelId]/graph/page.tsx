@@ -206,6 +206,10 @@ export default async function Page({
     } catch (error) {
       console.error('Error parsing clerps:', error);
     }
+  } else if (ANT_MODELS_TO_LOAD.has(modelId)) {
+    // no default slug, let's show gemma austin dallas
+    // pick the first graph in the map
+    [metadataGraph] = modelIdToGraphMetadatasMap[modelId];
   } else {
     // no default slug, let's show gemma austin dallas
     metadataGraph = modelIdToGraphMetadatasMap['gemma-2-2b'].find((graph) => graph.slug === 'gemma-fact-dallas-austin');
@@ -223,7 +227,7 @@ export default async function Page({
       ['18_1808959_10', 'state/regional government'],
     ];
     pruningThreshold = 0.6;
-    densityThreshold = 0.01;
+    densityThreshold = 0.99;
   }
 
   return (
@@ -236,10 +240,10 @@ export default async function Page({
         initialSupernodes={parsedSupernodes}
         initialClerps={parsedClerps}
         initialPruningThreshold={
-          pruningThreshold || searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined
+          pruningThreshold || (searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined)
         }
         initialDensityThreshold={
-          densityThreshold || searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined
+          densityThreshold || (searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined)
         }
       >
         <GraphWrapper hasSlug={!!searchParams.slug} />
