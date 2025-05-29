@@ -7,7 +7,7 @@ import {
 } from '@/lib/env';
 import * as yup from 'yup';
 
-export const MAX_RUNPOD_JOBS_IN_QUEUE = 50;
+export const MAX_RUNPOD_JOBS_IN_QUEUE = 1000;
 export const RUNPOD_BUSY_ERROR = 'RUNPOD_BUSY';
 
 export const GRAPH_MAX_PROMPT_LENGTH_CHARS = 10000;

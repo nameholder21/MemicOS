@@ -13,7 +13,6 @@ import {
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
   MAX_RUNPOD_JOBS_IN_QUEUE,
-  RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
 import { tokenizeText } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
@@ -242,13 +241,14 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     // check the queue
     const queueNumber = await checkRunpodQueueJobs();
     if (queueNumber > MAX_RUNPOD_JOBS_IN_QUEUE) {
-      return NextResponse.json(
-        {
-          error: RUNPOD_BUSY_ERROR,
-          message: RUNPOD_BUSY_ERROR,
-        },
-        { status: 503 },
-      );
+      console.log('larger than queue but continuing');
+      //   return NextResponse.json(
+      //     {
+      //       error: RUNPOD_BUSY_ERROR,
+      //       message: RUNPOD_BUSY_ERROR,
+      //     },
+      //     { status: 503 },
+      //   );
     }
 
     await generateGraphAndUploadToS3(
