@@ -358,7 +358,7 @@ export default function GenerateGraphModal() {
                     </Label>
                     <p className="mt-0.5 text-[11.5px] text-slate-500">
                       In general, you want your prompt to be missing a word at the end, because we want to analyze how
-                      the model comes up with that word.
+                      the model comes up with that word. (Eg &quot;The capital of the state containing Dallas is&quot;)
                     </p>
                     <ReactTextareaAutosize
                       id="prompt"
