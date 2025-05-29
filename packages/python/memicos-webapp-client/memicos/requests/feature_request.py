@@ -53,6 +53,18 @@ class FeatureRequest(NPRequest):
                 "density": feature.density,
                 "activations": [],
                 "explanations": [],
+                "topLogits": [
+                    {"token": logit.token, "value": logit.value}
+                    for logit in feature.top_logits
+                ]
+                if feature.top_logits is not None
+                else None,
+                "bottomLogits": [
+                    {"token": logit.token, "value": logit.value}
+                    for logit in feature.bottom_logits
+                ]
+                if feature.bottom_logits is not None
+                else None,
             }
             if feature.explanations is not None:
                 for explanation in feature.explanations:

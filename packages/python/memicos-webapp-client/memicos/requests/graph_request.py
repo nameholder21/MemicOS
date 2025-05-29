@@ -40,7 +40,6 @@ class GraphRequest(NPRequest):
         # Check metadata contains required fields
         if "metadata" in loaded_json:
             required_metadata = [
-                "node_threshold",
                 "prompt",
                 "prompt_tokens",
                 "scan",
