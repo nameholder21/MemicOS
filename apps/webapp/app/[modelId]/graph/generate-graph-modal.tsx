@@ -101,7 +101,7 @@ export default function GenerateGraphModal() {
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTokenizing, setIsTokenizing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
   const [countdownTime, setCountdownTime] = useState<number | null>(null);
 
   const session = useSession();
@@ -228,7 +228,24 @@ export default function GenerateGraphModal() {
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
-      setError(errorMessage);
+      if (e instanceof Error && e.message === RUNPOD_BUSY_ERROR) {
+        setError(
+          <>
+            Oops - looks like we are at capacity right now, please try again in a minute. You can also go to{' '}
+            <a
+              href="https://github.com/safety-research/circuit-tracer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-600 underline hover:text-sky-800"
+            >
+              https://github.com/safety-research/circuit-tracer
+            </a>{' '}
+            to run it yourself in Colab or on a local machine.
+          </>,
+        );
+      } else {
+        setError(errorMessage);
+      }
       if (showToast) {
         showToast({
           title: 'Error Generating Graph',

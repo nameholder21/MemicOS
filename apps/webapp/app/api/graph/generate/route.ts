@@ -208,6 +208,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     // make a signed put for this user
 
     const userId = request.user?.id;
+    const userName = request.user?.name;
 
     const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${userId}/${validatedData.slug}.json`;
 
@@ -235,7 +236,13 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     // check the queue
     const queueNumber = await checkRunpodQueueJobs();
     if (queueNumber > MAX_RUNPOD_JOBS_IN_QUEUE) {
-      return NextResponse.json({ error: RUNPOD_BUSY_ERROR }, { status: 503 });
+      return NextResponse.json(
+        {
+          error: RUNPOD_BUSY_ERROR,
+          message: RUNPOD_BUSY_ERROR,
+        },
+        { status: 503 },
+      );
     }
 
     await generateGraphAndUploadToS3(
@@ -248,13 +255,23 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       validatedData.slug,
       validatedData.maxFeatureNodes,
       signedUrl,
-      userId,
+      userName,
     );
 
     // download the file from S3
+    console.log('signedUrl', signedUrl);
     const cleanUrl = signedUrl.split('?')[0];
     console.log('downloading: ', cleanUrl);
     const response = await fetch(cleanUrl);
+    if (!response.ok) {
+      return NextResponse.json(
+        {
+          error: 'Failed to download graph.',
+          message: `Failed to download graph. HTTP ${response.status}: ${response.statusText}`,
+        },
+        { status: 500 },
+      );
+    }
     const responseJson = await response.json();
     const graph = responseJson as CLTGraph;
 
