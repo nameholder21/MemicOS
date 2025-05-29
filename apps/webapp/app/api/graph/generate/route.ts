@@ -22,12 +22,12 @@ import Ajv from 'ajv';
 import { NextResponse } from 'next/server';
 import * as yup from 'yup';
 
-const SCAN_TO_SOURCE_URLS = {
-  'gemma-2-2b': [
-    'https://memicos.org/gemma-2-2b/gemmascope-transcoder-16k',
-    'https://huggingface.co/google/gemma-scope-2b-pt-transcoders',
-  ],
-};
+// const SCAN_TO_SOURCE_URLS = {
+//   'gemma-2-2b': [
+//     'https://memicos.org/gemma-2-2b/gemmascope-transcoder-16k',
+//     'https://huggingface.co/google/gemma-scope-2b-pt-transcoders',
+//   ],
+// };
 
 /**
  * @swagger
@@ -268,10 +268,13 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
 
     if (!isValid) {
       console.log('invalid: ', validate.errors);
-      return NextResponse.json({
-        error: 'Invalid Graph Generated',
-        message: validate.errors,
-      });
+      return NextResponse.json(
+        {
+          error: 'Invalid Graph Generated',
+          message: validate.errors,
+        },
+        { status: 500 },
+      );
     }
     console.log('valid graph');
 
