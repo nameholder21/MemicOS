@@ -23,6 +23,27 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
   const searchParams = useSearchParams();
 
   console.log('hasSlug', hasSlug);
+
+  // Array of images for each step
+  const stepImages = [
+    '/images/explainer.jpg', // Getting Started
+    '/images/explainer-top.jpg', // Choose or Generate a Graph
+    '/images/explainer-top-left.jpg', // Link/Attribution Graph
+    '/images/explainer-top-right.jpg', // Connections
+    '/images/explainer-bottom-left.jpg', // Subgraph
+    '/images/explainer-bottom-right.jpg', // Feature Details
+  ];
+
+  // Array of alt text for each step
+  const stepImageAlts = [
+    'Getting started with Circuit Tracer - overview of solved and unsolved graphs',
+    'Graph generation interface showing how to create custom prompts',
+    'Link/Attribution graph displaying model reasoning process with nodes and edges',
+    'Connections panel showing input and output features for selected nodes',
+    'Subgraph interface for pinning and grouping nodes into supernodes',
+    'Feature details panel showing top activations and logits for selected features',
+  ];
+
   const steps = [
     {
       number: 0,
@@ -43,9 +64,9 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             Generate New Graph
           </Button>
           <p className="mt-2">
-            Want to see some examples first? Here are graphs that we&apos;ve &quot;solved&quot;, meaning it has a
-            subgraph that has a decent theory of how the model came to its result, and also some graphs that are still
-            unsolved. Share if you&apos;ve think you&apos;ve got an answer!
+            Want to see some examples first? Here are graphs that we&apos;ve &quot;solved&quot;, meaning we&apos;ve
+            identified an annotated subgraph that explains key internal reasoning steps. And also some graphs that are
+            still unsolved. Share if you&apos;ve think you&apos;ve got an answer!
           </p>
           <div className="text-sm font-medium">Solved Graphs</div>
           <ul className="-mt-2 ml-5 list-disc">
@@ -150,12 +171,13 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             of the prompt.
           </p>
           <p>
-            In this example, we&apos;ve chosen a graph where we give the text &quot;The capital of the state containing
-            Dallas is&quot;, to see how it comes up with &quot;Austin&quot;.
-          </p>
-          <p>
             You can <strong>generate your own graph</strong> by clicking on &quot;New Graph&quot; and entering your own
             prompt.
+          </p>
+          <p>
+            In this example, we&apos;ve chosen a graph where we give the text &quot;The capital of the state containing
+            Dallas is&quot;, to see how it comes up with &quot;Austin&quot;. In general, you want your prompt to be
+            &quot;missing&quot; a word at the end, because we want to analyze how the model comes up with that word.
           </p>
         </div>
       ),
@@ -244,6 +266,15 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             When you hover over or click a node in any of the panels, its feature details will be displayed here.
           </p>
           <p>
+            The <strong>top activations</strong> show the contexts in a dataset that most strongly activated a feature.
+            Finding the pattern in these contexts helps you determine what a feature represents
+          </p>
+          <p>
+            The <strong>logits</strong> tell you the output tokens that the feature most strongly pushes the model to
+            say, via direct connections. For later-layer features, these are often the best way to understand what a
+            feature does. For earlier layer features, they can be misleading.
+          </p>
+          <p>
             Here, since we&apos;ve clicked the &quot;Texas&quot; node in the link/attribution graph, we see its top
             activations, logits, feature density, and histogram.
           </p>
@@ -322,23 +353,23 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                 Interactively trace the internal reasoning steps used by a language model, and generate your own graphs
                 with custom prompts.{` `}
                 <a
-                  href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
+                  href="https://github.com/safety-research/circuit-tracer"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sky-600 hover:text-sky-800 hover:underline"
                 >
-                  Ameisen {`'25`}
+                  Github
                 </a>
               </div>
             </div>
             <div className="flex flex-row gap-x-3">
               <div className="mt-4 flex w-2/3 flex-col items-center justify-start">
                 <img
-                  src="/images/explainer.jpg"
-                  alt="Attribution graph example showing how a language model traces reasoning from input tokens through intermediate steps to output"
-                  className="max-h-full max-w-full rounded-lg border border-slate-200 object-contain shadow-sm"
+                  src={stepImages[currentStep]}
+                  alt={stepImageAlts[currentStep]}
+                  className="max-h-[590px] min-h-[590px] max-w-full rounded rounded-lg border-slate-200 object-contain"
                 />
-                <div className="mt-5 flex w-full flex-row justify-between border-t border-slate-200">
+                <div className="mt-5 flex w-full flex-row justify-between border-slate-200">
                   <div className="flex flex-col justify-start text-left">
                     <h3 className="mb-2 mt-4 text-sm font-medium text-slate-600">Resources for Learning More</h3>
                     <ul className="space-y-1 text-sm">
@@ -367,16 +398,16 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                         - open source repository for graph generation and interventions to validate graphs
                       </li>
                       <li className="flex items-start gap-1">
-                        •{' '}
+                        • <span className="pl-1">Original </span>research papers that{' '}
                         <a
                           href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="pl-1 text-sky-600 hover:text-sky-800 hover:underline"
+                          className="text-sky-600 hover:text-sky-800 hover:underline"
                         >
-                          Original research papers
-                        </a>
-                        that introduced attribution graphs and used them to study{' '}
+                          introduced attribution graphs
+                        </a>{' '}
+                        and used them to study{' '}
                         <a
                           href="https://transformer-circuits.pub/2025/attribution-graphs/biology.html"
                           target="_blank"
