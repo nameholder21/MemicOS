@@ -59,7 +59,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               setIsWelcomeModalOpen(false);
               setIsGenerateGraphModalOpen(true);
             }}
-            className="w-full border border-emerald-600 bg-emerald-50 text-sm text-emerald-700 shadow-none hover:bg-emerald-100"
+            className="w-full border bg-emerald-700 text-sm text-white hover:bg-emerald-800"
           >
             Generate New Graph
           </Button>
