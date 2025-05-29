@@ -398,9 +398,7 @@ export function GraphProvider({
         ...graph.qParams,
       };
     }
-    if (graph.metadata.node_threshold) {
-      visStateToReturn.pruningThreshold = graph.metadata.node_threshold;
-    }
+    visStateToReturn.pruningThreshold = 0.6;
 
     visStateToReturn.densityThreshold = 1;
 
