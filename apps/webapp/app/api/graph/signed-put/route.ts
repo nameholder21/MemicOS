@@ -1,7 +1,7 @@
 import { MAX_GRAPH_UPLOAD_SIZE_BYTES, NP_GRAPH_BUCKET } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import { getUserByName } from '@/lib/db/user';
-import { GRAPH_S3_USER_GRAPHS_DIR } from '@/lib/utils/graph';
+import { GRAPH_S3_USER_GRAPHS_DIR, MAX_PUT_REQUESTS_PER_DAY } from '@/lib/utils/graph';
 import { RequestAuthedUser, withAuthedUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -9,7 +9,6 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { number, object, string } from 'yup';
 
-const MAX_PUT_REQUESTS_PER_DAY = 3000;
 const signedPutRequestSchema = object({
   filename: string().required(),
   contentLength: number().required().min(1024).max(MAX_GRAPH_UPLOAD_SIZE_BYTES),

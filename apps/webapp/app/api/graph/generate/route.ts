@@ -6,17 +6,18 @@ import {
 } from '@/app/[modelId]/graph/utils';
 import { prisma } from '@/lib/db';
 import {
-  generateGraph,
-  GRAPH_ANONYMOUS_USER_ID,
-  GRAPH_BATCH_SIZE,
-  GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT,
+  checkRunpodQueueJobs,
+  generateGraphAndUploadToS3,
   GRAPH_MAX_TOKENS,
   GRAPH_S3_USER_GRAPHS_DIR,
   graphGenerateSchemaClient,
+  MAX_RUNPOD_JOBS_IN_QUEUE,
+  RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
 import { tokenizeText } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import Ajv from 'ajv';
 import { NextResponse } from 'next/server';
 import * as yup from 'yup';
@@ -204,69 +205,13 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       );
     }
 
-    const data = await generateGraph(
-      validatedData.prompt,
-      validatedData.modelId,
-      validatedData.maxNLogits,
-      validatedData.desiredLogitProb,
-      validatedData.nodeThreshold,
-      validatedData.edgeThreshold,
-      validatedData.slug,
-      validatedData.maxFeatureNodes,
-    );
+    // make a signed put for this user
 
-    console.log('data generated');
+    const userId = request.user?.id;
 
-    // Validate the graph against the JSON schema
-    const ajv = new Ajv({ allErrors: true, strict: false });
-    const validate = ajv.compile(ATTRIBUTION_GRAPH_SCHEMA);
+    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${userId}/${validatedData.slug}.json`;
 
-    // Create a deep copy of the data to avoid mutation during validation
-    const dataCopy = JSON.parse(JSON.stringify(data));
-    const isValid = validate(dataCopy);
-
-    if (!isValid) {
-      return NextResponse.json({
-        error: 'Invalid Graph Generated',
-        message: validate.errors,
-      });
-    }
-
-    // data is valid - parse it as as json string to CLTGraph and add our metadata to it
-    const graph = data as CLTGraph;
-    // if graph.metadata doesnt have a nodeThreshold, set it to GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT
-    if (graph.metadata.node_threshold === undefined || graph.metadata.node_threshold === null) {
-      graph.metadata.node_threshold = GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT;
-    }
-    graph.metadata = {
-      ...graph.metadata,
-      info: {
-        creator_name: `${request.user?.name || 'Anonymous'} (CT)`,
-        creator_url: 'https://memicos.org',
-        // TODO: other sources when they become available
-        source_urls: SCAN_TO_SOURCE_URLS[data.metadata.scan as keyof typeof SCAN_TO_SOURCE_URLS] || [],
-        generator: {
-          name: 'circuit-tracer by Hanna & Piotrowski',
-          version: '0.1.0 | 042bf4df20be61890110ed22b6024c72337719cf',
-          url: 'https://github.com/safety-research/circuit-tracer',
-        },
-        create_time_ms: Date.now(),
-      },
-      generation_settings: {
-        max_n_logits: validatedData.maxNLogits,
-        desired_logit_prob: validatedData.desiredLogitProb,
-        batch_size: GRAPH_BATCH_SIZE,
-        max_feature_nodes: validatedData.maxFeatureNodes,
-      },
-      pruning_settings: {
-        node_threshold: validatedData.nodeThreshold,
-        edge_threshold: validatedData.edgeThreshold,
-      },
-    };
-
-    // once we have the data, upload it to S3
-    const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${request.user?.id || GRAPH_ANONYMOUS_USER_ID}/${validatedData.slug}.json`;
-
+    // Initialize S3 client
     const s3Client = new S3Client({
       region: process.env.AWS_REGION || 'us-east-1',
       credentials: {
@@ -275,19 +220,117 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       },
     });
 
+    // Create the command for putting an object
     const command = new PutObjectCommand({
       Bucket: NP_GRAPH_BUCKET,
       Key: key,
       ContentType: 'application/json',
-      ContentLength: Buffer.byteLength(JSON.stringify(data)),
-      Body: JSON.stringify(data),
     });
 
-    await s3Client.send(command);
+    // Generate the presigned URL for 1 hour
+    const signedUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600, // 1 hour
+    });
 
-    const cleanUrl = `https://${NP_GRAPH_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
+    // check the queue
+    const queueNumber = await checkRunpodQueueJobs();
+    if (queueNumber > MAX_RUNPOD_JOBS_IN_QUEUE) {
+      return NextResponse.json({ error: RUNPOD_BUSY_ERROR }, { status: 503 });
+    }
 
-    console.log('S3 file upload complete');
+    await generateGraphAndUploadToS3(
+      validatedData.prompt,
+      validatedData.modelId,
+      validatedData.maxNLogits,
+      validatedData.desiredLogitProb,
+      validatedData.nodeThreshold,
+      validatedData.edgeThreshold,
+      validatedData.slug,
+      validatedData.maxFeatureNodes,
+      signedUrl,
+    );
+
+    // download the file from S3
+    const cleanUrl = signedUrl.split('?')[0];
+    console.log('downloading: ', cleanUrl);
+    const response = await fetch(cleanUrl);
+    const responseJson = await response.json();
+    const graph = responseJson as CLTGraph;
+
+    // Validate the graph against the JSON schema
+    const ajv = new Ajv({ allErrors: true, strict: false });
+    const validate = ajv.compile(ATTRIBUTION_GRAPH_SCHEMA);
+
+    // Create a deep copy of the data to avoid mutation during validation
+    const dataCopy = JSON.parse(JSON.stringify(responseJson));
+
+    const isValid = validate(dataCopy);
+
+    if (!isValid) {
+      console.log('invalid: ', validate.errors);
+      return NextResponse.json({
+        error: 'Invalid Graph Generated',
+        message: validate.errors,
+      });
+    }
+    console.log('valid graph');
+
+    // // data is valid - parse it as as json string to CLTGraph and add our metadata to it
+    // const graph = data as CLTGraph;
+    // // if graph.metadata doesnt have a nodeThreshold, set it to GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT
+    // if (graph.metadata.node_threshold === undefined || graph.metadata.node_threshold === null) {
+    //   graph.metadata.node_threshold = GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT;
+    // }
+    // graph.metadata = {
+    //   ...graph.metadata,
+    //   info: {
+    //     creator_name: `${request.user?.name || 'Anonymous'} (CT)`,
+    //     creator_url: 'https://memicos.org',
+    //     // TODO: other sources when they become available
+    //     source_urls: SCAN_TO_SOURCE_URLS[data.metadata.scan as keyof typeof SCAN_TO_SOURCE_URLS] || [],
+    //     generator: {
+    //       name: 'circuit-tracer by Hanna & Piotrowski',
+    //       version: '0.1.0 | 1ed3f19',
+    //       url: 'https://github.com/safety-research/circuit-tracer',
+    //     },
+    //     create_time_ms: Date.now(),
+    //   },
+    //   generation_settings: {
+    //     max_n_logits: validatedData.maxNLogits,
+    //     desired_logit_prob: validatedData.desiredLogitProb,
+    //     batch_size: GRAPH_BATCH_SIZE,
+    //     max_feature_nodes: validatedData.maxFeatureNodes,
+    //   },
+    //   pruning_settings: {
+    //     node_threshold: validatedData.nodeThreshold,
+    //     edge_threshold: validatedData.edgeThreshold,
+    //   },
+    // };
+
+    // // once we have the data, upload it to S3
+    // const key = `${GRAPH_S3_USER_GRAPHS_DIR}/${request.user?.id || GRAPH_ANONYMOUS_USER_ID}/${validatedData.slug}.json`;
+
+    // const s3Client = new S3Client({
+    //   region: process.env.AWS_REGION || 'us-east-1',
+    //   credentials: {
+    //     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    //     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    //   },
+    // });
+
+    // const command = new PutObjectCommand({
+    //   Bucket: NP_GRAPH_BUCKET,
+    //   Key: key,
+    //   ContentType: 'application/json',
+    //   ContentLength: Buffer.byteLength(JSON.stringify(data)),
+    //   Body: JSON.stringify(data),
+    // });
+
+    // await s3Client.send(command);
+
+    // const cleanUrl = `https://${NP_GRAPH_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
+
+    // console.log('S3 file upload complete');
 
     // save it to the database
     await prisma.graphMetadata.upsert({

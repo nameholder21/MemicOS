@@ -27,6 +27,7 @@ import {
   GRAPH_NODETHRESHOLD_MAX,
   GRAPH_NODETHRESHOLD_MIN,
   graphGenerateSchemaClient,
+  RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
 import { ResetIcon } from '@radix-ui/react-icons';
 import * as RadixSelect from '@radix-ui/react-select';
@@ -209,6 +210,10 @@ export default function GenerateGraphModal() {
       if (!response.ok) {
         if (response.status === 429) {
           throw new Error('Rate limit exceeded. Users are limited to 10 graphs per hour - please try again later.');
+        }
+        if (responseData.error === RUNPOD_BUSY_ERROR) {
+          // TODO special limit display
+          throw new Error('Oops - looks like we are at capacity right now. Please try again in a minute!');
         }
         throw new Error(responseData.message || responseData.error || 'Failed to generate graph.');
       }
