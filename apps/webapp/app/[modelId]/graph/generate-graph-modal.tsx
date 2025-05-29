@@ -319,6 +319,7 @@ export default function GenerateGraphModal() {
             .
           </DialogDescription>
         </DialogHeader>
+
         {!session?.data?.user && (
           <p className="mt-4 rounded-md bg-amber-100 p-3 text-sm text-amber-700">
             Warning:{' '}
@@ -355,6 +356,10 @@ export default function GenerateGraphModal() {
                     <Label htmlFor="prompt" className="text-xs">
                       Prompt
                     </Label>
+                    <p className="mt-0.5 text-[11.5px] text-slate-500">
+                      In general, you want your prompt to be missing a word at the end, because we want to analyze how
+                      the model comes up with that word.
+                    </p>
                     <ReactTextareaAutosize
                       id="prompt"
                       name="prompt"
