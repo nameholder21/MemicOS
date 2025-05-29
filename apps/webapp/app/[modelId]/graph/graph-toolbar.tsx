@@ -9,7 +9,7 @@ import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
-import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, Share2, Trash, UploadCloud } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, HelpCircle, Share2, Trash, UploadCloud } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useSearchParams } from 'next/navigation';
@@ -35,6 +35,7 @@ export default function GraphToolbar() {
     setFilterGraphsSetting,
     shouldShowGraphToCurrentUser,
     setIsCopyModalOpen,
+    setIsWelcomeModalOpen,
   } = useGraphContext();
   const { globalModels } = useGlobalContext();
 
@@ -99,6 +100,27 @@ export default function GraphToolbar() {
   return (
     <div className="flex w-full flex-col pt-2.5">
       <div className="flex w-full flex-row items-end gap-x-2">
+        <Button
+          variant="outline"
+          title="Show User Guide"
+          aria-label="Show User Guide"
+          size="sm"
+          className="relative flex h-12 items-center justify-center whitespace-nowrap border-sky-500 bg-sky-50 text-xs font-medium leading-none text-sky-600 hover:bg-sky-100 hover:text-sky-700"
+          onClick={() => setIsWelcomeModalOpen(true)}
+        >
+          <HelpCircle className="mr-1.5 h-4 w-4" /> User Guide
+          {(() => {
+            try {
+              const hasVisited = localStorage.getItem('circuit-tracer-visited');
+              if (!hasVisited) {
+                return <div className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500" />;
+              }
+            } catch (error) {
+              // Silently handle localStorage errors
+            }
+            return null;
+          })()}
+        </Button>
         <GenerateGraphModal />
 
         <div className="flex flex-col">
@@ -233,14 +255,11 @@ export default function GraphToolbar() {
                   e.stopPropagation();
                 }
               }}
-              className="relative inline-flex h-12 max-w-full items-center justify-between gap-1 overflow-x-hidden rounded border border-slate-300 bg-white px-4 py-0 pr-10 text-sm leading-none focus:outline-none focus:ring-0"
+              className="relative inline-flex h-12 max-w-full items-center justify-between gap-1 overflow-x-hidden rounded border border-slate-300 bg-white py-0 pl-3 pr-10 text-sm leading-none focus:outline-none focus:ring-0"
             >
               {selectedMetadataGraph !== null ? (
                 <Select.Value asChild>
-                  <div className="flex w-full flex-col items-start justify-start gap-y-2 overflow-y-visible">
-                    <div className="flex w-full flex-row items-center justify-between">
-                      <div className="font-mono text-[12px] font-medium text-sky-700">{selectedMetadataGraph.slug}</div>
-                    </div>
+                  <div className="flex w-full flex-col items-start justify-start gap-y-[7px] overflow-y-visible">
                     <div className="text-overflow-ellipsis whitespace-nowrap text-[10px] font-normal leading-none text-slate-500">
                       {/* <span className="rounded bg-slate-200 px-1 py-0.5 text-[8px] font-bold text-slate-600">
                         PROMPT
@@ -253,6 +272,9 @@ export default function GraphToolbar() {
                           {token.replaceAll('\n', ' ').replaceAll(' ', '\u00A0')}
                         </span>
                       ))}
+                    </div>
+                    <div className="flex w-full flex-row items-center justify-between">
+                      <div className="font-mono text-[10px] font-medium text-sky-700">{selectedMetadataGraph.slug}</div>
                     </div>
                   </div>
                 </Select.Value>

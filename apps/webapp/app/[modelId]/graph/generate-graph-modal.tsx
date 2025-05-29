@@ -1,8 +1,16 @@
 'use client';
 
 import { useGlobalContext } from '@/components/provider/global-provider';
+import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/shadcn/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/shadcn/dialog';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { LoadingSquare } from '@/components/svg/loading-square';
@@ -95,7 +103,7 @@ const formatCountdown = (totalSeconds: number): string => {
 };
 
 export default function GenerateGraphModal() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isGenerateGraphModalOpen, setIsGenerateGraphModalOpen } = useGraphContext();
   const [generationResult, setGenerationResult] = useState<GenerateGraphResponse | null>(null);
   const [tokenizedPrompt, setTokenizedPrompt] = useState<TokenizeResponse | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
@@ -279,11 +287,11 @@ export default function GenerateGraphModal() {
         formikRef.current.resetForm();
       }
     }
-    setIsOpen(open);
+    setIsGenerateGraphModalOpen(open);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isGenerateGraphModalOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -298,6 +306,18 @@ export default function GenerateGraphModal() {
       <DialogContent className="z-[10001] cursor-default select-none bg-white text-slate-700 sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Generate New Graph</DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            Generate a new attribution graph for a custom prompt. Powered by{' '}
+            <a
+              href="https://github.com/safety-research/circuit-tracer"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-600 hover:text-sky-800 hover:underline"
+            >
+              circuit-tracer
+            </a>
+            .
+          </DialogDescription>
         </DialogHeader>
         {!session?.data?.user && (
           <p className="mt-4 rounded-md bg-amber-100 p-3 text-sm text-amber-700">
@@ -307,7 +327,7 @@ export default function GenerateGraphModal() {
               variant="link"
               onClick={() => {
                 setSignInModalOpen(true);
-                setIsOpen(false);
+                setIsGenerateGraphModalOpen(false);
               }}
               className="h-auto cursor-pointer px-0 py-0 font-medium text-sky-800 underline"
             >

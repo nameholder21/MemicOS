@@ -41,7 +41,7 @@ export const GRAPH_DYNAMIC_PRUNING_THRESHOLD_DEFAULT = 0.6;
 
 export const GRAPH_ANONYMOUS_USER_ID = 'anonymous';
 
-export const MAX_PUT_REQUESTS_PER_DAY = 100;
+export const MAX_PUT_REQUESTS_PER_DAY = 200;
 
 export const graphGenerateSchemaClient = yup.object({
   prompt: yup

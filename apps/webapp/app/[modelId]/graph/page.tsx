@@ -161,6 +161,11 @@ export default async function Page({
 
   // set the metadata graph to show, if specified in the url. if we don't have it, look it up in the database
   let metadataGraph;
+  let parsedSupernodes: string[][] | undefined;
+  let parsedClerps: string[][] | undefined;
+  let pinnedIds: string | undefined;
+  let pruningThreshold: number | undefined;
+  let densityThreshold: number | undefined;
   if (searchParams.slug) {
     metadataGraph = modelIdToGraphMetadatasMap[modelId]?.find((graph) => graph.slug === searchParams.slug);
     // if it's not in our map, look it up in the database
@@ -188,20 +193,37 @@ export default async function Page({
         metadataGraph = undefined;
       }
     }
-  }
+    pinnedIds = searchParams.pinnedIds;
 
-  let parsedSupernodes: string[][] | undefined;
-  try {
-    parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
-  } catch (error) {
-    console.error('Error parsing supernodes:', error);
-  }
+    try {
+      parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
+    } catch (error) {
+      console.error('Error parsing supernodes:', error);
+    }
 
-  let parsedClerps: string[][] | undefined;
-  try {
-    parsedClerps = searchParams.clerps ? JSON.parse(searchParams.clerps) : undefined;
-  } catch (error) {
-    console.error('Error parsing clerps:', error);
+    try {
+      parsedClerps = searchParams.clerps ? JSON.parse(searchParams.clerps) : undefined;
+    } catch (error) {
+      console.error('Error parsing clerps:', error);
+    }
+  } else {
+    // no default slug, let's show gemma austin dallas
+    metadataGraph = modelIdToGraphMetadatasMap['gemma-2-2b'].find((graph) => graph.slug === 'gemma-fact-dallas-austin');
+    pinnedIds =
+      '27_22605_10,20_15589_10,E_26865_9,21_5943_10,23_12237_10,20_15589_9,16_25_9,14_2268_9,18_8959_10,4_13154_9,7_6861_9,19_1445_10,E_2329_7,E_6037_4,0_13727_7,6_4012_7,17_7178_10,15_4494_4,6_4662_4,4_7671_4,3_13984_4,1_1000_4,19_7477_9,18_6101_10,16_4298_10,7_691_10';
+    parsedSupernodes = [
+      ['capital', '15_4494_4', '6_4662_4', '4_7671_4', '3_13984_4', '1_1000_4'],
+      ['state', '6_4012_7', '0_13727_7'],
+      ['Texas', '20_15589_9', '19_7477_9', '16_25_9', '4_13154_9', '14_2268_9', '7_6861_9'],
+      ['preposition followed by place name', '19_1445_10', '18_6101_10'],
+      ['capital cities/say a capital city', '21_5943_10', '17_7178_10', '7_691_10', '16_4298_10'],
+    ];
+    parsedClerps = [
+      ['23_2312237_10', 'Cities and states names (say Austin)'],
+      ['18_1808959_10', 'state/regional government'],
+    ];
+    pruningThreshold = 0.6;
+    densityThreshold = 0.01;
   }
 
   return (
@@ -210,13 +232,17 @@ export default async function Page({
         initialModelIdToMetadataGraphsMap={modelIdToGraphMetadatasMap}
         initialModel={modelId}
         initialMetadataGraph={metadataGraph}
-        initialPinnedIds={searchParams.pinnedIds}
+        initialPinnedIds={pinnedIds}
         initialSupernodes={parsedSupernodes}
         initialClerps={parsedClerps}
-        initialPruningThreshold={searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined}
-        initialDensityThreshold={searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined}
+        initialPruningThreshold={
+          pruningThreshold || searchParams.pruningThreshold ? Number(searchParams.pruningThreshold) : undefined
+        }
+        initialDensityThreshold={
+          densityThreshold || searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined
+        }
       >
-        <GraphWrapper />
+        <GraphWrapper hasSlug={!!searchParams.slug} />
       </GraphProvider>
     </GraphStateProvider>
   );
