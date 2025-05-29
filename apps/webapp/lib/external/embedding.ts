@@ -7,6 +7,10 @@ export async function getOAIEmbedding(embeddingModel: string, dimensions: number
   if (!VALID_EMBEDDING_MODELS.includes(embeddingModel)) {
     throw new Error('Invalid embedding model');
   }
+  // if text is empty string or array, return an empty array
+  if (Array.isArray(text) && text.length === 0) {
+    return [];
+  }
   const openai = new OpenAI();
   // TODO: this fails silently when the key is invalid
   const response = await openai.embeddings.create({
