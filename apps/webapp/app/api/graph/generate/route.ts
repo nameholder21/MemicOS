@@ -248,6 +248,7 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
       validatedData.slug,
       validatedData.maxFeatureNodes,
       signedUrl,
+      userId,
     );
 
     // download the file from S3
