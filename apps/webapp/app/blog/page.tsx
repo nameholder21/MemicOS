@@ -2,6 +2,7 @@ import { getBlogDateString, getPostsMetaData, PostMetaData } from '@/app/blog/bl
 import BreadcrumbsComponent from '@/components/breadcrumbs-component';
 import { BreadcrumbLink } from '@/components/shadcn/breadcrumbs';
 import { Card, CardContent } from '@/components/shadcn/card';
+import { ASSET_BASE_URL } from '@/lib/env';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: `/blog`,
       images: [
         {
-          url: '/images/blog/the-residual-stream.jpg',
+          url: `${ASSET_BASE_URL}/blog/the-residual-stream.jpg`,
         },
       ],
     },

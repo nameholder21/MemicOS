@@ -130,3 +130,4 @@ export const IS_ACTUALLY_MEMICOS_ORG =
 export const NODE_ENV = process.env.NODE_ENV || '';
 export const IS_DOCKER_COMPOSE = process.env.IS_DOCKER_COMPOSE === 'true';
 export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || IS_ONE_CLICK_VERCEL_DEPLOY;
+export const ASSET_BASE_URL = 'https://memicos.s3.us-east-1.amazonaws.com/site-assets';
