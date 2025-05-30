@@ -380,7 +380,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                 />
                 <div className="mt-5 flex w-full flex-row justify-between border-t border-slate-200">
                   <div className="flex flex-col justify-start text-left">
-                    <h3 className="mb-2 mt-4 text-sm font-medium text-slate-600">Resources for Learning More</h3>
+                    <h3 className="mb-2 mt-4 text-sm font-medium text-slate-600">Key Resources</h3>
                     <ul className="space-y-1 text-sm">
                       <li className="flex items-start gap-1">
                         •{' '}
@@ -397,7 +397,7 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                       <li className="flex items-start gap-1">
                         •{' '}
                         <a
-                          href="https://github.com/safety-research/circuit-tracer/blob/main/demos/circuit_tracing_tutorial.ipynb"
+                          href="https://github.com/safety-research/circuit-tracer"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="pl-1 text-sky-600 hover:text-sky-800 hover:underline"
@@ -425,7 +425,6 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                         >
                           Claude 3.5 Haiku
                         </a>
-                        .
                       </li>
                     </ul>
                   </div>
