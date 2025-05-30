@@ -2,10 +2,27 @@
 
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/shadcn/dialog';
 import { LoadingSquare } from '@/components/svg/loading-square';
+import { MagicWandIcon } from '@radix-ui/react-icons';
 import copy from 'copy-to-clipboard';
-import { ChevronLeft, ChevronRight, CodeIcon, CopyIcon, LinkIcon } from 'lucide-react';
+import {
+  BookOpen,
+  ChevronRight,
+  CodeIcon,
+  CopyIcon,
+  GithubIcon,
+  LinkIcon,
+  NewspaperIcon,
+  NotebookIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -45,7 +62,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
   const steps = [
     {
       number: 0,
-      title: 'Getting Started - New, Solved, and Unsolved Graphs',
+      title: 'Overview',
+      subtitle: 'Demo and Examples',
       bgColor: 'bg-indigo-100',
       textColor: 'text-indigo-600',
       content: (
@@ -57,8 +75,9 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               setIsWelcomeModalOpen(false);
               setIsGenerateGraphModalOpen(true);
             }}
-            className="w-full border bg-emerald-700 text-sm text-white hover:bg-emerald-800"
+            className="text-medium h-10 w-full gap-x-2 bg-emerald-700 text-[12.5px] text-white shadow-none hover:bg-emerald-800"
           >
+            <MagicWandIcon className="h-4 w-4" />
             Generate New Graph
           </Button>
           <p className="mt-2">
@@ -66,8 +85,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             identified an annotated subgraph that explains key internal reasoning steps. And also some graphs that are
             still unsolved. Share if you&apos;ve think you&apos;ve got an answer!
           </p>
-          <div className="text-sm font-medium">Solved Graphs</div>
-          <ul className="-mt-2 ml-5 list-disc">
+          <div className="text-center text-xs font-medium">Solved Graphs</div>
+          <ul className="-mt-2.5 ml-5 list-disc text-[13px]">
             <li className="">
               <Link
                 className="text-sky-600 hover:underline"
@@ -118,16 +137,16 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </Link>
             </li>
           </ul>
-          <div className="text-sm font-medium">Unsolved Graphs</div>
-          <ul className="-mt-2 ml-5 list-disc">
+          <div className="text-center text-xs font-medium">Unsolved Graphs</div>
+          <ul className="-mt-2.5 ml-5 list-disc text-[13px]">
             <li>
               <Link
-                className="text-sky-600 hover:underline"
+                className="leading-snug text-sky-600 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
                 href="/gemma-2-2b/graph?slug=gemma-Mexico-Spanish&clickedId=undefined&pruningThreshold=0.7&densityThreshold=0.99"
               >
-                The language most commonly spoken in the country south of the United States is → Spanish
+                commonly spoken in the country south of the US is → Spanish
               </Link>
             </li>
             <li>
@@ -151,15 +170,14 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </Link>
             </li>
           </ul>
-          <p className="mt-1 text-center">
-            Click <strong>Next</strong> to start the user guide →
-          </p>
+          <p className="mt-1 text-center font-bold">Click Next Section at the top to continue.</p>
         </div>
       ),
     },
     {
       number: 1,
-      title: 'Top: Choose or Generate a Graph with Custom Prompts',
+      title: 'Top Toolbar',
+      subtitle: 'Choose/Generate a Graph',
       bgColor: 'bg-blue-100',
       textColor: 'text-blue-600',
       content: (
@@ -183,7 +201,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     },
     {
       number: 2,
-      title: 'Top-Left: Link/Attribution Graph',
+      title: 'Top Left',
+      subtitle: 'Link/Attribution Graph',
       bgColor: 'bg-green-100',
       textColor: 'text-green-600',
       content: (
@@ -218,7 +237,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     },
     {
       number: 3,
-      title: 'Top-Right: Connections',
+      title: 'Top Right',
+      subtitle: 'Node Connections',
       bgColor: 'bg-purple-100',
       textColor: 'text-purple-600',
       content: (
@@ -237,7 +257,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     },
     {
       number: 4,
-      title: 'Bottom-Left: Subgraph',
+      title: 'Bottom Left',
+      subtitle: 'Subgraph',
       bgColor: 'bg-yellow-100',
       textColor: 'text-yellow-600',
       content: (
@@ -257,7 +278,8 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     },
     {
       number: 5,
-      title: 'Bottom-Right: Feature Details',
+      title: 'Bottom Right',
+      subtitle: 'Feature Details',
       bgColor: 'bg-indigo-100',
       textColor: 'text-indigo-600',
       content: (
@@ -347,153 +369,161 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             </span>
           </DialogTitle>
           <DialogDescription className="text-center">
-            <div className="text-center text-xs font-medium text-slate-600">
-              <strong className="text-sm text-slate-700">How does a language model decide how to respond?</strong>
-              <div className="pt-1">
-                Interactively trace the internal reasoning steps used by a language model, and generate your own graphs
-                with custom prompts.{` `}
-                <a
-                  href="https://github.com/safety-research/circuit-tracer"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-600 hover:text-sky-800 hover:underline"
-                >
-                  Github
-                </a>{' '}
-                |{' '}
-                <a
-                  href="https://www.anthropic.com/research/open-source-circuit-tracing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sky-600 hover:text-sky-800 hover:underline"
-                >
-                  Anthropic Post
-                </a>
-              </div>
+            <div className="mb-1.5 mt-0 text-center text-[13px] font-medium text-slate-500">
+              How does a language model decide how to respond? Interactively trace its internal reasoning steps and
+              generate your own graphs with custom prompts. (
+              <a
+                href="https://github.com/safety-research/circuit-tracer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sky-700 hover:text-sky-800 hover:underline"
+              >
+                GitHub
+              </a>
+              )
             </div>
             <div className="flex flex-row gap-x-3">
               <div className="mt-4 flex w-2/3 flex-col items-center justify-start">
-                <img
-                  src={stepImages[currentStep]}
-                  alt={stepImageAlts[currentStep]}
-                  className="max-h-[570px] min-h-[570px] max-w-full rounded rounded-lg border-slate-200 object-contain"
-                />
-                <div className="mt-5 flex w-full flex-row justify-between border-t border-slate-200">
-                  <div className="flex flex-col justify-start text-left">
-                    <h3 className="mb-2 mt-4 text-sm font-medium text-slate-600">Key Resources</h3>
-                    <ul className="space-y-1 text-sm">
-                      <li className="flex items-start gap-1">
-                        •{' '}
-                        <a
-                          href="https://github.com/safety-research/circuit-tracer/blob/main/demos/circuit_tracing_tutorial.ipynb"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="pl-1 text-sky-600 hover:text-sky-800 hover:underline"
-                        >
-                          Jupyter notebook
-                        </a>{' '}
-                        working through two examples on Gemma 2 2B
-                      </li>
-                      <li className="flex items-start gap-1">
-                        •{' '}
-                        <a
-                          href="https://github.com/safety-research/circuit-tracer"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="pl-1 text-sky-600 hover:text-sky-800 hover:underline"
-                        >
-                          circuit-tracer
-                        </a>
-                        - open source repository for graph generation and interventions to validate graphs
-                      </li>
-                      <li className="flex items-start gap-1">
-                        • <span className="pl-1">Original </span>research papers that{' '}
-                        <a
-                          href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sky-600 hover:text-sky-800 hover:underline"
-                        >
-                          introduced attribution graphs
-                        </a>{' '}
-                        and used them to study{' '}
-                        <a
-                          href="https://transformer-circuits.pub/2025/attribution-graphs/biology.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sky-600 hover:text-sky-800 hover:underline"
-                        >
-                          Claude 3.5 Haiku
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex w-1/3 flex-col">
                 {/* Step indicators */}
-                <div className="mb-4 flex flex-wrap justify-center gap-1">
+                <div className="mb-3 flex w-full flex-1 flex-row justify-center px-3">
                   {steps.map((step, index) => (
                     <button
                       key={index}
                       type="button"
                       onClick={() => goToStep(index)}
                       aria-label={`Go to step ${index + 1}: ${step.title}`}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-0 ${
+                      className={`flex flex-1 flex-col items-center justify-center gap-y-1 px-3 py-2 text-xs font-medium transition-all duration-200 focus:outline-none focus:ring-0 ${
+                        index === 0 ? 'rounded-l-md' : index === steps.length - 1 ? 'rounded-r-md' : ''
+                      } ${
                         index === currentStep
-                          ? 'bg-sky-600 text-white'
-                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
-                      }`}
+                          ? 'bg-slate-300 text-slate-500'
+                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300/80'
+                      } `}
                     >
-                      {step.title}
+                      <div className="text-[8px] font-medium uppercase leading-none text-slate-500">{step.title}</div>
+                      <div
+                        className={`whitespace-pre text-[11px] leading-none ${index === currentStep ? 'font-semibold' : ''}`}
+                      >
+                        {step.subtitle}
+                      </div>
                     </button>
                   ))}
                 </div>
-
-                {/* Current step content */}
-                <div className="flex-1 rounded-lg bg-slate-50 p-4">
-                  <h3 className="mb-3 flex items-center justify-center gap-2 text-center text-base font-semibold text-slate-700">
-                    {/* <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full ${steps[currentStep].bgColor} text-xs font-bold ${steps[currentStep].textColor}`}
-                    >
-                      {steps[currentStep].number}
-                    </span> */}
-                    {steps[currentStep].title}
-                  </h3>
-                  <div className="text-xs text-slate-600">{steps[currentStep].content}</div>
-                </div>
-
-                {/* Navigation buttons */}
-                <div className="mt-4 flex justify-between">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={prevStep}
-                    disabled={currentStep === 0}
-                    className="flex items-center gap-1"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-
-                  <span className="flex items-center text-sm text-slate-500">
-                    {currentStep + 1} of {steps.length}
-                  </span>
-
+                <img
+                  src={stepImages[currentStep]}
+                  alt={stepImageAlts[currentStep]}
+                  className="max-h-[540px] min-h-[540px] max-w-full rounded rounded-lg border-slate-200 object-contain"
+                />
+              </div>
+              <div className="mt-4 flex w-1/3 flex-col">
+                <div className="flex justify-between gap-x-2.5">
                   {currentStep === steps.length - 1 ? (
-                    <Button size="sm" onClick={handleWelcomeClose} className="flex items-center gap-1">
-                      Close
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleWelcomeClose}
+                      className="flex h-[39px] flex-1 items-center gap-1 bg-slate-600 px-5 text-white shadow-none hover:bg-slate-700"
+                    >
+                      Close Guide
                     </Button>
                   ) : (
-                    <Button variant="default" size="sm" onClick={nextStep} className="flex items-center gap-1">
-                      Next
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={nextStep}
+                      className="flex h-[39px] flex-1 items-center gap-1 px-5 shadow-none"
+                    >
+                      Next Section
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
+                <div className="flex-1 rounded-lg bg-white p-4 px-0">
+                  <div className="mb-0 flex items-center justify-center gap-2 text-center text-[11px] font-bold uppercase text-slate-400">
+                    {steps[currentStep].title}
+                  </div>
+                  <div className="mb-3 text-base font-bold text-slate-600">{steps[currentStep].subtitle}</div>
+                  <div className="text-xs text-slate-600">{steps[currentStep].content}</div>
+                </div>
               </div>
             </div>
           </DialogDescription>
+          <DialogFooter>
+            <div className="mt-3 flex w-full flex-1 flex-col items-center border-t pt-4 text-left">
+              <div className="flex flex-row gap-x-2.5 text-sm">
+                <Button
+                  onClick={() => {
+                    window.open('https://www.anthropic.com/research/open-source-circuit-tracing', '_blank');
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex h-8 flex-1 flex-row items-center justify-center gap-x-2"
+                >
+                  <NewspaperIcon className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <div className="text-xs">Post by Anthropic</div>
+                  </div>
+                </Button>
+                <Button
+                  onClick={() => {
+                    window.open(
+                      'https://github.com/safety-research/circuit-tracer/blob/main/demos/circuit_tracing_tutorial.ipynb',
+                      '_blank',
+                    );
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex h-8 flex-1 flex-row items-center justify-center gap-x-2"
+                >
+                  <NotebookIcon className="h-4 w-4" />
+                  <div className="flex flex-row">
+                    <div className="text-xs">Jupyter Notebook - Gemma 2 2B Examples</div>
+                  </div>
+                </Button>
+                <Button
+                  onClick={() => {
+                    window.open('https://github.com/safety-research/circuit-tracer', '_blank');
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex h-8 flex-1 flex-row items-center justify-center gap-x-2"
+                >
+                  <GithubIcon className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <div className="text-xs">circuit-tracer - Generate Graphs & Interventions</div>
+                  </div>
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    window.open('https://transformer-circuits.pub/2025/attribution-graphs/methods.html', '_blank');
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex h-8 flex-1 flex-row items-center justify-center gap-x-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <div className="text-xs">Attribution Graphs Paper</div>
+                  </div>
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    window.open('https://transformer-circuits.pub/2025/attribution-graphs/biology.html', '_blank');
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="flex h-8 flex-1 flex-row items-center justify-center gap-x-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <div className="flex flex-col">
+                    <div className="text-xs">Claude 3.5 Haiku Study</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </DialogFooter>
         </DialogHeader>
       </DialogContent>
     </Dialog>
