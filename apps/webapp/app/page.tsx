@@ -142,7 +142,7 @@ export default function Page() {
           </Link>
           <Link
             href="/gemma-2-2b/graph"
-            className="flex w-[165px] max-w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 hover:bg-sky-700"
+            className="flex w-[165px] max-w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105 hover:bg-emerald-700"
           >
             <RocketIcon className="h-5 w-5" />
             <span>Launch</span>
