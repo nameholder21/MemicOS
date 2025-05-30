@@ -108,7 +108,8 @@ export default function GraphControls({
           }
         >
           <div className="pb-1 font-bold">How This Works</div>
-          {`Each node has an influence score, and then we sort nodes by influence and do a cumulative sum. So if the influences are [.1, .6, .3] then we end up with values [.6, .9, 1]. When we choose a %, we're keeping the most important nodes such that the sum of influence reaches X.`}
+          The nodes shown are always the most influential with respect to the output token. Increasing this score will
+          gradually include more nodes until their cumulative contribution is 100%.
         </CustomTooltip>
       )}
       {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
