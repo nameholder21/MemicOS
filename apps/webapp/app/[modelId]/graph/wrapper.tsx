@@ -22,8 +22,6 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
   const [currentStep, setCurrentStep] = useState(0);
   const searchParams = useSearchParams();
 
-  console.log('hasSlug', hasSlug);
-
   // Array of images for each step
   const stepImages = [
     '/images/explainer.jpg', // Getting Started
