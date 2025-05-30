@@ -359,6 +359,15 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                   className="text-sky-600 hover:text-sky-800 hover:underline"
                 >
                   Github
+                </a>{' '}
+                |{' '}
+                <a
+                  href="https://www.anthropic.com/research/open-source-circuit-tracing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sky-600 hover:text-sky-800 hover:underline"
+                >
+                  Anthropic Post
                 </a>
               </div>
             </div>

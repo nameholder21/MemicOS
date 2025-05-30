@@ -20,8 +20,8 @@ import {
   BookOpenText,
   Computer,
   Github,
+  Microscope,
   PictureInPicture,
-  Rocket,
   RocketIcon,
   School,
   Search,
@@ -92,7 +92,9 @@ export default function Page() {
           <div className="px-20 py-1 text-xs font-bold text-sky-600 sm:absolute sm:-left-20 sm:top-4 sm:rotate-[-36deg] sm:bg-yellow-400 sm:text-[9px] sm:text-slate-700">
             New: May 2025
           </div>
-          <div className="mt-1 text-base font-bold text-slate-800 sm:text-base">Circuit Tracer, Now On MemicOS</div>
+          <div className="mt-1 text-base font-bold text-slate-800 sm:text-base">
+            MemicOS x Anthropic: Circuit Tracer
+          </div>
           <div className="mt-1 text-sm font-normal text-slate-700 sm:text-[13px]">
             Generate and share attribution graphs, based on Anthropic&apos;s{' '}
             <a
@@ -115,6 +117,27 @@ export default function Page() {
             >
               <Github className="h-5 w-5" />
               <span>GitHub</span>
+            </Button>
+          </Link>
+          <Link href="https://www.anthropic.com/research/open-source-circuit-tracing" target="_blank" rel="noreferrer">
+            <Button
+              variant="default"
+              size="lg"
+              className="w-[165px] max-w-[165px] gap-x-2 bg-[#cc785c] text-[#191919] transition-all hover:scale-105 hover:bg-[#d4a27f]"
+            >
+              <svg
+                fill="#000000"
+                fill-rule="evenodd"
+                height="1.2em"
+                style={{ flex: 'none', lineHeight: '1' }}
+                viewBox="0 0 24 24"
+                width="1.2em"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <title>Anthropic</title>
+                <path d="M13.827 3.52h3.603L24 20h-3.603l-6.57-16.48zm-7.258 0h3.767L16.906 20h-3.674l-1.343-3.461H5.017l-1.344 3.46H0L6.57 3.522zm4.132 9.959L8.453 7.687 6.205 13.48H10.7z" />
+              </svg>{' '}
+              <span>Blog Post</span>
             </Button>
           </Link>
           <Link
@@ -189,7 +212,7 @@ export default function Page() {
             href="/gemma-scope"
             className="flex w-[220px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
           >
-            <Rocket className="h-5 w-5" />
+            <Microscope className="h-5 w-5" />
             <span>Tutorial: Gemma Scope</span>
           </Link>
         </div>
