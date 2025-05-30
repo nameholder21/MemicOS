@@ -1,6 +1,7 @@
 import CustomTooltip from '@/components/custom-tooltip';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
+import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import * as RadixSlider from '@radix-ui/react-slider';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
@@ -57,60 +58,59 @@ export default function GraphControls({
   return (
     <div className="absolute -top-2 left-4 z-10 flex items-center space-x-2.5">
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
-        <CustomTooltip
-          trigger={
-            <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
-              <Label
-                htmlFor="densityThreshold"
-                className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600"
-              >
-                Show Nodes Accounting for
-              </Label>
-              <Input
-                id="pruningThreshold"
-                name="pruningThreshold"
-                type="number"
-                value={Math.round(localPruningThreshold * 100)
-                  .toString()
-                  .padStart(2, '0')}
-                onChange={(e) => {
-                  const newValue = Number(e.target.value) / 100;
-                  setLocalPruningThreshold(newValue);
-                  debouncedUpdatePruningThreshold(newValue);
-                }}
-                className="mx-0.5 mr-2 h-[18px] w-9 rounded border-slate-300 bg-white px-2 py-0 text-left font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
-                min={0}
-                max={99}
-                step={1}
-              />
-              <div className="-ml-[20px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
-              <div className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600">
-                of the Influence
-              </div>
-              <RadixSlider.Root
-                name="pruningThreshold"
-                value={[localPruningThreshold]}
-                onValueChange={(newVal) => {
-                  setLocalPruningThreshold(newVal[0]);
-                  debouncedUpdatePruningThreshold(newVal[0]);
-                }}
-                min={0.2}
-                max={0.99}
-                step={0.01}
-                className="relative flex h-4 w-14 min-w-14 flex-1 touch-none select-none items-center"
-              >
-                <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-300">
-                  <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
-                </RadixSlider.Track>
-                <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
-              </RadixSlider.Root>
-            </div>
-          }
-        >
-          <div className="pb-1 font-bold">How This Works</div>
-          The nodes shown are always the most influential with respect to the output token. Increasing this score will
-          gradually include more nodes until their cumulative contribution is 100%.
-        </CustomTooltip>
+        <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
+          <Label
+            htmlFor="densityThreshold"
+            className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600"
+          >
+            Show Nodes Accounting for
+          </Label>
+          <Input
+            id="pruningThreshold"
+            name="pruningThreshold"
+            type="number"
+            value={Math.round(localPruningThreshold * 100)
+              .toString()
+              .padStart(2, '0')}
+            onChange={(e) => {
+              const newValue = Number(e.target.value) / 100;
+              setLocalPruningThreshold(newValue);
+              debouncedUpdatePruningThreshold(newValue);
+            }}
+            className="mx-0.5 mr-2 h-[18px] w-9 rounded border-slate-300 bg-white px-2 py-0 text-left font-mono text-[10px] leading-none sm:text-[10px] md:text-[10px]"
+            min={0}
+            max={99}
+            step={1}
+          />
+          <div className="-ml-[20px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
+          <div className="mr-1 cursor-default select-none text-center text-[9px] font-medium leading-[10px] text-slate-600">
+            of the Influence
+          </div>
+          <RadixSlider.Root
+            name="pruningThreshold"
+            value={[localPruningThreshold]}
+            onValueChange={(newVal) => {
+              setLocalPruningThreshold(newVal[0]);
+              debouncedUpdatePruningThreshold(newVal[0]);
+            }}
+            min={0.2}
+            max={0.99}
+            step={0.01}
+            className="relative flex h-4 w-14 min-w-14 flex-1 touch-none select-none items-center"
+          >
+            <RadixSlider.Track className="relative h-1 w-full flex-grow overflow-hidden rounded-full bg-slate-300">
+              <RadixSlider.Range className="absolute h-full rounded-full bg-sky-600" />
+            </RadixSlider.Track>
+            <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
+          </RadixSlider.Root>
+          <CustomTooltip
+            trigger={<QuestionMarkCircledIcon className="ml-1.5 h-3.5 w-3.5 cursor-pointer text-slate-500" />}
+          >
+            <div className="pb-1 font-bold">How This Works</div>
+            The nodes shown are always the most influential with respect to the output token. Increasing this score will
+            gradually include more nodes until their cumulative contribution is 100%.
+          </CustomTooltip>
+        </div>
       )}
       {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
         <div className="flex flex-row items-center rounded bg-slate-200 px-2 py-0.5">
