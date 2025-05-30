@@ -349,12 +349,6 @@ function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     }
   };
 
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
   const goToStep = (stepIndex: number) => {
     setCurrentStep(stepIndex);
   };
