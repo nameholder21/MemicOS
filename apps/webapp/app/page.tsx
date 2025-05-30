@@ -113,10 +113,13 @@ export default function Page() {
             <Button
               variant="default"
               size="lg"
-              className="w-[165px] max-w-[165px] gap-x-2 bg-slate-800 text-white transition-all hover:scale-105 hover:bg-slate-900"
+              className="flex w-[165px] max-w-[165px] flex-row gap-x-2 bg-slate-800 text-white transition-all hover:scale-105 hover:bg-slate-900"
             >
               <Github className="h-5 w-5" />
-              <span>GitHub</span>
+              <div className="flex flex-col gap-y-0.5">
+                <span className="text-[12px] leading-none">GitHub</span>
+                <div className="font-mono text-[8px] font-bold leading-none">CIRCUIT-TRACER</div>
+              </div>
             </Button>
           </Link>
           <Link href="https://www.anthropic.com/research/open-source-circuit-tracing" target="_blank" rel="noreferrer">
@@ -202,18 +205,31 @@ export default function Page() {
           </div>
         </div>
         <div className="flex flex-col gap-x-2.5 gap-y-2 sm:flex-row">
+          <Link href="https://github.com/hijohnnylin/memicos" target="_blank" rel="noreferrer">
+            <Button
+              variant="default"
+              size="lg"
+              className="flex w-[165px] max-w-[165px] flex-row gap-x-2 bg-slate-800 text-white transition-all hover:scale-105 hover:bg-slate-900"
+            >
+              <Github className="h-5 w-5" />
+              <div className="flex flex-col gap-y-0.5">
+                <span className="text-[12px] leading-none">GitHub</span>
+                <div className="font-mono text-[8px] font-bold leading-none">MEMICOS</div>
+              </div>
+            </Button>
+          </Link>
           <Link href="https://docs.memicos.org" target="_blank" rel="noreferrer">
-            <Button variant="default" size="lg" className="w-[220px] gap-x-2 bg-sky-600 text-white hover:bg-sky-700">
+            <Button variant="default" size="lg" className="w-[165px] gap-x-2 bg-sky-600 text-white hover:bg-sky-700">
               <BookOpenText className="h-5 w-5" />
-              <span>Getting Started</span>
+              <span>Get Started</span>
             </Button>
           </Link>
           <Link
             href="/gemma-scope"
-            className="flex w-[220px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
+            className="flex w-[165px] flex-row items-center justify-center gap-x-2 rounded-md bg-emerald-600 px-0 py-2.5 text-sm font-medium text-white shadow transition-all hover:scale-105"
           >
             <Microscope className="h-5 w-5" />
-            <span>Tutorial: Gemma Scope</span>
+            <span>Gemma Scope</span>
           </Link>
         </div>
       </div>
