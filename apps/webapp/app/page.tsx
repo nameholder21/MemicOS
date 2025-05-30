@@ -99,7 +99,7 @@ export default function Page() {
             Generate and share attribution graphs, based on Anthropic&apos;s{' '}
             <a
               href="https://transformer-circuits.pub/2025/attribution-graphs/methods.html"
-              className="text-sky-600 hover:underline"
+              className="font-medium text-[#cc785c] hover:underline"
               target="_blank"
               rel="noopener noreferrer"
             >
