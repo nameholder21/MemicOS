@@ -59,8 +59,8 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
       textColor: 'text-indigo-600',
       content: (
         <div className="flex flex-col gap-y-3 text-left text-sm">
-          This is the guide for using and interpreting each panel of Circuit Tracer. But if you want to just jump in and
-          read the guide later, you can generate a graph with a custom prompt now.
+          This is the guide for using and interpreting each panel of Circuit Tracer. If you want to read the guide
+          later, you can generate a graph with a custom prompt now.
           <Button
             onClick={() => {
               setIsWelcomeModalOpen(false);
@@ -73,11 +73,13 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
           </Button>
           <p className="mt-2">
             Want to see some examples first? Here are graphs that we&apos;ve &quot;solved&quot;, meaning we&apos;ve
-            identified an annotated subgraph that explains key internal reasoning steps. And also some graphs that are
-            still unsolved. Share if you&apos;ve think you&apos;ve got an answer!
+            identified an annotated subgraph that explains key internal reasoning steps. Share if you&apos;ve got an
+            answer for the unsolved graphs!
           </p>
-          <div className="text-center text-xs font-medium">Solved Graphs</div>
-          <ul className="-mt-2.5 ml-5 list-disc text-[13px]">
+          <div className="pt-2 text-center text-[11px] font-medium uppercase leading-none text-slate-400">
+            Solved Graphs
+          </div>
+          <ul className="-mt-2 ml-5 list-disc text-[13px]">
             <li className="">
               <Link
                 className="text-sky-600 hover:underline"
@@ -128,8 +130,10 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </Link>
             </li>
           </ul>
-          <div className="text-center text-xs font-medium">Unsolved Graphs</div>
-          <ul className="-mt-2.5 ml-5 list-disc text-[13px]">
+          <div className="pt-2 text-center text-[11px] font-medium uppercase leading-none text-slate-400">
+            Unsolved Graphs
+          </div>
+          <ul className="-mt-2 ml-5 list-disc text-[13px]">
             <li>
               <Link
                 className="leading-snug text-sky-600 hover:underline"
@@ -161,8 +165,8 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
               </Link>
             </li>
           </ul>
-          <p className="mt-1 text-center">
-            Click <strong>Next Section</strong> to continue.
+          <p className="mt-2.5 text-center">
+            Click <strong>Next</strong> below to continue.
           </p>
         </div>
       ),
@@ -381,9 +385,9 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
             </div>
             <div className="flex flex-row gap-x-3">
               <div className="mt-0 flex w-1/4 flex-col">
-                <div className="flex-1 rounded-lg bg-white p-4 px-0 pb-2">
+                <div className="flex-1 rounded-lg bg-white p-4 px-0 pb-2 pt-2.5">
                   <div className="mb-0 text-base font-bold text-slate-600">{steps[currentStep].subtitle}</div>
-                  <div className="mb-3 flex items-center justify-center gap-2 text-center text-[11px] font-bold uppercase text-slate-400">
+                  <div className="mb-3.5 mt-1 flex items-center justify-center gap-2 text-center text-[11px] font-medium uppercase leading-none text-slate-400">
                     {steps[currentStep].title}
                   </div>
                   <div className="text-xs text-slate-600">{steps[currentStep].content}</div>
@@ -405,7 +409,7 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                       onClick={nextStep}
                       className="gap-1f flex h-[39px] flex-1 items-center px-5 shadow-none"
                     >
-                      Next Section
+                      Next
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   )}
