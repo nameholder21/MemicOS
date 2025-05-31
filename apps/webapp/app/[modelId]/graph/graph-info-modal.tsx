@@ -41,7 +41,7 @@ export default function GraphInfoModal({ cltGraph, selectedMetadataGraph }: Grap
         className="flex h-12 items-center justify-center gap-x-2 border-slate-300 text-xs text-slate-300"
       >
         <Info className="h-4 w-4" />
-        Info
+        <span className="hidden sm:block">Graph Info</span>
       </Button>
     );
   }
