@@ -684,6 +684,13 @@ export function featureTypeToText(type: string): string {
   return '●';
 }
 
+export function featureTypeToTextSize(isMobile: boolean, type: string): number {
+  if (isMobile && type === 'mlp reconstruction error') {
+    return 7;
+  }
+  return 14;
+}
+
 export type AnthropicFeatureExample = {
   'ha-haiku35_resampled'?: boolean;
   is_repeated_datapoint: boolean;
