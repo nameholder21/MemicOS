@@ -1196,7 +1196,7 @@ export default function Subgraph() {
             )}
 
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
-            <div className="absolute flex h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm">
+            <div className="absolute hidden h-full min-h-full w-full flex-col items-start justify-center gap-y-1.5 rounded-xl bg-white/70 px-5 text-slate-700 backdrop-blur-sm sm:flex">
               <div className="mb-1.5 w-full text-center text-lg font-bold">Creating a Subgraph</div>
               <div>
                 <strong>
@@ -1223,10 +1223,17 @@ export default function Subgraph() {
               </div>
             </div>
           )}
+          {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
+            <div className="mt-10 block w-full px-4 text-center text-sm font-medium text-slate-500 sm:hidden">
+              Subgraph functionality is severely reduced on mobile.
+              <br />
+              Please use a larger screen with a keyboard.
+            </div>
+          )}
           <button
             type="button"
             onClick={() => openWelcomeModalToStep(4)}
-            className="absolute left-3 top-3 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+            className="absolute left-3 top-3 hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
             aria-label="Open User Guide"
           >
             ?
@@ -1236,7 +1243,7 @@ export default function Subgraph() {
             size="sm"
             title="Copy Graph + Subgraph + Custom Labels to Clipboard"
             aria-label="Copy Graph + Subgraph + Custom Labels to Clipboard"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-red-100 hover:bg-slate-200 hover:text-slate-600`}
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute hidden sm:flex'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-200 hover:text-slate-600`}
             onClick={() => {
               setIsCopyModalOpen(true);
             }}

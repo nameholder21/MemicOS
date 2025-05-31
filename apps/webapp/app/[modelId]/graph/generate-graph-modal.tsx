@@ -411,12 +411,12 @@ export default function GenerateGraphModal() {
                     {errors.slug && touched.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
                   </div>
 
-                  <div className="flex items-center pt-1">
+                  <div className="hidden items-center pt-1 sm:flex">
                     <div className="mr-3 flex-1 border-t border-slate-200" />
                     <span className="text-[11px] text-slate-500">Advanced Settings</span>
                     <div className="ml-3 flex-1 border-t border-slate-200" />
                   </div>
-                  <div className="flex flex-row gap-x-3 pt-2">
+                  <div className="hidden flex-row gap-x-3 pt-2 sm:flex">
                     <div className="flex-1">
                       <Label
                         htmlFor="modelId"
@@ -492,7 +492,7 @@ export default function GenerateGraphModal() {
                   </div>
 
                   {/* Attribution Settings Group */}
-                  <div className="space-y-0 pt-3">
+                  <div className="hidden space-y-0 pt-3 sm:block">
                     <div className="text-left text-[10px] font-medium uppercase leading-none text-slate-400">
                       Attribution
                     </div>
@@ -585,7 +585,7 @@ export default function GenerateGraphModal() {
                   </div>
 
                   {/* Pruning Settings Group */}
-                  <div className="space-y-0 pb-3 pt-3">
+                  <div className="hidden space-y-0 pb-3 pt-3 sm:block">
                     <div className="text-left text-[10px] font-medium uppercase leading-none text-slate-400">
                       Pruning
                     </div>

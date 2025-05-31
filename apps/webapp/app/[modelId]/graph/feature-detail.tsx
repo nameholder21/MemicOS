@@ -123,7 +123,7 @@ export default function GraphFeatureDetail() {
   const memoizedFeatureDetail = useMemo(() => {
     if (!node)
       return (
-        <div className="relative flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
+        <div className="relative hidden h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700 sm:flex">
           <div className="mb-2 text-lg font-bold">Feature Details</div>
           <div className="">Hover over a node in the graph to see its details and edit its label.</div>
 
@@ -139,7 +139,7 @@ export default function GraphFeatureDetail() {
       );
 
     return (
-      <div className="flex max-h-full w-full flex-col overflow-y-scroll">
+      <div className="hidden max-h-full w-full flex-col overflow-y-scroll sm:flex">
         <div className="flex flex-row items-center justify-between gap-x-1.5 pl-3 pt-1 text-sm font-medium text-slate-600">
           <div className="flex flex-1 flex-row items-center gap-x-2">
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
