@@ -1,16 +1,9 @@
 'use client';
 
 import { useGlobalContext } from '@/components/provider/global-provider';
-import { useGraphContext } from '@/components/provider/graph-provider';
+import { useGraphModalContext } from '@/components/provider/graph-modal-provider';
 import { Button } from '@/components/shadcn/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/shadcn/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { LoadingSquare } from '@/components/svg/loading-square';
@@ -42,7 +35,7 @@ import * as RadixSelect from '@radix-ui/react-select';
 import * as RadixSlider from '@radix-ui/react-slider';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
 import _ from 'lodash';
-import { ChevronDownIcon, ChevronUpIcon, Plus } from 'lucide-react';
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
@@ -103,7 +96,7 @@ const formatCountdown = (totalSeconds: number): string => {
 };
 
 export default function GenerateGraphModal() {
-  const { isGenerateGraphModalOpen, setIsGenerateGraphModalOpen } = useGraphContext();
+  const { isGenerateGraphModalOpen, setIsGenerateGraphModalOpen } = useGraphModalContext();
   const [generationResult, setGenerationResult] = useState<GenerateGraphResponse | null>(null);
   const [tokenizedPrompt, setTokenizedPrompt] = useState<TokenizeResponse | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
@@ -292,17 +285,6 @@ export default function GenerateGraphModal() {
 
   return (
     <Dialog open={isGenerateGraphModalOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          title="Generate Graph"
-          aria-label="Generate Graph"
-          size="sm"
-          className="flex h-12 items-center justify-center whitespace-nowrap border-emerald-500 bg-emerald-50 text-xs font-medium leading-none text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700"
-        >
-          <Plus className="mr-1.5 h-4 w-4" /> New Graph
-        </Button>
-      </DialogTrigger>
       <DialogContent className="z-[10001] cursor-default select-none bg-white text-slate-700 sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Generate New Graph</DialogTitle>

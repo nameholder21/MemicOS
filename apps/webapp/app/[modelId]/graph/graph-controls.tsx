@@ -1,4 +1,5 @@
 import CustomTooltip from '@/components/custom-tooltip';
+import { useGraphModalContext } from '@/components/provider/graph-modal-provider';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
@@ -23,6 +24,7 @@ export default function GraphControls({
     visState.pruningThreshold || selectedGraph?.metadata.node_threshold || 0.5,
   );
   const [localDensityThreshold, setLocalDensityThreshold] = useState(visState.densityThreshold || 0.99);
+  const { openWelcomeModalToStep } = useGraphModalContext();
 
   // Debounced update functions
   const debouncedUpdatePruningThreshold = useCallback(
@@ -56,11 +58,20 @@ export default function GraphControls({
   }, [selectedGraph?.metadata.node_threshold, visState.pruningThreshold]);
 
   return (
-    <div className="absolute -top-2 left-4 z-10 flex items-center space-x-2.5">
+    <div className="absolute -top-2 left-1 z-10 flex items-center space-x-2.5">
+      <button
+        type="button"
+        onClick={() => openWelcomeModalToStep(2)}
+        className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+        aria-label="Open User Guide"
+      >
+        ?
+      </button>
+
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
         <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
           <Label
-            htmlFor="densityThreshold"
+            htmlFor="pruningThreshold"
             className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600"
           >
             Show Nodes Accounting for

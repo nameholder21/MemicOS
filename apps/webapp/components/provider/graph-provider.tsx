@@ -49,7 +49,7 @@ export const GRAPH_PREFETCH_ACTIVATIONS_COUNT = 3;
 const DEFAULT_DENSITY_THRESHOLD = 0.99;
 const PREFERRED_EXPLANATION_TYPE_NAME = 'np_max-act-logits';
 
-// Define the context type
+// Define the main graph context type (without modal state)
 type GraphContextType = {
   modelIdToMetadataMap: ModelToGraphMetadatasMap;
   selectedModelId: string;
@@ -103,18 +103,6 @@ type GraphContextType = {
 
   // setFullNPFeatureDetail
   setFullNPFeatureDetail: (setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => void;
-
-  // Copy modal state
-  isCopyModalOpen: boolean;
-  setIsCopyModalOpen: (isOpen: boolean) => void;
-
-  // Welcome modal state
-  isWelcomeModalOpen: boolean;
-  setIsWelcomeModalOpen: (isOpen: boolean) => void;
-
-  // Generate graph modal state
-  isGenerateGraphModalOpen: boolean;
-  setIsGenerateGraphModalOpen: (isOpen: boolean) => void;
 };
 
 // Create the context with a default value
@@ -207,9 +195,6 @@ export function GraphProvider({
 
   const hasAppliedInitialOverrides = useRef(false);
   const [isEditingLabel, setIsEditingLabel] = useState<boolean>(false);
-  const [isCopyModalOpen, setIsCopyModalOpen] = useState<boolean>(false);
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(false);
-  const [isGenerateGraphModalOpen, setIsGenerateGraphModalOpen] = useState<boolean>(false);
 
   // Ref for the current AbortController
   const currentAbortController = useRef<AbortController | null>(null);
@@ -956,7 +941,7 @@ export function GraphProvider({
     [selectedGraph],
   );
 
-  // Provide the context value
+  // Provide the context value (without modal state)
   const contextValue = useMemo(
     () => ({
       modelIdToMetadataMap,
@@ -988,12 +973,6 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
-      isCopyModalOpen,
-      setIsCopyModalOpen,
-      isWelcomeModalOpen,
-      setIsWelcomeModalOpen,
-      isGenerateGraphModalOpen,
-      setIsGenerateGraphModalOpen,
     }),
     [
       modelIdToMetadataMap,
@@ -1018,12 +997,6 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
-      isCopyModalOpen,
-      setIsCopyModalOpen,
-      isWelcomeModalOpen,
-      setIsWelcomeModalOpen,
-      isGenerateGraphModalOpen,
-      setIsGenerateGraphModalOpen,
     ],
   );
 

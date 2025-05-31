@@ -1,12 +1,13 @@
 /* eslint-disable no-param-reassign */
 
+import { useGraphModalContext } from '@/components/provider/graph-modal-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { useGraphStateContext } from '@/components/provider/graph-state-provider';
 import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check, Circle, HelpCircleIcon, Share2, Trash2, XIcon } from 'lucide-react';
+import { Check, Circle, Share2, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
 import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
@@ -84,7 +85,6 @@ export default function Subgraph() {
     getOverrideClerpForNode,
     makeTooltipText,
     resetSelectedGraphToDefaultVisState,
-    setIsCopyModalOpen,
   } = useGraphContext();
 
   // Use the new graph state context
@@ -96,6 +96,8 @@ export default function Subgraph() {
     registerHoverCallback,
     registerClickedCallback,
   } = useGraphStateContext();
+
+  const { setIsCopyModalOpen, openWelcomeModalToStep } = useGraphModalContext();
 
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
@@ -1221,24 +1223,14 @@ export default function Subgraph() {
               </div>
             </div>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute left-3 top-3 h-8 w-28 gap-x-1.5 rounded-full border-0 bg-slate-100 px-0 py-0 text-slate-600 hover:bg-slate-200'}`}
-            onClick={() => setShowSubgraphHelp(!showSubgraphHelp)}
+          <button
+            type="button"
+            onClick={() => openWelcomeModalToStep(4)}
+            className="absolute left-3 top-3 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+            aria-label="Open User Guide"
           >
-            {showSubgraphHelp ? (
-              <>
-                <XIcon className="h-5 w-5" />
-                <span>Hide Help</span>
-              </>
-            ) : (
-              <>
-                <HelpCircleIcon className="h-5 w-5" />
-                <span>Show Help</span>
-              </>
-            )}
-          </Button>
+            ?
+          </button>
           <Button
             variant="outline"
             size="sm"

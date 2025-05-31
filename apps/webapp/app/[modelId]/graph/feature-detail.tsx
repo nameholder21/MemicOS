@@ -1,3 +1,4 @@
+import { useGraphModalContext } from '@/components/provider/graph-modal-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { useGraphStateContext } from '@/components/provider/graph-state-provider';
 import { Button } from '@/components/shadcn/button';
@@ -29,6 +30,8 @@ export default function GraphFeatureDetail() {
   const [tempLabel, setTempLabel] = useState('');
   const activationContainerRef = useRef<HTMLDivElement>(null);
   const groupRef = useRef<any>(null);
+
+  const { openWelcomeModalToStep } = useGraphModalContext();
 
   // Track current displayed node to avoid unnecessary updates
   const currentDisplayedNodeRef = useRef<string | null>(null);
@@ -120,9 +123,18 @@ export default function GraphFeatureDetail() {
   const memoizedFeatureDetail = useMemo(() => {
     if (!node)
       return (
-        <div className="flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
+        <div className="relative flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
           <div className="mb-2 text-lg font-bold">Feature Details</div>
           <div className="">Hover over a node in the graph to see its details and edit its label.</div>
+
+          <button
+            type="button"
+            onClick={() => openWelcomeModalToStep(5)}
+            className="absolute right-0 top-1 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+            aria-label="Open User Guide"
+          >
+            ?
+          </button>
         </div>
       );
 
@@ -219,6 +231,15 @@ export default function GraphFeatureDetail() {
           {!(node.feature_type === 'embedding' || node.feature_type === 'logit') && (
             <GraphFeatureLink selectedGraph={selectedGraph} node={node} />
           )}
+
+          <button
+            type="button"
+            onClick={() => openWelcomeModalToStep(5)}
+            className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+            aria-label="Open User Guide"
+          >
+            ?
+          </button>
         </div>
         {node.featureDetailNP ? (
           <div className="ml-3 flex flex-1 overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
