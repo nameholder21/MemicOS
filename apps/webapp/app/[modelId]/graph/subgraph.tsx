@@ -1225,7 +1225,7 @@ export default function Subgraph() {
           )}
           {(visState.pinnedIds.length === 0 || showSubgraphHelp) && (
             <div className="mt-10 block w-full px-4 text-center text-sm font-medium text-slate-500 sm:hidden">
-              Subgraph functionality is severely reduced on mobile.
+              Subgraph functionality is reduced on mobile.
               <br />
               Please use a larger screen with a keyboard.
             </div>
