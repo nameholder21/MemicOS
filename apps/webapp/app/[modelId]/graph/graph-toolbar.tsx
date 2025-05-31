@@ -156,7 +156,7 @@ export default function GraphToolbar() {
                   e.stopPropagation();
                 }
               }}
-              className="inline-flex h-12 w-52 max-w-52 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 text-sm leading-none focus:outline-none focus:ring-0"
+              className="inline-flex h-12 w-40 max-w-40 items-center justify-between gap-1 rounded border border-slate-300 bg-white px-4 py-2 pr-2 text-sm leading-none focus:outline-none focus:ring-0"
             >
               <Select.Value>
                 <div className="flex flex-col items-start justify-start gap-y-0.5 text-left">
