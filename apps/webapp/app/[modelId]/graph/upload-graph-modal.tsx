@@ -240,7 +240,7 @@ export default function UploadGraphModal() {
           title="Upload Graph"
           aria-label="Upload Graph"
           size="sm"
-          className="flex h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50"
+          className="hidden h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50 sm:flex"
         >
           <UploadCloud className="h-4 w-4" /> Upload
         </Button>

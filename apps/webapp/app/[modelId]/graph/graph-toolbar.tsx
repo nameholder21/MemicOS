@@ -294,7 +294,9 @@ export default function GraphToolbar() {
                       ))}
                     </div>
                     <div className="flex w-full flex-row items-center justify-between">
-                      <div className="font-mono text-[10px] font-medium text-sky-700">{selectedMetadataGraph.slug}</div>
+                      <div className="whitespace-pre font-mono text-[10px] font-medium text-sky-700">
+                        {selectedMetadataGraph.slug}
+                      </div>
                     </div>
                   </div>
                 </Select.Value>
