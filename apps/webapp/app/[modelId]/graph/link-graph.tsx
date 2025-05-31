@@ -1214,7 +1214,7 @@ export default function LinkGraph() {
   ]);
 
   return (
-    <div className="link-graph relative mt-3 flex-1 select-none">
+    <div className="link-graph relative -mr-4 mt-3 flex-1 select-none sm:mr-0">
       {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Link Graph</div>
         <CustomTooltip wide trigger={<QuestionMarkCircledIcon className="h-4 w-4 text-slate-500" />}>
