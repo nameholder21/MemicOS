@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { GRAPH_ADMIN_BROWSE_KEY } from '@/lib/env';
+import { GRAPH_ADMIN_BROWSE_KEY, NEXT_PUBLIC_URL } from '@/lib/env';
 import { notFound } from 'next/navigation';
 
 export default async function Page({
@@ -48,7 +48,12 @@ export default async function Page({
                   {metadata.createdAt.toLocaleString()}
                 </td>
                 <td className="max-w-48 overflow-x-hidden truncate whitespace-nowrap px-6 py-4 text-sm font-medium text-sky-600">
-                  <a href={metadata.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  <a
+                    href={`${NEXT_PUBLIC_URL}/${metadata.modelId}/graph?slug=${metadata.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
                     {metadata.slug}
                   </a>
                 </td>
