@@ -5,16 +5,25 @@ import {
   modelIdToModelDisplayName,
 } from '@/app/[modelId]/graph/utils';
 import { useGlobalContext } from '@/components/provider/global-provider';
+import { useGraphModalContext } from '@/components/provider/graph-modal-provider';
 import { useGraphContext } from '@/components/provider/graph-provider';
 import { Button } from '@/components/shadcn/button';
 import * as Select from '@radix-ui/react-select';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
-import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, HelpCircle, Share2, Trash, UploadCloud } from 'lucide-react';
+import {
+  BookOpenIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon,
+  Plus,
+  Share2,
+  Trash,
+  UploadCloud,
+} from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next-nprogress-bar';
 import { useSearchParams } from 'next/navigation';
 import { Fragment, useState } from 'react';
-import GenerateGraphModal from './generate-graph-modal';
 import GraphInfoModal from './graph-info-modal';
 import UploadGraphModal from './upload-graph-modal';
 
@@ -34,9 +43,8 @@ export default function GraphToolbar() {
     filterGraphsSetting,
     setFilterGraphsSetting,
     shouldShowGraphToCurrentUser,
-    setIsCopyModalOpen,
-    setIsWelcomeModalOpen,
   } = useGraphContext();
+  const { setIsWelcomeModalOpen, setIsCopyModalOpen, setIsGenerateGraphModalOpen } = useGraphModalContext();
   const { globalModels } = useGlobalContext();
 
   if (isEmbed) {
@@ -108,7 +116,7 @@ export default function GraphToolbar() {
           className="relative flex h-12 items-center justify-center whitespace-nowrap border-sky-500 bg-sky-50 text-xs font-medium leading-none text-sky-600 hover:bg-sky-100 hover:text-sky-700"
           onClick={() => setIsWelcomeModalOpen(true)}
         >
-          <HelpCircle className="mr-1.5 h-4 w-4" /> User Guide
+          <BookOpenIcon className="mr-1.5 h-4 w-4" /> User Guide
           {(() => {
             try {
               const hasVisited = localStorage.getItem('circuit-tracer-visited');
@@ -121,7 +129,17 @@ export default function GraphToolbar() {
             return null;
           })()}
         </Button>
-        <GenerateGraphModal />
+
+        <Button
+          variant="outline"
+          title="Generate Graph"
+          aria-label="Generate Graph"
+          size="sm"
+          className="flex h-12 items-center justify-center whitespace-nowrap border-emerald-500 bg-emerald-50 text-xs font-medium leading-none text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700"
+          onClick={() => setIsGenerateGraphModalOpen(true)}
+        >
+          <Plus className="mr-1.5 h-4 w-4" /> New Graph
+        </Button>
 
         <div className="flex flex-col">
           <div className="w-full pb-0.5 text-center text-[9px] font-medium uppercase text-slate-400">Select Model</div>
