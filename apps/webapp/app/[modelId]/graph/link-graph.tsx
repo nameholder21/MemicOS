@@ -968,6 +968,7 @@ export default function LinkGraph() {
         return `translate(${pos[0]},${pos[1]})`;
       })
       .text((d) => featureTypeToText(d.feature_type))
+      .attr('font-family', 'Arial')
       .attr('font-size', 14)
       .attr('fill', (d) => d.nodeColor || '#000')
       .attr('stroke', '#000')
