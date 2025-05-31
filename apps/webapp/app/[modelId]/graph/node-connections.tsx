@@ -196,7 +196,7 @@ export default function GraphNodeConnections() {
   }, [clickedNode]);
 
   return (
-    <div className="node-connections relative mt-2 flex max-w-[420px] flex-1 flex-row overflow-y-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm transition-all">
+    <div className="node-connections relative mt-2 hidden max-w-[420px] flex-1 flex-row overflow-y-hidden rounded-lg border border-slate-200 bg-white px-2 py-2 shadow-sm transition-all sm:flex">
       {/* <div className="absolute top-0 mx-auto h-3 w-24 rounded-b bg-[#f0f] text-[6px] text-white">Clicked Node</div> */}
 
       <div className="flex w-full flex-col text-slate-700">

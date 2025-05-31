@@ -21,9 +21,9 @@ export default function GraphWrapper({ hasSlug }: { hasSlug: boolean }) {
   return (
     <GraphModalProvider>
       <div
-        className={`${isEmbed ? 'h-[calc(100%_-_20px)] max-h-screen min-h-[calc(100%_-_20px)]' : 'h-[calc(100vh_-_75px)] max-h-[calc(100vh_-_75px)] min-h-[calc(100vh_-_75px)]'} flex w-full flex-col justify-center px-4 text-slate-700`}
+        className={`${isEmbed ? 'h-[calc(100%_-_20px)] max-h-screen min-h-[calc(100%_-_20px)]' : 'h-[calc(100vh_-_75px)] max-h-[calc(100vh_-_75px)] min-h-[calc(100vh_-_75px)]'} flex w-full flex-col justify-center px-1 text-slate-700 sm:px-4`}
       >
-        <div className="flex w-full flex-col items-center justify-center sm:hidden">
+        {/* <div className="flex w-full flex-col items-center justify-center sm:hidden">
           <div className="mb-2 w-full pt-8 text-center text-sm text-sky-700">
             <span className="text-4xl">⚠️</span>
             <br />
@@ -70,8 +70,9 @@ export default function GraphWrapper({ hasSlug }: { hasSlug: boolean }) {
               Back to MemicOS
             </a>
           </div>
-        </div>
-        <div className="hidden w-full flex-1 flex-col items-center justify-center overflow-hidden sm:flex">
+        </div> */}
+
+        <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden">
           {/* <div>{JSON.stringify(visState)}</div> */}
           <div className="flex w-full flex-col">
             <GraphToolbar />
@@ -92,7 +93,7 @@ export default function GraphWrapper({ hasSlug }: { hasSlug: boolean }) {
                   <GraphNodeConnections />
                 </div>
                 <div className="flex h-[50%] w-full flex-row pb-1 pt-1">
-                  <div className="w-[53%] min-w-[53%] max-w-[53%]">
+                  <div className="w-full sm:w-[53%] sm:min-w-[53%] sm:max-w-[53%]">
                     <Subgraph />
                   </div>
                   <GraphFeatureDetail />

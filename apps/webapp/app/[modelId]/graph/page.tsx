@@ -246,6 +246,9 @@ export default async function Page({
           densityThreshold || (searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined)
         }
       >
+        <div className="flex w-full flex-col bg-red-200 px-3 py-1.5 text-center text-[11px] font-medium text-red-700 sm:hidden">
+          Use a larger screen to view this page. UI is simplified for mobile.
+        </div>
         <GraphWrapper hasSlug={!!searchParams.slug} />
       </GraphProvider>
     </GraphStateProvider>

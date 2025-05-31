@@ -62,7 +62,8 @@ export default function NavBar({ session }: { session: Session | null }) {
                 <p className="ml-1.5 font-medium text-[#7B3F00] sm:mt-0">{SITE_NAME_VERCEL_DEPLOY}</p>
               ) : (
                 <p className="font-normal text-sky-800 sm:mt-0">
-                  MemicOS{pathname.endsWith('/graph') ? ' - Circuit Tracer' : ''}
+                  MemicOS
+                  {pathname.endsWith('/graph') ? <span className="hidden sm:inline"> - Circuit Tracer</span> : ''}
                 </p>
               )}
               {DEMO_MODE ? (

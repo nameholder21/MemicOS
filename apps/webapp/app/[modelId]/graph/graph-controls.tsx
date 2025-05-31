@@ -62,7 +62,7 @@ export default function GraphControls({
       <button
         type="button"
         onClick={() => openWelcomeModalToStep(2)}
-        className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+        className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
         aria-label="Open User Guide"
       >
         ?
@@ -72,7 +72,7 @@ export default function GraphControls({
         <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
           <Label
             htmlFor="pruningThreshold"
-            className="mr-1 text-center text-[9px] font-medium leading-[10px] text-slate-600"
+            className="mr-1 hidden text-center text-[9px] font-medium leading-[10px] text-slate-600 sm:block"
           >
             Show Nodes Accounting for
           </Label>
@@ -95,7 +95,7 @@ export default function GraphControls({
           />
           <div className="-ml-[20px] mr-2.5 font-mono text-[10px] leading-none text-slate-400">%</div>
           <div className="mr-1 cursor-default select-none text-center text-[9px] font-medium leading-[10px] text-slate-600">
-            of the Influence
+            <span className="hidden sm:inline">of the</span> Influence
           </div>
           <RadixSlider.Root
             name="pruningThreshold"
@@ -115,7 +115,9 @@ export default function GraphControls({
             <RadixSlider.Thumb className="block h-3 w-3 rounded-full border border-sky-600 bg-white shadow transition-colors focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-50" />
           </RadixSlider.Root>
           <CustomTooltip
-            trigger={<QuestionMarkCircledIcon className="ml-1.5 h-3.5 w-3.5 cursor-pointer text-slate-500" />}
+            trigger={
+              <QuestionMarkCircledIcon className="ml-1.5 hidden h-3.5 w-3.5 cursor-pointer text-slate-500 sm:block" />
+            }
           >
             <div className="pb-1 font-bold">How This Works</div>
             The nodes shown are always the most influential with respect to the output token. Increasing this score will
@@ -124,11 +126,11 @@ export default function GraphControls({
         </div>
       )}
       {selectedGraph?.metadata.scan && graphModelHasNpDashboards(selectedGraph) && (
-        <div className="flex flex-row items-center rounded bg-slate-200 px-2 py-0.5">
+        <div className="hidden flex-row items-center rounded bg-slate-200 px-2 py-0.5 sm:flex">
           <div className="flex flex-row items-center">
             <Label htmlFor="densityThreshold" className="mr-1 text-center text-[9px] leading-[10px] text-slate-600">
-              Show Nodes with
-              <br />
+              <span className="hidden sm:inline">Show Nodes with</span>
+              <br className="hidden sm:inline" />
               Feature Density
             </Label>
             <div className="z-10 -mr-[16px] ml-3 font-mono text-[10px] leading-none text-slate-400">{`<`}</div>
