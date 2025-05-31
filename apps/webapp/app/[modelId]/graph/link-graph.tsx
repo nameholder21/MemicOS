@@ -11,6 +11,7 @@ import {
   CLTGraphLink,
   CLTGraphNode,
   featureTypeToText,
+  featureTypeToTextSize,
   filterNodes,
   hideTooltip,
   isHideLayer,
@@ -957,6 +958,7 @@ export default function LinkGraph() {
     `);
 
     // Set up nodes
+    const isMobile = window.innerWidth < 640;
     const nodeSel = c.svg
       .selectAll('text.node')
       .data(nodes)
@@ -969,7 +971,7 @@ export default function LinkGraph() {
       })
       .text((d) => featureTypeToText(d.feature_type))
       .attr('font-family', 'Arial')
-      .attr('font-size', 14)
+      .attr('font-size', (d) => featureTypeToTextSize(isMobile, d.feature_type)) // weird safari mobile bug where it renders the diamond too large
       .attr('fill', (d) => d.nodeColor || '#000')
       .attr('stroke', '#000')
       .attr('stroke-width', 2)
