@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/shadcn/dialog';
+import { ASSET_BASE_URL } from '@/lib/env';
 import { MagicWandIcon } from '@radix-ui/react-icons';
 import { BookOpen, ChevronRight, GithubIcon, NewspaperIcon, NotebookIcon } from 'lucide-react';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
 
   // Array of images for each step
   const stepImages = [
-    '/images/explainer.jpg', // Getting Started
+    `${ASSET_BASE_URL}/graph/explainer-new.jpg`, // Getting Started
     '/images/explainer-top.jpg', // Choose or Generate a Graph
     '/images/tl.jpg', // Link/Attribution Graph
     '/images/tr.jpg', // Connections
