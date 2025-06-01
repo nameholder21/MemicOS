@@ -92,7 +92,7 @@ export default function GraphWrapper({ hasSlug }: { hasSlug: boolean }) {
                   <LinkGraph />
                   <GraphNodeConnections />
                 </div>
-                <div className="flex h-[50%] w-full flex-row pb-1 pt-1">
+                <div className="relative flex h-[50%] w-full flex-row pb-1 pt-1">
                   <div className="w-full sm:w-[53%] sm:min-w-[53%] sm:max-w-[53%]">
                     <Subgraph />
                   </div>

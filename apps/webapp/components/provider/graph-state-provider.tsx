@@ -83,6 +83,11 @@ export function GraphStateProvider({ children }: { children: ReactNode }) {
       const newHoveredId = node?.featureId || null;
       const newHoveredCtxIdx = node?.ctx_idx || null;
 
+      // don't update if window width is less than 640px
+      if (window.innerWidth < 640) {
+        return;
+      }
+
       // Only update if the value actually changed
       if (hoveredIdRef.current !== newHoveredId) {
         hoveredIdRef.current = newHoveredId;
