@@ -35,7 +35,7 @@ export default async function Page({
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                Created At
+                Created At (PT)
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Slug</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Prompt</th>
@@ -45,7 +45,7 @@ export default async function Page({
             {allGraphMetadatas.map((metadata) => (
               <tr key={metadata.id}>
                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                  {metadata.createdAt.toLocaleString()}
+                  {metadata.createdAt.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}
                 </td>
                 <td className="max-w-48 overflow-x-hidden truncate whitespace-nowrap px-6 py-4 text-sm font-medium text-sky-600">
                   <a

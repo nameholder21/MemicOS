@@ -120,9 +120,16 @@ export default function GenerateGraphModal() {
     slug: '',
   };
 
+  const [endsWithSpace, setEndsWithSpace] = useState(false);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedTokenize = useCallback(
     _.debounce(async (modelId: string, prompt: string) => {
+      if (prompt.endsWith(' ')) {
+        setEndsWithSpace(true);
+      } else {
+        setEndsWithSpace(false);
+      }
       if (!prompt.trim() || !modelId) {
         setTokenizedPrompt(null);
         setEstimatedTime(null);
@@ -142,6 +149,7 @@ export default function GenerateGraphModal() {
           throw new Error(errorData.message || 'Failed to tokenize prompt');
         }
         const data = (await response.json()) as TokenizeResponse;
+
         setTokenizedPrompt(data);
         if (data.tokens) {
           setEstimatedTime(getEstimatedTimeFromNumTokens(data.tokens.length));
@@ -376,6 +384,13 @@ export default function GenerateGraphModal() {
                               </span>
                             ))}
                           </div>
+                          {endsWithSpace && (
+                            <p className="mt-1.5 text-[11px] text-amber-600">
+                              Warning: Your prompt ends with a space, which may result in an unexpected next token
+                              because tokens often already have a space prepended (eg &quot; cat&quot;, &quot;
+                              coffee&quot;). Consider removing the ending space if this is not what you intended.
+                            </p>
+                          )}
                         </div>
                       )
                     )}
