@@ -1105,7 +1105,7 @@ export default function Subgraph() {
   }, []);
 
   return (
-    <Card className="h-full w-full flex-1 bg-white">
+    <Card className={`h-full w-full flex-1 bg-white sm:block ${clickedIdRef.current ? 'hidden' : ''}`}>
       <CardContent className="h-full px-0 py-0">
         {/* <div className="mb-3 mt-2 flex w-full flex-row items-center justify-start gap-x-2">
         <div className="text-sm font-bold text-slate-600">Subgraph</div>

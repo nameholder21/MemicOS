@@ -58,7 +58,7 @@ export default function GraphControls({
   }, [selectedGraph?.metadata.node_threshold, visState.pruningThreshold]);
 
   return (
-    <div className="absolute -top-2 left-1 z-10 flex items-center space-x-2.5">
+    <div className="absolute -top-2 left-5 z-10 flex items-center space-x-2.5 sm:left-1">
       <button
         type="button"
         onClick={() => openWelcomeModalToStep(2)}
@@ -69,7 +69,7 @@ export default function GraphControls({
       </button>
 
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
-        <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-2 py-0.5">
+        <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-1 py-0.5 sm:px-2">
           <Label
             htmlFor="pruningThreshold"
             className="mr-1 hidden text-center text-[9px] font-medium leading-[10px] text-slate-600 sm:block"

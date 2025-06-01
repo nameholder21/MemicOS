@@ -139,8 +139,12 @@ export default function GraphFeatureDetail() {
       );
 
     return (
-      <div className="hidden max-h-full w-full flex-col overflow-y-scroll sm:flex">
-        <div className="flex flex-row items-center justify-between gap-x-1.5 pl-3 pt-1 text-sm font-medium text-slate-600">
+      <div
+        className={`max-h-full w-full flex-col overflow-y-scroll sm:flex ${
+          clickedIdRef.current ? 'absolute left-0 top-0 z-10 flex sm:relative' : ''
+        }`}
+      >
+        <div className="flex flex-row items-center justify-between gap-x-1.5 py-1 pl-3 pt-1 text-sm font-medium text-slate-600 sm:py-0">
           <div className="flex flex-1 flex-row items-center gap-x-2">
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             {isEditingLabel ? (
@@ -173,7 +177,9 @@ export default function GraphFeatureDetail() {
                 )}
               </div>
             ) : (
-              <div className="text-xs">{getNodeSupernodeAndOverrideLabel(node)}</div>
+              <div className="text-[10px] leading-snug sm:text-xs sm:leading-normal">
+                {getNodeSupernodeAndOverrideLabel(node)}
+              </div>
             )}
           </div>
           <div className="flex flex-row gap-x-1">
@@ -181,7 +187,7 @@ export default function GraphFeatureDetail() {
               <Button
                 variant="outline"
                 size="xs"
-                className="w-18"
+                className="w-18 hidden sm:inline-flex"
                 onClick={() => {
                   if (isEditingLabel) {
                     if (selectedGraph) {
@@ -235,7 +241,7 @@ export default function GraphFeatureDetail() {
           <button
             type="button"
             onClick={() => openWelcomeModalToStep(5)}
-            className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+            className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
             aria-label="Open User Guide"
           >
             ?
