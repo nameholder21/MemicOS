@@ -144,6 +144,67 @@ export const checkRunpodQueueJobs = async () => {
   throw new Error('RunPod health check failed: jobs not found');
 };
 
+export type SalientLogit = { token: string; token_id: number; probability: number };
+
+export type GraphTokenizeResponse = {
+  prompt: string;
+  input_tokens: string[];
+  salient_logits: SalientLogit[];
+  total_salient_tokens: number;
+  cumulative_probability: number;
+};
+
+export interface GraphGenerateRunpodResponse {
+  error?: string;
+  output: GraphTokenizeResponse;
+}
+
+export const getGraphTokenize = async (
+  prompt: string,
+  maxNLogits: number,
+  desiredLogitProb: number,
+): Promise<GraphTokenizeResponse> => {
+  const response = await fetch(`${GRAPH_RUNPOD_SERVER}/runsync`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GRAPH_RUNPOD_SECRET}`,
+    },
+    body: JSON.stringify({
+      input: {
+        prompt,
+        max_n_logits: maxNLogits,
+        desired_logit_prob: desiredLogitProb,
+        request_type: 'forward_pass',
+      },
+    }),
+  });
+
+  const json = await response.json();
+  if (json.error) {
+    throw new Error(json.error);
+  }
+  if (!response.ok) {
+    throw new Error(`External API returned ${response.status}: ${response.statusText}`);
+  }
+
+  const salientLogits: SalientLogit[] = json.output.salient_logits.map((logit: SalientLogit) => ({
+    token: logit.token,
+    token_id: logit.token_id,
+    probability: logit.probability,
+  }));
+
+  const toReturn: GraphTokenizeResponse = {
+    prompt,
+    input_tokens: json.output.input_tokens,
+    salient_logits: salientLogits,
+    total_salient_tokens: json.output.total_salient_tokens,
+    cumulative_probability: json.output.cumulative_probability,
+  };
+
+  return toReturn;
+};
+
 export const generateGraphAndUploadToS3 = async (
   prompt: string,
   modelId: string,
