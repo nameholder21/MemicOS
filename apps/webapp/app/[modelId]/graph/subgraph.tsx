@@ -7,10 +7,11 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { Check, Circle, Share2, Trash2 } from 'lucide-react';
+import { ResetIcon } from '@radix-ui/react-icons';
+import { Check, Circle, Share2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
-import { CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
+import { clientCheckIsEmbed, CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
 
 const NODE_WIDTH = 75;
 const NODE_HEIGHT = 25;
@@ -1230,14 +1231,16 @@ export default function Subgraph() {
               Please use a larger screen with a keyboard.
             </div>
           )}
-          <button
-            type="button"
-            onClick={() => openWelcomeModalToStep(4)}
-            className="absolute left-3 top-3 hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
-            aria-label="Open User Guide"
-          >
-            ?
-          </button>
+          {!clientCheckIsEmbed() && (
+            <button
+              type="button"
+              onClick={() => openWelcomeModalToStep(4)}
+              className="absolute left-3 top-3 hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
+              aria-label="Open User Guide"
+            >
+              ?
+            </button>
+          )}
           <Button
             variant="outline"
             size="sm"
@@ -1265,7 +1268,7 @@ export default function Subgraph() {
             }}
             disabled={visState.pinnedIds.length === 0}
           >
-            <Trash2 className="h-4 w-4" />
+            <ResetIcon className="h-4 w-4" />
           </Button>
         </div>
         <div className="hidden w-full flex-row items-center justify-center gap-x-3">

@@ -1,4 +1,5 @@
 import {
+  clientCheckIsEmbed,
   CLTGraph,
   FilterGraphType,
   getGraphBaseUrlToName,
@@ -542,20 +543,22 @@ export default function GraphToolbar() {
                 Upload
               </Button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              title="Share Graph, Subgraph, and Custom Labels"
-              aria-label="Share Graph Subgraph, and Custom Labels"
-              className="hidden h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50 sm:flex"
-              onClick={() => {
-                setIsCopyModalOpen(true);
-              }}
-              disabled={selectedMetadataGraph === null || !selectedGraph}
-            >
-              <Share2 className="h-4 w-4" />
-              Share & Embed
-            </Button>
+            {!clientCheckIsEmbed() && (
+              <Button
+                variant="outline"
+                size="sm"
+                title="Share Graph, Subgraph, and Custom Labels"
+                aria-label="Share Graph Subgraph, and Custom Labels"
+                className="hidden h-12 items-center justify-center gap-x-2 whitespace-nowrap border-slate-300 text-xs text-slate-500 hover:bg-slate-50 sm:flex"
+                onClick={() => {
+                  setIsCopyModalOpen(true);
+                }}
+                disabled={selectedMetadataGraph === null || !selectedGraph}
+              >
+                <Share2 className="h-4 w-4" />
+                Share & Embed
+              </Button>
+            )}
           </div>
         </div>
       </div>
