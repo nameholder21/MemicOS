@@ -113,10 +113,14 @@ export default async function Page({
     clerps?: string;
     pruningThreshold?: string;
     densityThreshold?: string;
+    embed?: string;
   };
 }) {
   const { modelId } = params;
   const session = await getServerSession(authOptions);
+
+  const embedParam = searchParams.embed as string | undefined;
+  const embed = embedParam === 'true';
 
   // iterate through all baseUrls/buckets, and merge all the metadata we care about into a single map
   const modelIdToGraphMetadatasMap: ModelToGraphMetadatasMap = {};
@@ -246,9 +250,11 @@ export default async function Page({
           densityThreshold || (searchParams.densityThreshold ? Number(searchParams.densityThreshold) : undefined)
         }
       >
-        <div className="flex w-full flex-col bg-red-200 px-3 py-1.5 text-center text-[11px] font-medium text-red-700 sm:hidden">
-          Use a larger screen to view this page. UI is simplified for mobile.
-        </div>
+        {!embed && (
+          <div className="flex w-full flex-col bg-red-200 px-3 py-1.5 text-center text-[11px] font-medium text-red-700 sm:hidden">
+            Use a larger screen to view this page. UI is simplified for mobile.
+          </div>
+        )}
         <GraphWrapper hasSlug={!!searchParams.slug} />
       </GraphProvider>
     </GraphStateProvider>

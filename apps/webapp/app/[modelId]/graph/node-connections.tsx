@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 import GraphFeatureLink from './np-feature-link';
 import {
+  clientCheckIsEmbed,
   CLTGraphNode,
   featureTypeToText,
   graphModelHasNpDashboards,
@@ -206,27 +207,31 @@ export default function GraphNodeConnections() {
             <Circle className="h-3.5 max-h-3.5 min-h-3.5 w-3.5 min-w-3.5 max-w-3.5 text-[#f0f]" />
             <div className="flex-1 leading-tight">{getNodeSupernodeAndOverrideLabel(clickedNode)}</div>
             <GraphFeatureLink selectedGraph={selectedGraph} node={clickedNode} />
-            <button
-              type="button"
-              onClick={() => openWelcomeModalToStep(3)}
-              className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 px-0 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
-              aria-label="Open User Guide"
-            >
-              ?
-            </button>
+            {!clientCheckIsEmbed() && (
+              <button
+                type="button"
+                onClick={() => openWelcomeModalToStep(3)}
+                className="flex h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 px-0 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+                aria-label="Open User Guide"
+              >
+                ?
+              </button>
+            )}
           </div>
         ) : (
           <div className="relative flex h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700">
             <div className="mb-2 text-lg font-bold">Node Connections</div>
             <div className="">Click a node on the left to see its connections.</div>
-            <button
-              type="button"
-              onClick={() => openWelcomeModalToStep(3)}
-              className="absolute right-0 top-0 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
-              aria-label="Open User Guide"
-            >
-              ?
-            </button>
+            {!clientCheckIsEmbed() && (
+              <button
+                type="button"
+                onClick={() => openWelcomeModalToStep(3)}
+                className="absolute right-0 top-0 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+                aria-label="Open User Guide"
+              >
+                ?
+              </button>
+            )}
           </div>
         )}
         {clickedNode && (

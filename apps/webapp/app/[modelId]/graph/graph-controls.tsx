@@ -6,7 +6,7 @@ import { QuestionMarkCircledIcon } from '@radix-ui/react-icons';
 import * as RadixSlider from '@radix-ui/react-slider';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
-import { CLTGraphExtended, CltVisState, graphModelHasNpDashboards } from './utils';
+import { clientCheckIsEmbed, CLTGraphExtended, CltVisState, graphModelHasNpDashboards } from './utils';
 
 export default function GraphControls({
   selectedGraph,
@@ -20,6 +20,8 @@ export default function GraphControls({
   };
   updateVisStateField: <K extends keyof CltVisState>(key: K, value: CltVisState[K]) => void;
 }) {
+  // Check if we're in embed mode
+  const isEmbed = clientCheckIsEmbed();
   const [localPruningThreshold, setLocalPruningThreshold] = useState(
     visState.pruningThreshold || selectedGraph?.metadata.node_threshold || 0.5,
   );
@@ -59,14 +61,16 @@ export default function GraphControls({
 
   return (
     <div className="absolute -top-2 left-5 z-10 flex items-center space-x-2.5 sm:left-1">
-      <button
-        type="button"
-        onClick={() => openWelcomeModalToStep(2)}
-        className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
-        aria-label="Open User Guide"
-      >
-        ?
-      </button>
+      {!isEmbed && (
+        <button
+          type="button"
+          onClick={() => openWelcomeModalToStep(2)}
+          className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
+          aria-label="Open User Guide"
+        >
+          ?
+        </button>
+      )}
 
       {selectedGraph?.metadata.node_threshold !== undefined && selectedGraph?.metadata.node_threshold && (
         <div className="flex h-[24px] flex-row items-center rounded bg-slate-200 px-1 py-0.5 sm:px-2">

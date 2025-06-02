@@ -811,3 +811,7 @@ export function filterNodes(
   );
   return nodes;
 }
+
+export function clientCheckIsEmbed() {
+  return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('embed') === 'true';
+}

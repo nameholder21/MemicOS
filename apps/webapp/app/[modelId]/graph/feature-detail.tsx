@@ -8,7 +8,7 @@ import { GroupedVirtuoso } from 'react-virtuoso';
 import FeatureDashboard from '../[layer]/[index]/feature-dashboard';
 import GraphFeatureDetailItem from './feature-detail-item';
 import GraphFeatureLink from './np-feature-link';
-import { CLTGraphNode, nodeTypeHasFeatureDetail } from './utils';
+import { clientCheckIsEmbed, CLTGraphNode, nodeTypeHasFeatureDetail } from './utils';
 
 export default function GraphFeatureDetail() {
   const {
@@ -126,15 +126,16 @@ export default function GraphFeatureDetail() {
         <div className="relative hidden h-[100%] flex-col items-center justify-center text-center text-sm font-medium text-slate-700 sm:flex">
           <div className="mb-2 text-lg font-bold">Feature Details</div>
           <div className="">Hover over a node in the graph to see its details and edit its label.</div>
-
-          <button
-            type="button"
-            onClick={() => openWelcomeModalToStep(5)}
-            className="absolute right-0 top-1 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
-            aria-label="Open User Guide"
-          >
-            ?
-          </button>
+          {!clientCheckIsEmbed() && (
+            <button
+              type="button"
+              onClick={() => openWelcomeModalToStep(5)}
+              className="absolute right-0 top-1 flex h-[24px] w-[24px] items-center justify-center gap-x-1 rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300"
+              aria-label="Open User Guide"
+            >
+              ?
+            </button>
+          )}
         </div>
       );
 
@@ -238,14 +239,16 @@ export default function GraphFeatureDetail() {
             <GraphFeatureLink selectedGraph={selectedGraph} node={node} />
           )}
 
-          <button
-            type="button"
-            onClick={() => openWelcomeModalToStep(5)}
-            className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
-            aria-label="Open User Guide"
-          >
-            ?
-          </button>
+          {!clientCheckIsEmbed() && (
+            <button
+              type="button"
+              onClick={() => openWelcomeModalToStep(5)}
+              className="hidden h-[24px] w-[24px] items-center justify-center gap-x-1 self-start rounded-full bg-slate-200 py-0.5 text-[12px] font-medium transition-colors hover:bg-slate-300 sm:flex"
+              aria-label="Open User Guide"
+            >
+              ?
+            </button>
+          )}
         </div>
         {node.featureDetailNP ? (
           <div className="ml-3 flex flex-1 overflow-y-scroll overscroll-y-none rounded-b-md border-b border-slate-200">
