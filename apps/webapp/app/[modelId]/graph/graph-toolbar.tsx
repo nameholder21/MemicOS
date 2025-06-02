@@ -357,7 +357,7 @@ export default function GraphToolbar() {
                           <Select.ItemText className="w-full min-w-full" asChild>
                             <div className="flex w-full min-w-full flex-col items-start justify-start gap-y-0">
                               <div className="flex w-full flex-row items-center justify-between">
-                                <div className="font-mono text-[12px] font-medium text-sky-700">{graph.slug}</div>
+                                <div className="font-mono text-[10px] font-medium text-sky-700">{graph.slug}</div>
                                 {!isMyGraph && (
                                   <div className="mr-0 flex flex-row items-center gap-x-2">
                                     <div className="text-[10px] font-normal text-slate-500">

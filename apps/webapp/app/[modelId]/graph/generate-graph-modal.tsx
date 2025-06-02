@@ -28,9 +28,9 @@ import {
   GRAPH_NODETHRESHOLD_MAX,
   GRAPH_NODETHRESHOLD_MIN,
   graphGenerateSchemaClient,
+  GraphTokenizeResponse,
   RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
-import { ResetIcon } from '@radix-ui/react-icons';
 import * as RadixSelect from '@radix-ui/react-select';
 import * as RadixSlider from '@radix-ui/react-slider';
 import { Form, Formik, FormikHelpers, FormikProps } from 'formik';
@@ -39,6 +39,14 @@ import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactTextareaAutosize from 'react-textarea-autosize';
+
+const BORING_TOKENS = ['<strong>', '<em>', '<code>', '<b>', '<i>'];
+const BORING_SYMBOLS = ['*', '**', '`', '```', '-', '–', '—', '_', '__', '~', '='];
+
+const isBoringToken = (token: string) => {
+  const trimmedToken = token.trim();
+  return BORING_TOKENS.includes(trimmedToken) || BORING_SYMBOLS.includes(trimmedToken);
+};
 
 interface FormValues {
   prompt: string;
@@ -49,11 +57,6 @@ interface FormValues {
   edgeThreshold: number;
   maxFeatureNodes: number;
   slug: string;
-}
-
-interface TokenizeResponse {
-  tokens: number[];
-  tokenStrings: string[];
 }
 
 interface GenerateGraphResponse {
@@ -68,12 +71,14 @@ interface GenerateGraphResponse {
 const FormikValuesObserver: React.FC<{
   prompt: string;
   modelId: string;
-  debouncedTokenize: (modelId: string, prompt: string) => void;
+  maxNLogits: number;
+  desiredLogitProb: number;
+  debouncedTokenize: (modelId: string, prompt: string, maxNLogits: number, desiredLogitProb: number) => void;
   // eslint-disable-next-line
-}> = ({ prompt, modelId, debouncedTokenize }) => {
+}> = ({ prompt, modelId, maxNLogits, desiredLogitProb, debouncedTokenize }) => {
   useEffect(() => {
-    debouncedTokenize(modelId, prompt);
-  }, [prompt, modelId, debouncedTokenize]);
+    debouncedTokenize(modelId, prompt, maxNLogits, desiredLogitProb);
+  }, [prompt, modelId, maxNLogits, desiredLogitProb, debouncedTokenize]);
 
   return null;
 };
@@ -98,10 +103,11 @@ const formatCountdown = (totalSeconds: number): string => {
 export default function GenerateGraphModal() {
   const { isGenerateGraphModalOpen, setIsGenerateGraphModalOpen } = useGraphModalContext();
   const [generationResult, setGenerationResult] = useState<GenerateGraphResponse | null>(null);
-  const [tokenizedPrompt, setTokenizedPrompt] = useState<TokenizeResponse | null>(null);
+  const [graphTokenizeResponse, setGraphTokenizeResponse] = useState<GraphTokenizeResponse | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTokenizing, setIsTokenizing] = useState(false);
+  const [endsWithSpace, setEndsWithSpace] = useState(false);
   const [error, setError] = useState<React.ReactNode | null>(null);
   const [countdownTime, setCountdownTime] = useState<number | null>(null);
 
@@ -120,18 +126,11 @@ export default function GenerateGraphModal() {
     slug: '',
   };
 
-  const [endsWithSpace, setEndsWithSpace] = useState(false);
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedTokenize = useCallback(
-    _.debounce(async (modelId: string, prompt: string) => {
-      if (prompt.endsWith(' ')) {
-        setEndsWithSpace(true);
-      } else {
-        setEndsWithSpace(false);
-      }
+    _.debounce(async (modelId: string, prompt: string, maxNLogits: number, desiredLogitProb: number) => {
       if (!prompt.trim() || !modelId) {
-        setTokenizedPrompt(null);
+        setGraphTokenizeResponse(null);
         setEstimatedTime(null);
         setIsTokenizing(false);
         return;
@@ -139,26 +138,35 @@ export default function GenerateGraphModal() {
       try {
         setIsTokenizing(true);
         console.log(`tokenizing: ${prompt}`);
-        const response = await fetch('/api/tokenize', {
+        const response = await fetch('/api/graph/tokenize', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ modelId, prompt, prependBos: false }),
+          body: JSON.stringify({
+            modelId,
+            prompt,
+            maxNLogits,
+            desiredLogitProb,
+          }),
         });
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to tokenize prompt');
         }
-        const data = (await response.json()) as TokenizeResponse;
-
-        setTokenizedPrompt(data);
-        if (data.tokens) {
-          setEstimatedTime(getEstimatedTimeFromNumTokens(data.tokens.length));
+        if (prompt.endsWith(' ')) {
+          setEndsWithSpace(true);
+        } else {
+          setEndsWithSpace(false);
+        }
+        const data = (await response.json()) as GraphTokenizeResponse;
+        setGraphTokenizeResponse(data);
+        if (data.input_tokens) {
+          setEstimatedTime(getEstimatedTimeFromNumTokens(data.input_tokens.length));
         } else {
           setEstimatedTime(null);
         }
       } catch (e) {
         console.error('Tokenization error:', e);
-        setTokenizedPrompt(null);
+        setGraphTokenizeResponse(null);
         setEstimatedTime(null);
       } finally {
         setIsTokenizing(false);
@@ -274,7 +282,7 @@ export default function GenerateGraphModal() {
     }
     if (!open) {
       if (!generationResult) {
-        setTokenizedPrompt(null);
+        setGraphTokenizeResponse(null);
         setEstimatedTime(null);
         setError(null);
         if (formikRef.current) {
@@ -338,6 +346,8 @@ export default function GenerateGraphModal() {
                 <FormikValuesObserver
                   prompt={values.prompt}
                   modelId={values.modelId}
+                  maxNLogits={values.maxNLogits}
+                  desiredLogitProb={values.desiredLogitProb}
                   debouncedTokenize={debouncedTokenize}
                 />
                 <Form className="space-y-0">
@@ -370,36 +380,83 @@ export default function GenerateGraphModal() {
                         <LoadingSquare className="mr-1 h-5 w-5" size={20} />
                         <div className="flex items-center justify-start">Tokenizing...</div>
                       </div>
-                    ) : (
-                      tokenizedPrompt && (
-                        <div className="mx-1 mt-1 pb-2 text-xs text-slate-500">
-                          <div className="mb-1">{tokenizedPrompt.tokens.length} Tokens</div>
+                    ) : graphTokenizeResponse ? (
+                      <div className="flex flex-col">
+                        <div className="mx-0 mt-1 flex-1 pb-2 text-xs text-slate-500">
+                          {/* <div className="mb-1">{graphTokenizeResponse.input_tokens.length} Tokens</div> */}
                           <div className="flex flex-wrap gap-x-1 gap-y-[3px]">
-                            {tokenizedPrompt.tokenStrings.map((t, idx) => (
+                            {graphTokenizeResponse.input_tokens.map((t, idx) => (
                               <span
                                 key={`${t}-${idx}`}
                                 className="mx-0 rounded bg-slate-200 px-[3px] py-[1px] font-mono text-[10px] text-slate-700"
                               >
-                                {t.replaceAll(' ', '\u00A0')}
+                                {t.toString().replaceAll(' ', '\u00A0').replaceAll('\n', '↵')}
+                                {/* {t.replaceAll(' ', '\u00A0').replaceAll('\n', '↵')}} */}
                               </span>
                             ))}
                           </div>
-                          {endsWithSpace && (
-                            <p className="mt-1.5 text-[11px] text-amber-600">
-                              Warning: Your prompt ends with a space, which may result in an unexpected next token
-                              because tokens often already have a space prepended (eg &quot; cat&quot;, &quot;
-                              coffee&quot;). Consider removing the ending space if this is not what you intended.
-                            </p>
-                          )}
                         </div>
-                      )
+                        <div className="mb-0.5 text-[8px] font-medium uppercase text-slate-500">Next Token</div>
+                        <div className="mb-2 flex flex-wrap gap-x-1.5 gap-y-[3px]">
+                          {graphTokenizeResponse.salient_logits.slice(0, 5).map((logit, index) => (
+                            <span key={index} className="whitespace-pre rounded bg-slate-200 px-[7px] py-[3px] text-xs">
+                              <span className="whitespace-pre pr-1 font-mono text-slate-700">
+                                {logit.token.replaceAll(' ', '\u00A0').replaceAll('\n', '↵')}
+                              </span>
+                              <span className="whitespace-pre font-sans text-slate-400">
+                                {logit.probability.toFixed(2)}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                        {endsWithSpace && (
+                          <div className="mb-1.5 mt-0 text-xs text-amber-600">
+                            Warning: Your prompt ends with a space, which may result in an unexpected output because
+                            tokens often already have a space prepended (eg{' '}
+                            <span className="mx-0 whitespace-pre rounded bg-slate-200 px-[3px] py-[1px] font-mono text-[10px] text-slate-700">
+                              {' '}
+                              coffee
+                            </span>
+                            , not{' '}
+                            <span className="mx-0 whitespace-pre rounded bg-slate-200 px-[3px] py-[1px] font-mono text-[10px] text-slate-700">
+                              coffee
+                            </span>
+                            ). Consider removing the ending space.
+                          </div>
+                        )}
+                        {graphTokenizeResponse.salient_logits.length > 0 &&
+                          (graphTokenizeResponse.salient_logits[0].token.trim() === '' ? (
+                            <div className="mb-1.5 mt-0 text-xs text-amber-600">
+                              {/* "i like to   " will trigger this */}
+                              Warning: The next most likely token is whitespace. This may not be an
+                              &apos;interesting&apos; graph as spaces are not often an ideal example of a reasoning
+                              conclusion.
+                            </div>
+                          ) : isBoringToken(graphTokenizeResponse.salient_logits[0].token) ? (
+                            <div className="mb-1.5 mt-0 text-xs text-amber-600">
+                              Warning: The next most likely token is a markdown/HTML/symbol. Double check that this is
+                              the reasoning &apos;conclusion&apos; that you expect to see.
+                            </div>
+                          ) : (
+                            <div className="mb-1.5 mt-0 text-xs text-slate-500">
+                              Check the next tokens to make sure they are a satisfying &apos;conclusion&apos; to your
+                              prompt. If it&apos;s a markdown or HTML tag, you should probably change your prompt.
+                            </div>
+                          ))}
+                      </div>
+                    ) : (
+                      <div className="mt-1 pb-3 pt-0.5 text-xs text-slate-400">
+                        Tokenized prompt and likely next tokens will appear here.
+                      </div>
                     )}
                     {errors.prompt && touched.prompt && <p className="mt-1 text-xs text-red-500">{errors.prompt}</p>}
-                    {tokenizedPrompt && !isTokenizing && tokenizedPrompt.tokens.length > GRAPH_MAX_TOKENS && (
-                      <p className="mt-1 text-xs text-red-500">
-                        Prompt exceeds maximum token limit of {GRAPH_MAX_TOKENS}.
-                      </p>
-                    )}
+                    {graphTokenizeResponse &&
+                      !isTokenizing &&
+                      graphTokenizeResponse.input_tokens.length > GRAPH_MAX_TOKENS && (
+                        <p className="mt-1 text-xs text-red-500">
+                          Prompt exceeds maximum token limit of {GRAPH_MAX_TOKENS}.
+                        </p>
+                      )}
                   </div>
 
                   <div className="flex-1 pb-4">
@@ -696,8 +753,8 @@ export default function GenerateGraphModal() {
                   <div className="mt-4 flex items-center justify-between border-t pt-4 text-xs">
                     {isGenerating ? (
                       countdownTime !== null ? (
-                        <div className="flex flex-row items-center justify-start gap-x-1.5 text-sm text-slate-500">
-                          <LoadingSquare className="h-4 w-4" size={12} />
+                        <div className="flex flex-row items-center justify-start gap-x-2 whitespace-pre text-sm leading-none text-slate-500">
+                          <LoadingSquare className="" size={32} />
                           Remaining time: {formatCountdown(countdownTime)}
                         </div>
                       ) : countdownTime === 0 ? (
@@ -706,7 +763,7 @@ export default function GenerateGraphModal() {
                         <div className="text-sm text-slate-600">Estimating time...</div>
                       )
                     ) : estimatedTime !== null && !generationResult ? (
-                      <div className="flex flex-row items-center justify-start gap-x-1.5 text-xs text-slate-500">
+                      <div className="flex flex-row items-center justify-start gap-x-1.5 whitespace-pre text-sm leading-none text-slate-500">
                         Estimated generation time:{' '}
                         {estimatedTime < 60
                           ? `~${Math.round(estimatedTime)} sec`
@@ -728,7 +785,7 @@ export default function GenerateGraphModal() {
                                 slug: '',
                               },
                             });
-                            setTokenizedPrompt(null);
+                            setGraphTokenizeResponse(null);
                             setEstimatedTime(null);
                             setError(null);
                           }
@@ -737,7 +794,6 @@ export default function GenerateGraphModal() {
                         className="flex items-center justify-center gap-x-1.5"
                         title="Reset to defaults"
                       >
-                        <ResetIcon className="h-3.5 w-3.5" />
                         Reset
                       </Button>
                       <Button
@@ -746,7 +802,8 @@ export default function GenerateGraphModal() {
                           isGenerating ||
                           !dirty ||
                           Object.keys(errors).length > 0 ||
-                          (tokenizedPrompt !== null && tokenizedPrompt.tokens.length > GRAPH_MAX_TOKENS)
+                          (graphTokenizeResponse !== null &&
+                            graphTokenizeResponse.input_tokens.length > GRAPH_MAX_TOKENS)
                         }
                         className="w-full sm:w-auto"
                       >
@@ -759,7 +816,7 @@ export default function GenerateGraphModal() {
             )}
           </Formik>
         ) : (
-          <div className="space-y-1 pb-2">
+          <div className="flex w-full flex-col space-y-1 pb-2">
             <h3 className="text-lg font-medium text-sky-700">Graph Generated Successfully</h3>
             <p>
               <strong>Nodes:</strong> {generationResult.numNodes}
@@ -769,11 +826,7 @@ export default function GenerateGraphModal() {
             </p>
             <p className="pb-3 text-sm">
               <strong>URL:</strong>{' '}
-              <a
-                href={generationResult.url}
-                rel="noopener noreferrer"
-                className="break-all text-sky-700 hover:underline"
-              >
+              <a href={generationResult.url} rel="noopener noreferrer" className="break-all hover:underline">
                 {generationResult.url}
               </a>
             </p>
@@ -792,7 +845,7 @@ export default function GenerateGraphModal() {
               onClick={() => {
                 window.location.href = generationResult.url;
               }}
-              className="mt-2 w-full bg-sky-600 hover:bg-sky-700 sm:w-auto"
+              className="mt-2 w-full flex-1 bg-sky-600 hover:bg-sky-700 sm:w-auto"
             >
               Open Graph
             </Button>

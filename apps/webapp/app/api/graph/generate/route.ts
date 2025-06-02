@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db';
 import {
   checkRunpodQueueJobs,
   generateGraphAndUploadToS3,
+  getGraphTokenize,
   GRAPH_ANONYMOUS_USER_ID,
   GRAPH_MAX_TOKENS,
   GRAPH_S3_USER_GRAPHS_DIR,
@@ -15,7 +16,6 @@ import {
   MAX_RUNPOD_JOBS_IN_QUEUE,
   RUNPOD_BUSY_ERROR,
 } from '@/lib/utils/graph';
-import { tokenizeText } from '@/lib/utils/inference';
 import { RequestOptionalUser, withOptionalUser } from '@/lib/with-user';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -171,19 +171,22 @@ export const POST = withOptionalUser(async (request: RequestOptionalUser) => {
     const validatedData = await graphGenerateSchemaClient.validate(body);
 
     try {
-      const tokenized = await tokenizeText(validatedData.modelId, validatedData.prompt, false);
-
-      if (tokenized.tokens.length > GRAPH_MAX_TOKENS) {
+      const tokenized = await getGraphTokenize(
+        validatedData.prompt,
+        validatedData.maxNLogits,
+        validatedData.desiredLogitProb,
+      );
+      if (tokenized.input_tokens.length > GRAPH_MAX_TOKENS) {
         return NextResponse.json(
           {
             error: 'Prompt Too Long',
-            message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.tokens.length} tokens.`,
+            message: `Max tokens supported is ${GRAPH_MAX_TOKENS}, your prompt was ${tokenized.input_tokens.length} tokens.`,
           },
           { status: 400 },
         );
       }
 
-      console.log(`Tokens in text: ${tokenized.tokens.length} - ${tokenized.tokenStrings}`);
+      console.log(`Tokens in text: ${tokenized.input_tokens.length}`);
     } catch (error) {
       console.error('Error tokenizing text, continuing:', error);
     }

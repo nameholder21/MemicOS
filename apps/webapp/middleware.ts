@@ -18,6 +18,7 @@ const endpointToRateLimitPerWindow = [
   { endpoint: '/api/features/upload-batch', limit: 1000 },
   { endpoint: '/api/model/new', limit: 5 },
   { endpoint: '/api/source-set/new', limit: 10 },
+  { endpoint: '/api/graph/tokenize', limit: 300 },
 ];
 
 const rateLimiters: { endpoint: string; limiter: Ratelimit }[] = [];
