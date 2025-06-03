@@ -131,6 +131,8 @@ model User {
 
 model GraphMetadataSubgraph {
   id              String        @id @default(cuid())
+  displayName     String?
+  
   graphMetadataId String
   graphMetadata   GraphMetadata @relation(fields: [graphMetadataId], references: [id], onDelete: Cascade)
 
@@ -140,8 +142,8 @@ model GraphMetadataSubgraph {
   pruningThreshold Float?
   densityThreshold Float?
 
-  userId     String?
-  user       User?                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   isFeaturedSolution Boolean @default(false)
 
