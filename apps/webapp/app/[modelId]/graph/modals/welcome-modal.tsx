@@ -14,7 +14,6 @@ import {
 import { ASSET_BASE_URL } from '@/lib/env';
 import { MagicWandIcon } from '@radix-ui/react-icons';
 import { BookOpen, ChevronRight, GithubIcon, NewspaperIcon, NotebookIcon } from 'lucide-react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -82,53 +81,59 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
           </div>
           <ul className="-mt-2 ml-5 list-disc text-[13px]">
             <li className="">
-              <Link
-                className="text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="/gemma-2-2b/graph?slug=gemma-fact-dallas-austin&pruningThreshold=0.6&pinnedIds=27_22605_10%2C20_15589_10%2CE_26865_9%2C21_5943_10%2C23_12237_10%2C20_15589_9%2C16_25_9%2C14_2268_9%2C18_8959_10%2C4_13154_9%2C7_6861_9%2C19_1445_10%2CE_2329_7%2CE_6037_4%2C0_13727_7%2C6_4012_7%2C17_7178_10%2C15_4494_4%2C6_4662_4%2C4_7671_4%2C3_13984_4%2C1_1000_4%2C19_7477_9%2C18_6101_10%2C16_4298_10%2C7_691_10&supernodes=%5B%5B%22capital%22%2C%2215_4494_4%22%2C%226_4662_4%22%2C%224_7671_4%22%2C%223_13984_4%22%2C%221_1000_4%22%5D%2C%5B%22state%22%2C%226_4012_7%22%2C%220_13727_7%22%5D%2C%5B%22Texas%22%2C%2220_15589_9%22%2C%2219_7477_9%22%2C%2216_25_9%22%2C%224_13154_9%22%2C%2214_2268_9%22%2C%227_6861_9%22%5D%2C%5B%22preposition+followed+by+place+name%22%2C%2219_1445_10%22%2C%2218_6101_10%22%5D%2C%5B%22capital+cities+%2F+say+a+capital+city%22%2C%2221_5943_10%22%2C%2217_7178_10%22%2C%227_691_10%22%2C%2216_4298_10%22%5D%5D&densityThreshold=0.99&clerps=%5B%5B%2223_2312237_10%22%2C%22Cities+and+states+names+%28say+Austin%29%22%5D%2C%5B%2218_1808959_10%22%2C%22state+%2F+regional+government%22%5D%5D"
+              <div
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-fact-dallas-austin&pruningThreshold=0.6&pinnedIds=27_22605_10%2C20_15589_10%2CE_26865_9%2C21_5943_10%2C23_12237_10%2C20_15589_9%2C16_25_9%2C14_2268_9%2C18_8959_10%2C4_13154_9%2C7_6861_9%2C19_1445_10%2CE_2329_7%2CE_6037_4%2C0_13727_7%2C6_4012_7%2C17_7178_10%2C15_4494_4%2C6_4662_4%2C4_7671_4%2C3_13984_4%2C1_1000_4%2C19_7477_9%2C18_6101_10%2C16_4298_10%2C7_691_10&supernodes=%5B%5B%22capital%22%2C%2215_4494_4%22%2C%226_4662_4%22%2C%224_7671_4%22%2C%223_13984_4%22%2C%221_1000_4%22%5D%2C%5B%22state%22%2C%226_4012_7%22%2C%220_13727_7%22%5D%2C%5B%22Texas%22%2C%2220_15589_9%22%2C%2219_7477_9%22%2C%2216_25_9%22%2C%224_13154_9%22%2C%2214_2268_9%22%2C%227_6861_9%22%5D%2C%5B%22preposition+followed+by+place+name%22%2C%2219_1445_10%22%2C%2218_6101_10%22%5D%2C%5B%22capital+cities+%2F+say+a+capital+city%22%2C%2221_5943_10%22%2C%2217_7178_10%22%2C%227_691_10%22%2C%2216_4298_10%22%5D%5D&densityThreshold=0.99&clerps=%5B%5B%2223_2312237_10%22%2C%22Cities+and+states+names+%28say+Austin%29%22%5D%2C%5B%2218_1808959_10%22%2C%22state+%2F+regional+government%22%5D%5D';
+                  setIsWelcomeModalOpen(false);
+                }}
               >
                 capital of the state containing Dallas is → Austin{' '}
-              </Link>
+              </div>
             </li>
             <li>
               opposite of &quot;small&quot; is → &quot;big&quot; {` `}
-              <Link
-                className="text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href='/gemma-2-2b/graph?slug=gemma-small-big-en&clerps=[]&pruningThreshold=0.65&pinnedIds=27_13210_8,E_10498_5,23_8683_8,21_10062_8,17_12530_5,18_9402_8,6_4362_5,15_5617_5,15_5756_5,19_5058_8,14_11360_5,E_13388_2,15_7209_2,4_95_2,3_6576_2,27_7773_8,7_10545_5&supernodes=[["Output+\"big\"+or+\"large\"","27_7773_8","27_13210_8"],["say+big+/+huge+/+large","21_10062_8","23_8683_8"],["opposite","4_95_2","15_7209_2","3_6576_2"],["small","14_11360_5","17_12530_5","15_5617_5"],["large+/+size","6_4362_5","7_10545_5","15_5756_5"]]&clickedId=6_4362_5'
+              <span
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-small-big-en&clerps=[]&pruningThreshold=0.65&pinnedIds=27_13210_8,E_10498_5,23_8683_8,21_10062_8,17_12530_5,18_9402_8,6_4362_5,15_5617_5,15_5756_5,19_5058_8,14_11360_5,E_13388_2,15_7209_2,4_95_2,3_6576_2,27_7773_8,7_10545_5&supernodes=[["Output+\"big\"+or+\"large\"","27_7773_8","27_13210_8"],["say+big+/+huge+/+large","21_10062_8","23_8683_8"],["opposite","4_95_2","15_7209_2","3_6576_2"],["small","14_11360_5","17_12530_5","15_5617_5"],["large+/+size","6_4362_5","7_10545_5","15_5756_5"]]&clickedId=6_4362_5';
+                }}
               >
                 English
-              </Link>
+              </span>
               ,{' '}
-              <Link
-                className="text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href='/gemma-2-2b/graph?slug=gemma-small-big-fr&pruningThreshold=0.65&pinnedIds=27_21996_8,E_64986_5,24_16045_8,19_5058_8,21_10062_8,23_2592_8,20_1454_8,E_63265_2,23_8683_8,23_8488_8,20_11434_8,19_5802_8,E_1455_7,15_5617_5,18_9402_8,6_4362_5,14_11360_5,3_2908_5,2_5452_5,3_6627_5,6_16184_2,4_95_2,22_10566_8,21_1144_8,E_2025_1,E_581_3&supernodes=[["opposite","6_16184_2","4_95_2"],["say+big+/+large","23_8683_8","23_8488_8","21_10062_8"],["comparatives","19_5058_8","24_16045_8","20_11434_8"],["small","15_5617_5","14_11360_5","3_6627_5","3_2908_5","2_5452_5"],["size","18_9402_8","6_4362_5"],["French","21_1144_8","22_10566_8","20_1454_8","23_2592_8","19_5802_8"]]&clickedId=22_10566_8&densityThreshold=0.99'
+              <span
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-small-big-fr&pruningThreshold=0.65&pinnedIds=27_21996_8,E_64986_5,24_16045_8,19_5058_8,21_10062_8,23_2592_8,20_1454_8,E_63265_2,23_8683_8,23_8488_8,20_11434_8,19_5802_8,E_1455_7,15_5617_5,18_9402_8,6_4362_5,14_11360_5,3_2908_5,2_5452_5,3_6627_5,6_16184_2,4_95_2,22_10566_8,21_1144_8,E_2025_1,E_581_3&supernodes=[["opposite","6_16184_2","4_95_2"],["say+big+/+large","23_8683_8","23_8488_8","21_10062_8"],["comparatives","19_5058_8","24_16045_8","20_11434_8"],["small","15_5617_5","14_11360_5","3_6627_5","3_2908_5","2_5452_5"],["size","18_9402_8","6_4362_5"],["French","21_1144_8","22_10566_8","20_1454_8","23_2592_8","19_5802_8"]]&clickedId=22_10566_8&densityThreshold=0.99';
+                }}
               >
                 French
-              </Link>
+              </span>
               ,{' '}
-              <Link
-                className="text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href='/gemma-2-2b/graph?slug=gemma-small-big-zh&pruningThreshold=0.65&pinnedIds=27_235469_8,E_235585_2,23_8488_8,23_8683_8,21_10062_8,19_5058_8,22_11933_8,21_9377_8,18_9402_8,15_5617_2,14_11360_2,14_13476_2,2_2169_2,1_10169_2,8_1988_6,4_15846_6,4_7409_6,E_208659_4,E_237379_6,E_236711_5,24_2394_8,23_13630_8,21_13505_8,20_12983_8&supernodes=[["reverse","4_7409_6","8_1988_6","4_15846_6"],["small","15_5617_2","14_11360_2"],["say+big+/+large","23_8683_8","21_10062_8","23_8488_8"],["Chinese","24_2394_8","22_11933_8","20_12983_8","21_13505_8","23_13630_8"],["Chinese-related+English+text","1_10169_2","14_13476_2"],["size","18_9402_8","2_2169_2"],["comparatives","21_9377_8","19_5058_8"]]&clickedId=27_235469_8&densityThreshold=0.99'
+              <span
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-small-big-zh&pruningThreshold=0.65&pinnedIds=27_235469_8,E_235585_2,23_8488_8,23_8683_8,21_10062_8,19_5058_8,22_11933_8,21_9377_8,18_9402_8,15_5617_2,14_11360_2,14_13476_2,2_2169_2,1_10169_2,8_1988_6,4_15846_6,4_7409_6,E_208659_4,E_237379_6,E_236711_5,24_2394_8,23_13630_8,21_13505_8,20_12983_8&supernodes=[["reverse","4_7409_6","8_1988_6","4_15846_6"],["small","15_5617_2","14_11360_2"],["say+big+/+large","23_8683_8","21_10062_8","23_8488_8"],["Chinese","24_2394_8","22_11933_8","20_12983_8","21_13505_8","23_13630_8"],["Chinese-related+English+text","1_10169_2","14_13476_2"],["size","18_9402_8","2_2169_2"],["comparatives","21_9377_8","19_5058_8"]]&clickedId=27_235469_8&densityThreshold=0.99';
+                }}
               >
                 Chinese
-              </Link>
+              </span>
             </li>
             <li>
-              <Link
-                className="text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href='/gemma-2-2b/graph?slug=gemma-girls-are&pinnedIds=27_708_6,25_9974_6,22_11517_6,E_8216_2,E_674_3,E_651_1,19_1880_6,15_13979_6,17_7377_6,18_703_6,16_3689_6,15_4906_6,15_233_6,E_17733_6,3_6616_6,6_11265_6,5_1034_6,4_2671_6,3_6243_4,3_9864_3,0_13503_3&clickedId=3_9864_3&supernodes=[["see/saw","15_233_6","6_11265_6","3_6616_6"],["ends+of+noun+phrases+(predict+a+verb)","19_1880_6","17_7377_6"],["verbs+ending+relative+clauses","4_2671_6","15_4906_6","15_13979_6","18_703_6"],["that","0_13503_3","3_9864_3"]]&pruningThreshold=0.7&densityThreshold=0.99&clerps=[["25_2509974_6","say+are"],["5_501034_6","transitive+verbs+with+objects+preceding+htem"]]'
+              <div
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-girls-are&pinnedIds=27_708_6,25_9974_6,22_11517_6,E_8216_2,E_674_3,E_651_1,19_1880_6,15_13979_6,17_7377_6,18_703_6,16_3689_6,15_4906_6,15_233_6,E_17733_6,3_6616_6,6_11265_6,5_1034_6,4_2671_6,3_6243_4,3_9864_3,0_13503_3&clickedId=3_9864_3&supernodes=[["see/saw","15_233_6","6_11265_6","3_6616_6"],["ends+of+noun+phrases+(predict+a+verb)","19_1880_6","17_7377_6"],["verbs+ending+relative+clauses","4_2671_6","15_4906_6","15_13979_6","18_703_6"],["that","0_13503_3","3_9864_3"]]&pruningThreshold=0.7&densityThreshold=0.99&clerps=[["25_2509974_6","say+are"],["5_501034_6","transitive+verbs+with+objects+preceding+htem"]]';
+                }}
               >
                 The girls that the teacher sees → are
-              </Link>
+              </div>
             </li>
           </ul>
           <div className="pt-2 text-center text-[11px] font-medium uppercase leading-none text-slate-400">
@@ -136,34 +141,35 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
           </div>
           <ul className="-mt-2 ml-5 list-disc text-[13px]">
             <li>
-              <Link
-                className="leading-snug text-sky-600 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href="/gemma-2-2b/graph?slug=gemma-Mexico-Spanish&clickedId=undefined&pruningThreshold=0.7&densityThreshold=0.99"
+              <div
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href =
+                    '/gemma-2-2b/graph?slug=gemma-Mexico-Spanish&clickedId=undefined&pruningThreshold=0.7&densityThreshold=0.99';
+                }}
               >
                 spoken in the country south of the US is → Spanish
-              </Link>
+              </div>
             </li>
             <li>
-              <Link
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-600 hover:underline"
-                href="/gemma-2-2b/graph?slug=gemma-bee-insect&clerps=[]"
+              <div
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href = '/gemma-2-2b/graph?slug=gemma-bee-insect&clerps=[]';
+                }}
               >
                 A bee is a type of → insect
-              </Link>
+              </div>
             </li>
             <li>
-              <Link
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-600 hover:underline"
-                href="/gemma-2-2b/graph?slug=gemma-cat-hat&clerps=[]"
+              <div
+                className="cursor-pointer text-sky-600 hover:underline"
+                onClick={() => {
+                  window.location.href = '/gemma-2-2b/graph?slug=gemma-cat-hat&clerps=[]';
+                }}
               >
                 cat, bat, hat → rat
-              </Link>
+              </div>
             </li>
           </ul>
           <p className="mt-2.5 text-center">

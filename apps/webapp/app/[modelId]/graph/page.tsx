@@ -12,6 +12,8 @@ import {
   getGraphMetadatasFromBucket,
   modelIdToModelDisplayName,
   ModelToGraphMetadatasMap,
+  parseGraphClerps,
+  parseGraphSupernodes,
 } from './utils';
 import GraphWrapper from './wrapper';
 
@@ -114,6 +116,7 @@ export default async function Page({
     pruningThreshold?: string;
     densityThreshold?: string;
     embed?: string;
+    subgraph?: string;
   };
 }) {
   const { modelId } = params;
@@ -170,6 +173,7 @@ export default async function Page({
   let pinnedIds: string | undefined;
   let pruningThreshold: number | undefined;
   let densityThreshold: number | undefined;
+  let didFindMatchingSubgraph = false;
   if (searchParams.slug) {
     metadataGraph = modelIdToGraphMetadatasMap[modelId]?.find((graph) => graph.slug === searchParams.slug);
     // if it's not in our map, look it up in the database
@@ -197,21 +201,47 @@ export default async function Page({
         metadataGraph = undefined;
       }
     }
-    pinnedIds = searchParams.pinnedIds;
 
-    try {
-      parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
-    } catch (error) {
-      console.error('Error parsing supernodes:', error);
+    // now, if there is a subgraph, we use the subgraph's data instead of the searchparams
+    if (searchParams.subgraph) {
+      const foundSubgraph = await prisma.graphMetadataSubgraph.findUnique({
+        where: {
+          id: searchParams.subgraph,
+          graphMetadata: {
+            modelId,
+            slug: searchParams.slug,
+          },
+        },
+      });
+      if (!foundSubgraph) {
+        console.error(`Subgraph with id ${searchParams.subgraph} not found in database`);
+      } else {
+        didFindMatchingSubgraph = true;
+        pinnedIds = foundSubgraph.pinnedIds.join(',');
+        parsedSupernodes = parseGraphSupernodes(JSON.stringify(foundSubgraph.supernodes));
+        parsedClerps = parseGraphClerps(JSON.stringify(foundSubgraph.clerps));
+        pruningThreshold = foundSubgraph.pruningThreshold || undefined;
+        densityThreshold = foundSubgraph.densityThreshold || undefined;
+      }
     }
 
-    try {
-      parsedClerps = searchParams.clerps ? JSON.parse(searchParams.clerps) : undefined;
-    } catch (error) {
-      console.error('Error parsing clerps:', error);
+    if (!didFindMatchingSubgraph) {
+      pinnedIds = searchParams.pinnedIds;
+
+      try {
+        parsedSupernodes = searchParams.supernodes ? JSON.parse(searchParams.supernodes) : undefined;
+      } catch (error) {
+        console.error('Error parsing params supernodes:', error);
+      }
+
+      try {
+        parsedClerps = searchParams.clerps ? JSON.parse(searchParams.clerps) : undefined;
+      } catch (error) {
+        console.error('Error parsing params clerps:', error);
+      }
     }
   } else if (ANT_MODELS_TO_LOAD.has(modelId)) {
-    // no default slug, let's show gemma austin dallas
+    // no default slug and it's a haiku model, just pick the first one
     // pick the first graph in the map
     [metadataGraph] = modelIdToGraphMetadatasMap[modelId];
   } else {

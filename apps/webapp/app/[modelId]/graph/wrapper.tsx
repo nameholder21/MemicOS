@@ -9,6 +9,8 @@ import GenerateGraphModal from './generate-graph-modal';
 import GraphToolbar from './graph-toolbar';
 import LinkGraph from './link-graph';
 import CopyModal from './modals/copy-modal';
+import LoadSubgraphModal from './modals/load-subgraph-modal';
+import SaveSubgraphModal from './modals/save-subgraph-modal';
 import WelcomeModal from './modals/welcome-modal';
 import GraphNodeConnections from './node-connections';
 import Subgraph from './subgraph';
@@ -108,6 +110,8 @@ export default function GraphWrapper({ hasSlug }: { hasSlug: boolean }) {
             )}
           </div>
         </div>
+        <LoadSubgraphModal />
+        <SaveSubgraphModal />
         <WelcomeModal hasSlug={hasSlug} />
         <GenerateGraphModal />
         <CopyModal />

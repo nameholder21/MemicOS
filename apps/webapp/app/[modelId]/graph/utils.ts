@@ -2,6 +2,7 @@ import ATTRIBUTION_GRAPH_SCHEMA from '@/app/api/graph/graph-schema.json';
 import { DEFAULT_CREATOR_USER_ID, NEXT_PUBLIC_URL } from '@/lib/env';
 import { GraphMetadata, GraphMetadataWithPartialRelations, NeuronWithPartialRelations } from '@/prisma/generated/zod';
 import cuid from 'cuid';
+import { z } from 'zod';
 import d3 from './d3-jetpack';
 
 // TODO: make this an env variable
@@ -815,3 +816,37 @@ export function filterNodes(
 export function clientCheckIsEmbed() {
   return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('embed') === 'true';
 }
+
+const GraphSupernodesSchema = z.array(z.array(z.string()));
+const GraphClerpsSchema = z.array(z.array(z.string()));
+
+export type GraphSupernodes = z.infer<typeof GraphSupernodesSchema>;
+export type GraphClerps = z.infer<typeof GraphClerpsSchema>;
+
+export function parseGraphSupernodes(supernodes?: string): GraphSupernodes {
+  if (!supernodes) return [];
+  return GraphSupernodesSchema.parse(JSON.parse(supernodes));
+}
+
+export function parseGraphClerps(clerps?: string): GraphClerps {
+  if (!clerps) return [];
+  return GraphClerpsSchema.parse(JSON.parse(clerps));
+}
+
+export const SaveSubgraphRequestSchema = z.object({
+  modelId: z.string(),
+  slug: z.string(),
+  displayName: z.string().optional(),
+  pinnedIds: z.array(z.string()),
+  supernodes: GraphSupernodesSchema,
+  clerps: GraphClerpsSchema,
+  pruningThreshold: z.number().nullable(),
+  densityThreshold: z.number().nullable(),
+  overwriteId: z.string().optional(),
+});
+
+export type SaveSubgraphRequest = z.infer<typeof SaveSubgraphRequestSchema>;
+
+export const DeleteSubgraphRequestSchema = z.object({
+  subgraphId: z.string(),
+});
