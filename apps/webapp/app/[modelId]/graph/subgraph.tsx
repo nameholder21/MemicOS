@@ -7,8 +7,7 @@ import { Button } from '@/components/shadcn/button';
 import { Card, CardContent } from '@/components/shadcn/card';
 import { useScreenSize } from '@/lib/hooks/use-screen-size';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import { ResetIcon } from '@radix-ui/react-icons';
-import { Check, Circle, Share2 } from 'lucide-react';
+import { Check, Circle, FolderOpen, Save, Share2, TrashIcon } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import d3 from './d3-jetpack';
 import { clientCheckIsEmbed, CLTGraphLink, CLTGraphNode, hideTooltip, showTooltip } from './utils';
@@ -86,6 +85,7 @@ export default function Subgraph() {
     getOverrideClerpForNode,
     makeTooltipText,
     resetSelectedGraphToDefaultVisState,
+    resetSelectedGraphToBlankVisState,
   } = useGraphContext();
 
   // Use the new graph state context
@@ -98,7 +98,8 @@ export default function Subgraph() {
     registerClickedCallback,
   } = useGraphStateContext();
 
-  const { setIsCopyModalOpen, openWelcomeModalToStep } = useGraphModalContext();
+  const { setIsCopyModalOpen, setIsSaveSubgraphModalOpen, setIsLoadSubgraphModalOpen, openWelcomeModalToStep } =
+    useGraphModalContext();
 
   const simulationRef = useRef<d3.Simulation<ForceNode, undefined> | null>(null);
   const nodeSelRef = useRef<d3.Selection<HTMLDivElement, ForceNode, HTMLDivElement, unknown> | null>(null);
@@ -1241,20 +1242,75 @@ export default function Subgraph() {
               ?
             </button>
           )}
+
+          <div className={`right-3 top-3 hidden flex-row items-center justify-center gap-x-1.5 sm:absolute sm:flex`}>
+            {!clientCheckIsEmbed() && (
+              <Button
+                variant="outline"
+                size="sm"
+                title="Load Subgraph"
+                aria-label="Load Subgraph"
+                className="h-9 w-9 flex-col items-center justify-center gap-y-[1px] whitespace-nowrap border-none bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-200 hover:text-slate-600"
+                onClick={() => {
+                  setIsLoadSubgraphModalOpen(true);
+                }}
+              >
+                <FolderOpen className="h-4 w-4" /> Load
+              </Button>
+            )}
+            {!clientCheckIsEmbed() && (
+              <Button
+                variant="outline"
+                size="sm"
+                title="Save Subgraph"
+                aria-label="Save Subgraph"
+                className="h-9 w-9 flex-col items-center justify-center gap-y-[1px] whitespace-nowrap border-none bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-200 hover:text-slate-600"
+                onClick={() => {
+                  setIsSaveSubgraphModalOpen(true);
+                }}
+                disabled={visState.pinnedIds.length === 0}
+              >
+                <Save className="h-4 w-4" />
+                Save
+              </Button>
+            )}
+
+            {!clientCheckIsEmbed() && (
+              <Button
+                variant="outline"
+                size="sm"
+                title="Copy Graph + Subgraph + Custom Labels to Clipboard"
+                aria-label="Copy Graph + Subgraph + Custom Labels to Clipboard"
+                className="h-9 w-9 flex-col items-center justify-center gap-y-[1px] whitespace-nowrap border-none bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-200 hover:text-slate-600"
+                onClick={() => {
+                  setIsCopyModalOpen(true);
+                }}
+                disabled={visState.pinnedIds.length === 0}
+              >
+                <Share2 className="h-4 w-4" />
+                Share
+              </Button>
+            )}
+          </div>
+
           <Button
             variant="outline"
             size="sm"
-            title="Copy Graph + Subgraph + Custom Labels to Clipboard"
-            aria-label="Copy Graph + Subgraph + Custom Labels to Clipboard"
-            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute hidden sm:flex'} right-3 top-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap bg-slate-100 px-0 text-[8px] font-medium leading-none text-slate-500 hover:bg-slate-200 hover:text-slate-600`}
+            title="Clear Subgraph"
+            aria-label="Clear Subgraph"
+            className={`${visState.pinnedIds.length === 0 ? 'hidden' : 'absolute'} bottom-3 right-3 h-8 w-8 flex-col items-center justify-center gap-y-1.5 whitespace-nowrap border-none border-slate-300 bg-slate-100 px-0 text-[8px] font-medium leading-none text-red-500 hover:bg-red-100 hover:text-red-600`}
             onClick={() => {
-              setIsCopyModalOpen(true);
+              // eslint-disable-next-line
+              if (confirm('Are you sure you want to clear this subgraph?')) {
+                resetSelectedGraphToBlankVisState();
+              }
             }}
             disabled={visState.pinnedIds.length === 0}
           >
-            <Share2 className="h-4 w-4" />
+            <TrashIcon className="h-4 w-4" />
           </Button>
-          <Button
+
+          {/* <Button
             variant="outline"
             size="sm"
             title="Reset Graph to Defaults"
@@ -1269,7 +1325,7 @@ export default function Subgraph() {
             disabled={visState.pinnedIds.length === 0}
           >
             <ResetIcon className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </div>
         <div className="hidden w-full flex-row items-center justify-center gap-x-3">
           <label

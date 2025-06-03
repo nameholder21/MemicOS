@@ -16,6 +16,14 @@ type GraphModalContextType = {
   // Generate graph modal state
   isGenerateGraphModalOpen: boolean;
   setIsGenerateGraphModalOpen: (isOpen: boolean) => void;
+
+  // Save subgraph modal state
+  isSaveSubgraphModalOpen: boolean;
+  setIsSaveSubgraphModalOpen: (isOpen: boolean) => void;
+
+  // Load subgraph modal state
+  isLoadSubgraphModalOpen: boolean;
+  setIsLoadSubgraphModalOpen: (isOpen: boolean) => void;
 };
 
 // Create the modal context
@@ -27,6 +35,8 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
   const [isWelcomeModalOpen, setIsWelcomeModalOpenState] = useState<boolean>(false);
   const [welcomeModalInitialStep, setWelcomeModalInitialStep] = useState<number | null>(null);
   const [isGenerateGraphModalOpen, setIsGenerateGraphModalOpenState] = useState<boolean>(false);
+  const [isSaveSubgraphModalOpen, setIsSaveSubgraphModalOpenState] = useState<boolean>(false);
+  const [isLoadSubgraphModalOpen, setIsLoadSubgraphModalOpenState] = useState<boolean>(false);
 
   // Custom setter for copy modal that closes other modals
   const setIsCopyModalOpen = (isOpen: boolean) => {
@@ -34,6 +44,8 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
     if (isOpen) {
       setIsWelcomeModalOpenState(false);
       setIsGenerateGraphModalOpenState(false);
+      setIsSaveSubgraphModalOpenState(false);
+      setIsLoadSubgraphModalOpenState(false);
       setWelcomeModalInitialStep(null);
     }
   };
@@ -44,6 +56,8 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
     if (isOpen) {
       setIsCopyModalOpenState(false);
       setIsGenerateGraphModalOpenState(false);
+      setIsSaveSubgraphModalOpenState(false);
+      setIsLoadSubgraphModalOpenState(false);
     } else {
       setWelcomeModalInitialStep(null);
     }
@@ -56,6 +70,32 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
       setIsCopyModalOpenState(false);
       setIsWelcomeModalOpenState(false);
       setWelcomeModalInitialStep(null);
+      setIsSaveSubgraphModalOpenState(false);
+      setIsLoadSubgraphModalOpenState(false);
+    }
+  };
+
+  // Custom setter for save subgraph modal that closes other modals
+  const setIsSaveSubgraphModalOpen = (isOpen: boolean) => {
+    setIsSaveSubgraphModalOpenState(isOpen);
+    if (isOpen) {
+      setIsCopyModalOpenState(false);
+      setIsWelcomeModalOpenState(false);
+      setWelcomeModalInitialStep(null);
+      setIsGenerateGraphModalOpenState(false);
+      setIsLoadSubgraphModalOpenState(false);
+    }
+  };
+
+  // Custom setter for load subgraph modal that closes other modals
+  const setIsLoadSubgraphModalOpen = (isOpen: boolean) => {
+    setIsLoadSubgraphModalOpenState(isOpen);
+    if (isOpen) {
+      setIsCopyModalOpenState(false);
+      setIsWelcomeModalOpenState(false);
+      setWelcomeModalInitialStep(null);
+      setIsGenerateGraphModalOpenState(false);
+      setIsSaveSubgraphModalOpenState(false);
     }
   };
 
@@ -66,6 +106,8 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
     // Close other modals
     setIsCopyModalOpenState(false);
     setIsGenerateGraphModalOpenState(false);
+    setIsSaveSubgraphModalOpenState(false);
+    setIsLoadSubgraphModalOpenState(false);
   };
 
   // Function to reset welcome modal initial step
@@ -84,8 +126,19 @@ export function GraphModalProvider({ children }: { children: ReactNode }) {
       resetWelcomeModalStep,
       isGenerateGraphModalOpen,
       setIsGenerateGraphModalOpen,
+      isSaveSubgraphModalOpen,
+      setIsSaveSubgraphModalOpen,
+      isLoadSubgraphModalOpen,
+      setIsLoadSubgraphModalOpen,
     }),
-    [isCopyModalOpen, isWelcomeModalOpen, welcomeModalInitialStep, isGenerateGraphModalOpen],
+    [
+      isCopyModalOpen,
+      isWelcomeModalOpen,
+      welcomeModalInitialStep,
+      isGenerateGraphModalOpen,
+      isSaveSubgraphModalOpen,
+      isLoadSubgraphModalOpen,
+    ],
   );
 
   return <GraphModalContext.Provider value={contextValue}>{children}</GraphModalContext.Provider>;

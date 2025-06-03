@@ -18,9 +18,12 @@ import {
   isHideLayer,
   modelIdToModelDisplayName,
   nodeTypeHasFeatureDetail,
+  parseGraphClerps,
+  parseGraphSupernodes,
 } from '@/app/[modelId]/graph/utils';
 import {
   ActivationWithPartialRelations,
+  GraphMetadataSubgraphWithPartialRelations,
   GraphMetadataWithPartialRelations,
   NeuronWithPartialRelations,
 } from '@/prisma/generated/zod';
@@ -103,6 +106,11 @@ type GraphContextType = {
 
   // setFullNPFeatureDetail
   setFullNPFeatureDetail: (setNode: Dispatch<SetStateAction<CLTGraphNode | null>>, node: CLTGraphNode) => void;
+
+  // resetSelectedGraphToBlankVisState
+  resetSelectedGraphToBlankVisState: () => void;
+
+  loadSubgraph: (subgraph: GraphMetadataSubgraphWithPartialRelations) => void;
 };
 
 // Create the context with a default value
@@ -390,6 +398,11 @@ export function GraphProvider({
     return visStateToReturn;
   }
 
+  function resetSelectedGraphToBlankVisState() {
+    // default vis state is either saved qParams or blank
+    setVisStateInternal(blankVisState);
+  }
+
   function resetSelectedGraphToDefaultVisState() {
     // default vis state is either saved qParams or blank
     if (selectedGraph) {
@@ -462,6 +475,25 @@ export function GraphProvider({
   const updateVisStateField = useCallback(<K extends keyof CltVisState>(key: K, value: CltVisState[K]) => {
     setVisStateInternal((prevState) => ({ ...prevState, [key]: value }));
   }, []);
+
+  const loadSubgraph = (subgraph: GraphMetadataSubgraphWithPartialRelations) => {
+    setVisStateInternal(() => ({
+      ...blankVisState,
+      clerps: parseGraphClerps(JSON.stringify(subgraph.clerps)),
+      pinnedIds: subgraph.pinnedIds,
+      subgraph: {
+        supernodes: parseGraphSupernodes(JSON.stringify(subgraph.supernodes)),
+        sticky: true,
+        dagrefy: true,
+        activeGrouping: {
+          isActive: false,
+          selectedNodeIds: new Set(),
+        },
+      },
+      pruningThreshold: subgraph.pruningThreshold || undefined,
+      densityThreshold: subgraph.densityThreshold || undefined,
+    }));
+  };
 
   async function fetchAnthropicFeatureDetail(
     modelId: string,
@@ -973,6 +1005,8 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
+      resetSelectedGraphToBlankVisState,
+      loadSubgraph,
     }),
     [
       modelIdToMetadataMap,
@@ -997,6 +1031,8 @@ export function GraphProvider({
       loadingGraphLabel,
       setLoadingGraphLabel,
       setFullNPFeatureDetail,
+      resetSelectedGraphToBlankVisState,
+      loadSubgraph,
     ],
   );
 
