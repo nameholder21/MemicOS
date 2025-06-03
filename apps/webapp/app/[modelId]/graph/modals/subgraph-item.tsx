@@ -50,6 +50,7 @@ export default function SubgraphItem({ subgraph, onClick, onDelete, fallbackDisp
           type="button"
           onClick={async (e) => {
             e.stopPropagation();
+            // eslint-disable-next-line
             if (confirm('Are you sure you want to delete this subgraph?')) {
               try {
                 await fetch('/api/graph/subgraph/delete', {

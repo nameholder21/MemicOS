@@ -84,7 +84,6 @@ export default function Subgraph() {
     isEditingLabel,
     getOverrideClerpForNode,
     makeTooltipText,
-    resetSelectedGraphToDefaultVisState,
     resetSelectedGraphToBlankVisState,
   } = useGraphContext();
 
@@ -1243,7 +1242,7 @@ export default function Subgraph() {
             </button>
           )}
 
-          <div className={`right-3 top-3 hidden flex-row items-center justify-center gap-x-1.5 sm:absolute sm:flex`}>
+          <div className="right-3 top-3 hidden flex-row items-center justify-center gap-x-1.5 sm:absolute sm:flex">
             {!clientCheckIsEmbed() && (
               <Button
                 variant="outline"
