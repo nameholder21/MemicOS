@@ -60,7 +60,7 @@ export const UserSecretScalarFieldEnumSchema = z.enum(['id','username','type','v
 
 export const UserScalarFieldEnumSchema = z.enum(['id','name','bio','email','emailVerified','githubUsername','bot','image','admin','canTriggerExplanations','emailNewsletterNotification','emailUnsubscribeAll','emailUnsubscribeCode','createdAt']);
 
-export const GraphMetadataSubgraphScalarFieldEnumSchema = z.enum(['id','graphMetadataId','pinnedIds','supernodes','clerps','pruningThreshold','densityThreshold','userId','isFeaturedSolution','createdAt','updatedAt']);
+export const GraphMetadataSubgraphScalarFieldEnumSchema = z.enum(['id','displayName','graphMetadataId','pinnedIds','supernodes','clerps','pruningThreshold','densityThreshold','userId','isFeaturedSolution','createdAt','updatedAt']);
 
 export const GraphMetadataScalarFieldEnumSchema = z.enum(['id','modelId','slug','promptTokens','prompt','titlePrefix','isFeatured','url','userId','createdAt','updatedAt']);
 
@@ -517,13 +517,14 @@ export const UserWithPartialRelationsSchema: z.ZodType<UserWithPartialRelations>
 
 export const GraphMetadataSubgraphSchema = z.object({
   id: z.string().cuid(),
+  displayName: z.string().nullable(),
   graphMetadataId: z.string(),
   pinnedIds: z.string().array(),
   supernodes: InputJsonValue,
   clerps: InputJsonValue,
   pruningThreshold: z.number().nullable(),
   densityThreshold: z.number().nullable(),
-  userId: z.string().nullable(),
+  userId: z.string(),
   isFeaturedSolution: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -544,14 +545,14 @@ export type GraphMetadataSubgraphPartial = z.infer<typeof GraphMetadataSubgraphP
 
 export type GraphMetadataSubgraphRelations = {
   graphMetadata: GraphMetadataWithRelations;
-  user?: UserWithRelations | null;
+  user: UserWithRelations;
 };
 
 export type GraphMetadataSubgraphWithRelations = z.infer<typeof GraphMetadataSubgraphSchema> & GraphMetadataSubgraphRelations
 
 export const GraphMetadataSubgraphWithRelationsSchema: z.ZodType<GraphMetadataSubgraphWithRelations> = GraphMetadataSubgraphSchema.merge(z.object({
   graphMetadata: z.lazy(() => GraphMetadataWithRelationsSchema),
-  user: z.lazy(() => UserWithRelationsSchema).nullable(),
+  user: z.lazy(() => UserWithRelationsSchema),
 }))
 
 // GRAPH METADATA SUBGRAPH PARTIAL RELATION SCHEMA
@@ -559,21 +560,21 @@ export const GraphMetadataSubgraphWithRelationsSchema: z.ZodType<GraphMetadataSu
 
 export type GraphMetadataSubgraphPartialRelations = {
   graphMetadata?: GraphMetadataPartialWithRelations;
-  user?: UserPartialWithRelations | null;
+  user?: UserPartialWithRelations;
 };
 
 export type GraphMetadataSubgraphPartialWithRelations = z.infer<typeof GraphMetadataSubgraphPartialSchema> & GraphMetadataSubgraphPartialRelations
 
 export const GraphMetadataSubgraphPartialWithRelationsSchema: z.ZodType<GraphMetadataSubgraphPartialWithRelations> = GraphMetadataSubgraphPartialSchema.merge(z.object({
   graphMetadata: z.lazy(() => GraphMetadataPartialWithRelationsSchema),
-  user: z.lazy(() => UserPartialWithRelationsSchema).nullable(),
+  user: z.lazy(() => UserPartialWithRelationsSchema),
 })).partial()
 
 export type GraphMetadataSubgraphWithPartialRelations = z.infer<typeof GraphMetadataSubgraphSchema> & GraphMetadataSubgraphPartialRelations
 
 export const GraphMetadataSubgraphWithPartialRelationsSchema: z.ZodType<GraphMetadataSubgraphWithPartialRelations> = GraphMetadataSubgraphSchema.merge(z.object({
   graphMetadata: z.lazy(() => GraphMetadataPartialWithRelationsSchema),
-  user: z.lazy(() => UserPartialWithRelationsSchema).nullable(),
+  user: z.lazy(() => UserPartialWithRelationsSchema),
 }).partial())
 
 /////////////////////////////////////////
