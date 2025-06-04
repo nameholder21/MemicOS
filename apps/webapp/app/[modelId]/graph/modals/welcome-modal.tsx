@@ -17,7 +17,7 @@ import {
 } from '@/components/shadcn/dialog';
 import { ASSET_BASE_URL } from '@/lib/env';
 import { MagicWandIcon } from '@radix-ui/react-icons';
-import { BookOpen, ChevronRight, GithubIcon, NewspaperIcon, NotebookIcon } from 'lucide-react';
+import { BookOpen, ChevronRight, Circle, GithubIcon, NewspaperIcon, NotebookIcon } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -40,7 +40,7 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     '/images/explainer-top.jpg', // Choose or Generate a Graph
     '/images/tl.jpg', // Link/Attribution Graph
     '/images/tr.jpg', // Connections
-    '/images/bl.jpg', // Subgraph
+    `${ASSET_BASE_URL}/graph/subgraph-demo.mp4`, // Subgraph
     '/images/br.jpg', // Feature Details
   ];
 
@@ -53,6 +53,11 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
     'Subgraph interface for pinning and grouping nodes into supernodes',
     'Feature details panel showing top activations and logits for selected features',
   ];
+
+  function playVideoDemo(step: number) {
+    const video = document.getElementById(`video-${step}`) as HTMLVideoElement;
+    video.play();
+  }
 
   const steps = [
     {
@@ -273,15 +278,47 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
       content: (
         <div className="flex flex-col gap-y-3 text-left text-sm">
           <p className="">
-            The subgraph is like a scratchpad for pinning and grouping nodes to make sense of the link graph.
+            The subgraph is a scratchpad for pinning and grouping nodes to make sense of the link graph. It&apos;s where
+            you create a &quot;solution&quot; to what the model is thinking to arrive at its output token.
           </p>
-          <p>- Hold Command, then click on a node in the link/attribution graph to pin it to the subgraph.</p>
           <p>
-            - Hold &quot;g&quot;, then click multiple nodes in the subgraph. When you release &quot;g&quot;,
-            they&apos;ll be grouped together into a <strong>supernode</strong>.
+            In the demo to the right, we pin the nodes for &quot;Texas&quot;, &quot;cities&quot;, and
+            &quot;Dallas&quot;. Then, we group &quot;cities&quot; and &quot;Dallas&quot;, and named that group
+            &quot;cities&quot;. Finally, we save the subgraph as &quot;my subgraph 2&quot;.
           </p>
-          <p>- Rename supernodes by clicking on their text label.</p>
-          <p>Your subgraph and labels are saved to the URL, so you can share it simply by sharing the URL.</p>
+          <Button
+            variant="slateLight"
+            onClick={() => {
+              playVideoDemo(4);
+            }}
+            size="xs"
+            className="rounded-full bg-sky-100 px-3 py-2 text-xs text-sky-700 hover:bg-sky-200 hover:text-sky-700"
+          >
+            Play Video Demo
+          </Button>
+          <div className="flex flex-col gap-y-3 text-sm">
+            <div className="items-left flex w-full flex-col gap-y-0.5">
+              <strong>Pin Node to Subgraph</strong>
+              <div className="ml-0 text-xs">
+                Click a <Circle className="mb-1 mr-0.5 inline h-3 w-3" />
+                node in the link graph, then click <strong>Pin Node</strong>.
+              </div>
+            </div>
+            <div className="items-left flex w-full flex-col gap-y-0.5">
+              <strong>Grouping</strong>
+              <div className="ml-0 text-left text-xs">
+                Click <strong>Grouping Mode</strong>, select subgraph nodes, and click <strong>Save Group</strong>.
+              </div>
+            </div>
+            <div className="items-left flex w-full flex-col gap-y-0.5">
+              <strong>Label Group</strong>
+              <div className="ml-0 text-xs">Click the label under a group to give it a custom label.</div>
+            </div>
+            <div className="items-left flex w-full flex-col gap-y-0.5">
+              <strong>Save & Share</strong>
+              <div className="ml-0 text-xs">Use the tools at the top left to load, save, and share your subgraph.</div>
+            </div>
+          </div>
         </div>
       ),
     },
@@ -454,11 +491,22 @@ export default function WelcomeModal({ hasSlug }: { hasSlug: boolean }) {
                     </button>
                   ))}
                 </div>
-                <img
-                  src={stepImages[currentStep]}
-                  alt={stepImageAlts[currentStep]}
-                  className="max-h-[540px] min-h-[540px] max-w-full rounded rounded-lg border-slate-200 object-contain"
-                />
+                {stepImages[currentStep].endsWith('.jpg') ? (
+                  <img
+                    src={stepImages[currentStep]}
+                    alt={stepImageAlts[currentStep]}
+                    className="max-h-[540px] min-h-[540px] max-w-full rounded-lg border-slate-200 object-contain"
+                  />
+                ) : (
+                  <video
+                    id={`video-${currentStep}`}
+                    src={stepImages[currentStep]}
+                    loop
+                    controls
+                    muted
+                    className="max-h-[540px] min-h-[540px] max-w-full rounded-lg border border-slate-200 object-contain"
+                  />
+                )}
               </div>
             </div>
           </DialogDescription>
