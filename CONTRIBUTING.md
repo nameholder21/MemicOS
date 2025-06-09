@@ -10,7 +10,7 @@ Use [Github Issues](https://github.com/hijohnnylin/memicos/issues) for the follo
 - Bug Reports
   - Please include steps to reproduce the bug
 - Questions
-  - Shorter questions can be answered in our [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-2o756ku1c-_yKBeUQMVfS_p_qcK6QLeA)
+  - Shorter questions can be answered in our [Slack #memicos](https://join.slack.com/t/opensourcemechanistic/shared_invite/zt-35oqtxb2t-yKBlqTL570ycNJisIFX2gw)
   - Sensitive questions can be sent [via email](mailto:johnny@memicos.org)
 
 ## Pull Requests
